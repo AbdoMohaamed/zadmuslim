@@ -3,7 +3,8 @@
  * يوفر سرعة تحميل فورية ودعم التثبيت كـ PWA
  */
 
-const CACHE_NAME = "sadqah-jaddi-v22";
+const CACHE_NAME = "sadqah-jaddi-v31";
+const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -43,13 +44,13 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// مرحلة التفعيل وحذف الكاش القديم
+// مرحلة التفعيل وحذف الكاش القديم (مع الحفاظ الدائم على كاش المصحف الشريف)
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (key !== CACHE_NAME && key !== QURAN_CACHE_NAME) {
             return caches.delete(key);
           }
         })
@@ -59,19 +60,51 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// استراتيجية جلب البيانات (Network First مع Cache Fallback الذكي لكافة الأصول)
+// استراتيجية جلب البيانات (Cache First للمصحف الشريف والتفاسير، Network First لباقي الموقع)
 self.addEventListener("fetch", (event) => {
-  // تجاهل طلبات الفيربيز والبث المباشر
+  const url = event.request.url;
+
+  // تجاهل طلبات الفيربيز والبث المباشر والصوتيات الكبيرة
   if (
-    event.request.url.includes("firebaseio.com") ||
-    event.request.url.includes("stream.zeno.fm") ||
-    event.request.url.includes("qurango.net") ||
-    event.request.url.includes("chrome-extension")
+    url.includes("firebaseio.com") ||
+    url.includes("stream.zeno.fm") ||
+    url.includes("qurango.net") ||
+    url.includes("mp3quran.net") ||
+    url.includes("chrome-extension")
   ) {
     return;
   }
 
-  // التخزين المؤقت الذكي لملفات المصحف والأدعية والخطوط
+  // استراتيجية مخصصة للمصحف الشريف والتفاسير: Cache-First لضمان العمل 100% بدون نت وبدون استهلاك بيانات
+  const isQuranAsset = 
+    url.includes("cdn.quran.ws") || 
+    url.includes("quran.ksu.edu.sa") || 
+    url.includes("raw.githubusercontent.com/quran") ||
+    url.includes("api.alquran.cloud");
+
+  if (isQuranAsset && event.request.method === "GET") {
+    event.respondWith(
+      caches.open(QURAN_CACHE_NAME).then((cache) => {
+        return cache.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return fetch(event.request).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => {
+            // في حالة انقطاع النت وعدم وجود استجابة
+            return new Response("", { status: 408, statusText: "Offline" });
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // التخزين المؤقت الذكي لملفات الموقع والأدعية والخطوط
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)

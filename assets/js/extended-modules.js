@@ -9,6 +9,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+    initThemeToggle();
     initMobileNavDrawer();
     initCustomShareLink();
     initNawawiHadiths();
@@ -236,8 +237,7 @@ function initNawawiHadiths() {
             const shareBtn = card.querySelector(".btn-share-hadith");
             if (shareBtn) {
                 shareBtn.addEventListener("click", () => {
-                    const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "فقيدنا الغالي";
-                    const msg = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n🤍 صدقة جارية لروح (${deceasedName})\n📲 للمزيد من الأحاديث والتلاوات: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                    const msg = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 للمزيد من الأحاديث والتلاوات: https://abdomohaamed.github.io/sadqah-jaddi/`;
                     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                     window.open(waUrl, "_blank");
                 });
@@ -432,7 +432,7 @@ function initAsmaaAllah() {
             grid.innerHTML = `
                 <div class="asmaa-empty-state" style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
                     <i class="fa-solid fa-magnifying-glass" style="font-size: 2.5rem; color: var(--gold-400); margin-bottom: 0.8rem; opacity: 0.7;"></i>
-                    <p style="font-size: 1.05rem; color: #e5e7eb; margin: 0 0 0.5rem 0;">لم يتم العثور على اسم مطابق للبحث</p>
+                    <p style="font-size: 1.05rem; color: var(--text-primary); margin: 0 0 0.5rem 0;">لم يتم العثور على اسم مطابق للبحث</p>
                     <span style="font-size: 0.88rem;">جرب البحث بكلمة أخرى أو مسح حقل البحث</span>
                 </div>
             `;
@@ -537,13 +537,12 @@ function initAsmaaAllah() {
     if (shareBtn) {
         shareBtn.addEventListener("click", () => {
             if (!currentSelectedName) return;
-            const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "جدي الغالي (عبدالمعبود أمين سعيد)";
             const dua = getDuaFormula(currentSelectedName);
-            const msg = `✨ *اسم الله الأعظم:* [ ${currentSelectedName.name} ]\n\n` +
+            const msg = `✨ *اسم الله الحسنى:* [ ${currentSelectedName.name} ]\n\n` +
                         `📖 *المعنى:* ${currentSelectedName.meaning}\n\n` +
                         `💡 *الثمرة الإيمانية:* ${currentSelectedName.virtue}\n\n` +
                         `🤲 *الدعاء به:*\n${dua}\n\n` +
-                        `🤍 _صدقة جارية لروح ${deceasedName}_\n` +
+                        `🌸 _من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)_\n` +
                         `📲 تصفح أسماء الله الحسنى كاملة:\n${window.location.origin + window.location.pathname}#asmaa-allah`;
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, "_blank");
@@ -1217,7 +1216,7 @@ function initEnhancedCategorizedDuas() {
             gridContainer.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
                     <i class="fa-solid fa-magnifying-glass fa-2x text-gold" style="margin-bottom: 0.8rem; opacity: 0.7;"></i>
-                    <p style="color: #fff; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.4rem;">لا توجد أدعية مطابقة</p>
+                    <p style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem; margin-bottom: 0.4rem;">لا توجد أدعية مطابقة</p>
                     <p style="font-size: 0.88rem;">يرجى اختيار تصنيف آخر أو تجربة كلمة بحث مختلفة</p>
                 </div>
             `;
@@ -1277,8 +1276,7 @@ function initEnhancedCategorizedDuas() {
             if (shareBtn) {
                 shareBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "فقيدنا الغالي";
-                    const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🤍 صدقة جارية لروح (${deceasedName})\n📲 زاد المسلم: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                    const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 الرابط: https://abdomohaamed.github.io/sadqah-jaddi/`;
                     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                     window.open(url, "_blank");
                 });
@@ -1427,13 +1425,12 @@ function initDailySpiritualMessage() {
     }
 
     const formatShareText = () => {
-        const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "جدي الغالي (عبدالمعبود أمين سعيد)";
         return `✨ *${todayMsg.title}* ✨\n\n` +
                `📖 ${todayMsg.verse}\n` +
                `📌 (${todayMsg.surah})\n\n` +
                `💡 *الخاطرة والتدبر:*\n${todayMsg.reflection}\n\n` +
                `🤲 *دعاء اليوم:*\n${todayMsg.dua}\n\n` +
-               `🌿 _صدقة جارية عن روح ${deceasedName}_\n` +
+               `🌸 _من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)_\n` +
                `📲 تصفح المزيد وتدبر القرآن كاملاً:\n${window.location.origin + window.location.pathname}`;
     };
 
@@ -1746,7 +1743,7 @@ function initIslamicQuiz() {
                             <div style="font-size: 0.95rem; color: ${isCorrect ? 'var(--emerald-400)' : '#f87171'}; font-weight: 700; margin-bottom: 0.4rem;">
                                 ${isCorrect ? '🎉 إجابة صحيحة وممتازة!' : '❌ إجابة غير صحيحة، والإجابة الصواب موضحة بالأخضر.'}
                             </div>
-                            <p style="font-size: 0.92rem; color: #e5e7eb; line-height: 1.6; margin: 0 0 1rem 0;">${q.explanation || ''}</p>
+                            <p style="font-size: 0.92rem; color: var(--text-primary); line-height: 1.6; margin: 0 0 1rem 0;">${q.explanation || ''}</p>
                             <button type="button" class="btn btn-gold" id="btn-next-question" style="width: 100%;">
                                 <span>${isLast ? 'عرض النتيجة النهائية 🏆' : 'السؤال التالي ➡️'}</span>
                             </button>
@@ -2206,9 +2203,8 @@ function initSpiritualGarden() {
         shareBtn.addEventListener("click", () => {
             const data = getGardenData();
             const currentStage = GARDEN_STAGES.slice().reverse().find(s => data.points >= s.minPoints) || GARDEN_STAGES[0];
-            const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "موتانا وموتى المسلمين";
             
-            const msg = `🌳 *شجرة الذكر وحديقة الحسنات اليومية*\n\n🌱 وصلت اليوم إلى: *${currentStage.title}*\n✨ رصيد بركتي: *${data.points} حسنة/نقطة*\n📿 تسبيحات: ${data.tasbeeh || 0} • 📖 صفحات قرآن: ${data.quran || 0}\n\n🤍 صدقة جارية لروح (${deceasedName})\n📲 ازرع شجرتك في الجنة الآن: https://abdomohaamed.github.io/sadqah-jaddi/`;
+            const msg = `🌳 *شجرة الذكر وحديقة الحسنات في تطبيق زاد المسلم*\n\n🌱 وصلت اليوم إلى: *${currentStage.title}*\n✨ رصيد بركتي: *${data.points} حسنة/نقطة*\n📿 تسبيحات: ${data.tasbeeh || 0} • 📖 صفحات قرآن: ${data.quran || 0}\n\n🌸 صدقة جارية لوجه الله تعالى\n📲 ازرع شجرتك في الجنة الآن: https://abdomohaamed.github.io/sadqah-jaddi/`;
             
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             window.open(url, "_blank");
@@ -2536,11 +2532,10 @@ function initIslamicMediaHub() {
     }
 
     function shareMediaItemWhatsApp(item) {
-        const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "جدي الغالي عبدالمعبود أمين وجدتي حكم عبدالصمد";
         const videoUrl = `https://www.youtube.com/watch?v=${item.youtubeId}`;
         const siteUrl = window.location.href.split("#")[0];
 
-        const text = `🎥 *${item.title}*\n🎙️ *${item.speaker}*\n⏱️ المدة: ${item.duration}\n\n📖 ${item.desc}\n\n▶️ لمشاهدة المقطع على يوتيوب:\n${videoUrl}\n\n🌿 صدقة جارية على روح: *${deceasedName}*\n🕌 تصفح المزيد في موقع زاد المسلم:\n${siteUrl}#islamic-media`;
+        const text = `🎥 *${item.title}*\n🎙️ *${item.speaker}*\n⏱️ المدة: ${item.duration}\n\n📖 ${item.desc}\n\n▶️ لمشاهدة المقطع على يوتيوب:\n${videoUrl}\n\n🌸 من مكتبة المرئيات والبودكاست في زاد المسلم (صدقة جارية)\n🕌 تصفح المزيد:\n${siteUrl}#islamic-media`;
 
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
     }
@@ -2987,6 +2982,68 @@ function initAdminDashboard() {
         });
     }
 }
+
+/* ==========================================================================
+   نظام تبديل المظهر النهاري / الليلي (White Mode / Light Theme Toggle)
+   ========================================================================== */
+function initThemeToggle() {
+    const navBtn = document.getElementById("btn-toggle-theme-nav");
+    const mobileBtn = document.getElementById("btn-mobile-theme-toggle");
+    const navIcon = document.getElementById("theme-toggle-icon");
+    const navText = document.getElementById("theme-toggle-text");
+    const mobileIcon = document.getElementById("mobile-theme-toggle-icon");
+    const mobileText = document.getElementById("mobile-theme-toggle-text");
+
+    function applyTheme(theme, showNotification = false) {
+        const isLight = theme === "light";
+        document.body.classList.toggle("light-theme", isLight);
+        document.documentElement.classList.toggle("light-theme", isLight);
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("sadqah_theme", theme);
+
+        // Update Theme Color meta tag for mobile browser status bar
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute("content", isLight ? "#f6f3eb" : "#070d18");
+        }
+
+        // When in light mode, the button offers switching to dark mode (moon icon)
+        // When in dark mode, the button offers switching to light mode (sun icon)
+        if (navIcon) {
+            navIcon.className = isLight ? "fa-solid fa-moon text-gold" : "fa-solid fa-sun text-gold";
+        }
+        if (navText) {
+            navText.textContent = isLight ? "الليلي" : "النهاري";
+        }
+        if (mobileIcon) {
+            mobileIcon.className = isLight ? "fa-solid fa-moon text-gold" : "fa-solid fa-sun text-gold";
+        }
+        if (mobileText) {
+            mobileText.textContent = isLight ? "المظهر الليلي (Dark Mode)" : "المظهر النهاري (White Mode)";
+        }
+
+        if (showNotification && typeof showToast === "function") {
+            showToast(isLight ? "تم تفعيل المظهر النهاري الفاخر ☀️" : "تم تفعيل المظهر الليلي الملكي 🌙");
+        }
+    }
+
+    const savedTheme = localStorage.getItem("sadqah_theme") || "dark";
+    applyTheme(savedTheme, false);
+
+    function toggleTheme() {
+        const currentIsLight = document.body.classList.contains("light-theme");
+        const nextTheme = currentIsLight ? "dark" : "light";
+        applyTheme(nextTheme, true);
+    }
+
+    if (navBtn) {
+        navBtn.addEventListener("click", toggleTheme);
+    }
+    if (mobileBtn) {
+        mobileBtn.addEventListener("click", toggleTheme);
+    }
+}
+
 
 
 

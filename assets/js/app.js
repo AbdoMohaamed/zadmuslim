@@ -786,7 +786,7 @@ function initShareButtons() {
     const twitterBtns = document.querySelectorAll(".btn-share-twitter");
 
     const pageUrl = window.location.href;
-    const shareMessage = `شاركنا بالدعاء والتسبيح لروحه الطاهرة: ${DECEASED_INFO.name}\n${pageUrl}`;
+    const shareMessage = `تطبيق زاد المسلم | القرآن الكريم كاملاً، مواقيت الصلاة، الأذكار والسبحة (صدقة جارية لوجه الله تعالى):\n${pageUrl}`;
 
     copyBtns.forEach(btn => {
         btn.addEventListener("click", () => {
@@ -3044,7 +3044,6 @@ function initDailyWisdom() {
 
     if (shareStoryBtn) {
         shareStoryBtn.addEventListener("click", () => {
-            const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "فقيدنا الغالي";
             const storyText = 
 `✨ *قَبَسُ اليَوْمِ الإِيمَانِيّ* 🌿
 ━━━━━━━━━━━━━━
@@ -3060,7 +3059,7 @@ ${item.hadith}
 💡 *فائدة*: ${item.hadithLesson}
 
 ━━━━━━━━━━━━━━
-🤲 *صدقة جارية على روح*: ${deceasedName} رحمه الله
+🌸 *تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)*
 📲 تابع أذكارك ووردك اليومي: https://abdomohaamed.github.io/sadqah-jaddi/`;
 
             if (navigator.share) {
@@ -3244,7 +3243,7 @@ function searchAllCategorizedDuas(query) {
         gridContainer.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
                 <i class="fa-solid fa-magnifying-glass fa-2x text-gold" style="margin-bottom: 0.8rem; opacity: 0.7;"></i>
-                <p style="color: #fff; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.4rem;">لم نجد دعاءً مطابقاً لكلمة "${escapeHtml(query)}"</p>
+                <p style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem; margin-bottom: 0.4rem;">لم نجد دعاءً مطابقاً لكلمة "${escapeHtml(query)}"</p>
                 <p style="font-size: 0.88rem;">جرب البحث بكلمة أخرى مثل (الكرب، الشفاء، الرزق، الأبناء، الاستغفار)</p>
             </div>
         `;
@@ -3312,8 +3311,7 @@ function renderDuasCardsList(duasList) {
         const shareBtn = card.querySelector(".btn-share-cat-dua");
         if (shareBtn) {
             shareBtn.addEventListener("click", () => {
-                const deceasedName = (typeof DECEASED_INFO !== "undefined" && DECEASED_INFO.name) ? DECEASED_INFO.name : "فقيدنا الغالي";
-                const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🤍 صدقة جارية لروح (${deceasedName})\n📲 زاد المسلم: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 رابط التطبيق: https://abdomohaamed.github.io/sadqah-jaddi/`;
                 const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                 window.open(url, "_blank");
             });

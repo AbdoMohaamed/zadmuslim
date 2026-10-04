@@ -29,7 +29,7 @@
 
     <!-- وسوم المشاركة (Open Graph / WhatsApp / Facebook / Twitter) -->
     <meta property="og:title" content="زاد المسلم | القرآن الكريم، مواقيت الصلاة، الأذكار والسبحة">
-    <meta property="og:description" content="تطبيق إسلامي شامل للقرآن الكريم ومواقيت الصلاة والأذكار والسبحة الإلكترونية • صدقة جارية لروح جدي الغالي (عبدالمعبود أمين سعيد) وستي الغالية (حكم عبدالصمد) رحمهما الله.">
+    <meta property="og:description" content="تطبيق إسلامي شامل للقرآن الكريم ومواقيت الصلاة والأذكار والسبحة الإلكترونية • صدقة جارية لوجه الله تعالى.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://abdomohaamed.github.io/sadqah-jaddi/">
     <meta property="og:image" content="https://abdomohaamed.github.io/sadqah-jaddi/assets/share-preview.jpg">
@@ -43,7 +43,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="زاد المسلم | القرآن الكريم، مواقيت الصلاة، الأذكار والسبحة">
-    <meta name="twitter:description" content="تطبيق إسلامي شامل للقرآن الكريم ومواقيت الصلاة والأذكار والسبحة الإلكترونية • صدقة جارية لروح جدي الغالي (عبدالمعبود أمين سعيد) وستي الغالية (حكم عبدالصمد) رحمهما الله.">
+    <meta name="twitter:description" content="تطبيق إسلامي شامل للقرآن الكريم ومواقيت الصلاة والأذكار والسبحة الإلكترونية • صدقة جارية لوجه الله تعالى.">
     <meta name="twitter:image" content="https://abdomohaamed.github.io/sadqah-jaddi/assets/share-preview.jpg">
 
     <meta name="theme-color" content="#070d18">
@@ -67,9 +67,31 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
     <!-- تنسيقات الموقع -->
-    <link rel="stylesheet" href="assets/css/style.css?v=71">
+    <link rel="stylesheet" href="assets/css/style.css?v=80">
+
+    <!-- كشف وتطبيق المظهر النهاري/الليلي فوراً وبشكل متزامن لمنع أي وميض مظلم عند التحديث -->
+    <script>
+        (function() {
+            try {
+                var savedTheme = localStorage.getItem("sadqah_theme");
+                if (savedTheme === "light") {
+                    document.documentElement.setAttribute("data-theme", "light");
+                    document.documentElement.classList.add("light-theme");
+                }
+            } catch(e) {}
+        })();
+    </script>
 </head>
 <body>
+    <script>
+        (function() {
+            try {
+                if (localStorage.getItem("sadqah_theme") === "light" || document.documentElement.getAttribute("data-theme") === "light") {
+                    document.body.classList.add("light-theme");
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <!-- شريط التنقل العلوي -->
     <nav class="navbar">
@@ -100,6 +122,10 @@
             </ul>
 
             <div class="nav-actions">
+                <button id="btn-toggle-theme-nav" class="btn btn-outline btn-icon-only-mobile btn-theme-toggle" title="المظهر النهاري / الليلي (White Mode)" aria-label="تبديل المظهر">
+                    <i class="fa-solid fa-sun text-gold" id="theme-toggle-icon"></i>
+                    <span id="theme-toggle-text">النهاري</span>
+                </button>
                 <button id="btn-open-notifications-nav" class="btn btn-outline btn-icon-only-mobile" title="تنبيهات وإشعارات الطاعات">
                     <i class="fa-solid fa-bell text-gold"></i>
                     <span>التنبيهات</span>
@@ -148,6 +174,10 @@
                 <li><a href="#prayers" class="mobile-nav-link"><i class="fa-solid fa-heart"></i> <span>أدعية الزوار</span></a></li>
             </ul>
             <div class="mobile-nav-footer">
+                <button class="btn btn-outline btn-block btn-theme-toggle" id="btn-mobile-theme-toggle" style="margin-bottom: 0.6rem;">
+                    <i class="fa-solid fa-sun text-gold" id="mobile-theme-toggle-icon"></i>
+                    <span id="mobile-theme-toggle-text">المظهر النهاري (White Mode)</span>
+                </button>
                 <button class="btn btn-gold btn-block btn-open-custom-share" id="btn-mobile-custom-share">
                     <i class="fa-solid fa-gift"></i>
                     <span>إنشاء رابط صدقة لفقيدك 🌿</span>
@@ -404,15 +434,24 @@
                             <div class="mushaf-verses-count" id="quran-verses-count">الجزء ٢٩ • صفحة ٥٦٢ من ٦٠٤</div>
                         </div>
 
-                        <!-- شريط أدوات القراءة: البحث، الوضع المريح، التكبير، وحفظ العلامة -->
+                        <!-- شريط أدوات القراءة: البحث، الوضع المريح، التكبير، حفظ العلامة، التحميل بدون نت، وملء الشاشة -->
                         <div class="mushaf-reading-toolbar">
                             <button type="button" class="btn btn-outline btn-sm" id="btn-open-quran-search" title="البحث السريع في آيات القرآن الكريم">
                                 <i class="fa-solid fa-magnifying-glass text-gold"></i>
                                 <span>بحث بالقرآن</span>
                             </button>
+                            <button type="button" class="btn btn-outline btn-sm" id="btn-open-hifz-modal" title="وضع تكرار الآيات والتحفيظ والتثبيت">
+                                <i class="fa-solid fa-repeat text-gold"></i>
+                                <span>وضع التحفيظ</span>
+                            </button>
                             <button type="button" class="btn btn-outline btn-sm" id="btn-mushaf-theme" title="تبديل وضع القراءة المريح للعين (الورق القديم Sepia)">
                                 <i class="fa-solid fa-eye text-gold"></i>
                                 <span>الوضع المريح</span>
+                            </button>
+                            <button type="button" class="btn btn-outline btn-sm" id="btn-mushaf-offline" title="إدارة تحميل المصحف للعمل بدون إنترنت">
+                                <i class="fa-solid fa-cloud-arrow-down text-gold"></i>
+                                <span>بدون إنترنت</span>
+                                <span class="badge-offline-indicator" id="mushaf-offline-indicator-badge" style="display: none;"><i class="fa-solid fa-check"></i></span>
                             </button>
                             <div class="mushaf-zoom-group">
                                 <button type="button" class="btn btn-outline btn-sm btn-icon" id="btn-mushaf-zoom-in" title="تكبير الصفحة">
@@ -422,6 +461,9 @@
                                     <i class="fa-solid fa-magnifying-glass-minus"></i>
                                 </button>
                             </div>
+                            <button type="button" class="btn btn-outline btn-sm btn-icon" id="btn-mushaf-fullscreen" title="وضع ملء الشاشة للتركيز في التلاوة">
+                                <i class="fa-solid fa-expand"></i>
+                            </button>
                             <button type="button" class="btn btn-outline btn-sm" id="btn-mushaf-bookmark" title="حفظ الصفحة الحالية كعلامة قراءة">
                                 <i class="fa-solid fa-bookmark text-gold"></i>
                                 <span>حفظ علامة</span>
@@ -434,10 +476,15 @@
                                 <i class="fa-solid fa-book-open text-gold"></i>
                                 <span>تفسير الصفحة</span>
                             </button>
-                            <button type="button" class="btn btn-outline btn-sm" id="btn-surah-audio">
-                                <i class="fa-solid fa-volume-high"></i>
-                                <span>استماع للتلاوة</span>
-                            </button>
+                            <div class="mushaf-reciter-control-group">
+                                <select id="select-mushaf-reciter" class="select-reciter-dropdown" title="اختيار القارئ المفضل لسماع السورة">
+                                    <!-- يُملأ من js/quran.js -->
+                                </select>
+                                <button type="button" class="btn btn-outline btn-sm" id="btn-surah-audio" title="استماع لتلاوة السورة الحالية">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                    <span>استماع</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1750,6 +1797,221 @@
     </div>
 
     <!-- ==========================================
+    نافذة تحميل وإدارة المصحف بدون إنترنت (Offline Quran Modal)
+    ========================================== -->
+    <div class="modal-overlay" id="mushaf-offline-modal">
+        <div class="modal-card modal-card-wide modal-card-offline">
+            <button class="modal-close-btn" id="btn-close-offline-modal" aria-label="إغلاق">&times;</button>
+            <div class="offline-modal-header">
+                <div class="offline-icon-badge">
+                    <i class="fa-solid fa-cloud-arrow-down text-gold"></i>
+                </div>
+                <h3 class="modal-title">تصفح المصحف الشريف بدون إنترنت</h3>
+                <p class="offline-modal-subtitle">احفظ صفحات المصحف والتفاسير على هاتفك مباشرة لتتلو كتاب الله في أي وقت ومكان بدون الحاجة لبيانات الهاتف أو الاتصال بالإنترنت 🌿📱</p>
+            </div>
+
+            <!-- بطاقة حالة التخزين الحالي -->
+            <div class="offline-status-card">
+                <div class="offline-status-header">
+                    <div class="offline-status-info">
+                        <span class="status-label">حالة التخزين على جهازك:</span>
+                        <strong class="status-value" id="offline-cached-count-text">جاري التحقق...</strong>
+                    </div>
+                    <span class="offline-badge-pill" id="offline-readiness-pill"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري الفحص</span>
+                </div>
+                <div class="offline-progress-track">
+                    <div class="offline-progress-bar" id="offline-storage-progress-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- خيارات التحميل -->
+            <div class="offline-download-options">
+                <div class="offline-option-card" id="option-quick-download">
+                    <div class="option-icon"><i class="fa-solid fa-bolt text-gold"></i></div>
+                    <div class="option-details">
+                        <h4>تحميل السور الفاضلة والأكثر قراءة (سريع)</h4>
+                        <p>يشمل: الفاتحة، الكهف، يس، الواقعة، الرحمن، الملك، المعوذات، وجزء عمّ وتبارك (~ 3 ميجابايت)</p>
+                    </div>
+                    <button type="button" class="btn btn-gold btn-sm" id="btn-start-quick-download">
+                        <i class="fa-solid fa-download"></i>
+                        <span>تحميل السور الفاضلة</span>
+                    </button>
+                </div>
+
+                <div class="offline-option-card featured-option" id="option-full-download">
+                    <div class="option-icon"><i class="fa-solid fa-book-quran text-gold"></i></div>
+                    <div class="option-details">
+                        <h4>تحميل المصحف الشريف كاملاً (604 صفحات)</h4>
+                        <p>تنزيل جميع صفحات المصحف الشريف بدقة فيكتور عالية مع التفاسير الميسرة (~ 18 ميجابايت)</p>
+                    </div>
+                    <button type="button" class="btn btn-gold btn-sm" id="btn-start-full-download">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                        <span>تحميل المصحف كاملاً</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- صندوق تقدم التحميل المباشر -->
+            <div class="offline-active-download-box" id="offline-active-download-box" style="display: none;">
+                <div class="download-info-row">
+                    <span id="download-current-action-text"><i class="fa-solid fa-spinner fa-spin text-gold"></i> جاري تنزيل الصفحات...</span>
+                    <strong id="download-percentage-text">0%</strong>
+                </div>
+                <div class="offline-progress-track">
+                    <div class="offline-progress-bar animated-bar" id="offline-download-live-bar" style="width: 0%;"></div>
+                </div>
+                <div class="download-footer-actions">
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-offline-download">إلغاء التحميل</button>
+                </div>
+            </div>
+
+            <div class="offline-modal-footer-notes">
+                <div class="offline-note-item">
+                    <i class="fa-solid fa-circle-check text-emerald"></i>
+                    <span>الصفحات التي يتم حفظها تبقى متوفرة دائماً على جهازك بدون الحاجة للاتصال بالإنترنت.</span>
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm" id="btn-clear-quran-cache" style="margin-top: 0.5rem;">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>تفريغ الذاكرة المؤقتة للمصحف</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+    نافذة وضع التحفيظ وتكرار الآيات (Quran Memorization & Hifz Modal)
+    ========================================== -->
+    <div class="modal-overlay" id="quran-hifz-modal">
+        <div class="modal-card modal-card-wide modal-card-hifz">
+            <button class="modal-close-btn" id="btn-close-hifz-modal" aria-label="إغلاق">&times;</button>
+            <div class="hifz-modal-header">
+                <div class="hifz-icon-badge">
+                    <i class="fa-solid fa-repeat text-gold"></i>
+                </div>
+                <h3 class="modal-title">مساعد حفظ وتثبيت القرآن الكريم</h3>
+                <p class="hifz-modal-subtitle">حدد السورة ونطاق الآيات مع عدد التكرارات وفترة الترديد بصوتك لترسيخ الحفظ بسهولة 📖✨</p>
+            </div>
+
+            <!-- إعدادات النطاق والتكرار -->
+            <div class="hifz-settings-grid">
+                <!-- اختيار السورة -->
+                <div class="hifz-input-group">
+                    <label for="hifz-surah-select"><i class="fa-solid fa-book-quran text-gold"></i> السورة:</label>
+                    <select id="hifz-surah-select" class="form-control select-styled">
+                        <!-- تُملأ برمجياً -->
+                    </select>
+                </div>
+
+                <!-- اختيار القارئ للتحفيظ -->
+                <div class="hifz-input-group">
+                    <label for="hifz-reciter-select"><i class="fa-solid fa-microphone text-gold"></i> القارئ المعلم:</label>
+                    <select id="hifz-reciter-select" class="form-control select-styled">
+                        <option value="Husary_128kbps" selected>محمود خليل الحصري (المصحف المعلم)</option>
+                        <option value="Minshawy_Murattal_128kbps">محمد صديق المنشاوي (مرتل)</option>
+                        <option value="Alafasy_128kbps">مشاري راشد العفاسي</option>
+                        <option value="Abdul_Basit_Murattal_192kbps">عبد الباسط عبد الصمد</option>
+                        <option value="MaherAlMuaiqly128kbps">ماهر المعيقلي</option>
+                        <option value="Ghamadi_40kbps">سعد الغامدي</option>
+                    </select>
+                </div>
+
+                <!-- نطاق الآيات (من - إلى) -->
+                <div class="hifz-input-group">
+                    <label><i class="fa-solid fa-arrows-left-right text-gold"></i> نطاق الآيات:</label>
+                    <div class="hifz-range-inputs">
+                        <div class="range-sub-input">
+                            <span>من آية:</span>
+                            <input type="number" id="hifz-ayah-from" class="form-control" min="1" max="286" value="1">
+                        </div>
+                        <div class="range-sub-input">
+                            <span>إلى آية:</span>
+                            <input type="number" id="hifz-ayah-to" class="form-control" min="1" max="286" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عدد تكرار كل آية -->
+                <div class="hifz-input-group">
+                    <label for="hifz-repeat-count"><i class="fa-solid fa-arrows-rotate text-gold"></i> تكرار كل آية:</label>
+                    <select id="hifz-repeat-count" class="form-control select-styled">
+                        <option value="1">مرة واحدة (1x)</option>
+                        <option value="3" selected>3 مرات (3x)</option>
+                        <option value="5">5 مرات (5x)</option>
+                        <option value="7">7 مرات (7x)</option>
+                        <option value="10">10 مرات (10x - للحفظ المتقن)</option>
+                        <option value="999">تكرار مستمر بدون توقف (∞)</option>
+                    </select>
+                </div>
+
+                <!-- تكرار المقطع بالكامل -->
+                <div class="hifz-input-group">
+                    <label for="hifz-range-repeat-count"><i class="fa-solid fa-rotate-left text-gold"></i> إعادة المقطع بالكامل:</label>
+                    <select id="hifz-range-repeat-count" class="form-control select-styled">
+                        <option value="1" selected>مرة واحدة (1x)</option>
+                        <option value="2">مرتان (2x)</option>
+                        <option value="3">3 مرات (3x)</option>
+                        <option value="5">5 مرات (5x)</option>
+                    </select>
+                </div>
+
+                <!-- فترة الصمت بين التكرارات للترديد -->
+                <div class="hifz-input-group">
+                    <label for="hifz-delay-interval"><i class="fa-solid fa-hourglass-half text-gold"></i> مهلة لترديد الآية بصوتك:</label>
+                    <select id="hifz-delay-interval" class="form-control select-styled">
+                        <option value="0">بدون مهلة (فوري)</option>
+                        <option value="2">مهلة ثانيتان (2s)</option>
+                        <option value="4" selected>مهلة 4 ثوانٍ (4s)</option>
+                        <option value="6">مهلة 6 ثوانٍ (6s)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- بطاقة التلاوة والآية الحالية النشطة -->
+            <div class="hifz-active-player-card" id="hifz-player-card">
+                <div class="hifz-player-top-row">
+                    <div class="hifz-active-meta">
+                        <span class="badge-hifz-surah" id="hifz-current-surah-badge">سورة ...</span>
+                        <span class="badge-hifz-ayah" id="hifz-current-ayah-badge">الآية 1</span>
+                    </div>
+                    <div class="hifz-repeat-indicator" id="hifz-repeat-indicator">
+                        <span>التكرار: <strong>1 / 3</strong></span>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-hifz-text" title="إخفاء/إظهار نص الآية لاختبار استحضار الحفظ">
+                        <i class="fa-solid fa-eye-slash" id="hifz-eye-icon"></i>
+                        <span id="hifz-eye-text">اختبر حفظك (إخفاء النص)</span>
+                    </button>
+                </div>
+
+                <!-- نص الآية الحالية بخط عثماني كبير -->
+                <div class="hifz-verse-display" id="hifz-verse-display">
+                    <p class="hifz-verse-text" id="hifz-verse-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                </div>
+
+                <!-- شريط التقدم والتحكم الصوتي -->
+                <div class="hifz-player-controls">
+                    <button type="button" class="btn btn-outline btn-icon" id="btn-hifz-prev-ayah" title="الآية السابقة">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                    <button type="button" class="btn btn-gold btn-hifz-play" id="btn-hifz-toggle-play">
+                        <i class="fa-solid fa-play" id="hifz-play-icon"></i>
+                        <span id="hifz-play-text">بدء التحفيظ والتكرار</span>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-icon" id="btn-hifz-next-ayah" title="الآية التالية">
+                        <i class="fa-solid fa-backward-step"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-icon" id="btn-hifz-reset-range" title="إعادة المقطع من البداية">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                    </button>
+                </div>
+
+                <div class="hifz-status-message" id="hifz-status-message">
+                    <span>اختر نطاق الآيات واضغط "بدء التحفيظ" للبدء في الترديد 🌿</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
     نافذة بوصلة القبلة التفاعلية (Qibla Compass Modal)
     ========================================== -->
     <div class="modal-overlay" id="qibla-modal">
@@ -2069,24 +2331,24 @@
             <button class="modal-close-btn" id="btn-close-asmaa-modal" aria-label="إغلاق">&times;</button>
             <div class="asmaa-modal-header" style="text-align: center; margin-bottom: 1.5rem;">
                 <span class="hadith-number-badge" id="modal-asmaa-num">1</span>
-                <h2 id="modal-asmaa-name" style="font-family: var(--font-quran, serif); font-size: 3.2rem; color: var(--gold-300); margin: 0.5rem 0; text-shadow: 0 0 15px rgba(212,175,55,0.4);">الله</h2>
+                <h2 id="modal-asmaa-name" style="font-family: var(--font-quran, serif); font-size: 3.2rem; margin: 0.5rem 0;">الله</h2>
                 <span class="hadith-category-tag" id="modal-asmaa-cat">جلال</span>
             </div>
 
             <div class="asmaa-modal-body">
                 <div class="form-group">
                     <label class="form-label text-gold"><i class="fa-solid fa-book-open"></i> المعنى والشرح:</label>
-                    <p id="modal-asmaa-meaning" style="font-size: 1.05rem; line-height: 1.8; color: #f3f4f6;"></p>
+                    <p id="modal-asmaa-meaning" style="font-size: 1.05rem; line-height: 1.8;"></p>
                 </div>
 
-                <div class="form-group" style="background: rgba(212, 175, 55, 0.08); padding: 1rem; border-radius: var(--radius-md); border-right: 3px solid var(--gold-400);">
+                <div class="form-group asmaa-virtue-box" style="padding: 1rem; border-radius: var(--radius-md); border-right: 3px solid var(--gold-400);">
                     <label class="form-label text-gold"><i class="fa-solid fa-lightbulb"></i> الثمرة الإيمانية:</label>
-                    <p id="modal-asmaa-virtue" style="font-size: 0.95rem; line-height: 1.7; color: #e5e7eb; margin: 0;"></p>
+                    <p id="modal-asmaa-virtue" style="font-size: 0.95rem; line-height: 1.7; margin: 0;"></p>
                 </div>
 
-                <div class="form-group" style="background: rgba(16, 185, 129, 0.08); padding: 1rem; border-radius: var(--radius-md); border-right: 3px solid var(--emerald-400); margin-top: 1rem;">
-                    <label class="form-label text-emerald-400" style="color: var(--emerald-400);"><i class="fa-solid fa-hands-praying"></i> صيغة الدعاء والتعبد بهذا الاسم:</label>
-                    <p id="modal-asmaa-dua" style="font-size: 1rem; line-height: 1.7; color: #f9fafb; font-weight: 500; margin: 0;"></p>
+                <div class="form-group asmaa-dua-box" style="padding: 1rem; border-radius: var(--radius-md); border-right: 3px solid var(--emerald-400); margin-top: 1rem;">
+                    <label class="form-label text-emerald-400"><i class="fa-solid fa-hands-praying"></i> صيغة الدعاء والتعبد بهذا الاسم:</label>
+                    <p id="modal-asmaa-dua" style="font-size: 1rem; line-height: 1.7; font-weight: 500; margin: 0;"></p>
                 </div>
 
                 <div class="modal-actions-dual" style="margin-top: 1.5rem;">
@@ -2120,17 +2382,17 @@
             <div class="story-modal-body">
                 <div class="story-verse-box" id="modal-story-verse-box">
                     <i class="fa-solid fa-quote-right text-gold"></i>
-                    <p id="modal-story-verse" style="font-family: var(--font-quran, serif); font-size: 1.25rem; color: var(--gold-300); margin: 0;"></p>
+                    <p id="modal-story-verse" style="font-family: var(--font-quran, serif); font-size: 1.25rem; margin: 0;"></p>
                 </div>
 
                 <div class="form-group" style="margin-top: 1.2rem;">
                     <label class="form-label text-gold"><i class="fa-solid fa-scroll"></i> أحداث وسياق القصة:</label>
-                    <p id="modal-story-text" style="font-size: 1.05rem; line-height: 1.9; color: #f3f4f6; text-align: justify;"></p>
+                    <p id="modal-story-text" style="font-size: 1.05rem; line-height: 1.9; text-align: justify;"></p>
                 </div>
 
-                <div class="story-lessons-box" style="background: rgba(16, 185, 129, 0.08); padding: 1.2rem; border-radius: var(--radius-md); border-right: 3px solid var(--emerald-400); margin-top: 1.2rem;">
-                    <label class="form-label text-emerald-400" style="color: var(--emerald-400); font-weight: 700; margin-bottom: 0.6rem; display: block;"><i class="fa-solid fa-lightbulb"></i> أهم الدروس والعِبر المستفادة:</label>
-                    <ul id="modal-story-lessons" style="padding-right: 1.2rem; color: #e5e7eb; font-size: 0.95rem; line-height: 1.8; margin: 0;">
+                <div class="story-lessons-box" style="padding: 1.2rem; border-radius: var(--radius-md); border-right: 3px solid var(--emerald-400); margin-top: 1.2rem;">
+                    <label class="form-label text-emerald-400" style="font-weight: 700; margin-bottom: 0.6rem; display: block;"><i class="fa-solid fa-lightbulb"></i> أهم الدروس والعِبر المستفادة:</label>
+                    <ul id="modal-story-lessons" style="padding-right: 1.2rem; font-size: 0.95rem; line-height: 1.8; margin: 0;">
                     </ul>
                 </div>
 
@@ -2156,23 +2418,23 @@
             <button class="modal-close-btn" id="btn-close-daily-msg-modal" aria-label="إغلاق">&times;</button>
             <div style="text-align: center; margin-bottom: 1.2rem;">
                 <span class="hadith-category-tag" id="modal-msg-tag">رسالة لقلبك اليوم</span>
-                <h3 id="modal-msg-title" style="color: var(--gold-300); margin: 0.6rem 0; font-size: 1.3rem;">رسالة الطمأنينة</h3>
+                <h3 id="modal-msg-title" style="margin: 0.6rem 0; font-size: 1.3rem;">رسالة الطمأنينة</h3>
             </div>
 
             <div class="daily-msg-modal-content">
-                <div class="daily-msg-verse-card" style="background: rgba(14, 25, 43, 0.9); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; margin-bottom: 1.2rem;">
-                    <div id="modal-msg-verse" style="font-family: var(--font-quran, serif); font-size: 1.4rem; color: var(--gold-300); line-height: 2;"></div>
-                    <div id="modal-msg-surah" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
+                <div class="daily-msg-verse-card" style="border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; margin-bottom: 1.2rem;">
+                    <div id="modal-msg-verse" style="font-family: var(--font-quran, serif); font-size: 1.4rem; line-height: 2;"></div>
+                    <div id="modal-msg-surah" style="font-size: 0.85rem; margin-top: 0.5rem;"></div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label text-gold"><i class="fa-solid fa-heart"></i> الخاطرة والتدبر:</label>
-                    <p id="modal-msg-reflection" style="font-size: 1.02rem; line-height: 1.8; color: #e5e7eb;"></p>
+                    <p id="modal-msg-reflection" style="font-size: 1.02rem; line-height: 1.8;"></p>
                 </div>
 
-                <div class="form-group" style="background: rgba(212, 175, 55, 0.08); padding: 1rem; border-radius: var(--radius-md); border-right: 3px solid var(--gold-400);">
+                <div class="form-group daily-msg-dua-box" style="padding: 1rem; border-radius: var(--radius-md); border-right: 3px solid var(--gold-400);">
                     <label class="form-label text-gold"><i class="fa-solid fa-hands-praying"></i> دعاء مقترح لليوم:</label>
-                    <p id="modal-msg-dua" style="font-size: 1rem; line-height: 1.7; color: #f3f4f6; margin: 0;"></p>
+                    <p id="modal-msg-dua" style="font-size: 1rem; line-height: 1.7; margin: 0;"></p>
                 </div>
 
                 <div class="modal-actions-dual" style="margin-top: 1.5rem;">
@@ -2512,9 +2774,9 @@
     <script src="assets/js/islamic-stories-data.js?v=2"></script>
     <script src="assets/js/media-data.js?v=2"></script>
     <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/app.js?v=13"></script>
-    <script src="assets/js/quran.js?v=12"></script>
-    <script src="assets/js/extended-modules.js?v=18"></script>
+    <script src="assets/js/app.js?v=14"></script>
+    <script src="assets/js/quran.js?v=15"></script>
+    <script src="assets/js/extended-modules.js?v=21"></script>
 
 
 </body>

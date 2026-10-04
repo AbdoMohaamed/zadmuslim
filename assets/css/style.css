@@ -4548,8 +4548,9 @@ body {
    5. موسوعة الأدعية النبوية المبوبة (Categorized Duas with Sheikh Recitation)
    ========================================================================== */
 .categorized-duas-section {
-  padding:0 0  25px 0;
-  position: relative;
+    padding: 0 0 25px 0;
+    position: relative;
+    background: radial-gradient(circle at 50% 100%, rgba(5, 150, 105, 0.08) 0%, #f8f6f0 70%) !important
 }
 
 .duas-categories-tabs {
@@ -7908,4 +7909,2173 @@ input:checked + .slider-round:before {
   box-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
 }
 
+/* ==========================================================================
+   23. المظهر النهاري الإسلامي الفاخر الشامل والمريح للعين (Ultimate Eye-Comfort Light Theme)
+   ========================================================================== */
+html[data-theme="light"],
+html.light-theme,
+:root[data-theme="light"],
+body.light-theme,
+[data-theme="light"] {
+  /* ألوان مريحة ومدروسة تحاكي المخطوطات والورق العاجي الفاخر */
+  --bg-main: #f8f6f0;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fcfbf7;
+  --card-bg: #ffffff;
+  --bg-dark: #f8f6f0;
+  --border-color: rgba(184, 134, 11, 0.22);
+  --border-glow: rgba(184, 134, 11, 0.45);
 
+  /* تدرجات ذهبية دافئة وأخضر زمردي بنبرات عالية الوضوح */
+  --gold-100: #573e00;
+  --gold-200: #735200;
+  --gold-300: #8f6600;
+  --gold-400: #b8860b;
+  --gold-500: #c59318;
+  --gold-600: #9e7200;
+  --gold-700: #7d5a00;
+  --emerald-400: #059669;
+  --emerald-500: #047857;
+  --emerald-900: #064e3b;
+
+  /* نصوص داكنة حادة التباين ومريحة جداً للقراءة الطويلة */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-gold: #8d6404;
+  --text-color: #0f172a;
+
+  /* ظلال نهارية طبيعية وناعمة */
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(184, 134, 11, 0.08);
+  --shadow-gold: 0 0 20px rgba(184, 134, 11, 0.15);
+  --shadow-emerald: 0 0 20px rgba(5, 150, 105, 0.15);
+}
+
+html[data-theme="light"],
+html.light-theme,
+html[data-theme="light"] body,
+body.light-theme {
+  background-color: #f8f6f0 !important;
+  color: #0f172a !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(5, 150, 105, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(184, 134, 11, 0.05) 0%, transparent 45%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b8860b' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M30 30L15 15H0v30h15L30 30zm0 0l15 15h15V15H45L30 30z'/%3E%3C/g%3E%3C/svg%3E") !important;
+}
+
+body.light-theme .hero {
+    background: linear-gradient(rgb(248, 246, 240) 0%, rgb(239, 232, 217) 100%) !important;
+}
+/* 1. Navbar & Top Navigation */
+body.light-theme .navbar {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-bottom: 1px solid rgba(184, 134, 11, 0.22) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.light-theme .brand-title {
+  color: #0f172a !important;
+  background: none !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+body.light-theme .brand-subtitle {
+  color: #8d6404 !important;
+}
+
+body.light-theme .nav-links a {
+  color: #334155 !important;
+}
+
+body.light-theme .nav-links a:hover,
+body.light-theme .nav-links a.active {
+  color: #8d6404 !important;
+  background: rgba(184, 134, 11, 0.09) !important;
+}
+
+body.light-theme .nav-links a.active::after {
+  background: #c59318 !important;
+  box-shadow: 0 0 10px rgba(184, 134, 11, 0.4) !important;
+}
+
+/* 2. Mobile Nav Drawer */
+body.light-theme .mobile-nav-content {
+  background: #ffffff !important;
+  border-left: 1px solid rgba(184, 134, 11, 0.25) !important;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .mobile-nav-header {
+  border-bottom: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .mobile-nav-link {
+  color: #334155 !important;
+}
+
+body.light-theme .mobile-nav-link:hover,
+body.light-theme .mobile-nav-link.active {
+  background: rgba(184, 134, 11, 0.09) !important;
+  color: #8d6404 !important;
+  border-right: 3px solid #c59318 !important;
+}
+
+body.light-theme .btn-close-mobile-nav {
+  color: #64748b !important;
+}
+
+/* 3. Hero & Banners */
+body.light-theme .hero-section {
+  background: linear-gradient(180deg, #faf8f2 0%, #f3ede2 100%) !important;
+}
+
+body.light-theme .hero-badge,
+body.light-theme .hero-hijri-badge {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .hero-title {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .hero-title span {
+  color: #8d6404 !important;
+}
+
+body.light-theme .hero-subtitle {
+  color: #334155 !important;
+}
+
+body.light-theme .hero-quote {
+  color: #0f172a !important;
+}
+
+body.light-theme .charity-memorial-banner {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(184, 134, 11, 0.35) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.light-theme .charity-memorial-text {
+  color: #334155 !important;
+}
+
+body.light-theme .charity-memorial-text strong {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .charity-memorial-icon {
+  background: rgba(184, 134, 11, 0.1) !important;
+  color: #7d5a00 !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .featured-prayer-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light-theme .prayer-main-text {
+  color: #0f172a !important;
+}
+
+body.light-theme .prayer-ornament-top,
+body.light-theme .prayer-ornament-bottom {
+  color: #8d6404 !important;
+}
+
+body.light-theme .daily-wisdom-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light-theme .wisdom-badge {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .wisdom-date-tag {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #64748b !important;
+}
+
+body.light-theme .wisdom-item {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .wisdom-item-tag {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .wisdom-quote-text {
+  color: #0f172a !important;
+}
+
+body.light-theme .wisdom-reflection {
+  color: #334155 !important;
+  border-top: 1px dashed rgba(184, 134, 11, 0.2) !important;
+}
+
+/* 4. Section Backgrounds */
+    body.light-theme .islamic-media-section {
+        background: radial-gradient(circle at 50% 10%, rgba(212, 175, 55, 0.04) 0%, transparent 60%);
+    }
+
+body.light-theme .community-prayers-section {
+  background: linear-gradient(180deg, #f8f6f0 0%, #f1ecde 100%) !important;
+}
+
+body.light-theme .tasbeeh-section {
+  background: linear-gradient(180deg, #f8f6f0 0%, #efe8d9 100%) !important;
+  border-color: rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .khatma-section {
+  background: radial-gradient(circle at 50% 10%, rgba(5, 150, 105, 0.06) 0%, transparent 60%) !important;
+}
+
+    body.light-theme .prayer-times-section {
+        background: linear-gradient(180deg, #f8f6f0 0%, #efe8d9 100%) !important;
+    }
+
+body.light-theme .quran-reader-section {
+  background: linear-gradient(180deg, #f8f6f0 0%, #f2ebdd 100%) !important;
+  border-color: rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .stories-section {
+  background: linear-gradient(180deg, #f8f6f0 0%, #efe9db 50%, #f8f6f0 100%) !important;
+}
+
+body.light-theme .seasons-section {
+  background: linear-gradient(180deg, #f8f6f0 0%, #f1ecdf 100%) !important;
+}
+
+body.light-theme .faq-section {
+  background: #f8f6f0 !important;
+}
+
+body.light-theme .quiz-section {
+  background: radial-gradient(circle at 50% 30%, rgba(184, 134, 11, 0.06) 0%, #f8f6f0 70%) !important;
+}
+
+body.light-theme .asmaa-section {
+  background: radial-gradient(circle at 50% 100%, rgba(5, 150, 105, 0.08) 0%, #f8f6f0 70%) !important;
+}
+
+/* 5. Universal Cards & Containers */
+body.light-theme .khatma-card,
+body.light-theme .prayer-times-card,
+body.light-theme .media-card,
+body.light-theme .tasbeeh-card,
+body.light-theme .azkar-card,
+body.light-theme .hadith-card,
+body.light-theme .asmaa-card,
+body.light-theme .story-card,
+body.light-theme .quiz-card,
+body.light-theme .cat-dua-card,
+body.light-theme .garden-interactive-card,
+body.light-theme .stat-card,
+body.light-theme .faq-item,
+body.light-theme .wird-group-card,
+body.light-theme .daily-wird-card,
+body.light-theme .season-card,
+body.light-theme .spiritual-message-card,
+body.light-theme .counter-box,
+body.light-theme .quran-search-item,
+body.light-theme .featured-prayer-card,
+body.light-theme .prayer-card,
+body.light-theme .khatma-summary-card,
+body.light-theme .azkar-selector-box,
+body.light-theme .cemetery-dua-featured-card,
+body.light-theme .quiz-container-card,
+body.light-theme .verse-card,
+body.light-theme .tasbeeh-device {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.22) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .khatma-card:hover,
+body.light-theme .media-card:hover,
+body.light-theme .hadith-card:hover,
+body.light-theme .asmaa-card:hover,
+body.light-theme .story-card:hover,
+body.light-theme .cat-dua-card:hover,
+body.light-theme .prayer-card:hover,
+body.light-theme .azkar-card:hover,
+body.light-theme .season-card:hover,
+body.light-theme .stat-card:hover {
+  border-color: #c59318 !important;
+  box-shadow: 0 12px 30px rgba(184, 134, 11, 0.12) !important;
+}
+
+/* Stat Cards (Global Stats Banner) */
+body.light-theme .stat-card .stat-icon {
+  background: linear-gradient(135deg, rgba(184, 134, 11, 0.12), rgba(16, 185, 129, 0.1)) !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .stat-card .stat-number {
+  color: #0f172a !important;
+}
+
+body.light-theme .stat-card .stat-title {
+  color: #475569 !important;
+}
+
+/* 6. Headings & Text High Contrast */
+body.light-theme h1,
+body.light-theme h2,
+body.light-theme h3,
+body.light-theme h4,
+body.light-theme h5,
+body.light-theme h6,
+body.light-theme .section-title,
+body.light-theme .media-card-title,
+body.light-theme .hadith-title,
+body.light-theme .story-title,
+body.light-theme .cat-dua-title,
+body.light-theme .modal-title,
+body.light-theme .prayer-main-text,
+body.light-theme .author-name,
+body.light-theme .khatma-badge-title,
+body.light-theme .juz-title,
+body.light-theme .story-title-group h3,
+body.light-theme .quiz-question-title,
+body.light-theme .quiz-result-title,
+body.light-theme .season-card-title,
+body.light-theme .admin-dashboard-title,
+body.light-theme .admin-panel-title,
+body.light-theme .story-modal-title {
+  color: #0f172a !important;
+}
+
+body.light-theme .section-desc,
+body.light-theme .media-card-desc,
+body.light-theme .modal-desc,
+body.light-theme .faq-answer,
+body.light-theme .prayer-date,
+body.light-theme .khatma-progress-text,
+body.light-theme .legend-item,
+body.light-theme .juz-meta,
+body.light-theme .azkar-virtue,
+body.light-theme .story-card-summary,
+body.light-theme .quiz-result-desc,
+body.light-theme .season-card-virtue,
+body.light-theme .media-player-desc,
+body.light-theme .admin-dashboard-subtitle,
+body.light-theme .admin-stat-label,
+body.light-theme .deed-title,
+body.light-theme .tree-stage-desc,
+body.light-theme .fasting-banner-desc,
+body.light-theme .fasting-timer-label,
+body.light-theme .tracker-label,
+body.light-theme .hadith-narrator {
+  color: #334155 !important;
+}
+
+/* 7. Islamic texts & Arabic calligraphies */
+body.light-theme .quran-text,
+body.light-theme .hadith-matn,
+body.light-theme .hadith-text,
+body.light-theme .cat-dua-body,
+body.light-theme .azkar-text,
+body.light-theme .story-full-text,
+body.light-theme .prayer-body,
+body.light-theme .verse-text,
+body.light-theme .quran-match-text {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme .asmaa-name-calligraphy,
+body.light-theme .asmaa-card-name {
+  color: #8d6404 !important;
+  text-shadow: none !important;
+}
+
+/* 8. Section Tag (Clean Eyebrow text) */
+body.light-theme .section-tag {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #047857 !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  display: block !important;
+  margin-bottom: 0.5rem !important;
+  letter-spacing: 0.5px !important;
+}
+
+body.light-theme .section-tag i {
+  color: #059669 !important;
+}
+
+/* 9. Azkar Tabs, Surah Pills & Filter Buttons */
+body.light-theme .azkar-tab-btn,
+body.light-theme .surah-pill,
+body.light-theme .media-filter-btn,
+body.light-theme .nawawi-filter-pill,
+body.light-theme .duas-tab-btn,
+body.light-theme .theme-pill,
+body.light-theme .media-stats-pill,
+body.light-theme .hadith-tag,
+body.light-theme .asmaa-meaning-pill,
+body.light-theme .wird-badge,
+body.light-theme .khatma-filter-btn,
+body.light-theme .azkar-category-btn,
+body.light-theme .tasbeeh-preset-btn,
+body.light-theme .quick-pill {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.28) !important;
+  color: #475569 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme .azkar-tab-btn:hover,
+body.light-theme .surah-pill:hover,
+body.light-theme .media-filter-btn:hover,
+body.light-theme .nawawi-filter-pill:hover,
+body.light-theme .duas-tab-btn:hover,
+body.light-theme .theme-pill:hover,
+body.light-theme .khatma-filter-btn:hover,
+body.light-theme .tasbeeh-preset-btn:hover,
+body.light-theme .quick-pill:hover {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border-color: #c59318 !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .azkar-tab-btn.active,
+body.light-theme .surah-pill.active,
+body.light-theme .media-filter-btn.active,
+body.light-theme .nawawi-filter-pill.active,
+body.light-theme .duas-tab-btn.active,
+body.light-theme .theme-pill.active,
+body.light-theme .khatma-filter-btn.active,
+body.light-theme .azkar-category-btn.active,
+body.light-theme .tasbeeh-preset-btn.active {
+  background: linear-gradient(135deg, #c59318 0%, #9e7200 100%) !important;
+  color: #ffffff !important;
+  border-color: #7d5a00 !important;
+  box-shadow: 0 4px 14px rgba(184, 134, 11, 0.3) !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .media-filter-btn.active .media-filter-count {
+  background: #ffffff !important;
+  color: #7d5a00 !important;
+}
+
+/* Quran & Khatma Hub Tabs (تبويبات المصحف والختمة) */
+body.light-theme .quran-khatma-tabs {
+  background: #ede8dc !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light-theme .quran-tab-btn {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme .quran-tab-btn:hover {
+  background: rgba(184, 134, 11, 0.1) !important;
+  color: #7d5a00 !important;
+  border-color: transparent !important;
+}
+
+body.light-theme .quran-tab-btn.active {
+  background: #ffffff !important;
+  color: #7d5a00 !important;
+  border-color: rgba(184, 134, 11, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .quran-tab-btn i {
+  color: #8d6404 !important;
+}
+
+body.light-theme .quran-tab-btn.active i {
+  color: #7d5a00 !important;
+}
+
+/* 10. Spiritual Garden & Tree (حديقة الحسنات وشجرة الذكر التفاعلية) */
+    body.light-theme .spiritual-garden-section {
+        background: radial-gradient(circle at 50% 100%, rgba(5, 150, 105, 0.08) 0%, #f8f6f0 70%) !important;
+    }
+
+body.light-theme .garden-interactive-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06), inset 0 0 25px rgba(16, 185, 129, 0.04) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .garden-interactive-card::before {
+  background: linear-gradient(90deg, #059669, #c59318, #059669) !important;
+}
+
+body.light-theme .tree-display-wrapper {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, #f4fbf7 75%) !important;
+  border: 2px solid rgba(5, 150, 105, 0.35) !important;
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.18) !important;
+}
+
+body.light-theme .spiritual-tree-aura {
+  border: 1px dashed rgba(184, 134, 11, 0.45) !important;
+}
+
+body.light-theme .tree-stage-emoji {
+  filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.4)) !important;
+}
+
+body.light-theme .tree-stage-badge {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .tree-stage-desc {
+  color: #475569 !important;
+}
+
+body.light-theme .score-pill {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(5, 150, 105, 0.3) !important;
+}
+
+body.light-theme .score-label {
+  color: #334155 !important;
+}
+
+body.light-theme .score-number {
+  color: #047857 !important;
+}
+
+body.light-theme .score-unit {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .streak-pill {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .garden-progress-box {
+  background: #fbf9f2 !important;
+  border: 1px solid rgba(184, 134, 11, 0.22) !important;
+}
+
+body.light-theme .progress-info-row {
+  color: #475569 !important;
+}
+
+body.light-theme .progress-info-row span:last-child {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .garden-progress-track {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .garden-progress-bar {
+  background: linear-gradient(90deg, #059669, #10b981, #d97706) !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3) !important;
+}
+
+body.light-theme .garden-deed-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .garden-deed-item:hover {
+  border-color: #c59318 !important;
+  box-shadow: 0 6px 16px rgba(184, 134, 11, 0.1) !important;
+}
+
+body.light-theme .deed-icon {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .deed-title {
+  color: #475569 !important;
+}
+
+body.light-theme .deed-count {
+  color: #0f172a !important;
+}
+
+/* 9. Prayer Times Box & Items */
+body.light-theme .prayer-time-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.22) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .prayer-time-item .prayer-name {
+  color: #475569 !important;
+}
+
+body.light-theme .prayer-time-item .prayer-time {
+  color: #0f172a !important;
+}
+
+body.light-theme .prayer-time-item:hover {
+  border-color: #c59318 !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 20px rgba(184, 134, 11, 0.12) !important;
+}
+
+body.light-theme .prayer-time-item.is-next {
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, #ffffff 100%) !important;
+  border: 1.5px solid #c59318 !important;
+  box-shadow: 0 6px 20px rgba(197, 147, 24, 0.2) !important;
+}
+
+body.light-theme .prayer-time-item.is-next .prayer-name {
+  color: #8d6404 !important;
+  font-weight: 800 !important;
+}
+
+body.light-theme .prayer-time-item.is-next .prayer-time {
+  color: #0f172a !important;
+}
+
+body.light-theme .prayer-time-item.is-next .prayer-status-label {
+  color: #047857 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .prayer-location-selector {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.28) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .prayer-city-select {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .prayer-city-select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .prayer-hijri-badge {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .prayer-next-countdown {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0.65rem 1rem !important;
+}
+
+body.light-theme .countdown-label {
+  color: #475569 !important;
+  font-size: 0.92rem !important;
+}
+
+body.light-theme .countdown-label strong {
+  color: #8d6404 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .countdown-badge,
+body.light-theme .prayer-next-countdown .countdown-badge {
+  background: rgba(5, 150, 105, 0.12) !important;
+  border: 1px solid #059669 !important;
+  color: #065f46 !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.15) !important;
+}
+
+body.light-theme .response-hour-banner {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%) !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  box-shadow: 0 4px 18px rgba(184, 134, 11, 0.08) !important;
+}
+
+body.light-theme .banner-icon {
+  color: #8d6404 !important;
+}
+
+body.light-theme .banner-title {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .banner-text {
+  color: #334155 !important;
+}
+
+body.light-theme .fasting-tracker-banner {
+  background: #ffffff !important;
+  border: 1px solid rgba(5, 150, 105, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04) !important;
+}
+
+body.light-theme .fasting-banner-title {
+  color: #0f172a !important;
+}
+
+body.light-theme .fasting-badge-icon {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .fasting-countdown-box {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .fasting-timer-value {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .qibla-city-status {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .qibla-angle-badge {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .compass-dial {
+  background: radial-gradient(circle, #fbf8ee 0%, #ede7d7 100%) !important;
+  border: 4px solid #c59318 !important;
+  box-shadow: 0 0 35px rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .compass-cardinal {
+  color: #475569 !important;
+}
+
+body.light-theme .compass-sensor-status {
+  background: #fbf8ee !important;
+  color: #64748b !important;
+}
+
+/* 10. Quran & Real Mushaf Reader */
+body.light-theme .mushaf-reading-tracker-bar {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04) !important;
+}
+
+body.light-theme .tracker-value {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .tracker-badge-icon {
+  background: rgba(184, 134, 11, 0.1) !important;
+  color: #7d5a00 !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .tracker-progress-track {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .quran-mushaf-card {
+  background: #ffffff !important;
+  border: 2px solid #c59318 !important;
+  outline: 6px double rgba(184, 134, 11, 0.25) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.light-theme .mushaf-surah-title {
+  color: #8d6404 !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .mushaf-verses-count {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #475569 !important;
+}
+
+body.light-theme .real-mushaf-toolbar {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .page-jump-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .mushaf-page-input {
+  background: #ffffff !important;
+  border: 1px solid #c59318 !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .select-surah-dropdown {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .select-surah-dropdown option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .mushaf-zoom-group {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .mushaf-zoom-group .btn-icon {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .mushaf-zoom-group .btn-icon:hover {
+  color: #0f172a !important;
+}
+
+body.light-theme .mushaf-hint-text {
+  color: #64748b !important;
+}
+
+body.light-theme .juz-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .juz-card.status-reading {
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.08) 0%, #ffffff 100%) !important;
+  border-color: #c59318 !important;
+}
+
+body.light-theme .juz-card.status-completed {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, #ffffff 100%) !important;
+  border-color: #059669 !important;
+}
+
+body.light-theme .juz-number-badge {
+  background: rgba(184, 134, 11, 0.08) !important;
+  border-color: rgba(184, 134, 11, 0.25) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .status-available .juz-badge-tag {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #64748b !important;
+}
+
+body.light-theme .juz-reader-info {
+  color: #8d6404 !important;
+}
+
+body.light-theme .btn-scroll-khatma,
+body.light-theme .btn-scroll-azkar,
+body.light-theme .btn-scroll-media,
+body.light-theme .btn-scroll-duas,
+body.light-theme .btn-scroll-nawawi,
+body.light-theme .btn-scroll-asmaa,
+body.light-theme .btn-scroll-stories {
+  background: #ffffff !important;
+  border: 1px solid #c59318 !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .khatma-scroll-hint,
+body.light-theme .azkar-scroll-hint,
+body.light-theme .media-scroll-hint,
+body.light-theme .duas-scroll-hint,
+body.light-theme .nawawi-scroll-hint,
+body.light-theme .asmaa-scroll-hint,
+body.light-theme .stories-scroll-hint {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #7d5a00 !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+}
+
+/* 11. Tasbeeh & Azkar */
+body.light-theme .azkar-selector-title {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .zkr-btn {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .zkr-btn:hover {
+  background: rgba(184, 134, 11, 0.08) !important;
+  border-color: #c59318 !important;
+}
+
+body.light-theme .zkr-btn.active {
+  background: rgba(184, 134, 11, 0.12) !important;
+  border-color: #c59318 !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .zkr-text {
+  color: #0f172a !important;
+}
+
+body.light-theme .zkr-target {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #64748b !important;
+}
+
+body.light-theme .active-zkr-name {
+  color: #7d5a00 !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .active-zkr-virtue {
+  color: #475569 !important;
+}
+
+body.light-theme .tasbeeh-circle-btn,
+body.light-theme .tasbeeh-click-area {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f3e8 100%) !important;
+  border: 4px solid #c59318 !important;
+  box-shadow: 0 10px 30px rgba(184, 134, 11, 0.18) !important;
+}
+
+body.light-theme .tasbeeh-count-number,
+body.light-theme .counter-number {
+  color: #7d5a00 !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .counter-label {
+  color: #475569 !important;
+}
+
+body.light-theme .tasbeeh-stats-bar {
+  border-top: 1px solid rgba(184, 134, 11, 0.2) !important;
+  color: #334155 !important;
+}
+
+body.light-theme .stat-val {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .azkar-card.is-finished {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, #ffffff 100%) !important;
+  border-color: rgba(5, 150, 105, 0.4) !important;
+}
+
+body.light-theme .azkar-tap-btn {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border: 1px solid #c59318 !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .azkar-tap-btn:hover {
+  background: #c59318 !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .azkar-card.is-finished .azkar-tap-btn {
+  background: #059669 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .azkar-progress-bar {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 12. Hadiths, 99 Names, Stories, Quiz, FAQ, Wird */
+body.light-theme .hadith-number-badge {
+  background: rgba(184, 134, 11, 0.1) !important;
+  color: #7d5a00 !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .hadith-text {
+  background: #fbf8ee !important;
+  border-right: 3px solid #c59318 !important;
+}
+
+body.light-theme .hadith-details-toggle {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .hadith-details-body {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+  color: #334155 !important;
+}
+
+body.light-theme .asmaa-counter-banner {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(6, 78, 59, 0.08)) !important;
+  border: 1px solid #c59318 !important;
+}
+
+body.light-theme .asmaa-counter-text {
+  color: #0f172a !important;
+}
+
+body.light-theme .asmaa-grid {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .asmaa-card-cat {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #7d5a00 !important;
+  border-color: rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .asmaa-card-meaning {
+  color: #475569 !important;
+}
+
+body.light-theme .asmaa-card-num {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #7d5a00 !important;
+  border-color: rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .story-card-tag {
+  background: rgba(184, 134, 11, 0.08) !important;
+  color: #7d5a00 !important;
+  border-color: rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .story-verse-preview {
+  background: #fbf8ee !important;
+  color: #0f172a !important;
+  border-right-color: #c59318 !important;
+}
+
+body.light-theme .story-lesson-preview {
+  color: #047857 !important;
+  background: rgba(5, 150, 105, 0.08) !important;
+}
+
+body.light-theme .story-verse-box {
+  background: #fbf8ee !important;
+  border-right-color: #c59318 !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .quiz-option-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.28) !important;
+  color: #334155 !important;
+}
+
+body.light-theme .quiz-option-btn:hover:not(:disabled) {
+  background: #fbf8ee !important;
+  border-color: #c59318 !important;
+  color: #7d5a00 !important;
+}
+
+body.light-theme .quiz-option-btn.correct {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #059669 !important;
+  color: #065f46 !important;
+}
+
+body.light-theme .quiz-option-btn.wrong {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+}
+
+body.light-theme .quiz-explanation-box {
+  background: #fbf8ee !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+  color: #334155 !important;
+}
+
+body.light-theme .quiz-result-score-circle {
+  background: radial-gradient(circle, #fbf8ee 0%, #ede8d8 100%) !important;
+  color: #7d5a00 !important;
+  border-color: #c59318 !important;
+}
+
+body.light-theme .season-card-date {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .season-countdown-box {
+  background: #fbf8ee !important;
+  border: 1px dashed rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .countdown-val {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .faq-question {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .faq-question:hover {
+  background: #fbf8ee !important;
+}
+
+body.light-theme .faq-body {
+  background: #fbf8ee !important;
+  color: #334155 !important;
+}
+
+body.light-theme .daily-wird-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .daily-wird-card::before {
+  background: linear-gradient(90deg, transparent, #c59318, transparent) !important;
+}
+
+body.light-theme .wird-header-bar {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.22) !important;
+  box-shadow: inset 0 0 12px rgba(184, 134, 11, 0.03) !important;
+}
+
+body.light-theme .wird-streak-info {
+  color: #0f172a !important;
+}
+
+body.light-theme .wird-streak-icon {
+  background: rgba(184, 134, 11, 0.12) !important;
+  color: #7d5a00 !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .wird-streak-text {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme .wird-streak-text strong {
+  color: #8d6404 !important;
+}
+
+body.light-theme .weekly-day-dot {
+  background: #ede8d8 !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+  color: #64748b !important;
+}
+
+body.light-theme .weekly-day-dot.done {
+  background: #059669 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+}
+
+body.light-theme .wird-progress-title {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .wird-progress-badge {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border: 1px solid rgba(184, 134, 11, 0.35) !important;
+  color: #7d5a00 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .wird-progress-badge.all-done {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #059669 !important;
+  color: #065f46 !important;
+}
+
+body.light-theme .wird-progress-bar-container {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .wird-progress-bar-fill {
+  background: linear-gradient(90deg, #c59318, #eab308) !important;
+}
+
+body.light-theme .wird-progress-bar-fill.all-done {
+  background: linear-gradient(90deg, #059669, #10b981) !important;
+}
+
+body.light-theme .wird-tasks-grid {
+  gap: 1rem !important;
+}
+
+body.light-theme .wird-task-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .wird-task-item:hover {
+  background: #fbf8ee !important;
+  border-color: #c59318 !important;
+  box-shadow: 0 6px 16px rgba(184, 134, 11, 0.08) !important;
+}
+
+body.light-theme .wird-task-item.is-completed {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-color: rgba(5, 150, 105, 0.35) !important;
+}
+
+body.light-theme .wird-custom-check {
+  background: #ffffff !important;
+  border: 2px solid rgba(184, 134, 11, 0.4) !important;
+  color: transparent !important;
+}
+
+body.light-theme .wird-checkbox:checked + .wird-custom-check {
+  background: #059669 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .wird-task-text {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme .wird-task-item.is-completed .wird-task-text {
+  color: #065f46 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .wird-task-reward {
+  color: #64748b !important;
+  font-size: 0.82rem !important;
+}
+
+body.light-theme .wird-actions-bar {
+  border-top: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+/* 13. Form Inputs & Modals */
+body.light-theme input[type="text"],
+body.light-theme input[type="search"],
+body.light-theme input[type="password"],
+body.light-theme select,
+body.light-theme textarea,
+body.light-theme .duas-search-input,
+body.light-theme .media-search-input,
+body.light-theme .quran-search-input,
+body.light-theme .asmaa-search-input,
+body.light-theme .nawawi-search-input,
+body.light-theme .admin-pin-input,
+body.light-theme .form-input,
+body.light-theme .form-textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(184, 134, 11, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme input::placeholder,
+body.light-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+body.light-theme .modal-overlay {
+  background: rgba(15, 23, 42, 0.6) !important;
+}
+
+body.light-theme .modal-card,
+body.light-theme .modal-card-admin,
+body.light-theme .modal-card-media-player,
+body.light-theme .modal-card-quran-search,
+body.light-theme .modal-card-qibla,
+body.light-theme .modal-card-ios-install {
+  background: #ffffff !important;
+  border: 1px solid #c59318 !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.light-theme .modal-header {
+  border-bottom: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .modal-footer {
+  border-top: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .modal-close-btn {
+  color: #64748b !important;
+}
+
+body.light-theme .modal-close-btn:hover {
+  color: #0f172a !important;
+}
+
+body.light-theme .form-label {
+  color: #0f172a !important;
+}
+
+body.light-theme .toggle-switch-title {
+  color: #0f172a !important;
+}
+
+body.light-theme .toggle-switch-desc {
+  color: #475569 !important;
+}
+
+body.light-theme .slider-round {
+  background-color: #cbd5e1 !important;
+}
+
+/* Modals Content Specifics */
+body.light-theme #modal-asmaa-name {
+  color: #7d5a00 !important;
+  text-shadow: none !important;
+}
+
+body.light-theme #modal-asmaa-meaning,
+body.light-theme #modal-story-text,
+body.light-theme #modal-msg-reflection {
+  color: #0f172a !important;
+}
+
+body.light-theme .asmaa-virtue-box,
+body.light-theme .daily-msg-dua-box {
+  background: #fbf8ee !important;
+  border-right-color: #c59318 !important;
+}
+
+body.light-theme #modal-asmaa-virtue,
+body.light-theme #modal-msg-dua {
+  color: #334155 !important;
+}
+
+body.light-theme .asmaa-dua-box,
+body.light-theme .story-lessons-box {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-right-color: #059669 !important;
+}
+
+body.light-theme #modal-asmaa-dua,
+body.light-theme #modal-story-lessons {
+  color: #065f46 !important;
+}
+
+body.light-theme .story-modal-title {
+  color: #0f172a !important;
+}
+
+body.light-theme .story-modal-tag {
+  background: rgba(184, 134, 11, 0.1) !important;
+  color: #7d5a00 !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .story-modal-icon-badge {
+  background: rgba(184, 134, 11, 0.12) !important;
+  color: #7d5a00 !important;
+  border: 1px solid #c59318 !important;
+}
+
+body.light-theme #modal-story-verse,
+body.light-theme #modal-msg-title,
+body.light-theme #modal-msg-verse {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .daily-msg-verse-card {
+  background: #fbf8ee !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme #modal-msg-surah {
+  color: #64748b !important;
+}
+
+/* 14. Buttons & Interactive Controls */
+body.light-theme .btn-outline {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.35) !important;
+  color: #334155 !important;
+}
+
+body.light-theme .btn-outline:hover {
+  background: rgba(184, 134, 11, 0.1) !important;
+  color: #7d5a00 !important;
+  border-color: #b8860b !important;
+}
+
+body.light-theme .btn-gold {
+  background: linear-gradient(135deg, #c59318 0%, #a17400 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .btn-gold:hover {
+  background: linear-gradient(135deg, #b8860b 0%, #855f00 100%) !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .btn-amen {
+  background: rgba(5, 150, 105, 0.08) !important;
+  border: 1px solid rgba(5, 150, 105, 0.3) !important;
+  color: #047857 !important;
+}
+
+body.light-theme .btn-amen:hover,
+body.light-theme .btn-amen.active {
+  background: #059669 !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .swiper-button-next,
+body.light-theme .swiper-button-prev {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.35) !important;
+  color: #7d5a00 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.light-theme .swiper-button-next:hover,
+body.light-theme .swiper-button-prev:hover {
+  background: #c59318 !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .swiper-pagination-bullet {
+  background: #94a3b8 !important;
+}
+
+body.light-theme .swiper-pagination-bullet-active {
+  background: #c59318 !important;
+}
+
+/* 15. Live Radio, PWA, Admin Dashboard & Footer */
+body.light-theme .radio-fab-btn {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f3e8 100%) !important;
+  border: 2px solid #c59318 !important;
+  color: #7d5a00 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+body.light-theme .radio-panel {
+  background: #ffffff !important;
+  border: 1px solid #c59318 !important;
+  color: #0f172a !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+body.light-theme .radio-header-title {
+  color: #0f172a !important;
+}
+
+body.light-theme .radio-station-name {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .radio-station-select {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .radio-station-select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .btn-radio-play {
+  background: #c59318 !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .pwa-install-banner {
+  background: #ffffff !important;
+  border: 1px solid #c59318 !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light-theme .pwa-banner-text strong {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .pwa-banner-text span {
+  color: #475569 !important;
+}
+
+body.light-theme .admin-stat-card {
+  background: #fdfbf7 !important;
+  border: 1px solid rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .admin-stat-number {
+  color: #0f172a !important;
+}
+
+body.light-theme .admin-panel-box {
+  background: #fbf9f2 !important;
+  border: 1px solid rgba(184, 134, 11, 0.18) !important;
+}
+
+body.light-theme .admin-daily-item {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid rgba(184, 134, 11, 0.15) !important;
+}
+
+body.light-theme .footer {
+  background: #ede8dc !important;
+  border-top: 1px solid rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .footer-quote {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .footer-text {
+  color: #475569 !important;
+}
+
+body.light-theme .footer-author {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .footer-social-shares .btn {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .toast {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #c59318 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ==========================================================================
+   تنسيقات مصحف الأوفلاين والتحميل بدون إنترنت ووضع ملء الشاشة
+   ========================================================================== */
+.badge-offline-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  margin-right: 0.25rem;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+/* وضع ملء الشاشة والتركيز */
+.real-mushaf-card.mushaf-fullscreen-mode {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 1rem 1.5rem !important;
+  overflow-y: auto !important;
+  background: var(--bg-primary, #0a1120) !important;
+  box-shadow: none !important;
+}
+
+.real-mushaf-card.mushaf-fullscreen-mode .mushaf-real-page-wrapper {
+  max-height: 82vh !important;
+}
+
+/* نافذة إدارة تحميل المصحف بدون إنترنت */
+.modal-card-offline {
+  max-width: 680px;
+}
+
+.offline-modal-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.offline-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 50%;
+  font-size: 1.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.offline-modal-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.6;
+  margin-top: 0.4rem;
+}
+
+/* بطاقة حالة التخزين */
+.offline-status-card {
+  background: rgba(14, 25, 43, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: var(--radius-lg, 16px);
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.offline-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.offline-status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.offline-status-info .status-label {
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+}
+
+.offline-status-info .status-value {
+  font-size: 0.98rem;
+  color: var(--text-primary, #f8fafc);
+  font-weight: 700;
+}
+
+.offline-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.offline-badge-pill.ready-full {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.offline-badge-pill.ready-partial {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.offline-badge-pill.ready-none {
+  background: rgba(100, 116, 139, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.offline-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+}
+
+.offline-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #b8860b, #e6ca65);
+  border-radius: var(--radius-full, 9999px);
+  transition: width 0.35s ease;
+}
+
+.offline-progress-bar.animated-bar {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+/* خيارات التحميل */
+.offline-download-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  transition: opacity 0.3s ease;
+}
+
+.offline-option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: rgba(14, 25, 43, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg, 16px);
+  transition: all var(--transition-fast, 0.2s);
+}
+
+.offline-option-card:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  background: rgba(14, 25, 43, 0.8);
+}
+
+.offline-option-card.featured-option {
+  border-color: rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.offline-option-card .option-icon {
+  font-size: 1.5rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.offline-option-card .option-details {
+  flex: 1;
+  min-width: 220px;
+}
+
+.offline-option-card .option-details h4 {
+  font-size: 0.98rem;
+  color: var(--text-primary, #f8fafc);
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+}
+
+.offline-option-card .option-details p {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* صندوق التحميل النشط */
+.offline-active-download-box {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-lg, 16px);
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.download-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.92rem;
+  color: var(--text-primary, #f8fafc);
+  margin-bottom: 0.75rem;
+}
+
+.download-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.85rem;
+}
+
+.offline-modal-footer-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.offline-note-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.5;
+}
+
+.offline-note-item i {
+  margin-top: 0.2rem;
+}
+
+/* تنسيقات الوضع النهاري للتحميل بدون إنترنت (Light Mode) */
+body.light-theme .offline-status-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.22) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .offline-status-info .status-value {
+  color: #1e293b !important;
+}
+
+body.light-theme .offline-option-card {
+  background: #fbf9f2 !important;
+  border: 1px solid rgba(184, 134, 11, 0.18) !important;
+}
+
+body.light-theme .offline-option-card:hover {
+  background: #ffffff !important;
+  border-color: #b8860b !important;
+}
+
+body.light-theme .offline-option-card .option-details h4 {
+  color: #1e293b !important;
+}
+
+body.light-theme .offline-option-card .option-details p {
+  color: #475569 !important;
+}
+
+body.light-theme .offline-active-download-box {
+  background: #f0fdf4 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+body.light-theme .download-info-row {
+  color: #0f172a !important;
+}
+
+body.light-theme .offline-note-item {
+  color: #475569 !important;
+}
+
+body.light-theme .offline-modal-subtitle {
+  color: #475569 !important;
+}
+
+body.light-theme .real-mushaf-card.mushaf-fullscreen-mode {
+  background: #f4f0e6 !important;
+}
+
+/* ==========================================================================
+   تنسيقات اختيار القراء ووضع تحفيظ وتكرار القرآن الكريم
+   ========================================================================== */
+.mushaf-reciter-control-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(14, 25, 43, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 0.2rem 0.35rem 0.2rem 0.65rem;
+}
+
+.select-reciter-dropdown {
+  background: transparent;
+  color: var(--gold-300);
+  border: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+  outline: none;
+  max-width: 175px;
+}
+
+.select-reciter-dropdown option {
+  background: #0a1322;
+  color: #f8fafc;
+}
+
+/* نافذة وضع التحفيظ */
+.modal-card-hifz {
+  max-width: 760px;
+}
+
+.hifz-modal-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.hifz-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 50%;
+  font-size: 1.6rem;
+  margin-bottom: 0.65rem;
+}
+
+.hifz-modal-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.6;
+}
+
+.hifz-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.hifz-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hifz-input-group label {
+  font-size: 0.84rem;
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hifz-input-group .form-control {
+  background: rgba(14, 25, 43, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md, 10px);
+  color: var(--text-primary, #f8fafc);
+  padding: 0.55rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.hifz-input-group .form-control:focus {
+  border-color: var(--gold-400, #d4af37);
+}
+
+.hifz-range-inputs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.range-sub-input {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.range-sub-input span {
+  font-size: 0.78rem;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+}
+
+.range-sub-input .form-control {
+  width: 100%;
+  text-align: center;
+}
+
+/* بطاقة الآية النشطة ومشغل التحفيظ */
+.hifz-active-player-card {
+  background: rgba(14, 25, 43, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: var(--radius-xl, 20px);
+  padding: 1.35rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.hifz-player-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hifz-active-meta {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.badge-hifz-surah {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-300);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: var(--radius-full);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.badge-hifz-ayah {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-full);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.hifz-repeat-indicator {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  padding: 0.25rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.hifz-repeat-indicator strong {
+  color: var(--gold-300);
+}
+
+.hifz-verse-display {
+  background: rgba(5, 10, 20, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: var(--radius-lg, 16px);
+  padding: 1.5rem 1.25rem;
+  margin-bottom: 1.25rem;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.hifz-verse-text {
+  font-family: 'Amiri', serif;
+  font-size: 1.45rem;
+  line-height: 2.1;
+  color: var(--gold-200, #fef08a);
+  margin: 0;
+  text-align: center;
+}
+
+.hifz-verse-display.hidden-for-test {
+  background: rgba(5, 10, 20, 0.9);
+  border-style: dashed;
+}
+
+.hifz-verse-display.hidden-for-test .hifz-verse-text {
+  filter: blur(8px);
+  opacity: 0.15;
+  user-select: none;
+}
+
+.hifz-verse-display.hidden-for-test::after {
+  content: "👁️ الآية مخفية لاختبار استحضار الحفظ - اقرأها بصوتك!";
+  position: absolute;
+  color: var(--gold-400);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.hifz-player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.btn-hifz-play {
+  padding: 0.65rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+
+.btn-hifz-play.is-playing {
+  background: #f59e0b !important;
+  color: #0f172a !important;
+}
+
+.hifz-status-message {
+  font-size: 0.88rem;
+  color: var(--text-secondary, #94a3b8);
+  min-height: 24px;
+}
+
+/* تنسيقات الوضع النهاري للتحفيظ والقراء (Light Mode) */
+body.light-theme .mushaf-reciter-control-group {
+  background: #ffffff !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+}
+
+body.light-theme .select-reciter-dropdown {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .select-reciter-dropdown option {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+body.light-theme .hifz-input-group .form-control {
+  background: #ffffff !important;
+  border-color: rgba(184, 134, 11, 0.25) !important;
+  color: #1e293b !important;
+}
+
+body.light-theme .hifz-input-group label {
+  color: #475569 !important;
+}
+
+body.light-theme .hifz-active-player-card {
+  background: #ffffff !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light-theme .hifz-verse-display {
+  background: #fdfaf2 !important;
+  border-color: rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .hifz-verse-text {
+  color: #2b1f07 !important;
+}
+
+body.light-theme .hifz-repeat-indicator {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #1e293b !important;
+}
+
+body.light-theme .hifz-status-message {
+  color: #475569 !important;
+}
