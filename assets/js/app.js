@@ -3060,7 +3060,7 @@ ${item.hadith}
 
 ━━━━━━━━━━━━━━
 🌸 *تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)*
-📲 تابع أذكارك ووردك اليومي: https://abdomohaamed.github.io/sadqah-jaddi/`;
+📲 تابع أذكارك ووردك اليومي: https://zadmuslim-zeta.vercel.app/`;
 
             if (navigator.share) {
                 navigator.share({
@@ -3302,7 +3302,7 @@ function renderDuasCardsList(duasList) {
         const copyBtn = card.querySelector(".btn-copy-cat-dua");
         if (copyBtn) {
             copyBtn.addEventListener("click", () => {
-                const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: https://zadmuslim-zeta.vercel.app/`;
                 copyTextToClipboard(textToCopy);
             });
         }
@@ -3311,7 +3311,7 @@ function renderDuasCardsList(duasList) {
         const shareBtn = card.querySelector(".btn-share-cat-dua");
         if (shareBtn) {
             shareBtn.addEventListener("click", () => {
-                const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 رابط التطبيق: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 رابط التطبيق: https://zadmuslim-zeta.vercel.app/`;
                 const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                 window.open(url, "_blank");
             });

@@ -228,7 +228,7 @@ function initNawawiHadiths() {
             const copyBtn = card.querySelector(".btn-copy-hadith");
             if (copyBtn) {
                 copyBtn.addEventListener("click", () => {
-                    const textToCopy = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n💡 *الشرح:* ${h.explanation}\n\n🕊️ زاد المسلم: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                    const textToCopy = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n💡 *الشرح:* ${h.explanation}\n\n🕊️ زاد المسلم: https://zadmuslim-zeta.vercel.app/`;
                     copyTextToClipboard(textToCopy);
                     showToast("تم نسخ الحديث بنجاح 📋");
                 });
@@ -237,7 +237,7 @@ function initNawawiHadiths() {
             const shareBtn = card.querySelector(".btn-share-hadith");
             if (shareBtn) {
                 shareBtn.addEventListener("click", () => {
-                    const msg = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 للمزيد من الأحاديث والتلاوات: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                    const msg = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 للمزيد من الأحاديث والتلاوات: https://zadmuslim-zeta.vercel.app/`;
                     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                     window.open(waUrl, "_blank");
                 });
@@ -1118,7 +1118,7 @@ async function shareEnhancedDuaCard() {
 function fallbackShareWhatsApp() {
     const recipientInput = document.getElementById("dua-card-recipient-input");
     const nameVal = (recipientInput && recipientInput.value.trim()) || "فقيدنا الغالي";
-    const msg = `🌿 *بطاقة دعاء لروح (${nameVal})*\n\nاللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة.\n\n📲 صمم بطاقة لفقيدك واكسب الأجر: https://abdomohaamed.github.io/sadqah-jaddi/`;
+    const msg = `🌿 *بطاقة دعاء لروح (${nameVal})*\n\nاللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة.\n\n📲 صمم بطاقة لفقيدك واكسب الأجر: https://zadmuslim-zeta.vercel.app/`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
     window.open(waUrl, "_blank");
     showToast("جاري فتح واتساب للمشاركة 📲");
@@ -1265,7 +1265,7 @@ function initEnhancedCategorizedDuas() {
             if (copyBtn) {
                 copyBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                    const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: https://zadmuslim-zeta.vercel.app/`;
                     copyTextToClipboard(textToCopy);
                     showToast("تم نسخ الدعاء بنجاح 📋");
                 });
@@ -1276,7 +1276,7 @@ function initEnhancedCategorizedDuas() {
             if (shareBtn) {
                 shareBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 الرابط: https://abdomohaamed.github.io/sadqah-jaddi/`;
+                    const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 الرابط: https://zadmuslim-zeta.vercel.app/`;
                     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                     window.open(url, "_blank");
                 });
@@ -2204,7 +2204,7 @@ function initSpiritualGarden() {
             const data = getGardenData();
             const currentStage = GARDEN_STAGES.slice().reverse().find(s => data.points >= s.minPoints) || GARDEN_STAGES[0];
             
-            const msg = `🌳 *شجرة الذكر وحديقة الحسنات في تطبيق زاد المسلم*\n\n🌱 وصلت اليوم إلى: *${currentStage.title}*\n✨ رصيد بركتي: *${data.points} حسنة/نقطة*\n📿 تسبيحات: ${data.tasbeeh || 0} • 📖 صفحات قرآن: ${data.quran || 0}\n\n🌸 صدقة جارية لوجه الله تعالى\n📲 ازرع شجرتك في الجنة الآن: https://abdomohaamed.github.io/sadqah-jaddi/`;
+            const msg = `🌳 *شجرة الذكر وحديقة الحسنات في تطبيق زاد المسلم*\n\n🌱 وصلت اليوم إلى: *${currentStage.title}*\n✨ رصيد بركتي: *${data.points} حسنة/نقطة*\n📿 تسبيحات: ${data.tasbeeh || 0} • 📖 صفحات قرآن: ${data.quran || 0}\n\n🌸 صدقة جارية لوجه الله تعالى\n📲 ازرع شجرتك في الجنة الآن: https://zadmuslim-zeta.vercel.app/`;
             
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             window.open(url, "_blank");
