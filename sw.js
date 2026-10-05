@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v37";
+const CACHE_NAME = "zad-muslim-v38";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
@@ -284,7 +284,7 @@ function checkUpcomingPrayersOnWakeup() {
 // ==========================================================================
 self.addEventListener("push", (event) => {
   let data = {
-    title: "زاد المسلم • رفيق طاعاتك اليومية 🌿",
+    title: "زاد المسلم - رفيق طاعاتك اليومية 🌿",
     body: "تذكير بذكر الله والطاعات والصلوات",
     icon: "./assets/icon.svg",
     badge: "./assets/icon.svg",

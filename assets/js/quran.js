@@ -1090,20 +1090,22 @@ function prefetchAdjacentPages(currentPage) {
     }).catch(() => {});
 }
 
-// 2. إيماءات اللمس لتقليب الصفحات على الهواتف والأجهزة اللوحية (Touch Gestures)
+// 2. إيماءات اللمس والنقر السريع لتقليب صفحات المصحف الشريف (Touch & Tap Gestures)
 function initMushafTouchGestures() {
-    const wrapper = document.querySelector(".mushaf-real-page-wrapper") || document.querySelector(".real-mushaf-card");
+    const wrapper = document.getElementById("mushaf-real-page-wrapper") || document.querySelector(".mushaf-real-page-wrapper");
     if (!wrapper) return;
 
     let touchStartX = 0;
     let touchStartY = 0;
     let touchEndX = 0;
     let touchEndY = 0;
+    let touchStartTime = 0;
 
     wrapper.addEventListener("touchstart", (e) => {
         if (e.touches && e.touches.length === 1) {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
         }
     }, { passive: true });
 
@@ -1111,29 +1113,65 @@ function initMushafTouchGestures() {
         if (e.changedTouches && e.changedTouches.length === 1) {
             touchEndX = e.changedTouches[0].clientX;
             touchEndY = e.changedTouches[0].clientY;
-            handleSwipeGesture();
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const elapsedTime = Date.now() - touchStartTime;
+
+            // أ) حركة السحب الأفقي (Swipe)
+            if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY) * 1.3) {
+                if (diffX < 0) {
+                    // سحب لليسار: الصفحة التالية في المصحف
+                    flipToNextPage();
+                } else {
+                    // سحب لليمين: الصفحة السابقة
+                    flipToPrevPage();
+                }
+                return;
+            }
+
+            // ب) النقر السريع على جانبي الصفحة (Tap-to-flip)
+            if (Math.abs(diffX) < 15 && Math.abs(diffY) < 15 && elapsedTime < 350) {
+                const rect = wrapper.getBoundingClientRect();
+                const tapXRelative = touchEndX - rect.left;
+                const width = rect.width;
+
+                // النقر على الثلث الأيسر = الصفحة التالية
+                if (tapXRelative < width * 0.35) {
+                    flipToNextPage();
+                }
+                // النقر على الثلث الأيمن = الصفحة السابقة
+                else if (tapXRelative > width * 0.65) {
+                    flipToPrevPage();
+                }
+            }
         }
     }, { passive: true });
 
-    function handleSwipeGesture() {
-        const diffX = touchEndX - touchStartX;
-        const diffY = touchEndY - touchStartY;
+    // دعم النقر بالماوس أيضاً على جانبي الصفحة
+    wrapper.addEventListener("click", (e) => {
+        if (e.target.closest("button, a, input, select, .mushaf-page-loader")) return;
+        const rect = wrapper.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
 
-        // التحقق أن الحركة أفقية وليست تمرير رأسي
-        if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
-            if (diffX < 0) {
-                // سحب لليسار: الصفحة التالية في اتجاه القراءة
-                if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
-                    if (navigator.vibrate) navigator.vibrate(15);
-                    goToMushafPage(currentPageNumber + 1);
-                }
-            } else {
-                // سحب لليمين: الصفحة السابقة
-                if (currentPageNumber > 1) {
-                    if (navigator.vibrate) navigator.vibrate(15);
-                    goToMushafPage(currentPageNumber - 1);
-                }
-            }
+        if (clickX < width * 0.32) {
+            flipToNextPage();
+        } else if (clickX > width * 0.68) {
+            flipToPrevPage();
+        }
+    });
+
+    function flipToNextPage() {
+        if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
+            if (navigator.vibrate) navigator.vibrate(12);
+            goToMushafPage(currentPageNumber + 1);
+        }
+    }
+
+    function flipToPrevPage() {
+        if (currentPageNumber > 1) {
+            if (navigator.vibrate) navigator.vibrate(12);
+            goToMushafPage(currentPageNumber - 1);
         }
     }
 }
