@@ -1,9 +1,10 @@
 /**
  * Service Worker لتطبيق زاد المسلم • رفيق طاعاتك اليومية
- * يوفر سرعة تحميل فورية، دعم التثبيت كـ PWA، تنبيهات الأذان في الخلفية، وإشعارات البث السحابي
+ * متوافق 100% مع iOS Safari و WebKit وأجهزة Android والحواسيب
+ * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v36";
+const CACHE_NAME = "zad-muslim-v37";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
@@ -33,17 +34,36 @@ const ASSETS_TO_CACHE = [
   "https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
 ];
 
+// دالة حماية Safari على آيفون: تجريد علامة التوجيه (redirected flag) لمنع خطأ Safari iOS
+function cleanResponse(response) {
+  if (!response || !response.redirected) {
+    return response;
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers
+  });
+}
+
 // جدول مواقيت الصلاة المخزن لتنبيهات الخلفية
 let scheduledPrayerAlarms = [];
 let activeAlarmTimers = [];
 
-// مرحلة التثبيت وتخزين الملفات الأساسية
+// مرحلة التثبيت وتخزين الملفات الأساسية بأمان
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE).catch(err => {
-        console.warn("Some static assets failed to cache:", err);
-      });
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of ASSETS_TO_CACHE) {
+        try {
+          const res = await fetch(asset, { redirect: "follow" });
+          if (res && (res.status === 200 || res.type === "opaque")) {
+            await cache.put(asset, cleanResponse(res));
+          }
+        } catch (err) {
+          console.warn("Asset caching skipped:", asset);
+        }
+      }
     })
   );
   self.skipWaiting();
@@ -65,7 +85,7 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// استراتيجية جلب البيانات (Cache First للمصحف الشريف والتفاسير، Network First لباقي الموقع)
+// استراتيجية جلب البيانات (معالجة متقدمة لحماية Safari و WebKit)
 self.addEventListener("fetch", (event) => {
   const url = event.request.url;
 
@@ -80,7 +100,33 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // المصحف الشريف والتفاسير: Cache-First للسرعة العالية وبدون نت
+  // 1. طلبات التنقل بين الصفحات (HTML Navigation)
+  // حماية آيفون Safari من أخطاء الـ redirection
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request, { redirect: "follow" })
+        .then((networkResponse) => {
+          const cleaned = cleanResponse(networkResponse);
+          if (cleaned && cleaned.status === 200) {
+            const cacheCopy = cleaned.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cacheCopy));
+          }
+          return cleaned;
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request) || 
+                         await caches.match("./index.html") || 
+                         await caches.match("./");
+          if (cached) {
+            return cleanResponse(cached);
+          }
+          return new Response("Offline", { status: 503, statusText: "Offline" });
+        })
+    );
+    return;
+  }
+
+  // 2. المصحف الشريف والتفاسير: Cache-First للسرعة العالية وبدون نت
   const isQuranAsset = 
     url.includes("cdn.quran.ws") || 
     url.includes("quran.ksu.edu.sa") || 
@@ -92,13 +138,14 @@ self.addEventListener("fetch", (event) => {
       caches.open(QURAN_CACHE_NAME).then((cache) => {
         return cache.match(event.request).then((cachedResponse) => {
           if (cachedResponse) {
-            return cachedResponse;
+            return cleanResponse(cachedResponse);
           }
-          return fetch(event.request).then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              cache.put(event.request, networkResponse.clone());
+          return fetch(event.request, { redirect: "follow" }).then((networkResponse) => {
+            const cleaned = cleanResponse(networkResponse);
+            if (cleaned && cleaned.status === 200) {
+              cache.put(event.request, cleaned.clone());
             }
-            return networkResponse;
+            return cleaned;
           }).catch(() => {
             return new Response("", { status: 408, statusText: "Offline" });
           });
@@ -108,27 +155,30 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // التخزين المؤقت الذكي لملفات الموقع والأدعية والخطوط
+  // 3. باقي أصول وموارد الموقع (Cache first مع Network update آمن لـ Safari)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
+      if (cachedResponse) {
+        return cleanResponse(cachedResponse);
+      }
+
+      return fetch(event.request, { redirect: "follow" })
         .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200 && event.request.method === "GET") {
-            const responseToCache = networkResponse.clone();
+          const cleaned = cleanResponse(networkResponse);
+          if (cleaned && cleaned.status === 200 && event.request.method === "GET") {
+            const responseToCache = cleaned.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);
             });
           }
-          return networkResponse;
+          return cleaned;
         })
         .catch(() => {
-          if (cachedResponse) return cachedResponse;
           if (event.request.headers.get("accept") && event.request.headers.get("accept").includes("text/html")) {
-            return caches.match("./index.html");
+            return caches.match("./index.html").then((fallback) => cleanResponse(fallback));
           }
+          return new Response("", { status: 404 });
         });
-
-      return cachedResponse || fetchPromise;
     })
   );
 });
@@ -151,7 +201,6 @@ self.addEventListener("message", (event) => {
 });
 
 function armBackgroundPrayerAlarms() {
-  // تفريغ الموقتات السابقة
   activeAlarmTimers.forEach(t => clearTimeout(t));
   activeAlarmTimers = [];
 
@@ -162,7 +211,6 @@ function armBackgroundPrayerAlarms() {
     const targetTime = Number(prayer.timestamp);
     const delay = targetTime - now;
 
-    // جدولة إذا كان الوقت قادماً خلال الـ 24 ساعة القادمة
     if (delay > 0 && delay <= 86400000) {
       const timer = setTimeout(() => {
         showPrayerNotification(prayer);
@@ -179,11 +227,13 @@ function showPrayerNotification(prayer) {
     badge: "./assets/icon.svg",
     vibrate: [500, 250, 500, 250, 500, 250, 1000],
     tag: `prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`,
+    dir: "rtl",
+    lang: "ar",
     renotify: true,
-    requireInteraction: true,
+    requireInteraction: false,
     data: { url: "./#prayers" },
     actions: [
-      { action: "open", title: "فتح الأذكار والمواقيت 📖" },
+      { action: "open", title: "📖 فتح الأذكار والمواقيت" },
       { action: "close", title: "إغلاق" }
     ]
   };
@@ -198,10 +248,12 @@ function showDeviceNotification(title, body, url, tag) {
     badge: "./assets/icon.svg",
     vibrate: [200, 100, 200, 100, 400],
     tag: tag || `zad_notif_${Date.now()}`,
+    dir: "rtl",
+    lang: "ar",
     renotify: true,
     data: { url: url || "./" },
     actions: [
-      { action: "open", title: "فتح التطبيق 📖" },
+      { action: "open", title: "📖 فتح التطبيق" },
       { action: "close", title: "إغلاق" }
     ]
   };
@@ -221,7 +273,6 @@ function checkUpcomingPrayersOnWakeup() {
   scheduledPrayerAlarms.forEach(prayer => {
     if (prayer.key === "sunrise") return;
     const diff = Math.abs(prayer.timestamp - now);
-    // إذا كان الفرق دقيقة واحدة من وقت الصلاة
     if (diff < 60000) {
       showPrayerNotification(prayer);
     }
