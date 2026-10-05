@@ -785,6 +785,8 @@ function initSmartNotifications() {
     const openBtns = document.querySelectorAll("#btn-open-notifications-nav, #btn-open-notifications-hero, .btn-open-notifications");
     const closeBtn = document.getElementById("btn-close-notifications-modal");
     const requestBtn = document.getElementById("btn-request-notification-perm");
+    const selectAllBtn = document.getElementById("btn-select-all-notifs");
+    const deselectAllBtn = document.getElementById("btn-deselect-all-notifs");
 
     const chkMorning = document.getElementById("notify-morning-azkar");
     const chkEvening = document.getElementById("notify-evening-azkar");
@@ -792,14 +794,33 @@ function initSmartNotifications() {
     const chkFasting = document.getElementById("notify-fasting-days");
     const chkAdhan = document.getElementById("notify-adhan-calls");
 
+    const allCheckboxes = [chkMorning, chkEvening, chkFriday, chkFasting, chkAdhan].filter(Boolean);
+
+    // استعادة الإعدادات المحفوظة، وإذا لم تكن محفوظة تكون معطلة افتراضياً (OFF)
     try {
         const savedSettings = JSON.parse(localStorage.getItem("smart_notify_settings") || "{}");
-        if (chkMorning && savedSettings.morning !== undefined) chkMorning.checked = savedSettings.morning;
-        if (chkEvening && savedSettings.evening !== undefined) chkEvening.checked = savedSettings.evening;
-        if (chkFriday && savedSettings.friday !== undefined) chkFriday.checked = savedSettings.friday;
-        if (chkFasting && savedSettings.fasting !== undefined) chkFasting.checked = savedSettings.fasting;
-        if (chkAdhan && savedSettings.adhan !== undefined) chkAdhan.checked = savedSettings.adhan;
-    } catch(e) {}
+        if (chkMorning) chkMorning.checked = savedSettings.morning === true;
+        if (chkEvening) chkEvening.checked = savedSettings.evening === true;
+        if (chkFriday) chkFriday.checked = savedSettings.friday === true;
+        if (chkFasting) chkFasting.checked = savedSettings.fasting === true;
+        if (chkAdhan) chkAdhan.checked = savedSettings.adhan === true;
+    } catch(e) {
+        allCheckboxes.forEach(chk => { if (chk) chk.checked = false; });
+    }
+
+    // زر تحديد الكل
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener("click", () => {
+            allCheckboxes.forEach(chk => { if (chk) chk.checked = true; });
+        });
+    }
+
+    // زر إلغاء الكل
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener("click", () => {
+            allCheckboxes.forEach(chk => { if (chk) chk.checked = false; });
+        });
+    }
 
     openBtns.forEach(btn => {
         if (btn) {
@@ -823,20 +844,30 @@ function initSmartNotifications() {
     listenToCloudBroadcastNotifications();
     registerPushSubscriberInFirebase();
 
+    // حفظ التفضيلات
     if (requestBtn) {
         requestBtn.addEventListener("click", async () => {
             const settings = {
-                morning: chkMorning ? chkMorning.checked : true,
-                evening: chkEvening ? chkEvening.checked : true,
-                friday: chkFriday ? chkFriday.checked : true,
-                fasting: chkFasting ? chkFasting.checked : true,
-                adhan: chkAdhan ? chkAdhan.checked : true
+                morning: chkMorning ? chkMorning.checked : false,
+                evening: chkEvening ? chkEvening.checked : false,
+                friday: chkFriday ? chkFriday.checked : false,
+                fasting: chkFasting ? chkFasting.checked : false,
+                adhan: chkAdhan ? chkAdhan.checked : false
             };
             localStorage.setItem("smart_notify_settings", JSON.stringify(settings));
+            localStorage.setItem("smart_notify_configured", "true");
+
+            const hasAnyActive = Object.values(settings).some(v => v === true);
+
+            if (!hasAnyActive) {
+                showToast("تم حفظ التفضيلات (جميع التنبيهات معطلة حالياً 🔕)");
+                if (modal) modal.classList.remove("open");
+                return;
+            }
 
             if ("Notification" in window) {
                 if (Notification.permission === "granted") {
-                    showToast("تم تفعيل وتحديث إعدادات التنبيهات بنجاح 🔔✨");
+                    showToast("تم حفظ وتفعيل التنبيهات المختارة بنجاح 🔔✨");
                     registerPushSubscriberInFirebase();
                     if (modal) modal.classList.remove("open");
                 } else if (Notification.permission !== "denied") {
@@ -844,19 +875,30 @@ function initSmartNotifications() {
                     if (permission === "granted") {
                         showToast("تم تفعيل إشعارات المتصفح بنجاح! جزاكم الله خيراً 🌿");
                         registerPushSubscriberInFirebase();
-                        triggerNativeNotification("زاد المسلم • صدقة جارية", "أهلاً بك! تم تفعيل تنبيهات الأذكار والصلوات بنجاح لتنال الأجر دائماً 🤲", "./");
+                        triggerNativeNotification("زاد المسلم • تنبيهات الطاعات", "تم تفعيل التنبيهات التي اخترتها بنجاح لتصلك في مواعيدها المباركة 🤲✨", "./");
                         if (modal) modal.classList.remove("open");
                     } else {
                         showToast("يرجى السماح بالإشعارات من إعدادات المتصفح لتصلك التنبيهات في الخلفية.");
                     }
                 } else {
                     showToast("الإشعارات محظورة في متصفحك. ستصلك التنبيهات داخل التطبيق مباشرة 🔔");
+                    if (modal) modal.classList.remove("open");
                 }
             } else {
-                showToast("ستصلك جميع التنبيهات داخل التطبيق مباشرة 🔔");
+                showToast("ستصلك التنبيهات داخل التطبيق مباشرة 🔔");
                 if (modal) modal.classList.remove("open");
             }
         });
+    }
+
+    // اقتراح لطيف للمستخدم الجديد بعد 4 ثوانٍ لفتح نافذة الإشعارات وتخصيصها
+    if (!localStorage.getItem("smart_notify_configured") && !sessionStorage.getItem("zad_notif_prompted")) {
+        sessionStorage.setItem("zad_notif_prompted", "true");
+        setTimeout(() => {
+            if (("Notification" in window) && Notification.permission !== "denied") {
+                showToast("🔔 يمكنك تخصيص تنبيهات الأذكار والصلوات وتفعيل ما ترغب به من أيقونة الجرس بالأعلى");
+            }
+        }, 4000);
     }
 }
 
