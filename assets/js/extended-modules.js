@@ -3129,7 +3129,7 @@ function initAdminDashboard() {
     let currentFetchedStats = {};
 
     function getAdminPin() {
-        return localStorage.getItem("sadqah_admin_pin") || "1997";
+        return localStorage.getItem("zad_admin_pin") || localStorage.getItem("sadqah_admin_pin") || "zad2026";
     }
 
     function openLoginModal() {

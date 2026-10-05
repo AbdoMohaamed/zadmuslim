@@ -1,13 +1,14 @@
 /**
- * Service Worker لتطبيق صدقة جارية
- * يوفر سرعة تحميل فورية ودعم التثبيت كـ PWA
+ * Service Worker لتطبيق زاد المسلم • رفيق طاعاتك اليومية
+ * يوفر سرعة تحميل فورية، دعم التثبيت كـ PWA، تنبيهات الأذان في الخلفية، وإشعارات البث السحابي
  */
 
-const CACHE_NAME = "zad-muslim-v35";
+const CACHE_NAME = "zad-muslim-v36";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
+  "./admin.html",
   "./assets/css/style.css",
   "./assets/js/data.js",
   "./assets/js/azkar-data.js",
@@ -32,6 +33,10 @@ const ASSETS_TO_CACHE = [
   "https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
 ];
 
+// جدول مواقيت الصلاة المخزن لتنبيهات الخلفية
+let scheduledPrayerAlarms = [];
+let activeAlarmTimers = [];
+
 // مرحلة التثبيت وتخزين الملفات الأساسية
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -44,7 +49,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// مرحلة التفعيل وحذف الكاش القديم (مع الحفاظ الدائم على كاش المصحف الشريف)
+// مرحلة التفعيل وحذف الكاش القديم
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -75,7 +80,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // استراتيجية مخصصة للمصحف الشريف والتفاسير: Cache-First لضمان العمل 100% بدون نت وبدون استهلاك بيانات
+  // المصحف الشريف والتفاسير: Cache-First للسرعة العالية وبدون نت
   const isQuranAsset = 
     url.includes("cdn.quran.ws") || 
     url.includes("quran.ksu.edu.sa") || 
@@ -95,7 +100,6 @@ self.addEventListener("fetch", (event) => {
             }
             return networkResponse;
           }).catch(() => {
-            // في حالة انقطاع النت وعدم وجود استجابة
             return new Response("", { status: 408, statusText: "Offline" });
           });
         });
@@ -129,9 +133,104 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-// ==========================================
-// استقبال إشعارات الويب ودفع الإشعارات (Push Notifications)
-// ==========================================
+// ==========================================================================
+// إدارة تنبيهات مواقيت الصلاة والأذان في الخلفية (Background Prayer Alarms)
+// ==========================================================================
+self.addEventListener("message", (event) => {
+  if (!event.data) return;
+
+  if (event.data.type === "SCHEDULE_PRAYERS") {
+    scheduledPrayerAlarms = event.data.schedule || [];
+    armBackgroundPrayerAlarms();
+  }
+
+  if (event.data.type === "TRIGGER_NOTIFICATION") {
+    const { title, body, url, tag } = event.data;
+    showDeviceNotification(title, body, url || "./", tag);
+  }
+});
+
+function armBackgroundPrayerAlarms() {
+  // تفريغ الموقتات السابقة
+  activeAlarmTimers.forEach(t => clearTimeout(t));
+  activeAlarmTimers = [];
+
+  const now = Date.now();
+  scheduledPrayerAlarms.forEach(prayer => {
+    if (!prayer || prayer.key === "sunrise") return;
+
+    const targetTime = Number(prayer.timestamp);
+    const delay = targetTime - now;
+
+    // جدولة إذا كان الوقت قادماً خلال الـ 24 ساعة القادمة
+    if (delay > 0 && delay <= 86400000) {
+      const timer = setTimeout(() => {
+        showPrayerNotification(prayer);
+      }, delay);
+      activeAlarmTimers.push(timer);
+    }
+  });
+}
+
+function showPrayerNotification(prayer) {
+  const options = {
+    body: `الله أكبر، الله أكبر.. حان الآن موعد ${prayer.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕌`,
+    icon: "./assets/icon.svg",
+    badge: "./assets/icon.svg",
+    vibrate: [500, 250, 500, 250, 500, 250, 1000],
+    tag: `prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`,
+    renotify: true,
+    requireInteraction: true,
+    data: { url: "./#prayers" },
+    actions: [
+      { action: "open", title: "فتح الأذكار والمواقيت 📖" },
+      { action: "close", title: "إغلاق" }
+    ]
+  };
+
+  self.registration.showNotification(`🕌 حان الآن موعد ${prayer.name}`, options);
+}
+
+function showDeviceNotification(title, body, url, tag) {
+  const options = {
+    body: body || "تذكير بذكر الله والصلاة على النبي ﷺ 🌿",
+    icon: "./assets/icon.svg",
+    badge: "./assets/icon.svg",
+    vibrate: [200, 100, 200, 100, 400],
+    tag: tag || `zad_notif_${Date.now()}`,
+    renotify: true,
+    data: { url: url || "./" },
+    actions: [
+      { action: "open", title: "فتح التطبيق 📖" },
+      { action: "close", title: "إغلاق" }
+    ]
+  };
+
+  self.registration.showNotification(title || "زاد المسلم 🌿", options);
+}
+
+// التزامن الدوري للصلوات في الخلفية (Periodic Sync إذا كان مدعوماً)
+self.addEventListener("periodicsync", (event) => {
+  if (event.tag === "check-prayers") {
+    event.waitUntil(checkUpcomingPrayersOnWakeup());
+  }
+});
+
+function checkUpcomingPrayersOnWakeup() {
+  const now = Date.now();
+  scheduledPrayerAlarms.forEach(prayer => {
+    if (prayer.key === "sunrise") return;
+    const diff = Math.abs(prayer.timestamp - now);
+    // إذا كان الفرق دقيقة واحدة من وقت الصلاة
+    if (diff < 60000) {
+      showPrayerNotification(prayer);
+    }
+  });
+}
+
+// ==========================================================================
+// استقبال إشعارات الويب السحابية (Web Push Protocol / FCM)
+// ==========================================================================
 self.addEventListener("push", (event) => {
   let data = {
     title: "زاد المسلم • رفيق طاعاتك اليومية 🌿",
@@ -154,10 +253,11 @@ self.addEventListener("push", (event) => {
     body: data.body,
     icon: data.icon || "./assets/icon.svg",
     badge: data.badge || "./assets/icon.svg",
-    vibrate: [100, 50, 100, 50, 200],
-    data: data.data || { url: "./" },
+    vibrate: [200, 100, 200, 100, 500],
+    data: data.data || { url: data.url || "./" },
     tag: "zad-broadcast-" + Date.now(),
     renotify: true,
+    requireInteraction: true,
     actions: [
       { action: "open", title: "فتح التطبيق 📖" },
       { action: "close", title: "إغلاق" }
@@ -191,4 +291,3 @@ self.addEventListener("notificationclick", (event) => {
     })
   );
 });
-

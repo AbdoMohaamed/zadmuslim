@@ -1689,6 +1689,68 @@ function renderPrayerTimesUI(timings) {
     setTime("time-asr", timings.Asr);
     setTime("time-maghrib", timings.Maghrib);
     setTime("time-isha", timings.Isha);
+
+    syncPrayersWithServiceWorker(timings);
+}
+
+function syncPrayersWithServiceWorker(timings) {
+    if (!timings || !("serviceWorker" in navigator)) return;
+    try {
+        const now = new Date();
+        const prayersList = [
+            { name: "صلاة الفجر", key: "fajr", time: timings.Fajr },
+            { name: "الشروق", key: "sunrise", time: timings.Sunrise },
+            { name: "صلاة الظهر", key: "dhuhr", time: timings.Dhuhr },
+            { name: "صلاة العصر", key: "asr", time: timings.Asr },
+            { name: "صلاة المغرب", key: "maghrib", time: timings.Maghrib },
+            { name: "صلاة العشاء", key: "isha", time: timings.Isha }
+        ];
+
+        const schedule = [];
+        for (const p of prayersList) {
+            if (!p.time) continue;
+            const clean = p.time.split(" ")[0];
+            const [h, m] = clean.split(":").map(Number);
+            const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+            
+            // إضافة اليوم والغد للتأكد من استمرار العمل عند إغلاق التطبيق
+            schedule.push({
+                name: p.name,
+                key: p.key,
+                timestamp: pDate.getTime(),
+                timeStr: p.time
+            });
+
+            const nextDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m, 0);
+            schedule.push({
+                name: p.name,
+                key: p.key,
+                timestamp: nextDayDate.getTime(),
+                timeStr: p.time
+            });
+        }
+
+        localStorage.setItem("zad_cached_prayers_schedule", JSON.stringify(schedule));
+
+        const postToSW = (worker) => {
+            if (worker) {
+                worker.postMessage({
+                    type: "SCHEDULE_PRAYERS",
+                    schedule: schedule
+                });
+            }
+        };
+
+        if (navigator.serviceWorker.controller) {
+            postToSW(navigator.serviceWorker.controller);
+        } else {
+            navigator.serviceWorker.ready.then(reg => {
+                postToSW(reg.active);
+            }).catch(() => {});
+        }
+    } catch(e) {
+        console.warn("Failed to sync prayers with Service Worker:", e);
+    }
 }
 
 function startPrayerCountdown() {
@@ -3131,15 +3193,39 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
         playAdhanAudio();
     }
 
-    // 2. إرسال إشعار المتصفح
+    // 2. إرسال إشعار المتصفح والنظام
     if ("Notification" in window && Notification.permission === "granted") {
-        try {
-            new Notification(`🕌 حان الآن وقت ${prayerName}`, {
-                body: `الله أكبر، الله أكبر.. حان الآن موعد ${prayerName} حسب التوقيت المحلي. لا تنسَ صالح الدعاء.`,
-                icon: "assets/icon.svg",
-                tag: `prayer_${prayerKey}`
+        const notifTitle = `🕌 حان الآن وقت ${prayerName}`;
+        const notifBody = `الله أكبر، الله أكبر.. حان الآن موعد ${prayerName} حسب التوقيت المحلي. حيّ على الصلاة، حيّ على الفلاح 🌿`;
+        
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification(notifTitle, {
+                    body: notifBody,
+                    icon: "assets/icon.svg",
+                    badge: "assets/icon.svg",
+                    vibrate: [500, 250, 500, 250, 500, 250, 1000],
+                    tag: `prayer_${prayerKey}_${Date.now()}`,
+                    renotify: true,
+                    requireInteraction: true,
+                    data: { url: "./#prayers" }
+                });
+            }).catch(() => {
+                try {
+                    new Notification(notifTitle, {
+                        body: notifBody,
+                        icon: "assets/icon.svg"
+                    });
+                } catch(e) {}
             });
-        } catch(e) {}
+        } else {
+            try {
+                new Notification(notifTitle, {
+                    body: notifBody,
+                    icon: "assets/icon.svg"
+                });
+            } catch(e) {}
+        }
     }
 
     // 3. عرض Toast داخل التطبيق
