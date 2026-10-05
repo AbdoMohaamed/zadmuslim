@@ -1,11 +1,5 @@
 /**
- * إعدادات Firebase لتخزين ومزامنة الأدعية بين جميع الزوار حول العالم لحظياً
- * 
- * للحصول على هذه البيانات مجاناً في دقيقتين:
- * 1. ادخل على https://console.firebase.google.com/
- * 2. أنشئ مشروعاً جديداً باسم sadqah-jaddi
- * 3. اختر Realtime Database واضغط Create Database (في وضع Test mode)
- * 4. من إعدادات المشروع (Project Settings) أضف Web App واانسخ كود firebaseConfig والصقه هنا
+ * إعدادات Firebase و Web Push لتخزين ومزامنة الأدعية والإشعارات
  */
 
 const FIREBASE_CONFIG = {
@@ -18,8 +12,27 @@ const FIREBASE_CONFIG = {
     appId: "1:649618994454:web:ebaa20bcb0722818874c37"
 };
 
+// المفتاح العام لتشفير وبث إشعارات الويب للأجهزة المقفلة (Web Push VAPID Public Key)
+const ZAD_VAPID_PUBLIC_KEY = "BFCsM3Ryzc4kdbfNgCqtlOJPjIvrolQJTQUdD03b8g1ehKhnxqNeAUJ9T_Yl8WajcZj_dWvJhcCbHN6-pPCSJ4I";
+
 // فحص هل تم تفعيل ووضع الإعدادات
 function isFirebaseConfigured() {
     return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.trim() !== "" &&
            FIREBASE_CONFIG.databaseURL && FIREBASE_CONFIG.databaseURL.trim() !== "";
+}
+
+// دالة تحويل مفتاح VAPID العام إلى Uint8Array لتسجيل PushManager
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
 }

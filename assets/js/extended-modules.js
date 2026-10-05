@@ -877,9 +877,9 @@ function getSafeFirebaseDb() {
 }
 
 /**
- * تسجيل المشترك في قاعدة بيانات فايربيز للحصول على الإحصائيات وبث الإشعارات
+ * تسجيل المشترك في PushManager وقاعدة بيانات فايربيز لاستقبال الإشعارات حتى والتطبيق مغلق
  */
-function registerPushSubscriberInFirebase() {
+async function registerPushSubscriberInFirebase() {
     try {
         const db = getSafeFirebaseDb();
         if (!db) return;
@@ -890,15 +890,38 @@ function registerPushSubscriberInFirebase() {
             localStorage.setItem("zad_push_sub_id", subscriberId);
         }
 
+        let pushSubscriptionJson = null;
+
+        // الحصول على اشتراك PushManager الفعلي من المتصفح / الهاتف
+        if ("serviceWorker" in navigator && "PushManager" in window) {
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                let subscription = await reg.pushManager.getSubscription();
+
+                if (!subscription && typeof ZAD_VAPID_PUBLIC_KEY !== "undefined" && ZAD_VAPID_PUBLIC_KEY) {
+                    const convertedVapidKey = urlBase64ToUint8Array(ZAD_VAPID_PUBLIC_KEY);
+                    subscription = await reg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: convertedVapidKey
+                    });
+                }
+
+                if (subscription) {
+                    pushSubscriptionJson = subscription.toJSON();
+                }
+            } catch (swErr) {
+                console.warn("Push subscription acquisition error:", swErr);
+            }
+        }
+
         const subRef = db.ref("push_subscribers/" + subscriberId);
-        subRef.set({
+        await subRef.set({
             id: subscriberId,
+            subscription: pushSubscriptionJson || null,
             userAgent: navigator.userAgent || "Unknown",
             platform: navigator.platform || "Web",
             language: navigator.language || "ar",
             updatedAt: firebase.database.ServerValue.TIMESTAMP
-        }).catch(err => {
-            console.warn("Could not save push subscriber:", err);
         });
     } catch (e) {
         console.warn("Push subscriber registration skipped:", e);

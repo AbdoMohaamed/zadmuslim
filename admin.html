@@ -1595,10 +1595,31 @@
                     });
                 }
 
+                // Call Serverless Web Push API to wake up and notify all closed devices
+                let pushInfo = "";
+                try {
+                    const pushRes = await fetch("/api/send-push", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            title: title,
+                            body: body,
+                            url: url,
+                            icon: "/assets/icon.svg"
+                        })
+                    });
+                    const pushResult = await pushRes.json();
+                    if (pushResult && pushResult.sentCount > 0) {
+                        pushInfo = ` (تم الإرسال لـ ${pushResult.sentCount} هاتف وجهاز مقفل)`;
+                    }
+                } catch (pushErr) {
+                    console.warn("Web Push API call warning:", pushErr);
+                }
+
                 // Trigger local device feedback
                 triggerNativeNotification(title, body, url);
 
-                showAdminToast("تم بث الإشعار بنجاح لجميع المشتركين والزوار! 🚀🌿");
+                showAdminToast("تم بث الإشعار بنجاح لجميع المشتركين والزوار!" + pushInfo + " 🚀🌿");
             } catch (err) {
                 console.error("Broadcast failed:", err);
                 showAdminToast("حدث خطأ أثناء الإرسال: " + err.message, true);
@@ -1629,8 +1650,23 @@
                         ...val,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     });
+
+                    // Trigger Web Push to closed devices
+                    try {
+                        await fetch("/api/send-push", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                title: val.title || "تنبيه",
+                                body: val.body || "",
+                                url: val.url || "./",
+                                icon: "/assets/icon.svg"
+                            })
+                        });
+                    } catch(e) {}
+
                     triggerNativeNotification(val.title || "تنبيه معاد", val.body || "", val.url || "./");
-                    showAdminToast("تمت إعادة إرسال الإشعار بنجاح! 🚀");
+                    showAdminToast("تمت إعادة إرسال الإشعار لجميع الأجهزة بنجاح! 🚀");
                 }
             } catch(e) {
                 showAdminToast("فشل إعادة الإرسال: " + e.message, true);
