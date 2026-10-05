@@ -33,6 +33,8 @@ module.exports = async function handler(req, res) {
       body: body,
       icon: icon || '/assets/icon.svg',
       badge: badge || '/assets/icon.svg',
+      dir: 'rtl',
+      lang: 'ar',
       data: {
         url: url || './',
         timestamp: Date.now()

@@ -253,19 +253,22 @@ self.addEventListener("push", (event) => {
     body: data.body,
     icon: data.icon || "./assets/icon.svg",
     badge: data.badge || "./assets/icon.svg",
-    vibrate: [200, 100, 200, 100, 500],
+    vibrate: [300, 150, 300, 150, 450],
     data: data.data || { url: data.url || "./" },
-    tag: "zad-broadcast-" + Date.now(),
+    tag: data.tag || ("zad-broadcast-" + Date.now()),
+    dir: "rtl",
+    lang: "ar",
     renotify: true,
-    requireInteraction: true,
+    requireInteraction: false,
+    timestamp: Date.now(),
     actions: [
-      { action: "open", title: "فتح التطبيق 📖" },
-      { action: "close", title: "إغلاق" }
+      { action: "open", title: "📖 فتح وقراءة" },
+      { action: "close", title: "تجاهل" }
     ]
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title || "زاد المسلم 🌿", options)
   );
 });
 

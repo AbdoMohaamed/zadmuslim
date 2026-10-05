@@ -1,15 +1,18 @@
 {
-  "name": "زاد المسلم | رفيق طاعاتك اليومية",
+  "name": "زاد المسلم",
   "short_name": "زاد المسلم",
-  "description": "تطبيق زاد المسلم الشامل للقرآن الكريم، مواقيت الصلاة، الأذكار، السبحة، الأربعون النووية، وقصص الأنبياء • صدقة جارية",
+  "description": "تطبيق زاد المسلم الشامل للقرآن الكريم، مواقيت الصلاة، الأذكار، والتذكيرات اليومية • صدقة جارية",
+  "id": "/?source=pwa",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#070d18",
   "theme_color": "#070d18",
   "orientation": "portrait-primary",
   "lang": "ar",
   "dir": "rtl",
+  "categories": ["lifestyle", "education", "books"],
   "icons": [
     {
       "src": "assets/icon.svg",
