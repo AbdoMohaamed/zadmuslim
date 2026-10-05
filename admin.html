@@ -867,6 +867,14 @@
         let db = null;
 
         // Clock in mockup
+        // Register Service Worker in Admin Panel for background notifications
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("./sw.js").catch(err => {
+                console.warn("Admin SW reg error:", err);
+            });
+        }
+
+        // Clock in mockup
         function updateMockupClock() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -887,7 +895,115 @@
             toast.classList.add("show");
             setTimeout(() => {
                 toast.classList.remove("show");
-            }, 3500);
+            }, 4000);
+        }
+
+        // Web Audio notification chime
+        function playNotificationChime() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                if (ctx.state === "suspended") ctx.resume();
+
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+
+                const now = ctx.currentTime;
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
+
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.35, now + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.85);
+            } catch(e) {}
+        }
+
+        // On-screen floating push banner for direct testing
+        function showInAppPushBanner(data) {
+            let banner = document.getElementById("admin-push-preview-banner");
+            if (!banner) {
+                banner = document.createElement("div");
+                banner.id = "admin-push-preview-banner";
+                banner.className = "zad-cloud-push-banner";
+                banner.style.position = "fixed";
+                banner.style.top = "20px";
+                banner.style.left = "50%";
+                banner.style.transform = "translateX(-50%)";
+                banner.style.width = "92%";
+                banner.style.maxWidth = "540px";
+                banner.style.background = "linear-gradient(135deg, #0d1e31, #08121e)";
+                banner.style.border = "1.5px solid var(--gold)";
+                banner.style.borderRadius = "16px";
+                banner.style.padding = "14px 18px";
+                banner.style.boxShadow = "0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(212,175,55,0.3)";
+                banner.style.zIndex = "999999";
+                banner.style.direction = "rtl";
+                document.body.appendChild(banner);
+            }
+
+            banner.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(212,175,55,0.2); border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--gold); flex-shrink: 0;">
+                        <i class="fa-solid fa-bell fa-shake"></i>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 800; color: var(--gold-light); font-size: 15px; margin-bottom: 3px;">${escapeHtml(data.title || "تنبيه جديد")}</div>
+                        <div style="font-size: 13px; color: #e2e8f0; line-height: 1.4;">${escapeHtml(data.body || "")}</div>
+                    </div>
+                    <button type="button" onclick="this.closest('#admin-push-preview-banner').style.display='none'" style="background: transparent; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; padding: 4px;">&times;</button>
+                </div>
+            `;
+            banner.style.display = "block";
+            setTimeout(() => {
+                if (banner) banner.style.display = "none";
+            }, 8000);
+        }
+
+        // Native notification trigger with multi-level fallback
+        async function triggerNativeNotification(title, body, url = "./") {
+            playNotificationChime();
+            showInAppPushBanner({ title, body, url });
+
+            if (!("Notification" in window)) {
+                return;
+            }
+
+            try {
+                if (Notification.permission === "default") {
+                    const perm = await Notification.requestPermission();
+                    if (perm !== "granted") return;
+                }
+
+                if (Notification.permission === "granted") {
+                    if ("serviceWorker" in navigator) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification(title, {
+                                body: body,
+                                icon: "assets/icon.svg",
+                                badge: "assets/icon.svg",
+                                vibrate: [120, 80, 120],
+                                data: { url: url }
+                            });
+                        }).catch(() => {
+                            try {
+                                new Notification(title, { body: body, icon: "assets/icon.svg" });
+                            } catch(e) {}
+                        });
+                    } else {
+                        new Notification(title, { body: body, icon: "assets/icon.svg" });
+                    }
+                }
+            } catch(e) {
+                console.warn("Native notify error:", e);
+            }
         }
 
         // Initialize Firebase DB
@@ -1036,16 +1152,10 @@
                     });
                 }
 
-                // Also trigger native notification locally if permission granted
-                if ("Notification" in window && Notification.permission === "granted") {
-                    new Notification(title, {
-                        body: body,
-                        icon: "assets/icon.svg",
-                        data: { url: url }
-                    });
-                }
+                // Trigger local device feedback
+                triggerNativeNotification(title, body, url);
 
-                showAdminToast("تم إرسال الإشعار وبثه بنجاح لجميع المشتركين! 🚀🌿");
+                showAdminToast("تم بث الإشعار بنجاح! سيصل لجميع الزوار والمشتركين الآن 🚀🌿");
             } catch (err) {
                 console.error("Broadcast failed:", err);
                 showAdminToast("حدث خطأ أثناء الإرسال: " + err.message, true);
@@ -1058,36 +1168,11 @@
         // Test notification on self
         document.getElementById("btn-test-notification-self").addEventListener("click", async () => {
             const title = titleInput.value.trim() || "زاد المسلم • تجربة إشعار";
-            const body = bodyInput.value.trim() || "هذه تجربة حية للإشعار للتأكد من ظهوره على جهازك 🌿";
+            const body = bodyInput.value.trim() || "هذه تجربة حية للإشعار وصوت التنبيه للتأكد من وصوله 🌿";
             const url = document.getElementById("notify-target-url").value;
 
-            if (!("Notification" in window)) {
-                showAdminToast("متصفحك لا يدعم الإشعارات", true);
-                return;
-            }
-
-            if (Notification.permission === "granted") {
-                new Notification(title, {
-                    body: body,
-                    icon: "assets/icon.svg",
-                    data: { url: url }
-                });
-                showAdminToast("تم إرسال الإشعار التجريبي لجهازك بنجاح! 🔔");
-            } else if (Notification.permission !== "denied") {
-                const perm = await Notification.requestPermission();
-                if (perm === "granted") {
-                    new Notification(title, {
-                        body: body,
-                        icon: "assets/icon.svg",
-                        data: { url: url }
-                    });
-                    showAdminToast("تم تفعيل الإشعارات وإرسال التجربة بنجاح! 🔔");
-                } else {
-                    showAdminToast("تم رفض إذن الإشعارات من المتصفح", true);
-                }
-            } else {
-                showAdminToast("الإشعارات محظورة في متصفحك. يرجى تفعيلها من إعدادات المتصفح", true);
-            }
+            triggerNativeNotification(title, body, url);
+            showAdminToast("تم إطلاق الإشعار التجريبي وصوت التنبيه 🔔✨");
         });
 
         // Resend Broadcast
@@ -1101,6 +1186,7 @@
                         ...val,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     });
+                    triggerNativeNotification(val.title || "تنبيه معاد", val.body || "", val.url || "./");
                     showAdminToast("تمت إعادة إرسال الإشعار بنجاح! 🚀");
                 }
             } catch(e) {

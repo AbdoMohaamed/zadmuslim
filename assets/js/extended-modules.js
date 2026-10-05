@@ -819,11 +819,9 @@ function initSmartNotifications() {
         });
     }
 
-    // بدء الاستماع للبث السحابي إذا كان الإذن ممنوحاً
-    if ("Notification" in window && Notification.permission === "granted") {
-        registerPushSubscriberInFirebase();
-        listenToCloudBroadcastNotifications();
-    }
+    // الاستماع الدائم للبث السحابي لجميع الزوار لظهور الإشعار المنبثق والصوت
+    listenToCloudBroadcastNotifications();
+    registerPushSubscriberInFirebase();
 
     if (requestBtn) {
         requestBtn.addEventListener("click", async () => {
@@ -840,30 +838,41 @@ function initSmartNotifications() {
                 if (Notification.permission === "granted") {
                     showToast("تم تفعيل وتحديث إعدادات التنبيهات بنجاح 🔔✨");
                     registerPushSubscriberInFirebase();
-                    listenToCloudBroadcastNotifications();
                     if (modal) modal.classList.remove("open");
                 } else if (Notification.permission !== "denied") {
                     const permission = await Notification.requestPermission();
                     if (permission === "granted") {
                         showToast("تم تفعيل إشعارات المتصفح بنجاح! جزاكم الله خيراً 🌿");
                         registerPushSubscriberInFirebase();
-                        listenToCloudBroadcastNotifications();
-                        new Notification("زاد المسلم • صدقة جارية", {
-                            body: "أهلاً بك! تم تفعيل تنبيهات الأذكار والصلوات بنجاح لتنال الأجر دائماً 🤲",
-                            icon: "assets/icon.svg"
-                        });
+                        triggerNativeNotification("زاد المسلم • صدقة جارية", "أهلاً بك! تم تفعيل تنبيهات الأذكار والصلوات بنجاح لتنال الأجر دائماً 🤲", "./");
                         if (modal) modal.classList.remove("open");
                     } else {
-                        showToast("يرجى السماح بالإشعارات من إعدادات المتصفح لتصلك التنبيهات.");
+                        showToast("يرجى السماح بالإشعارات من إعدادات المتصفح لتصلك التنبيهات في الخلفية.");
                     }
                 } else {
-                    showToast("الإشعارات محظورة في متصفحك. يرجى تفعيلها من إعدادات الموقع.");
+                    showToast("الإشعارات محظورة في متصفحك. ستصلك التنبيهات داخل التطبيق مباشرة 🔔");
                 }
             } else {
-                showToast("متصفحك لا يدعم الإشعارات، لكن تم حفظ التفضيلات محلياً.");
+                showToast("ستصلك جميع التنبيهات داخل التطبيق مباشرة 🔔");
                 if (modal) modal.classList.remove("open");
             }
         });
+    }
+}
+
+/**
+ * دالة آمنة لجلب قاعدة بيانات Firebase مع التهيئة التلقائية
+ */
+function getSafeFirebaseDb() {
+    try {
+        if (typeof firebase === "undefined" || !isFirebaseConfigured()) return null;
+        if (!firebase.apps || !firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        return firebase.database();
+    } catch(e) {
+        console.warn("Firebase safe init error:", e);
+        return null;
     }
 }
 
@@ -872,11 +881,12 @@ function initSmartNotifications() {
  */
 function registerPushSubscriberInFirebase() {
     try {
-        if (typeof firebase === "undefined" || !isFirebaseConfigured()) return;
-        const db = firebase.database();
+        const db = getSafeFirebaseDb();
+        if (!db) return;
+
         let subscriberId = localStorage.getItem("zad_push_sub_id");
         if (!subscriberId) {
-            subscriberId = "sub_" + Math.random().toString(36).substring(2, 12) + "_" + Date.now();
+            subscriberId = "sub_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
             localStorage.setItem("zad_push_sub_id", subscriberId);
         }
 
@@ -896,13 +906,15 @@ function registerPushSubscriberInFirebase() {
 }
 
 /**
- * الاستماع اللحظي للبث السحابي للإشعارات الصادرة من لوحة المسؤول
+ * الاستماع اللحظي للبث السحابي للإشعارات الصادرة من لوحة المسؤول لجميع الزوار
  */
 function listenToCloudBroadcastNotifications() {
     try {
-        if (typeof firebase === "undefined" || !isFirebaseConfigured()) return;
-        const db = firebase.database();
-        const broadcastRef = db.ref("push_broadcasts").limitToLast(5);
+        const db = getSafeFirebaseDb();
+        if (!db) return;
+
+        const broadcastRef = db.ref("push_broadcasts").limitToLast(10);
+        let isInitialLoad = true;
 
         broadcastRef.on("child_added", (snapshot) => {
             const data = snapshot.val();
@@ -910,52 +922,152 @@ function listenToCloudBroadcastNotifications() {
             if (!data) return;
 
             const seenKey = "zad_seen_broadcast_" + broadcastId;
-            if (localStorage.getItem(seenKey)) return;
+            const hasSeen = localStorage.getItem(seenKey);
 
             // التأكد من أن الإشعار جديد ولم يمض عليه أكثر من 24 ساعة
             const now = Date.now();
             const broadcastTime = data.timestamp || now;
-            if (now - broadcastTime > 24 * 60 * 60 * 1000) {
-                localStorage.setItem(seenKey, "true");
+            const isFresh = (now - broadcastTime) < (24 * 60 * 60 * 1000);
+
+            if (hasSeen || !isFresh) {
                 return;
             }
 
             localStorage.setItem(seenKey, "true");
 
-            // إظهار الإشعار إذا كان الإذن متاحاً
-            if ("Notification" in window && Notification.permission === "granted") {
-                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                    navigator.serviceWorker.ready.then(reg => {
-                        reg.showNotification(data.title || "زاد المسلم • تذكير بالطاعة", {
-                            body: data.body || "",
-                            icon: data.icon || "assets/icon.svg",
-                            badge: "assets/icon.svg",
-                            vibrate: [100, 50, 100],
-                            data: { url: data.url || "./" }
-                        });
-                    }).catch(() => {
-                        new Notification(data.title || "زاد المسلم • تذكير بالطاعة", {
-                            body: data.body || "",
-                            icon: data.icon || "assets/icon.svg"
-                        });
-                    });
-                } else {
-                    new Notification(data.title || "زاد المسلم • تذكير بالطاعة", {
-                        body: data.body || "",
-                        icon: data.icon || "assets/icon.svg"
-                    });
-                }
-            }
+            // تشغيل نغمة الإشعار العذبة
+            playNotificationChime();
 
-            // إشعار داخلي منبثق في التطبيق (Toast)
-            if (typeof showToast === "function") {
-                showToast(`🔔 ${data.title}: ${data.body.substring(0, 60)}...`);
+            // إظهار البنر المنبثق الأنيق داخل الموقع دائماً
+            showInAppPushBanner(data);
+
+            // إظهار إشعار النظام الأصلي إذا كان إذن المتصفح متاحاً
+            if ("Notification" in window && Notification.permission === "granted") {
+                triggerNativeNotification(data.title || "زاد المسلم • تذكير بالطاعة", data.body || "", data.url || "./");
             }
         });
+
+        // بعد انتهاء التحميل الأولي
+        setTimeout(() => {
+            isInitialLoad = false;
+        }, 1500);
+
     } catch (e) {
         console.warn("Cloud broadcast listener error:", e);
     }
 }
+
+/**
+ * إطلاق إشعار النظام الأصلي للمتصفح والموبايل عبر Service Worker
+ */
+function triggerNativeNotification(title, body, url = "./") {
+    try {
+        if ("Notification" in window && Notification.permission === "granted") {
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.ready.then(reg => {
+                    reg.showNotification(title, {
+                        body: body,
+                        icon: "assets/icon.svg",
+                        badge: "assets/icon.svg",
+                        vibrate: [120, 80, 120],
+                        data: { url: url }
+                    });
+                }).catch(() => {
+                    try {
+                        new Notification(title, { body: body, icon: "assets/icon.svg" });
+                    } catch(e) {}
+                });
+            } else {
+                new Notification(title, { body: body, icon: "assets/icon.svg" });
+            }
+        }
+    } catch(e) {
+        console.warn("Native notification error:", e);
+    }
+}
+
+/**
+ * نغمة إشعار إسلامية عذبة مبنية برمجياً عبر Web Audio API
+ */
+function playNotificationChime() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        if (ctx.state === "suspended") ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+
+        const now = ctx.currentTime;
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.35, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.85);
+    } catch(e) {}
+}
+
+/**
+ * بنر إشعار تفاعلي منبثق أعلى الموقع يظهر فوراً لجميع المستخدمين
+ */
+function showInAppPushBanner(data) {
+    let banner = document.getElementById("zad-cloud-push-banner");
+    if (!banner) {
+        banner = document.createElement("div");
+        banner.id = "zad-cloud-push-banner";
+        banner.className = "zad-cloud-push-banner";
+        document.body.appendChild(banner);
+    }
+
+    const title = data.title || "زاد المسلم • تذكير بالطاعة 🌿";
+    const body = data.body || "";
+    const targetUrl = data.url || "#";
+
+    banner.innerHTML = `
+        <div class="push-banner-inner">
+            <div class="push-banner-icon">
+                <i class="fa-solid fa-bell fa-shake text-gold"></i>
+            </div>
+            <div class="push-banner-content">
+                <div class="push-banner-title">${escapeHtml(title)}</div>
+                <div class="push-banner-body">${escapeHtml(body)}</div>
+            </div>
+            <div class="push-banner-actions">
+                <a href="${targetUrl}" class="btn-banner-action" onclick="document.getElementById('zad-cloud-push-banner').classList.remove('show');">
+                    <span>فتح 📖</span>
+                </a>
+                <button type="button" class="btn-banner-close" onclick="document.getElementById('zad-cloud-push-banner').classList.remove('show');" aria-label="إغلاق">
+                    &times;
+                </button>
+            </div>
+        </div>
+    `;
+
+    // إظهار البنر مع الأنيميشن
+    setTimeout(() => {
+        banner.classList.add("show");
+    }, 50);
+
+    // إخفاء تلقائي بعد 10 ثوانٍ
+    setTimeout(() => {
+        if (banner) banner.classList.remove("show");
+    }, 10000);
+}
+
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+}
+
 
 
 /* ==========================================================================
