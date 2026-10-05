@@ -819,6 +819,12 @@ function initSmartNotifications() {
         });
     }
 
+    // بدء الاستماع للبث السحابي إذا كان الإذن ممنوحاً
+    if ("Notification" in window && Notification.permission === "granted") {
+        registerPushSubscriberInFirebase();
+        listenToCloudBroadcastNotifications();
+    }
+
     if (requestBtn) {
         requestBtn.addEventListener("click", async () => {
             const settings = {
@@ -833,11 +839,15 @@ function initSmartNotifications() {
             if ("Notification" in window) {
                 if (Notification.permission === "granted") {
                     showToast("تم تفعيل وتحديث إعدادات التنبيهات بنجاح 🔔✨");
+                    registerPushSubscriberInFirebase();
+                    listenToCloudBroadcastNotifications();
                     if (modal) modal.classList.remove("open");
                 } else if (Notification.permission !== "denied") {
                     const permission = await Notification.requestPermission();
                     if (permission === "granted") {
                         showToast("تم تفعيل إشعارات المتصفح بنجاح! جزاكم الله خيراً 🌿");
+                        registerPushSubscriberInFirebase();
+                        listenToCloudBroadcastNotifications();
                         new Notification("زاد المسلم • صدقة جارية", {
                             body: "أهلاً بك! تم تفعيل تنبيهات الأذكار والصلوات بنجاح لتنال الأجر دائماً 🤲",
                             icon: "assets/icon.svg"
@@ -857,64 +867,270 @@ function initSmartNotifications() {
     }
 }
 
+/**
+ * تسجيل المشترك في قاعدة بيانات فايربيز للحصول على الإحصائيات وبث الإشعارات
+ */
+function registerPushSubscriberInFirebase() {
+    try {
+        if (typeof firebase === "undefined" || !isFirebaseConfigured()) return;
+        const db = firebase.database();
+        let subscriberId = localStorage.getItem("zad_push_sub_id");
+        if (!subscriberId) {
+            subscriberId = "sub_" + Math.random().toString(36).substring(2, 12) + "_" + Date.now();
+            localStorage.setItem("zad_push_sub_id", subscriberId);
+        }
+
+        const subRef = db.ref("push_subscribers/" + subscriberId);
+        subRef.set({
+            id: subscriberId,
+            userAgent: navigator.userAgent || "Unknown",
+            platform: navigator.platform || "Web",
+            language: navigator.language || "ar",
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        }).catch(err => {
+            console.warn("Could not save push subscriber:", err);
+        });
+    } catch (e) {
+        console.warn("Push subscriber registration skipped:", e);
+    }
+}
+
+/**
+ * الاستماع اللحظي للبث السحابي للإشعارات الصادرة من لوحة المسؤول
+ */
+function listenToCloudBroadcastNotifications() {
+    try {
+        if (typeof firebase === "undefined" || !isFirebaseConfigured()) return;
+        const db = firebase.database();
+        const broadcastRef = db.ref("push_broadcasts").limitToLast(5);
+
+        broadcastRef.on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const broadcastId = snapshot.key;
+            if (!data) return;
+
+            const seenKey = "zad_seen_broadcast_" + broadcastId;
+            if (localStorage.getItem(seenKey)) return;
+
+            // التأكد من أن الإشعار جديد ولم يمض عليه أكثر من 24 ساعة
+            const now = Date.now();
+            const broadcastTime = data.timestamp || now;
+            if (now - broadcastTime > 24 * 60 * 60 * 1000) {
+                localStorage.setItem(seenKey, "true");
+                return;
+            }
+
+            localStorage.setItem(seenKey, "true");
+
+            // إظهار الإشعار إذا كان الإذن متاحاً
+            if ("Notification" in window && Notification.permission === "granted") {
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.ready.then(reg => {
+                        reg.showNotification(data.title || "زاد المسلم • تذكير بالطاعة", {
+                            body: data.body || "",
+                            icon: data.icon || "assets/icon.svg",
+                            badge: "assets/icon.svg",
+                            vibrate: [100, 50, 100],
+                            data: { url: data.url || "./" }
+                        });
+                    }).catch(() => {
+                        new Notification(data.title || "زاد المسلم • تذكير بالطاعة", {
+                            body: data.body || "",
+                            icon: data.icon || "assets/icon.svg"
+                        });
+                    });
+                } else {
+                    new Notification(data.title || "زاد المسلم • تذكير بالطاعة", {
+                        body: data.body || "",
+                        icon: data.icon || "assets/icon.svg"
+                    });
+                }
+            }
+
+            // إشعار داخلي منبثق في التطبيق (Toast)
+            if (typeof showToast === "function") {
+                showToast(`🔔 ${data.title}: ${data.body.substring(0, 60)}...`);
+            }
+        });
+    } catch (e) {
+        console.warn("Cloud broadcast listener error:", e);
+    }
+}
+
+
 /* ==========================================================================
-   7. ترقية صانع بطاقات الأدعية والمشاركات الاجتماعية (Enhanced Card Generator)
+   7. ترقية صانع بطاقات الأدعية والمشاركات الاجتماعية ومقاطع الاستوري (Enhanced Card & Story Studio)
    ========================================================================== */
 let currentCardFormat = "story"; // 'story' | 'card' | 'post'
 let currentCardTheme = "royal-navy"; // 'royal-navy' | 'emerald' | 'burgundy' | 'parchment'
+let currentCardContentType = "dua"; // 'dua' | 'quran' | 'azkar' | 'asmaa'
+let currentCardOutputType = "image"; // 'image' | 'video'
+let storyAnimationId = null;
+let storyParticles = [];
+
+const STORY_PRESETS = {
+    dua: [
+        { label: "اللهم اغفر له وارحمه وعافه واعف عنه...", text: "اللهم اغفر له وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثلج والبرد، ونقه من الذنوب والخطايا كما ينقى الثوب الأبيض من الدنس." },
+        { label: "اللهم اجعل قبره روضة من رياض الجنة...", text: "اللهم اجعل قبره روضة من رياض الجنة، ولا تجعله حفرة من حفر النار، وافسح له في قبره مد بصره، وافرش قبره من فراش الجنة." },
+        { label: "اللهم يمن كتابه ويسر حسابه...", text: "اللهم يَمِّن كتابه، ويَسِّر حسابه، وثَقِّل بالحسنات ميزانه، وثَبِّت على الصراط أقدامه، وأسكنه في أعلى الجنات بجوار حبيبك ومصطفاك ﷺ." },
+        { label: "اللهم أبدله داراً خيراً من داره...", text: "اللهم أبدله داراً خيراً من داره، وأهلاً خيراً من أهله، وأدخله الجنة، وأعذه من عذاب القبر ومن عذاب النار يا أرحم الراحمين." },
+        { label: "اللهم إنه كان يشهد أنك لا إله إلا أنت...", text: "اللهم إنه كان يشهد أنك لا إله إلا أنت، وأن محمداً عبدك ورسولك، وأنت أعلم به، فارحمه برحمتك التي وسعت كل شيء." }
+    ],
+    quran: [
+        { label: "﴿اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ﴾ - آية الكرسي", text: "﴿اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ﴾ [البقرة: 255]" },
+        { label: "﴿أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ﴾", text: "﴿الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ﴾ [الرعد: 28]" },
+        { label: "﴿وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ﴾", text: "﴿وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ﴾ [البقرة: 186]" },
+        { label: "﴿رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي﴾", text: "﴿قَالَ رَبِّ اشْرَحْ لِي صَدْرِي * وَيَسِّرْ لِي أَمْرِي * وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي * يَفْقَهُوا قَوْلِي﴾ [طه: 25-28]" },
+        { label: "﴿فَإِنَّ مَعَ الْعُسْرِ يُسْرًا * إِنَّ مَعَ الْعُسْرِ يُسْرًا﴾", text: "﴿فَإِنَّ مَعَ الْعُسْرِ يُسْرًا * إِنَّ مَعَ الْعُسْرِ يُسْرًا * فَإِذَا فَرَغْتَ فَانصَبْ * وَإِلَىٰ رَبِّكَ فَارْغَب﴾ [الشرح: 5-8]" }
+    ],
+    azkar: [
+        { label: "سيد الاستغفار", text: "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي فإنه لا يغفر الذنوب إلا أنت." },
+        { label: "دعاء تفريج الهم والكرب", text: "لا إله إلا أنت سبحانك إني كنت من الظالمين.. اللهم فرج هم المهمومين ونفس كرب المكروبين واقض الدين عن المدينين واشف مرضانا ومرضى المسلمين." },
+        { label: "حسبنا الله ونعم الوكيل", text: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ • نِعْمَ الْمَوْلَىٰ وَنِعْمَ النَّصِيرُ • وَأُفَوِّضُ أَمْرِي إِلَى اللَّهِ إِنَّ اللَّهَ بَصِيرٌ بِالْعِبَادِ." },
+        { label: "رضيت بالله رباً وبالإسلام ديناً", text: "رضيتُ باللهِ رباً، وبالإسلامِ ديناً، وبمحمدٍ ﷺ نبياً ورسولاً.. أصبحنا وأصبح الملك لله والحمد لله ولا إله إلا الله." }
+    ],
+    asmaa: [
+        { label: "يا حي يا قيوم برحمتك أستغيث", text: "«يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ»." },
+        { label: "الرحمن الرحيم - وسعت رحمته كل شيء", text: "يا رَحْمَٰنُ يا رَحِيمُ.. نسألك برحمتك التي وسعت كل شيء أن تغفر لنا ولموتانا وترحمنا في الدنيا والآخرة." },
+        { label: "الغفور الشكور - يغفر الذنوب ويجزل الثواب", text: "يا غَفُورُ يا شَكُورُ.. اغفر لنا زلاتنا وتقبل يسير طاعاتنا واجعلنا من عتقائك من النار 🤲" }
+    ]
+};
 
 function initEnhancedCardGenerator() {
     const formatPills = document.querySelectorAll("#dua-format-pills .theme-pill");
     const themePills = document.querySelectorAll(".dua-theme-pills .theme-pill[data-theme]");
+    const contentTypePills = document.querySelectorAll("#dua-content-type-pills .theme-pill");
+    const outputTypePills = document.querySelectorAll("#dua-output-type-pills .theme-pill");
 
+    // Init particles
+    initStoryParticles();
+
+    // 1. تبديل تصنيف المحتوى (أدعية / قرآن / أذكار / أسماء)
+    contentTypePills.forEach(pill => {
+        pill.addEventListener("click", () => {
+            contentTypePills.forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
+            currentCardContentType = pill.getAttribute("data-type") || "dua";
+            populateTemplateOptionsForType(currentCardContentType);
+            drawEnhancedDuaCard();
+        });
+    });
+
+    // 2. تبديل الحجم
     formatPills.forEach(pill => {
         pill.addEventListener("click", () => {
             formatPills.forEach(p => p.classList.remove("active"));
             pill.classList.add("active");
             currentCardFormat = pill.getAttribute("data-format") || "story";
-            if (typeof drawEnhancedDuaCard === "function") {
-                drawEnhancedDuaCard();
-            }
+            drawEnhancedDuaCard();
         });
     });
 
+    // 3. تبديل السمة
     themePills.forEach(pill => {
         pill.addEventListener("click", () => {
             themePills.forEach(p => p.classList.remove("active"));
             pill.classList.add("active");
             currentCardTheme = pill.getAttribute("data-theme") || "royal-navy";
-            if (typeof drawEnhancedDuaCard === "function") {
+            drawEnhancedDuaCard();
+        });
+    });
+
+    // 4. تبديل نوع الإخراج (صورة / فيديو)
+    outputTypePills.forEach(pill => {
+        pill.addEventListener("click", () => {
+            outputTypePills.forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
+            currentCardOutputType = pill.getAttribute("data-output") || "image";
+
+            const downloadImgBtn = document.getElementById("btn-download-dua-image");
+            const exportVidBtn = document.getElementById("btn-export-story-video");
+
+            if (currentCardOutputType === "video") {
+                if (downloadImgBtn) downloadImgBtn.style.display = "none";
+                if (exportVidBtn) exportVidBtn.style.display = "inline-flex";
+                startStoryAnimationLoop();
+            } else {
+                if (downloadImgBtn) downloadImgBtn.style.display = "inline-flex";
+                if (exportVidBtn) exportVidBtn.style.display = "none";
+                stopStoryAnimationLoop();
                 drawEnhancedDuaCard();
             }
         });
     });
 
-    // إعادة توجيه أزرار التحميل والمشاركة
+    // أزرار التحميل والمشاركة والتصدير
     const downloadBtn = document.getElementById("btn-download-dua-image");
     const shareBtn = document.getElementById("btn-share-dua-image");
+    const exportVideoBtn = document.getElementById("btn-export-story-video");
 
-    if (downloadBtn) {
-        downloadBtn.onclick = downloadEnhancedDuaCard;
-    }
+    if (downloadBtn) downloadBtn.onclick = downloadEnhancedDuaCard;
+    if (shareBtn) shareBtn.onclick = shareEnhancedDuaCard;
+    if (exportVideoBtn) exportVideoBtn.onclick = exportStoryVideo;
 
-    if (shareBtn) {
-        shareBtn.onclick = shareEnhancedDuaCard;
-    }
-
-    // ربط الحقول بإعادة الرسم
+    // حقول الإدخال
     const recipientInput = document.getElementById("dua-card-recipient-input");
     const templateSelect = document.getElementById("dua-template-select");
     const customInput = document.getElementById("custom-dua-input");
 
-    if (recipientInput) recipientInput.addEventListener("input", drawEnhancedDuaCard);
-    if (templateSelect) templateSelect.addEventListener("change", drawEnhancedDuaCard);
-    if (customInput) customInput.addEventListener("input", drawEnhancedDuaCard);
+    if (recipientInput) recipientInput.addEventListener("input", () => drawEnhancedDuaCard());
+    if (templateSelect) {
+        templateSelect.addEventListener("change", (e) => {
+            const customGroup = document.getElementById("custom-dua-group");
+            if (e.target.value === "custom") {
+                if (customGroup) customGroup.style.display = "block";
+            } else {
+                if (customGroup) customGroup.style.display = "none";
+            }
+            drawEnhancedDuaCard();
+        });
+    }
+    if (customInput) customInput.addEventListener("input", () => drawEnhancedDuaCard());
 
-    // الرسم المبدئي
     setTimeout(drawEnhancedDuaCard, 300);
 }
 
-function drawEnhancedDuaCard() {
+function populateTemplateOptionsForType(type) {
+    const select = document.getElementById("dua-template-select");
+    if (!select) return;
+
+    const list = STORY_PRESETS[type] || STORY_PRESETS.dua;
+    select.innerHTML = list.map(item => `<option value="${escapeSingleQuotes(item.text)}">${item.label}</option>`).join("") +
+        `<option value="custom">✏️ كتابة نص مخصص بقلمك...</option>`;
+}
+
+function initStoryParticles() {
+    storyParticles = [];
+    for (let i = 0; i < 35; i++) {
+        storyParticles.push({
+            x: Math.random() * 1080,
+            y: Math.random() * 1920,
+            radius: Math.random() * 3 + 1,
+            speedY: Math.random() * 0.8 + 0.3,
+            speedX: (Math.random() - 0.5) * 0.4,
+            opacity: Math.random() * 0.7 + 0.2,
+            pulseSpeed: Math.random() * 0.03 + 0.01
+        });
+    }
+}
+
+function startStoryAnimationLoop() {
+    if (storyAnimationId) return;
+    function loop() {
+        drawEnhancedDuaCard(true);
+        storyAnimationId = requestAnimationFrame(loop);
+    }
+    storyAnimationId = requestAnimationFrame(loop);
+}
+
+function stopStoryAnimationLoop() {
+    if (storyAnimationId) {
+        cancelAnimationFrame(storyAnimationId);
+        storyAnimationId = null;
+    }
+}
+
+function drawEnhancedDuaCard(isAnimated = false) {
     const canvas = document.getElementById("dua-card-canvas");
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -928,22 +1144,24 @@ function drawEnhancedDuaCard() {
         height = 1350; // 4:5
     }
 
-    canvas.width = width;
-    canvas.height = height;
+    if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+    }
 
-    // 1. إعداد الخلفية بحسب السمة
+    // 1. تدرجات الألوان الفاخرة
     let bgGradient;
     let borderColor = "#d4af37";
     let textColor = "#ffffff";
-    let subTextColor = "#e5e7eb";
+    let subTextColor = "#cbd5e1";
     let accentGold = "#d4af37";
 
     if (currentCardTheme === "emerald") {
         bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-        bgGradient.addColorStop(0, "#064e3b");
-        bgGradient.addColorStop(0.5, "#022c22");
-        bgGradient.addColorStop(1, "#064e3b");
-        borderColor = "#34d399";
+        bgGradient.addColorStop(0, "#042f24");
+        bgGradient.addColorStop(0.5, "#011a14");
+        bgGradient.addColorStop(1, "#042f24");
+        borderColor = "#10b981";
         accentGold = "#6ee7b7";
     } else if (currentCardTheme === "burgundy") {
         bgGradient = ctx.createLinearGradient(0, 0, 0, height);
@@ -974,7 +1192,25 @@ function drawEnhancedDuaCard() {
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, width, height);
 
-    // 2. إطار إسلامي مزخرف
+    // رسم الجزيئات النورانية المتحركة إذا كان في وضع الفيديو / الأنيميشن
+    if (isAnimated || currentCardOutputType === "video") {
+        ctx.save();
+        storyParticles.forEach(p => {
+            p.y -= p.speedY;
+            p.x += p.speedX;
+            if (p.y < 0) p.y = height;
+            if (p.x < 0) p.x = width;
+            if (p.x > width) p.x = 0;
+
+            ctx.fillStyle = `rgba(212, 175, 55, ${p.opacity})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.restore();
+    }
+
+    // 2. إطار إسلامي مزدوج مزخرف
     ctx.lineWidth = 4;
     ctx.strokeStyle = borderColor;
     ctx.strokeRect(40, 40, width - 80, height - 80);
@@ -1027,24 +1263,24 @@ function drawEnhancedDuaCard() {
     ctx.lineTo(width / 2 + 220, height * 0.26);
     ctx.stroke();
 
-    // نص الدعاء
-    let duaText = "اللهم اغفر له وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثلج والبرد، ونقه من الذنوب والخطايا كما ينقى الثوب الأبيض من الدنس.";
+    // استخراج النص المحدد
+    let mainText = "اللهم اغفر له وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثلج والبرد، ونقه من الذنوب والخطايا كما ينقى الثوب الأبيض من الدنس.";
     const templateSelect = document.getElementById("dua-template-select");
     const customInput = document.getElementById("custom-dua-input");
 
     if (templateSelect && templateSelect.value === "custom" && customInput && customInput.value.trim()) {
-        duaText = customInput.value.trim();
+        mainText = customInput.value.trim();
     } else if (templateSelect && templateSelect.value && templateSelect.value !== "custom") {
-        duaText = templateSelect.value;
+        mainText = templateSelect.value;
     }
 
     ctx.fillStyle = textColor;
     ctx.font = "bold 42px 'Amiri', 'Traditional Arabic', serif";
 
-    // رسم النص مع التفاف الأسطر
+    // التفاف الأسطر
     const maxWidth = width - 200;
     const lineHeight = 68;
-    const words = duaText.split(" ");
+    const words = mainText.split(" ");
     let line = "";
     const lines = [];
 
@@ -1068,11 +1304,11 @@ function drawEnhancedDuaCard() {
         ctx.fillText(l.trim(), width / 2, startY + (i * lineHeight));
     });
 
-    // دعاء التثبيت والختام
+    // الختام
     const footerY = height - 120;
     ctx.fillStyle = accentGold;
     ctx.font = "bold 32px 'Tajawal', sans-serif";
-    ctx.fillText("اللهم استجب واجعل ثواب هذا العمل نوراً في قبره 🤲", width / 2, footerY - 40);
+    ctx.fillText("اللهم استجب واجعل ثواب هذا العمل نوراً وضياءً 🤲", width / 2, footerY - 40);
 
     ctx.fillStyle = subTextColor;
     ctx.font = "24px 'Tajawal', sans-serif";
@@ -1082,18 +1318,81 @@ function drawEnhancedDuaCard() {
 function downloadEnhancedDuaCard() {
     const canvas = document.getElementById("dua-card-canvas");
     if (!canvas) return;
+    drawEnhancedDuaCard();
     const link = document.createElement("a");
-    link.download = `dua-card-${Date.now()}.png`;
+    link.download = `zad-muslim-card-${Date.now()}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
     showToast("تم تنزيل البطاقة بنجاح، تقبل الله منكم 🌿🖼️");
+}
+
+/**
+ * تصدير وتحميل فيديو واستوري متحرك (Reels 9:16) عبر MediaRecorder
+ */
+async function exportStoryVideo() {
+    const canvas = document.getElementById("dua-card-canvas");
+    const exportBtn = document.getElementById("btn-export-story-video");
+    const btnText = document.getElementById("btn-video-export-text");
+
+    if (!canvas || !window.MediaRecorder) {
+        showToast("عذراً، تصدير الفيديو غير مدعوم في هذا المتصفح. يمكنك تحميل الصورة PNG مباشرة.");
+        return;
+    }
+
+    startStoryAnimationLoop();
+
+    if (exportBtn) exportBtn.disabled = true;
+    if (btnText) btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري إنتاج وتصدير مقطع الفيديو (6 ثوانٍ)...';
+
+    try {
+        const stream = canvas.captureStream(30);
+        let mimeType = 'video/webm;codecs=vp9';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = 'video/webm';
+        }
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = 'video/mp4';
+        }
+
+        const recorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported(mimeType) ? mimeType : undefined });
+        const chunks = [];
+
+        recorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: chunks[0] ? chunks[0].type : "video/webm" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `zad-muslim-story-reel-${Date.now()}.mp4`;
+            a.click();
+
+            if (exportBtn) exportBtn.disabled = false;
+            if (btnText) btnText.innerHTML = 'تصدير فيديو الاستوري (MP4) 🎬';
+            showToast("تم إنتاج وتحميل مقطع الفيديو والاستوري بنجاح! 🎬✨ جاهز للنشر على واتساب وإنستغرام");
+        };
+
+        recorder.start();
+
+        // تسجيل 6 ثوانٍ
+        setTimeout(() => {
+            recorder.stop();
+        }, 6000);
+
+    } catch (e) {
+        console.error("Video export error:", e);
+        if (exportBtn) exportBtn.disabled = false;
+        if (btnText) btnText.innerHTML = 'تصدير فيديو الاستوري (MP4)';
+        showToast("فشل تصدير الفيديو، يمكنك تحميل الصورة PNG كبديل فوري.");
+    }
 }
 
 async function shareEnhancedDuaCard() {
     const canvas = document.getElementById("dua-card-canvas");
     if (!canvas) return;
 
-    // استخدام Web Share API لمشاركة الصورة مباشرة للموبايل إن أمكن
     if (navigator.share && navigator.canShare) {
         canvas.toBlob(async (blob) => {
             if (!blob) return;
@@ -1102,7 +1401,7 @@ async function shareEnhancedDuaCard() {
                 try {
                     await navigator.share({
                         files: [file],
-                        title: "زاد المسلم • بطاقة دعاء",
+                        title: "زاد المسلم • بطاقة واستوري إسلامي",
                         text: "نسألكم الدعاء لفقيدنا الغالي وجميع موتى المسلمين 🤲"
                     });
                     return;
@@ -1118,7 +1417,7 @@ async function shareEnhancedDuaCard() {
 function fallbackShareWhatsApp() {
     const recipientInput = document.getElementById("dua-card-recipient-input");
     const nameVal = (recipientInput && recipientInput.value.trim()) || "فقيدنا الغالي";
-    const msg = `🌿 *بطاقة دعاء لروح (${nameVal})*\n\nاللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة.\n\n📲 صمم بطاقة لفقيدك واكسب الأجر: https://zadmuslim-zeta.vercel.app/`;
+    const msg = `🌿 *بطاقة واستوري لروح (${nameVal})*\n\nاللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة.\n\n📲 صمم بطاقة لفقيدك واكسب الأجر: https://zadmuslim-zeta.vercel.app/`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
     window.open(waUrl, "_blank");
     showToast("جاري فتح واتساب للمشاركة 📲");

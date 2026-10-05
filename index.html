@@ -476,20 +476,89 @@
                                 <i class="fa-solid fa-book-open text-gold"></i>
                                 <span>تفسير الصفحة</span>
                             </button>
+                            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-ayah-sync" title="تشغيل وضع المتابعة آية بآية والتظليل التزامني">
+                                <i class="fa-solid fa-headphones text-gold"></i>
+                                <span>متابعة آية بآية</span>
+                            </button>
                             <div class="mushaf-reciter-control-group">
                                 <select id="select-mushaf-reciter" class="select-reciter-dropdown" title="اختيار القارئ المفضل لسماع السورة">
                                     <!-- يُملأ من js/quran.js -->
                                 </select>
                                 <button type="button" class="btn btn-outline btn-sm" id="btn-surah-audio" title="استماع لتلاوة السورة الحالية">
                                     <i class="fa-solid fa-volume-high"></i>
-                                    <span>استماع</span>
+                                    <span>استماع السورة</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
+                    <!-- لوحة مشغل الآيات التزامني الذكي (Ayah Sync Player) -->
+                    <div id="ayah-sync-player-panel" class="ayah-sync-player-panel">
+                        <div class="ayah-sync-controls-top">
+                            <div class="ayah-sync-info">
+                                <span class="ayah-sync-badge"><i class="fa-solid fa-circle-play text-gold"></i> متابعة تزامنية</span>
+                                <span class="ayah-sync-current-title" id="ayah-sync-current-title">سورة الملك • الآية 1</span>
+                            </div>
+                            <div class="ayah-sync-actions">
+                                <select id="select-ayah-reciter" class="select-reciter-dropdown" title="اختيار القارئ للمتابعة آية بآية">
+                                    <option value="Alafasy_128kbps">مشاري العفاسي</option>
+                                    <option value="Husary_Muallim_128kbps">محمود خليل الحصري (المصحف المعلم)</option>
+                                    <option value="Husary_128kbps">محمود خليل الحصري (مرتل)</option>
+                                    <option value="Minshawy_Murattal_128kbps">محمد صديق المنشاوي (مرتل)</option>
+                                    <option value="Minshawy_Mujawwad_192kbps">محمد صديق المنشاوي (مجود)</option>
+                                    <option value="Abdul_Basit_Murattal_192kbps">عبد الباسط عبد الصمد (مرتل)</option>
+                                    <option value="Abdul_Basit_Mujawwad_128kbps">عبد الباسط عبد الصمد (مجود)</option>
+                                    <option value="MaherAlMuaiqly128kbps">ماهر المعيقلي</option>
+                                    <option value="Yasser_Ad-Dussary_128kbps">ياسر الدوسري</option>
+                                    <option value="Abu_Bakr_Ash-Shaatree_128kbps">أبو بكر الشاطري</option>
+                                    <option value="Ghamadi_40kbps">سعد الغامدي</option>
+                                    <option value="Abdurrahmaan_As-Sudais_192kbps">عبد الرحمن السديس</option>
+                                </select>
+
+                                <button type="button" class="btn btn-outline btn-sm" id="btn-ayah-repeat-mode" title="تكرار الآية الحالية للحفظ والتثبيت">
+                                    <i class="fa-solid fa-repeat text-gold"></i>
+                                    <span id="ayah-repeat-label">تكرار: مرة</span>
+                                </button>
+
+                                <select id="select-ayah-playback-speed" class="select-speed-dropdown" title="سرعة التلاوة">
+                                    <option value="1">1.0x عادي</option>
+                                    <option value="0.75">0.75x بطيء للتعلم</option>
+                                    <option value="1.25">1.25x سريع</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ayah-sync-player-buttons">
+                            <button type="button" class="btn btn-outline btn-sm btn-icon" id="btn-ayah-prev" title="الآية السابقة">
+                                <i class="fa-solid fa-forward-step"></i>
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" id="btn-ayah-play-toggle" title="تشغيل / إيقاف التلاوة التزامنية">
+                                <i class="fa-solid fa-play"></i>
+                                <span id="ayah-play-btn-text">بدء الاستماع آية بآية</span>
+                            </button>
+                            <button type="button" class="btn btn-outline btn-sm btn-icon" id="btn-ayah-next" title="الآية التالية">
+                                <i class="fa-solid fa-backward-step"></i>
+                            </button>
+                            <div class="ayah-sync-view-switch">
+                                <button type="button" class="btn-view-toggle active" id="btn-view-mushaf-img" title="عرض صفحة المصحف المصورة">
+                                    <i class="fa-solid fa-image"></i> المصحف المصور
+                                </button>
+                                <button type="button" class="btn-view-toggle" id="btn-view-mushaf-text" title="عرض الآيات التفاعلي المظلل">
+                                    <i class="fa-solid fa-align-right"></i> الآيات المظللة
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- حاوية النصوص القرآنية التفاعلية مع تظليل الآيات التزامني -->
+                    <div id="mushaf-interactive-verses-wrapper" class="mushaf-interactive-verses-wrapper" style="display: none;">
+                        <div id="mushaf-verses-container" class="mushaf-verses-container">
+                            <!-- تُملأ آيات الصفحة الحالية برسم عثماني وتظليل تزامني عبر js/quran.js -->
+                        </div>
+                    </div>
+
                     <!-- حاوية صفحة المصحف الشريف الحقيقية -->
-                    <div class="mushaf-real-page-wrapper">
+                    <div class="mushaf-real-page-wrapper" id="mushaf-real-page-wrapper">
                         <div id="mushaf-page-loader" class="mushaf-page-loader">
                             <i class="fa-solid fa-spinner fa-spin"></i>
                             <span>جاري فتح صفحة المصحف الشريف...</span>
@@ -1693,25 +1762,48 @@
                         </div>
                     </div>
 
+                    <!-- تصنيف المحتوى القرآني والأذكار -->
                     <div class="form-group">
-                        <label class="form-label" for="dua-template-select">اختر دعاءً مأثوراً جاهزاً:</label>
+                        <label class="form-label">اختر نوع المحتوى الإيماني:</label>
+                        <div class="dua-theme-pills" id="dua-content-type-pills">
+                            <button type="button" class="theme-pill active" data-type="dua">
+                                <i class="fa-solid fa-hands-praying"></i>
+                                <span>أدعية للمتوفى</span>
+                            </button>
+                            <button type="button" class="theme-pill" data-type="quran">
+                                <i class="fa-solid fa-book-quran"></i>
+                                <span>آيات قرآنية</span>
+                            </button>
+                            <button type="button" class="theme-pill" data-type="azkar">
+                                <i class="fa-solid fa-shield-heart"></i>
+                                <span>حصن المسلم</span>
+                            </button>
+                            <button type="button" class="theme-pill" data-type="asmaa">
+                                <i class="fa-solid fa-star-and-crescent"></i>
+                                <span>أسماء الله الحسنى</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="dua-template-select">اختر النص أو الآية المباركة:</label>
                         <select id="dua-template-select" class="form-input">
                             <option value="اللهم اغفر له وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثلج والبرد، ونقه من الذنوب والخطايا كما ينقى الثوب الأبيض من الدنس.">اللهم اغفر له وارحمه وعافه واعف عنه...</option>
                             <option value="اللهم اجعل قبره روضة من رياض الجنة، ولا تجعله حفرة من حفر النار، وافسح له في قبره مد بصره، وافرش قبره من فراش الجنة.">اللهم اجعل قبره روضة من رياض الجنة...</option>
                             <option value="اللهم يَمِّن كتابه، ويَسِّر حسابه، وثَقِّل بالحسنات ميزانه، وثَبِّت على الصراط أقدامه، وأسكنه في أعلى الجنات بجوار حبيبك ومصطفاك ﷺ.">اللهم يمن كتابه ويسر حسابه...</option>
                             <option value="اللهم أبدله داراً خيراً من داره، وأهلاً خيراً من أهله، وأدخله الجنة، وأعذه من عذاب القبر ومن عذاب النار يا أرحم الراحمين.">اللهم أبدله داراً خيراً من داره...</option>
                             <option value="اللهم إنه كان يشهد أنك لا إله إلا أنت، وأن محمداً عبدك ورسولك، وأنت أعلم به، فارحمه برحمتك التي وسعت كل شيء.">اللهم إنه كان يشهد أنك لا إله إلا أنت...</option>
-                            <option value="custom">✏️ كتابة دعاء مخصص بقلمك...</option>
+                            <option value="custom">✏️ كتابة نص مخصص بقلمك...</option>
                         </select>
                     </div>
 
                     <div class="form-group" id="custom-dua-group" style="display: none;">
-                        <label class="form-label" for="custom-dua-input">اكتب نص الدعاء المخصص:</label>
-                        <textarea id="custom-dua-input" class="form-textarea" placeholder="اكتب دعاءك هنا بصدق..."></textarea>
+                        <label class="form-label" for="custom-dua-input">اكتب نص الدعاء أو الآية المخصصة:</label>
+                        <textarea id="custom-dua-input" class="form-textarea" placeholder="اكتب دعاءك أو آيتك هنا بصدق..."></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">اختر أبعاد وحجم البطاقة:</label>
+                        <label class="form-label">اختر أبعاد وحجم التصميم:</label>
                         <div class="dua-theme-pills" id="dua-format-pills">
                             <button type="button" class="theme-pill active" data-format="story">
                                 <i class="fa-solid fa-mobile-screen"></i>
@@ -1750,10 +1842,29 @@
                         </div>
                     </div>
 
+                    <!-- نوع الإخراج والتصدير -->
+                    <div class="form-group">
+                        <label class="form-label">نوع الإنتاج المطلوب:</label>
+                        <div class="dua-theme-pills" id="dua-output-type-pills">
+                            <button type="button" class="theme-pill active" data-output="image">
+                                <i class="fa-solid fa-image"></i>
+                                <span>صورة ثابتة (PNG)</span>
+                            </button>
+                            <button type="button" class="theme-pill" data-output="video">
+                                <i class="fa-solid fa-film text-gold"></i>
+                                <span>مقطع فيديو واستوري متحرك (Reels 9:16) ✨</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="dua-creator-actions">
                         <button type="button" class="btn btn-gold" id="btn-download-dua-image">
                             <i class="fa-solid fa-download"></i>
                             <span>تحميل الصورة (PNG)</span>
+                        </button>
+                        <button type="button" class="btn btn-primary" id="btn-export-story-video" style="display: none;">
+                            <i class="fa-solid fa-video"></i>
+                            <span id="btn-video-export-text">تصدير فيديو الاستوري (MP4)</span>
                         </button>
                         <button type="button" class="btn btn-outline" id="btn-share-dua-image">
                             <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
@@ -2603,6 +2714,9 @@
                     </div>
                 </div>
                 <div class="admin-header-actions">
+                    <a href="admin.html" class="btn btn-gold btn-sm" title="فتح لوحة إرسال الإشعارات الشاملة">
+                        <i class="fa-solid fa-paper-plane"></i> <span>لوحة الإشعارات</span>
+                    </a>
                     <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-admin-stats" title="تحديث البيانات">
                         <i class="fa-solid fa-rotate"></i> <span>تحديث</span>
                     </button>

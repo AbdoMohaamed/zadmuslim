@@ -128,3 +128,67 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+// ==========================================
+// استقبال إشعارات الويب ودفع الإشعارات (Push Notifications)
+// ==========================================
+self.addEventListener("push", (event) => {
+  let data = {
+    title: "زاد المسلم • رفيق طاعاتك اليومية 🌿",
+    body: "تذكير بذكر الله والطاعات والصلوات",
+    icon: "./assets/icon.svg",
+    badge: "./assets/icon.svg",
+    data: { url: "./" }
+  };
+
+  if (event.data) {
+    try {
+      const parsed = event.data.json();
+      data = { ...data, ...parsed };
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon || "./assets/icon.svg",
+    badge: data.badge || "./assets/icon.svg",
+    vibrate: [100, 50, 100, 50, 200],
+    data: data.data || { url: "./" },
+    tag: "zad-broadcast-" + Date.now(),
+    renotify: true,
+    actions: [
+      { action: "open", title: "فتح التطبيق 📖" },
+      { action: "close", title: "إغلاق" }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// التفاعل عند نقر المستخدم على الإشعار
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  if (event.action === "close") return;
+
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : "./";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ("navigate" in client) {
+          client.focus();
+          return client.navigate(targetUrl);
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+

@@ -175,6 +175,7 @@ function initRealMushaf() {
     initMushafTouchGestures();
     initMushafFullscreen();
     initQuranHifzEngine();
+    initAyahSyncPlayer();
     restoreMushafPreferences();
     
     // استعادة آخر صفحة تمت قراءتها إذا وجدت
@@ -436,6 +437,11 @@ function goToMushafPage(pageNumber, surahId = null) {
     // تحديث القائمة المنسدلة
     if (selectEl && currentSurah) {
         selectEl.value = currentSurah.page;
+    }
+
+    // جلب وتجهيز الآيات التزامنية للصفحة الحالية
+    if (typeof loadAyahsForCurrentMushafPage === "function") {
+        loadAyahsForCurrentMushafPage(pageNumber);
     }
 }
 
@@ -1877,4 +1883,365 @@ function updateHifzRepeatIndicator() {
     const targetText = currentHifzAyahRepeatTarget >= 999 ? "∞" : currentHifzAyahRepeatTarget;
     indicator.innerHTML = `<span>تكرار الآية: <strong>${currentHifzAyahRepeatCurrent} / ${targetText}</strong></span>`;
 }
+
+/* ==========================================================================
+   مشغل الآيات التزامني التفاعلي (Ayah Sync Player & Memorization Engine)
+   ========================================================================== */
+let ayahSyncAudio = new Audio();
+let isAyahSyncPlaying = false;
+let currentAyahIndexInPage = 0;
+let currentPageAyahsList = [];
+let currentAyahRepeatTarget = 1; // 1, 3, 5, 999 (infinity)
+let currentAyahRepeatCount = 1;
+let currentAyahReciter = localStorage.getItem("selected_ayah_reciter") || "Alafasy_128kbps";
+let currentAyahSpeed = 1.0;
+let ayahPageCache = {};
+
+function initAyahSyncPlayer() {
+    const toggleBtn = document.getElementById("btn-toggle-ayah-sync");
+    const panel = document.getElementById("ayah-sync-player-panel");
+    const playBtn = document.getElementById("btn-ayah-play-toggle");
+    const prevBtn = document.getElementById("btn-ayah-prev");
+    const nextBtn = document.getElementById("btn-ayah-next");
+    const repeatBtn = document.getElementById("btn-ayah-repeat-mode");
+    const reciterSelect = document.getElementById("select-ayah-reciter");
+    const speedSelect = document.getElementById("select-ayah-playback-speed");
+    const btnViewImg = document.getElementById("btn-view-mushaf-img");
+    const btnViewText = document.getElementById("btn-view-mushaf-text");
+
+    if (reciterSelect) {
+        reciterSelect.value = currentAyahReciter;
+        reciterSelect.addEventListener("change", (e) => {
+            currentAyahReciter = e.target.value;
+            localStorage.setItem("selected_ayah_reciter", currentAyahReciter);
+            if (isAyahSyncPlaying) {
+                playAyahSync(currentAyahIndexInPage, false);
+            }
+        });
+    }
+
+    if (speedSelect) {
+        speedSelect.addEventListener("change", (e) => {
+            currentAyahSpeed = parseFloat(e.target.value) || 1.0;
+            ayahSyncAudio.playbackRate = currentAyahSpeed;
+        });
+    }
+
+    if (repeatBtn) {
+        repeatBtn.addEventListener("click", () => {
+            if (currentAyahRepeatTarget === 1) currentAyahRepeatTarget = 3;
+            else if (currentAyahRepeatTarget === 3) currentAyahRepeatTarget = 5;
+            else if (currentAyahRepeatTarget === 5) currentAyahRepeatTarget = 999;
+            else currentAyahRepeatTarget = 1;
+
+            const label = document.getElementById("ayah-repeat-label");
+            if (label) {
+                label.textContent = currentAyahRepeatTarget >= 999 ? "تكرار: مستمر ∞" : `تكرار: ${currentAyahRepeatTarget} مرات`;
+            }
+            if (typeof showToast === "function") {
+                showToast(`تم ضبط تكرار الآية: ${currentAyahRepeatTarget >= 999 ? "مستمر للحفظ" : currentAyahRepeatTarget + " مرات"} 🔁`);
+            }
+        });
+    }
+
+    if (toggleBtn && panel) {
+        toggleBtn.addEventListener("click", () => {
+            const isVisible = panel.style.display !== "none";
+            if (isVisible) {
+                panel.style.display = "none";
+                toggleBtn.classList.remove("active");
+                stopAyahSyncAudio();
+            } else {
+                panel.style.display = "flex";
+                toggleBtn.classList.add("active");
+                panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        });
+    }
+
+    if (playBtn) {
+        playBtn.addEventListener("click", () => {
+            if (isAyahSyncPlaying) {
+                pauseAyahSyncAudio();
+            } else {
+                playAyahSync(currentAyahIndexInPage);
+            }
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            if (currentAyahIndexInPage > 0) {
+                playAyahSync(currentAyahIndexInPage - 1);
+            } else if (currentPageNumber > 1) {
+                goToMushafPage(currentPageNumber - 1);
+                setTimeout(() => {
+                    playAyahSync(currentPageAyahsList.length - 1);
+                }, 700);
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            if (currentAyahIndexInPage < currentPageAyahsList.length - 1) {
+                playAyahSync(currentAyahIndexInPage + 1);
+            } else if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
+                goToMushafPage(currentPageNumber + 1);
+                setTimeout(() => {
+                    playAyahSync(0);
+                }, 700);
+            }
+        });
+    }
+
+    if (btnViewImg && btnViewText) {
+        btnViewImg.addEventListener("click", () => {
+            btnViewImg.classList.add("active");
+            btnViewText.classList.remove("active");
+            document.getElementById("mushaf-real-page-wrapper").style.display = "block";
+            document.getElementById("mushaf-interactive-verses-wrapper").style.display = "none";
+        });
+
+        btnViewText.addEventListener("click", () => {
+            btnViewText.classList.add("active");
+            btnViewImg.classList.remove("active");
+            document.getElementById("mushaf-real-page-wrapper").style.display = "none";
+            document.getElementById("mushaf-interactive-verses-wrapper").style.display = "block";
+        });
+    }
+
+    // Audio onended handler
+    ayahSyncAudio.addEventListener("ended", onAyahSyncAudioEnded);
+    ayahSyncAudio.addEventListener("error", () => {
+        console.warn("Ayah audio load error, trying fallback...");
+        const ayah = currentPageAyahsList[currentAyahIndexInPage];
+        if (ayah && !ayahSyncAudio.src.includes("islamic.network")) {
+            ayahSyncAudio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.number}.mp3`;
+            ayahSyncAudio.play().catch(() => {});
+        }
+    });
+}
+
+/**
+ * جلب وعرض آيات الصفحة الحالية بالرسم العثماني
+ */
+async function loadAyahsForCurrentMushafPage(pageNumber) {
+    const container = document.getElementById("mushaf-verses-container");
+    if (!container) return;
+
+    if (ayahPageCache[pageNumber]) {
+        currentPageAyahsList = ayahPageCache[pageNumber];
+        renderPageInteractiveVerses(currentPageAyahsList);
+        return;
+    }
+
+    container.innerHTML = `
+        <div style="text-align: center; color: var(--gold-400); padding: 25px;">
+            <i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الآيات الكريمة للصفحة ${pageNumber}...
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`https://api.alquran.cloud/v1/page/${pageNumber}/quran-uthmani`);
+        const json = await response.json();
+        if (json && json.data && json.data.ayahs) {
+            currentPageAyahsList = json.data.ayahs;
+            ayahPageCache[pageNumber] = currentPageAyahsList;
+            renderPageInteractiveVerses(currentPageAyahsList);
+        }
+    } catch (e) {
+        console.warn("Could not fetch Uthmani page ayahs:", e);
+        container.innerHTML = `
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                اضغط على زر المصحف المصور لقراءة الصفحة أو أعد المحاولة.
+            </div>
+        `;
+    }
+}
+
+/**
+ * رسم بطاقات الآيات وتضمين الإجراءات التفاعلية
+ */
+function renderPageInteractiveVerses(ayahs) {
+    const container = document.getElementById("mushaf-verses-container");
+    if (!container) return;
+
+    if (!ayahs || ayahs.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted);">لا توجد آيات متوفرة لهذه الصفحة.</div>`;
+        return;
+    }
+
+    container.innerHTML = ayahs.map((ayah, idx) => {
+        const surahName = ayah.surah ? ayah.surah.name : "السورة";
+        return `
+            <div class="ayah-verse-card ${idx === currentAyahIndexInPage && isAyahSyncPlaying ? 'is-active-ayah' : ''}" 
+                 id="ayah-card-${idx}" 
+                 onclick="playAyahSync(${idx})">
+                <div class="ayah-verse-text">
+                    <span>${ayah.text}</span>
+                    <span class="ayah-num-symbol">﴿${ayah.numberInSurah}﴾</span>
+                </div>
+                <div class="ayah-verse-actions" onclick="event.stopPropagation();">
+                    <span style="font-size: 0.75rem; color: var(--gold-400); margin-inline-end: auto;">
+                        ${surahName} • آية ${ayah.numberInSurah}
+                    </span>
+                    <button type="button" class="ayah-action-btn" onclick="playAyahSync(${idx})" title="استماع">
+                        <i class="fa-solid fa-play"></i> استماع
+                    </button>
+                    <button type="button" class="ayah-action-btn" onclick="copyAyahText('${escapeSingleQuotes(ayah.text)}', '${surahName}', ${ayah.numberInSurah})" title="نسخ">
+                        <i class="fa-solid fa-copy"></i> نسخ
+                    </button>
+                    <button type="button" class="ayah-action-btn" onclick="createStoryCardFromAyah('${escapeSingleQuotes(ayah.text)}', '${surahName}', ${ayah.numberInSurah})" title="صناعة بطاقة واستوري">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> بطاقة
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function escapeSingleQuotes(str) {
+    return String(str).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+/**
+ * تشغيل الآية المحددة مع التظليل والمزامنة
+ */
+function playAyahSync(index, resetRepeat = true) {
+    if (!currentPageAyahsList || currentPageAyahsList.length === 0) return;
+    if (index < 0) index = 0;
+    if (index >= currentPageAyahsList.length) index = currentPageAyahsList.length - 1;
+
+    currentAyahIndexInPage = index;
+    if (resetRepeat) currentAyahRepeatCount = 1;
+
+    const ayah = currentPageAyahsList[index];
+    if (!ayah) return;
+
+    // إيقاف تلاوة السورة الكاملة إذا كانت تعمل لتجنب تداخل الأصوات
+    if (mushafAudio && !mushafAudio.paused) {
+        mushafAudio.pause();
+        isAudioPlaying = false;
+        const btnSurahAudio = document.getElementById("btn-surah-audio");
+        if (btnSurahAudio) btnSurahAudio.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>استماع السورة</span>';
+    }
+
+    const surahId = ayah.surah ? ayah.surah.number : 1;
+    const surahPadded = String(surahId).padStart(3, "0");
+    const ayahPadded = String(ayah.numberInSurah).padStart(3, "0");
+
+    // بناء مسار ملف الصوت للآية
+    const audioSrc = `https://everyayah.com/data/${currentAyahReciter}/${surahPadded}${ayahPadded}.mp3`;
+    ayahSyncAudio.src = audioSrc;
+    ayahSyncAudio.playbackRate = currentAyahSpeed;
+    
+    ayahSyncAudio.play().then(() => {
+        isAyahSyncPlaying = true;
+        updateAyahSyncUI(ayah, index);
+    }).catch(err => {
+        console.warn("Audio play blocked or error:", err);
+        // تجربة السيرفر البديل
+        ayahSyncAudio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.number}.mp3`;
+        ayahSyncAudio.play().catch(() => {});
+        isAyahSyncPlaying = true;
+        updateAyahSyncUI(ayah, index);
+    });
+}
+
+function pauseAyahSyncAudio() {
+    ayahSyncAudio.pause();
+    isAyahSyncPlaying = false;
+    const playBtn = document.getElementById("btn-ayah-play-toggle");
+    const playText = document.getElementById("ayah-play-btn-text");
+    if (playBtn) playBtn.querySelector("i").className = "fa-solid fa-play";
+    if (playText) playText.textContent = "استئناف الاستماع";
+}
+
+function stopAyahSyncAudio() {
+    ayahSyncAudio.pause();
+    ayahSyncAudio.currentTime = 0;
+    isAyahSyncPlaying = false;
+    const playBtn = document.getElementById("btn-ayah-play-toggle");
+    const playText = document.getElementById("ayah-play-btn-text");
+    if (playBtn) playBtn.querySelector("i").className = "fa-solid fa-play";
+    if (playText) playText.textContent = "بدء الاستماع آية بآية";
+    document.querySelectorAll(".ayah-verse-card").forEach(c => c.classList.remove("is-active-ayah"));
+}
+
+function updateAyahSyncUI(ayah, index) {
+    const playBtn = document.getElementById("btn-ayah-play-toggle");
+    const playText = document.getElementById("ayah-play-btn-text");
+    const titleEl = document.getElementById("ayah-sync-current-title");
+
+    if (playBtn) playBtn.querySelector("i").className = "fa-solid fa-pause";
+    if (playText) playText.textContent = "إيقاف مؤقت";
+
+    const surahName = ayah.surah ? ayah.surah.name : "سورة";
+    if (titleEl) {
+        titleEl.textContent = `${surahName} • الآية ${ayah.numberInSurah} (جزء ${ayah.juz || 1})`;
+    }
+
+    // تظليل بطاقة الآية الحالية
+    document.querySelectorAll(".ayah-verse-card").forEach((card, idx) => {
+        if (idx === index) {
+            card.classList.add("is-active-ayah");
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+            card.classList.remove("is-active-ayah");
+        }
+    });
+}
+
+function onAyahSyncAudioEnded() {
+    if (!isAyahSyncPlaying) return;
+
+    // تكرار نفس الآية إذا تم تحديد وضع التكرار
+    if (currentAyahRepeatCount < currentAyahRepeatTarget) {
+        currentAyahRepeatCount++;
+        playAyahSync(currentAyahIndexInPage, false);
+        return;
+    }
+
+    // الانتقال للآية التالية في الصفحة
+    if (currentAyahIndexInPage < currentPageAyahsList.length - 1) {
+        currentAyahRepeatCount = 1;
+        playAyahSync(currentAyahIndexInPage + 1);
+    } 
+    // نهاية الصفحة -> تقليب تلقائي للصفحة التالية وتشغيل أول آية!
+    else if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
+        goToMushafPage(currentPageNumber + 1);
+        setTimeout(() => {
+            playAyahSync(0);
+        }, 800);
+    } else {
+        stopAyahSyncAudio();
+        if (typeof showToast === "function") {
+            showToast("تم إتمام تلاوة آخر آية في المصحف الشريف بحمد الله 🌿🤲");
+        }
+    }
+}
+
+// أدوات التفاعل السريع مع الآيات
+window.copyAyahText = function(text, surahName, ayahNum) {
+    const full = `﴿${text}﴾ [${surahName}: ${ayahNum}]\n— عبر تطبيق زاد المسلم`;
+    navigator.clipboard.writeText(full).then(() => {
+        if (typeof showToast === "function") showToast("تم نسخ الآية الكريمة بنجاح 📋✨");
+    });
+};
+
+window.createStoryCardFromAyah = function(text, surahName, ayahNum) {
+    const modal = document.getElementById("dua-card-modal");
+    const customGroup = document.getElementById("custom-dua-group");
+    const customInput = document.getElementById("custom-dua-input");
+    const templateSelect = document.getElementById("dua-template-select");
+
+    if (templateSelect) templateSelect.value = "custom";
+    if (customGroup) customGroup.style.display = "block";
+    if (customInput) customInput.value = `﴿${text}﴾\n[${surahName}: ${ayahNum}]`;
+
+    if (modal) modal.classList.add("open");
+    if (typeof drawDuaCard === "function") drawDuaCard();
+};
+
 
