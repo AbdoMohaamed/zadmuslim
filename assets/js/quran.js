@@ -463,12 +463,12 @@ function toggleAudioRecitation() {
     if (isAudioPlaying) {
         mushafAudio.pause();
         isAudioPlaying = false;
-        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>استماع للتلاوة</span>';
+        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span class="btn-audio-text">استماع السورة</span>';
         btn.classList.remove("active");
     } else {
         mushafAudio.play().then(() => {
             isAudioPlaying = true;
-            btn.innerHTML = '<i class="fa-solid fa-pause"></i> <span>إيقاف التلاوة</span>';
+            btn.innerHTML = '<i class="fa-solid fa-pause"></i> <span class="btn-audio-text">إيقاف التلاوة</span>';
             btn.classList.add("active");
         }).catch(() => {
             showToast("يرجى النقر أولاً في الصفحة لتفعيل الصوت");
@@ -719,6 +719,32 @@ function initMushafComfortTools() {
                 }
             }
         });
+    }
+
+    // 6. زر إظهار/إخفاء درج خيارات وأدوات القراءة
+    const btnToolsToggle = document.getElementById("btn-mushaf-tools-toggle");
+    const drawerTools = document.getElementById("mushaf-drawer-tools");
+    if (btnToolsToggle && drawerTools) {
+        btnToolsToggle.addEventListener("click", () => {
+            const isHidden = drawerTools.style.display === "none";
+            if (isHidden) {
+                drawerTools.style.display = "block";
+                btnToolsToggle.classList.add("active");
+                drawerTools.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            } else {
+                drawerTools.style.display = "none";
+                btnToolsToggle.classList.remove("active");
+            }
+        });
+    }
+}
+
+function toggleMushafZenMode() {
+    const card = document.querySelector(".real-mushaf-card");
+    if (!card) return;
+    const isZen = card.classList.toggle("zen-reading-mode");
+    if (typeof showToast === "function") {
+        showToast(isZen ? "وضع القراءة الهادئ • انقر بوسط الصفحة للرجوع 🌿" : "تم إظهار أدوات المصحف الشريف 📖");
     }
 }
 
@@ -1143,11 +1169,15 @@ function initMushafTouchGestures() {
                 else if (tapXRelative > width * 0.65) {
                     flipToPrevPage();
                 }
+                // النقر في الثلث الأوسط = وضع القراءة الهادئ (إخفاء/إظهار الأدوات)
+                else {
+                    toggleMushafZenMode();
+                }
             }
         }
     }, { passive: true });
 
-    // دعم النقر بالماوس أيضاً على جانبي الصفحة
+    // دعم النقر بالماوس أيضاً على جانبي الصفحة أو في الوسط
     wrapper.addEventListener("click", (e) => {
         if (e.target.closest("button, a, input, select, .mushaf-page-loader")) return;
         const rect = wrapper.getBoundingClientRect();
@@ -1158,6 +1188,8 @@ function initMushafTouchGestures() {
             flipToNextPage();
         } else if (clickX > width * 0.68) {
             flipToPrevPage();
+        } else {
+            toggleMushafZenMode();
         }
     });
 
