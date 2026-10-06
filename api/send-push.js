@@ -31,8 +31,8 @@ module.exports = async function handler(req, res) {
     const payload = JSON.stringify({
       title: title,
       body: body,
-      icon: icon || '/assets/icon.svg',
-      badge: badge || '/assets/icon.svg',
+      icon: icon || '/assets/icon-192.png',
+      badge: badge || '/assets/icon-192.png',
       dir: 'rtl',
       lang: 'ar',
       data: {

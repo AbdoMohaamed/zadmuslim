@@ -1032,14 +1032,14 @@ function triggerNativeNotification(title, body, url = "./") {
                 navigator.serviceWorker.ready.then(reg => {
                     reg.showNotification(title, {
                         body: body,
-                        icon: "assets/icon.svg",
-                        badge: "assets/icon.svg",
+                        icon: "assets/icon-192.png",
+                        badge: "assets/icon-192.png",
                         vibrate: [120, 80, 120],
                         data: { url: url }
                     });
                 }).catch(() => {
                     try {
-                        new Notification(title, { body: body, icon: "assets/icon.svg" });
+                        new Notification(title, { body: body, icon: "assets/icon-192.png" });
                     } catch(e) {}
                 });
             } else {

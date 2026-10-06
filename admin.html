@@ -882,6 +882,18 @@
                             <button type="button" class="tpl-btn" data-tpl="khatma">
                                 <span>✨ ختمة القرآن الجماعية</span>
                             </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_asr">
+                                <span>🕌 أذان العصر</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_maghrib">
+                                <span>🕌 أذان المغرب</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_isha">
+                                <span>🕌 أذان العشاء</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_fajr">
+                                <span>🕌 أذان الفجر</span>
+                            </button>
                         </div>
                     </div>
 
@@ -1202,6 +1214,26 @@
                 title: "✨ ختمة القرآن الجماعية • شارك بأجزائك",
                 body: "شارك معنا في ختمة القرآن الكريم وإهداء ثوابها لموتانا وموتى المسلمين.. تقبل الله طاعاتكم 📖",
                 url: "index.html#prayers"
+            },
+            adhan_asr: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ العَصْرِ",
+                body: "«حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ».. حان موعد صلاة العصر حسب توقيتكم المحلي 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=asr"
+            },
+            adhan_maghrib: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ المَغْرِبِ",
+                body: "الله أكبر الله أكبر.. حان موعد صلاة المغرب ودعاء الإفطار للصائمين، تقبل الله طاعاتكم 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=maghrib"
+            },
+            adhan_isha: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ العِشَاءِ",
+                body: "الله أكبر الله أكبر.. حان الآن موعد صلاة العشاء وسنة الوتر، حيّ على الصلاة حيّ على الفلاح 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=isha"
+            },
+            adhan_fajr: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ الفَجْرِ",
+                body: "الصلاة خيرٌ من النوم.. الله أكبر الله أكبر، أفلح من قام ولبّى نداء الرحمن 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=fajr"
             }
         };
 
@@ -1590,7 +1622,7 @@
                         title: title,
                         body: body,
                         url: url,
-                        icon: "assets/icon.svg",
+                        icon: "assets/icon-192.png",
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     });
                 }
@@ -1605,7 +1637,7 @@
                             title: title,
                             body: body,
                             url: url,
-                            icon: "/assets/icon.svg"
+                            icon: "/assets/icon-192.png"
                         })
                     });
                     const pushResult = await pushRes.json();
@@ -1660,7 +1692,7 @@
                                 title: val.title || "تنبيه",
                                 body: val.body || "",
                                 url: val.url || "./",
-                                icon: "/assets/icon.svg"
+                                icon: "/assets/icon-192.png"
                             })
                         });
                     } catch(e) {}

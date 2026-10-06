@@ -5033,9 +5033,9 @@ body {
    5. موسوعة الأدعية النبوية المبوبة (Categorized Duas with Sheikh Recitation)
    ========================================================================== */
 .categorized-duas-section {
-    padding: 0 0 25px 0;
+    padding: 0 0 35px 0;
     position: relative;
-    background: radial-gradient(circle at 50% 100%, rgba(5, 150, 105, 0.08) 0%, #f8f6f0 70%) !important
+    background: radial-gradient(circle at 50% 0%, rgba(5, 150, 105, 0.08) 0%, rgba(7, 13, 24, 0.98) 75%);
 }
 
 .duas-categories-tabs {
@@ -11190,5 +11190,290 @@ html[data-theme="light"] .btn-dismiss-reminder:hover {
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   دعم المظهر النهاري / الأبيض لمودال المؤذن وموسوعة الأدعية
+   (Light & White Mode Support for Muazzin Modal & Categorized Duas)
+   ========================================================================== */
+
+/* 1. قسم موسوعة الأدعية النبوية في المظهر النهاري */
+body.light-theme .categorized-duas-section,
+html[data-theme="light"] .categorized-duas-section,
+html.light-theme .categorized-duas-section {
+  background: radial-gradient(circle at 50% 0%, rgba(5, 150, 105, 0.05) 0%, #f8f6f0 75%) !important;
+}
+
+body.light-theme .duas-tab-btn,
+html[data-theme="light"] .duas-tab-btn,
+html.light-theme .duas-tab-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.28) !important;
+  color: #334155 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.light-theme .duas-tab-btn:hover,
+html[data-theme="light"] .duas-tab-btn:hover,
+html.light-theme .duas-tab-btn:hover {
+  background: #fdfbf7 !important;
+  border-color: #b8860b !important;
+  color: #0f172a !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(184, 134, 11, 0.16) !important;
+}
+
+body.light-theme .duas-tab-btn.active,
+html[data-theme="light"] .duas-tab-btn.active,
+html.light-theme .duas-tab-btn.active {
+  background: linear-gradient(135deg, #c59318, #b8860b) !important;
+  border-color: #9e7200 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 16px rgba(184, 134, 11, 0.35) !important;
+}
+
+body.light-theme .duas-search-input,
+html[data-theme="light"] .duas-search-input,
+html.light-theme .duas-search-input {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(184, 134, 11, 0.35) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light-theme .duas-search-input::placeholder,
+html[data-theme="light"] .duas-search-input::placeholder,
+html.light-theme .duas-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+body.light-theme .duas-search-input:focus,
+html[data-theme="light"] .duas-search-input:focus,
+html.light-theme .duas-search-input:focus {
+  border-color: #b8860b !important;
+  box-shadow: 0 0 18px rgba(184, 134, 11, 0.25) !important;
+}
+
+body.light-theme .duas-search-box .search-icon,
+html[data-theme="light"] .duas-search-box .search-icon,
+html.light-theme .duas-search-box .search-icon {
+  color: #b8860b !important;
+}
+
+body.light-theme .btn-clear-duas-search,
+html[data-theme="light"] .btn-clear-duas-search,
+html.light-theme .btn-clear-duas-search {
+  color: #64748b !important;
+}
+
+body.light-theme .btn-clear-duas-search:hover,
+html[data-theme="light"] .btn-clear-duas-search:hover,
+html.light-theme .btn-clear-duas-search:hover {
+  color: #0f172a !important;
+}
+
+body.light-theme .cat-dua-card,
+html[data-theme="light"] .cat-dua-card,
+html.light-theme .cat-dua-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.22) !important;
+  box-shadow: 0 4px 18px rgba(184, 134, 11, 0.07) !important;
+}
+
+body.light-theme .cat-dua-card:hover,
+html[data-theme="light"] .cat-dua-card:hover,
+html.light-theme .cat-dua-card:hover {
+  background: #ffffff !important;
+  border-color: #c59318 !important;
+  box-shadow: 0 10px 28px rgba(184, 134, 11, 0.15) !important;
+}
+
+body.light-theme .cat-dua-header,
+html[data-theme="light"] .cat-dua-header,
+html.light-theme .cat-dua-header {
+  border-bottom: 1px solid rgba(184, 134, 11, 0.14) !important;
+}
+
+body.light-theme .cat-dua-title,
+html[data-theme="light"] .cat-dua-title,
+html.light-theme .cat-dua-title {
+  color: #7d5a00 !important;
+}
+
+body.light-theme .cat-dua-repeat-badge,
+body.light-theme .cat-dua-category-badge,
+html[data-theme="light"] .cat-dua-repeat-badge,
+html[data-theme="light"] .cat-dua-category-badge,
+html.light-theme .cat-dua-repeat-badge,
+html.light-theme .cat-dua-category-badge {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border: 1px solid rgba(184, 134, 11, 0.3) !important;
+  color: #8d6404 !important;
+}
+
+body.light-theme .cat-dua-body,
+html[data-theme="light"] .cat-dua-body,
+html.light-theme .cat-dua-body {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+body.light-theme .cat-dua-meta-row,
+html[data-theme="light"] .cat-dua-meta-row,
+html.light-theme .cat-dua-meta-row {
+  border-top: 1px dashed rgba(184, 134, 11, 0.22) !important;
+}
+
+body.light-theme .cat-dua-source,
+html[data-theme="light"] .cat-dua-source,
+html.light-theme .cat-dua-source {
+  color: #64748b !important;
+}
+
+body.light-theme .cat-dua-card.is-finished,
+html[data-theme="light"] .cat-dua-card.is-finished,
+html.light-theme .cat-dua-card.is-finished {
+  background: linear-gradient(180deg, rgba(5, 150, 105, 0.07) 0%, #ffffff 100%) !important;
+  border-color: rgba(5, 150, 105, 0.38) !important;
+}
+
+/* 2. مودال اختيار المؤذن في المظهر النهاري / الأبيض */
+body.light-theme .modal-card-muazzin,
+html[data-theme="light"] .modal-card-muazzin,
+html.light-theme .modal-card-muazzin {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(184, 134, 11, 0.35) !important;
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.16), 0 0 25px rgba(184, 134, 11, 0.1) !important;
+}
+
+body.light-theme .modal-card-muazzin .modal-title,
+html[data-theme="light"] .modal-card-muazzin .modal-title,
+html.light-theme .modal-card-muazzin .modal-title {
+  color: #0f172a !important;
+}
+
+body.light-theme .modal-card-muazzin .modal-desc,
+html[data-theme="light"] .modal-card-muazzin .modal-desc,
+html.light-theme .modal-card-muazzin .modal-desc {
+  color: #475569 !important;
+}
+
+body.light-theme .muazzin-card,
+html[data-theme="light"] .muazzin-card,
+html.light-theme .muazzin-card {
+  background: #fdfbf7 !important;
+  border: 1px solid rgba(184, 134, 11, 0.22) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .muazzin-card:hover,
+html[data-theme="light"] .muazzin-card:hover,
+html.light-theme .muazzin-card:hover {
+  background: #ffffff !important;
+  border-color: #b8860b !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(184, 134, 11, 0.14) !important;
+}
+
+body.light-theme .muazzin-card.is-selected,
+html[data-theme="light"] .muazzin-card.is-selected,
+html.light-theme .muazzin-card.is-selected {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.14) 0%, rgba(5, 150, 105, 0.08) 100%) !important;
+  border: 1.5px solid #b8860b !important;
+  box-shadow: 0 6px 20px rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light-theme .muazzin-icon-circle,
+html[data-theme="light"] .muazzin-icon-circle,
+html.light-theme .muazzin-icon-circle {
+  background: rgba(184, 134, 11, 0.1) !important;
+  border: 1px solid rgba(184, 134, 11, 0.28) !important;
+}
+
+body.light-theme .muazzin-icon-circle i,
+html[data-theme="light"] .muazzin-icon-circle i,
+html.light-theme .muazzin-icon-circle i {
+  color: #8d6404 !important;
+}
+
+body.light-theme .muazzin-card.is-selected .muazzin-icon-circle,
+html[data-theme="light"] .muazzin-card.is-selected .muazzin-icon-circle,
+html.light-theme .muazzin-card.is-selected .muazzin-icon-circle {
+  background: #b8860b !important;
+}
+
+body.light-theme .muazzin-card.is-selected .muazzin-icon-circle i,
+html[data-theme="light"] .muazzin-card.is-selected .muazzin-icon-circle i,
+html.light-theme .muazzin-card.is-selected .muazzin-icon-circle i {
+  color: #ffffff !important;
+}
+
+body.light-theme .muazzin-name,
+html[data-theme="light"] .muazzin-name,
+html.light-theme .muazzin-name {
+  color: #0f172a !important;
+}
+
+body.light-theme .muazzin-desc,
+html[data-theme="light"] .muazzin-desc,
+html.light-theme .muazzin-desc {
+  color: #475569 !important;
+}
+
+body.light-theme .muazzin-desc .text-gold-light,
+html[data-theme="light"] .muazzin-desc .text-gold-light,
+html.light-theme .muazzin-desc .text-gold-light {
+  color: #8d6404 !important;
+  font-weight: 600;
+}
+
+body.light-theme .muazzin-badge-active,
+html[data-theme="light"] .muazzin-badge-active,
+html.light-theme .muazzin-badge-active {
+  background: rgba(5, 150, 105, 0.12) !important;
+  border: 1px solid rgba(5, 150, 105, 0.35) !important;
+  color: #047857 !important;
+}
+
+body.light-theme .btn-preview-muazzin,
+html[data-theme="light"] .btn-preview-muazzin,
+html.light-theme .btn-preview-muazzin {
+  background: #ffffff !important;
+  border: 1px solid rgba(184, 134, 11, 0.35) !important;
+  color: #573e00 !important;
+}
+
+body.light-theme .btn-preview-muazzin:hover,
+html[data-theme="light"] .btn-preview-muazzin:hover,
+html.light-theme .btn-preview-muazzin:hover {
+  background: #fdfbf7 !important;
+  border-color: #b8860b !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .btn-preview-muazzin.is-playing,
+html[data-theme="light"] .btn-preview-muazzin.is-playing,
+html.light-theme .btn-preview-muazzin.is-playing {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+body.light-theme .btn-choose-muazzin.is-current,
+html[data-theme="light"] .btn-choose-muazzin.is-current,
+html.light-theme .btn-choose-muazzin.is-current {
+  background: rgba(5, 150, 105, 0.15) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(5, 150, 105, 0.4) !important;
+}
+
+body.light-theme .muazzin-modal-tip,
+html[data-theme="light"] .muazzin-modal-tip,
+html.light-theme .muazzin-modal-tip {
+  background: rgba(184, 134, 11, 0.08) !important;
+  border: 1px dashed rgba(184, 134, 11, 0.3) !important;
+  color: #735200 !important;
+}
+
 
 

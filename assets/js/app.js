@@ -1823,17 +1823,35 @@ function startPrayerCountdown() {
         }
 
         // إطلاق الأذان الصوتي وإشعار المتصفح عند حلول وقت الصلاة
-        if (totalSecs === 0 && nextPrayer.key !== "sunrise") {
-            const prayerMomentKey = `${nextPrayer.key}_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${now.getHours()}_${now.getMinutes()}`;
-            if (window._lastAdhanTriggeredKey !== prayerMomentKey) {
-                window._lastAdhanTriggeredKey = prayerMomentKey;
-                triggerPrayerAdhanNotification(nextPrayer.name, nextPrayer.key);
+        // استخدام نافذة زمنية مرنة لمنع تفويت الأذان بسبب تجميد المتصفح أو تأخر المؤقتات على الهواتف
+        if (nextPrayer.key !== "sunrise") {
+            const todayPrayerKey = `${nextPrayer.key}_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}`;
+            const diffFromTarget = nextPrayerDate.getTime() - now.getTime();
+
+            // إطلاق الأذان إذا كان المتبقي أقل من ثانيتين أو مرت أقل من دقيقتين على موعد الصلاة
+            if (diffFromTarget <= 1500 && diffFromTarget >= -120000) {
+                const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
+                if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {
+                    window._lastAdhanTriggeredKey = todayPrayerKey;
+                    localStorage.setItem("zad_last_adhan_date_key", todayPrayerKey);
+                    triggerPrayerAdhanNotification(nextPrayer.name, nextPrayer.key);
+                }
             }
         }
     };
 
     updateCountdown();
     prayerTimerInterval = setInterval(updateCountdown, 1000);
+
+    // إعادة التنشيط والفحص الفوري عند فتح شاشة الهاتف أو العودة للتبويب
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            updateCountdown();
+        }
+    });
+    window.addEventListener("focus", () => {
+        updateCountdown();
+    });
 }
 
 /* ==========================================================================
