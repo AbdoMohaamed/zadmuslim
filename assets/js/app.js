@@ -40,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initFastingTracker();
     initQiblaCompass();
     initAdhanNotifications();
+    initMuazzinSelector();
+    checkUrlForAdhanAutoPlay();
 
     // 11. تهيئة جدول الورد والمهام الإيمانية وتتابع الإنجاز (Streak)
     initDailyWird();
@@ -1736,7 +1738,8 @@ function syncPrayersWithServiceWorker(timings) {
             if (worker) {
                 worker.postMessage({
                     type: "SCHEDULE_PRAYERS",
-                    schedule: schedule
+                    schedule: schedule,
+                    muazzin: (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : (localStorage.getItem("zad_selected_muazzin") || "makkah")
                 });
             }
         };
@@ -3141,9 +3144,101 @@ ${item.hadith}
 }
 
 /* ==========================================================================
-   20. صوت الأذان وتنبيهات مواقيت الصلاة (Adhan Audio & Web Notifications)
+   20. صوت الأذان واختيار المؤذن وتنبيهات مواقيت الصلاة (Adhan Audio & Web Notifications)
    ========================================================================== */
 let isAdhanAudioEnabled = true;
+
+const MUAZZIN_LIST = [
+    {
+        id: "makkah",
+        name: "الشيخ علي أحمد ملا",
+        title: "أذان الحرم المكي الشريف",
+        city: "مكة المكرمة",
+        file: "assets/audio/adhan/makkah.mp3",
+        icon: "fa-kaaba"
+    },
+    {
+        id: "madinah",
+        name: "الشيخ عصام بخاري",
+        title: "أذان المسجد النبوي الشريف",
+        city: "المدينة المنورة",
+        file: "assets/audio/adhan/madinah.mp3",
+        icon: "fa-mosque"
+    },
+    {
+        id: "aqsa",
+        name: "الشيخ ناجي قزاز",
+        title: "أذان المسجد الأقصى المبارك",
+        city: "القدس الشريف",
+        file: "assets/audio/adhan/aqsa.mp3",
+        icon: "fa-star-and-crescent"
+    },
+    {
+        id: "abdulbasit",
+        name: "الشيخ عبد الباسط عبد الصمد",
+        title: "الأذان بتطريب خاشع ومجود",
+        city: "جمهورية مصر العربية",
+        file: "assets/audio/adhan/abdulbasit.mp3",
+        icon: "fa-microphone"
+    },
+    {
+        id: "refaat",
+        name: "الشيخ محمد رفعت",
+        title: "قيثارة السماء وعملاق الإذاعة",
+        city: "جمهورية مصر العربية",
+        file: "assets/audio/adhan/refaat.mp3",
+        icon: "fa-radio"
+    },
+    {
+        id: "qatami",
+        name: "الشيخ ناصر القطامي",
+        title: "أذان عذب وهادئ ومؤثر",
+        city: "الرياض",
+        file: "assets/audio/adhan/qatami.mp3",
+        icon: "fa-volume-high"
+    }
+];
+
+function getSelectedMuazzinId() {
+    return localStorage.getItem("zad_selected_muazzin") || "makkah";
+}
+
+function getSelectedMuazzin() {
+    const id = getSelectedMuazzinId();
+    return MUAZZIN_LIST.find(m => m.id === id) || MUAZZIN_LIST[0];
+}
+
+function setSelectedMuazzin(id) {
+    const found = MUAZZIN_LIST.find(m => m.id === id);
+    if (!found) return;
+
+    localStorage.setItem("zad_selected_muazzin", id);
+    updateMuazzinButtonUI();
+
+    // تحديث مصدر مشغل الأذان الرئيسي
+    const audioEl = document.getElementById("audio-adhan");
+    if (audioEl) {
+        audioEl.src = found.file;
+        audioEl.load();
+    }
+
+    // إشعار الـ Service Worker لتحديث إشعارات الخلفية
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+            type: "SET_MUAZZIN",
+            muazzin: id
+        });
+    }
+
+    showToast(`تم اختيار صوت ${found.title} (${found.name}) مؤذناً معتمداً 🕌`);
+}
+
+function updateMuazzinButtonUI() {
+    const label = document.getElementById("selected-muazzin-label");
+    if (!label) return;
+    const current = getSelectedMuazzin();
+    label.textContent = `المؤذن: ${current.city || current.name.split(" ")[1] || "الحرم"}`;
+}
 
 function initAdhanNotifications() {
     const toggleBtn = document.getElementById("btn-toggle-adhan");
@@ -3183,6 +3278,7 @@ function initAdhanNotifications() {
     }
 
     updateAdhanButtonUI();
+    updateMuazzinButtonUI();
 }
 
 function triggerPrayerAdhanNotification(prayerName, prayerKey) {
@@ -3190,40 +3286,42 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
 
     // 1. تشغيل صوت الأذان إذا كان مفعلاً
     if (isAdhanAudioEnabled) {
-        playAdhanAudio();
+        playAdhanAudio(prayerKey);
     }
 
     // 2. إرسال إشعار المتصفح والنظام
     if ("Notification" in window && Notification.permission === "granted") {
-        const notifTitle = `🕌 حان الآن وقت ${prayerName}`;
+        const notifTitle = `🕌 حان الآن موعد ${prayerName}`;
         const notifBody = `الله أكبر، الله أكبر.. حان الآن موعد ${prayerName} حسب التوقيت المحلي. حيّ على الصلاة، حيّ على الفلاح 🌿`;
+        const currentMuazzin = getSelectedMuazzinId();
+        const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayerKey}&muazzin=${currentMuazzin}&t=${Date.now()}`;
         
+        const notifOptions = {
+            body: notifBody,
+            icon: "assets/icon-192.png",
+            badge: "assets/icon-192.png",
+            vibrate: [500, 200, 500, 200, 500, 200, 800, 400, 800, 400, 1200],
+            tag: `prayer_${prayerKey}_${new Date().toISOString().slice(0, 10)}`,
+            renotify: true,
+            requireInteraction: true,
+            data: { url: playUrl, prayer: prayerKey, muazzin: currentMuazzin },
+            actions: [
+                { action: "play_adhan", title: "🔊 سماع الأذان كاملاً" },
+                { action: "open", title: "🕌 مواقيت الصلاة" }
+            ]
+        };
+
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.ready.then(reg => {
-                reg.showNotification(notifTitle, {
-                    body: notifBody,
-                    icon: "assets/icon.svg",
-                    badge: "assets/icon.svg",
-                    vibrate: [500, 250, 500, 250, 500, 250, 1000],
-                    tag: `prayer_${prayerKey}_${Date.now()}`,
-                    renotify: true,
-                    requireInteraction: true,
-                    data: { url: "./#prayers" }
-                });
+                reg.showNotification(notifTitle, notifOptions);
             }).catch(() => {
                 try {
-                    new Notification(notifTitle, {
-                        body: notifBody,
-                        icon: "assets/icon.svg"
-                    });
+                    new Notification(notifTitle, notifOptions);
                 } catch(e) {}
             });
         } else {
             try {
-                new Notification(notifTitle, {
-                    body: notifBody,
-                    icon: "assets/icon.svg"
-                });
+                new Notification(notifTitle, notifOptions);
             } catch(e) {}
         }
     }
@@ -3232,14 +3330,199 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
     showToast(`🕌 حان الآن موعد ${prayerName}.. حيّ على الصلاة، حيّ على الفلاح`);
 }
 
-function playAdhanAudio() {
+function playAdhanAudio(prayerKey, specificMuazzinId) {
     const audioEl = document.getElementById("audio-adhan");
-    if (audioEl) {
-        audioEl.currentTime = 0;
-        audioEl.play().catch(() => {
-            // قد تمنع بعض المتصفحات التشغيل التلقائي بدون تفاعل مسبق
+    if (!audioEl) return;
+
+    const isFajr = prayerKey === "fajr";
+    const muazzin = specificMuazzinId ? (MUAZZIN_LIST.find(m => m.id === specificMuazzinId) || getSelectedMuazzin()) : getSelectedMuazzin();
+    const sourceFile = isFajr ? "assets/audio/adhan/fajr.mp3" : muazzin.file;
+
+    // تحديث مسار الصوت إذا اختلف
+    if (!audioEl.src.endsWith(sourceFile)) {
+        audioEl.src = sourceFile;
+    }
+
+    audioEl.currentTime = 0;
+    const playPromise = audioEl.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(err => {
+            console.warn("Autoplay audio blocked or pending user gesture:", err);
         });
     }
+}
+
+// دالة فحص وتفعيل الأذان التلقائي عند فتح الإشعار
+function checkUrlForAdhanAutoPlay() {
+    const currentHash = window.location.hash || "";
+    const currentSearch = window.location.search || "";
+    const fullQuery = currentSearch + (currentHash.includes("?") ? ("?" + currentHash.split("?")[1]) : "");
+
+    if (fullQuery.includes("playAdhan=1")) {
+        const urlParams = new URLSearchParams(fullQuery.replace(/^\?/, ""));
+        const prayerKey = urlParams.get("prayer") || "";
+        const muazzinKey = urlParams.get("muazzin") || getSelectedMuazzinId();
+
+        // تنظيف عنوان الـ URL لمنع تكرار التشغيل عند التحديث
+        try {
+            const cleanHash = currentHash.split("?")[0] || "#prayer-times";
+            window.history.replaceState(null, "", window.location.pathname + cleanHash);
+        } catch(e) {}
+
+        // تشغيل صوت الأذان فوراً
+        setTimeout(() => {
+            playAdhanAudio(prayerKey, muazzinKey);
+            showToast("🕌 الله أكبر، الله أكبر.. بدأ تشغيل نداء الأذان المبارك");
+        }, 300);
+    }
+}
+
+// الاستماع لتغيرات الهاش عند النقر على إشعار والتطبيق كان مفتوحاً مسبقاً
+window.addEventListener("hashchange", () => {
+    checkUrlForAdhanAutoPlay();
+});
+
+// تهيئة نافذة اختيار المؤذن وبطاقاتها التفاعلية
+function initMuazzinSelector() {
+    const openBtn = document.getElementById("btn-select-muazzin");
+    const modal = document.getElementById("muazzin-selector-modal");
+    const closeBtn = document.getElementById("btn-close-muazzin-modal");
+    const container = document.getElementById("muazzin-cards-list");
+    const previewAudio = document.getElementById("audio-adhan-preview");
+
+    if (!openBtn || !modal || !container) return;
+
+    let currentlyPlayingPreviewId = null;
+
+    function stopPreview() {
+        if (previewAudio) {
+            previewAudio.pause();
+            previewAudio.currentTime = 0;
+        }
+        currentlyPlayingPreviewId = null;
+        updatePreviewButtonsUI();
+    }
+
+    function updatePreviewButtonsUI() {
+        const playBtns = container.querySelectorAll(".btn-preview-muazzin");
+        playBtns.forEach(btn => {
+            const id = btn.getAttribute("data-muazzin-id");
+            const icon = btn.querySelector("i");
+            const text = btn.querySelector("span");
+            if (id === currentlyPlayingPreviewId) {
+                btn.classList.add("is-playing");
+                if (icon) icon.className = "fa-solid fa-pause";
+                if (text) text.textContent = "إيقاف";
+            } else {
+                btn.classList.remove("is-playing");
+                if (icon) icon.className = "fa-solid fa-play";
+                if (text) text.textContent = "استماع";
+            }
+        });
+    }
+
+    function renderMuazzinCards() {
+        const selectedId = getSelectedMuazzinId();
+        container.innerHTML = "";
+
+        MUAZZIN_LIST.forEach(muazzin => {
+            const isSelected = muazzin.id === selectedId;
+            const card = document.createElement("div");
+            card.className = `muazzin-card ${isSelected ? "is-selected" : ""}`;
+            card.setAttribute("data-muazzin-id", muazzin.id);
+
+            card.innerHTML = `
+                <div class="muazzin-card-header">
+                    <div class="muazzin-icon-circle">
+                        <i class="fa-solid ${muazzin.icon || 'fa-mosque'} text-gold"></i>
+                    </div>
+                    <div class="muazzin-info">
+                        <div class="muazzin-title-row">
+                            <h4 class="muazzin-name">${muazzin.name}</h4>
+                            ${isSelected ? '<span class="muazzin-badge-active"><i class="fa-solid fa-check"></i> المعتمد حالياً</span>' : ''}
+                        </div>
+                        <p class="muazzin-desc">${muazzin.title} • <span class="text-gold-light">${muazzin.city}</span></p>
+                    </div>
+                </div>
+                <div class="muazzin-card-actions">
+                    <button type="button" class="btn btn-outline btn-sm btn-preview-muazzin" data-muazzin-id="${muazzin.id}">
+                        <i class="fa-solid fa-play"></i>
+                        <span>استماع</span>
+                    </button>
+                    <button type="button" class="btn ${isSelected ? 'btn-primary is-current' : 'btn-gold'} btn-sm btn-choose-muazzin" data-muazzin-id="${muazzin.id}">
+                        <i class="fa-solid ${isSelected ? 'fa-check' : 'fa-circle-check'}"></i>
+                        <span>${isSelected ? 'المؤذن المختار' : 'اختيار وتفعيل'}</span>
+                    </button>
+                </div>
+            `;
+
+            // حدث الاستماع التجريبي (Preview)
+            const previewBtn = card.querySelector(".btn-preview-muazzin");
+            previewBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (currentlyPlayingPreviewId === muazzin.id) {
+                    stopPreview();
+                } else {
+                    if (previewAudio) {
+                        previewAudio.src = muazzin.file;
+                        previewAudio.currentTime = 0;
+                        previewAudio.play().then(() => {
+                            currentlyPlayingPreviewId = muazzin.id;
+                            updatePreviewButtonsUI();
+                        }).catch(err => {
+                            console.warn("Preview playback failed:", err);
+                        });
+                    }
+                }
+            });
+
+            // حدث الاختيار والاعتماد
+            const chooseBtn = card.querySelector(".btn-choose-muazzin");
+            chooseBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                stopPreview();
+                setSelectedMuazzin(muazzin.id);
+                renderMuazzinCards();
+                setTimeout(() => {
+                    modal.classList.remove("active");
+                }, 400);
+            });
+
+            container.appendChild(card);
+        });
+
+        updatePreviewButtonsUI();
+    }
+
+    if (previewAudio) {
+        previewAudio.addEventListener("ended", () => {
+            stopPreview();
+        });
+    }
+
+    // فتح النافذة
+    openBtn.addEventListener("click", () => {
+        stopPreview();
+        renderMuazzinCards();
+        modal.classList.add("active");
+    });
+
+    // إغلاق النافذة
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            stopPreview();
+            modal.classList.remove("active");
+        });
+    }
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            stopPreview();
+            modal.classList.remove("active");
+        }
+    });
+
+    updateMuazzinButtonUI();
 }
 
 /* ==========================================================================

@@ -2,7 +2,7 @@
   "name": "زاد المسلم",
   "short_name": "زاد المسلم",
   "description": "تطبيق زاد المسلم الشامل للقرآن الكريم، مواقيت الصلاة، الأذكار، والتذكيرات اليومية • صدقة جارية",
-  "id": "/?source=pwa",
+  "id": "./",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -15,10 +15,22 @@
   "categories": ["lifestyle", "education", "books"],
   "icons": [
     {
-      "src": "assets/icon.svg",
-      "sizes": "192x192 512x512 any",
-      "type": "image/svg+xml",
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
       "src": "assets/share-preview.jpg",

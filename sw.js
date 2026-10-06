@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v39";
+const CACHE_NAME = "zad-muslim-v41";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
@@ -26,6 +26,15 @@ const ASSETS_TO_CACHE = [
   "./assets/js/app.js",
   "./assets/js/quran.js",
   "./assets/icon.svg",
+  "./assets/icon-192.png",
+  "./assets/icon-512.png",
+  "./assets/audio/adhan/makkah.mp3",
+  "./assets/audio/adhan/madinah.mp3",
+  "./assets/audio/adhan/aqsa.mp3",
+  "./assets/audio/adhan/abdulbasit.mp3",
+  "./assets/audio/adhan/refaat.mp3",
+  "./assets/audio/adhan/qatami.mp3",
+  "./assets/audio/adhan/fajr.mp3",
   "./assets/share-preview.jpg",
   "./manifest.json",
   "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap",
@@ -46,9 +55,10 @@ function cleanResponse(response) {
   });
 }
 
-// جدول مواقيت الصلاة المخزن لتنبيهات الخلفية
+// جدول مواقيت الصلاة والمؤذن المختار لتنبيهات الخلفية
 let scheduledPrayerAlarms = [];
 let activeAlarmTimers = [];
+let selectedMuazzinPreference = "makkah";
 
 // مرحلة التثبيت وتخزين الملفات الأساسية بأمان
 self.addEventListener("install", (event) => {
@@ -191,7 +201,16 @@ self.addEventListener("message", (event) => {
 
   if (event.data.type === "SCHEDULE_PRAYERS") {
     scheduledPrayerAlarms = event.data.schedule || [];
+    if (event.data.muazzin) {
+      selectedMuazzinPreference = event.data.muazzin;
+    }
     armBackgroundPrayerAlarms();
+  }
+
+  if (event.data.type === "SET_MUAZZIN") {
+    if (event.data.muazzin) {
+      selectedMuazzinPreference = event.data.muazzin;
+    }
   }
 
   if (event.data.type === "TRIGGER_NOTIFICATION") {
@@ -221,20 +240,31 @@ function armBackgroundPrayerAlarms() {
 }
 
 function showPrayerNotification(prayer) {
+  const isFajr = prayer.key === "fajr";
+  const muazzinAudioFile = isFajr ? "fajr.mp3" : `${selectedMuazzinPreference || "makkah"}.mp3`;
+  const soundUrl = `./assets/audio/adhan/${muazzinAudioFile}`;
+  const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayer.key}&muazzin=${selectedMuazzinPreference || "makkah"}&t=${Date.now()}`;
+
   const options = {
     body: `الله أكبر، الله أكبر.. حان الآن موعد ${prayer.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕌`,
-    icon: "./assets/icon.svg",
-    badge: "./assets/icon.svg",
-    vibrate: [500, 250, 500, 250, 500, 250, 1000],
+    icon: "./assets/icon-192.png",
+    badge: "./assets/icon-192.png",
+    vibrate: [500, 200, 500, 200, 500, 200, 800, 400, 800, 400, 1200],
     tag: `prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`,
     dir: "rtl",
     lang: "ar",
     renotify: true,
-    requireInteraction: false,
-    data: { url: "./#prayers" },
+    requireInteraction: true,
+    sound: soundUrl,
+    data: {
+      url: playUrl,
+      prayerKey: prayer.key,
+      muazzin: selectedMuazzinPreference,
+      defaultActionUrl: playUrl
+    },
     actions: [
-      { action: "open", title: "📖 فتح الأذكار والمواقيت" },
-      { action: "close", title: "إغلاق" }
+      { action: "play_adhan", title: "🔊 سماع الأذان كاملاً" },
+      { action: "open", title: "🕌 مواقيت الصلاة" }
     ]
   };
 
@@ -244,8 +274,8 @@ function showPrayerNotification(prayer) {
 function showDeviceNotification(title, body, url, tag) {
   const options = {
     body: body || "تذكير بذكر الله والصلاة على النبي ﷺ 🌿",
-    icon: "./assets/icon.svg",
-    badge: "./assets/icon.svg",
+    icon: "./assets/icon-192.png",
+    badge: "./assets/icon-192.png",
     vibrate: [200, 100, 200, 100, 400],
     tag: tag || `zad_notif_${Date.now()}`,
     dir: "rtl",
@@ -329,7 +359,15 @@ self.addEventListener("notificationclick", (event) => {
 
   if (event.action === "close") return;
 
-  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : "./";
+  let targetUrl = "./";
+  const notifData = event.notification.data || {};
+
+  if (event.action === "open") {
+    targetUrl = notifData.url ? notifData.url.replace("playAdhan=1&", "") : "./#prayer-times";
+  } else {
+    // الضغط على الإشعار الرئيسي أو زر "play_adhan"
+    targetUrl = notifData.url || "./";
+  }
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {

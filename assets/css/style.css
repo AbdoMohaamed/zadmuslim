@@ -1486,6 +1486,77 @@ body {
     font-size: 16px; /* يمنع التكبير التلقائي المزعج في متصفحات الآيفون Safari */
   }
 
+  /* عناصر اختيار السورة في الجوال - شريط تمرير أفقي أنيق ومدمج */
+  .surahs-controls-container {
+    gap: 0.65rem !important;
+    margin-bottom: 0.9rem !important;
+    padding: 0 0.2rem !important;
+  }
+
+  .featured-surahs-pills {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    justify-content: flex-start !important;
+    gap: 0.45rem !important;
+    padding: 0.3rem 0.35rem 0.55rem 0.35rem !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    scroll-snap-type: x mandatory !important;
+    mask-image: linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent);
+  }
+
+  .featured-surahs-pills::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .surah-pill {
+    flex-shrink: 0 !important;
+    scroll-snap-align: start !important;
+    font-size: 0.82rem !important;
+    padding: 0.42rem 0.85rem !important;
+    gap: 0.35rem !important;
+    white-space: nowrap !important;
+    background: rgba(14, 25, 43, 0.85) !important;
+    border: 1px solid rgba(212, 175, 55, 0.28) !important;
+    border-radius: var(--radius-full) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .surah-pill i {
+    font-size: 0.78rem !important;
+  }
+
+  .surah-pill.active {
+    background: linear-gradient(135deg, var(--gold-500) 0%, var(--gold-600) 100%) !important;
+    color: #070d18 !important;
+    border-color: var(--gold-300) !important;
+    box-shadow: 0 3px 12px rgba(212, 175, 55, 0.4) !important;
+    font-weight: 700 !important;
+  }
+
+  .all-surahs-dropdown-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+    position: relative !important;
+    margin: 0 !important;
+  }
+
+  .select-surah-dropdown {
+    width: 100% !important;
+    font-size: 0.84rem !important;
+    padding: 0.58rem 1rem !important;
+    border-radius: var(--radius-full) !important;
+    background: rgba(10, 20, 36, 0.95) !important;
+    border: 1.5px solid rgba(212, 175, 55, 0.35) !important;
+    color: var(--gold-200) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35) !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
   /* مصحف الصدقة الجارية في الجوال - تصميم نظيف وعصري ومريح للعين */
   .quran-mushaf-card {
     padding: 1.1rem 0.5rem !important;
@@ -3123,14 +3194,16 @@ body {
 
   .prayer-action-buttons {
     display: flex;
+    flex-wrap: wrap;
     width: 100%;
     gap: 0.5rem;
   }
 
   .prayer-action-buttons .btn {
-    flex: 1;
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 125px;
     justify-content: center;
-    padding: 0.45rem 0.6rem;
+    padding: 0.5rem 0.6rem;
     font-size: 0.82rem;
     white-space: nowrap;
   }
@@ -10922,6 +10995,200 @@ html[data-theme="light"] .btn-dismiss-reminder:hover {
 
 .btn-banner-close:hover {
   color: #fff;
+}
+
+/* ==========================================================================
+   مودال اختيار المؤذن (Muazzin Selector Modal Styles)
+   ========================================================================== */
+.modal-card-muazzin {
+  max-width: 580px;
+  width: 95%;
+  background: linear-gradient(180deg, #0f1c30 0%, #0a1322 100%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(212, 175, 55, 0.1);
+}
+
+.muazzin-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.25rem 0 1rem;
+  max-height: 58vh;
+  overflow-y: auto;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-500) transparent;
+}
+
+.muazzin-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(18, 30, 49, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  transition: all 0.25s ease;
+}
+
+.muazzin-card:hover {
+  background: rgba(22, 38, 62, 0.9);
+  border-color: rgba(212, 175, 55, 0.3);
+  transform: translateY(-1px);
+}
+
+.muazzin-card.is-selected {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%);
+  border: 1.5px solid var(--gold-400);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.15);
+}
+
+.muazzin-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.muazzin-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.muazzin-card.is-selected .muazzin-icon-circle {
+  background: var(--gold-400);
+  color: #070d18;
+}
+.muazzin-card.is-selected .muazzin-icon-circle i {
+  color: #070d18 !important;
+}
+
+.muazzin-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.muazzin-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.muazzin-name {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.muazzin-badge-active {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.muazzin-desc {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.muazzin-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-preview-muazzin {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.btn-preview-muazzin.is-playing {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+  animation: pulse-border 1.5s infinite;
+}
+
+.btn-choose-muazzin {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.btn-choose-muazzin.is-current {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  cursor: default;
+}
+
+.muazzin-modal-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px dashed rgba(212, 175, 55, 0.25);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--gold-200);
+  line-height: 1.45;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 580px) {
+  .muazzin-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.85rem;
+  }
+  
+  .muazzin-card-actions {
+    display: flex;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .muazzin-card-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 

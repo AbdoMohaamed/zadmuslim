@@ -52,8 +52,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
-    <link rel="apple-touch-icon" href="assets/icon.svg">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
 
     <!-- الخطوط العربية (Google Fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -197,10 +198,12 @@
         <source src="https://server8.mp3quran.net/afs/001.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- مشغل صوتي لأذان الحرم المكي الشريف عند مواقيت الصلاة -->
+    <!-- مشغل صوتي لأذان مواقيت الصلاة (محلي وبأصوات متعددة) -->
     <audio id="audio-adhan" preload="none">
-        <source src="https://cdn.islamic.network/adhan/makkah.mp3" type="audio/mpeg">
+        <source src="assets/audio/adhan/makkah.mp3" type="audio/mpeg">
     </audio>
+    <!-- مشغل صوتي لمعاينة أصوات المؤذنين -->
+    <audio id="audio-adhan-preview" preload="none"></audio>
 
     <!-- ==========================================
          قسم البداية والدعاء الرئيسي (Hero Section)
@@ -782,6 +785,11 @@
                             <button type="button" class="btn btn-outline btn-sm btn-toggle-adhan" id="btn-toggle-adhan" title="تشغيل أو كتم صوت الأذان عند مواقيت الصلاة">
                                 <i class="fa-solid fa-volume-high text-gold"></i>
                                 <span id="adhan-status-label">الأذان: مفعّل</span>
+                            </button>
+
+                            <button type="button" class="btn btn-outline btn-sm btn-select-muazzin" id="btn-select-muazzin" title="اختيار صوت المؤذن المفضل للأذان">
+                                <i class="fa-solid fa-microphone-lines text-gold"></i>
+                                <span id="selected-muazzin-label">صوت المؤذن</span>
                             </button>
                         </div>
                     </div>
@@ -2225,6 +2233,30 @@
             </div>
             <div class="fasting-duas-list" id="fasting-duas-list">
                 <!-- يُملأ برمجياً من FASTING_DUAS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+    نافذة اختيار صوت المؤذن (Muazzin Selector Modal)
+    ========================================== -->
+    <div class="modal-overlay" id="muazzin-selector-modal">
+        <div class="modal-card modal-card-muazzin">
+            <div class="modal-header-row">
+                <h3 class="modal-title"><i class="fa-solid fa-microphone-lines text-gold"></i> اختيار صوت مؤذن الصلوات</h3>
+                <button class="modal-close-btn" id="btn-close-muazzin-modal" aria-label="إغلاق">&times;</button>
+            </div>
+            <p class="modal-desc">
+                اختر صوت المؤذن المفضل للأذان عند مواقيت الصلاة، يمكنك الاستماع لمعاينة كل صوت قبل اعتماده:
+            </p>
+
+            <div class="muazzin-cards-list" id="muazzin-cards-list">
+                <!-- يُملأ ديناميكياً من app.js -->
+            </div>
+
+            <div class="muazzin-modal-tip">
+                <i class="fa-solid fa-circle-info text-gold"></i>
+                <span>ملاحظة: لصلاة الفجر يتم تشغيل أذان الفجر المخصوص بعبارة "الصلاة خير من النوم" تلقائياً.</span>
             </div>
         </div>
     </div>
