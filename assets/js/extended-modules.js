@@ -91,13 +91,13 @@ function initCustomShareLink() {
         if (!urlOutput) return;
         const nameVal = nameInput ? nameInput.value.trim() : "";
         const relVal = relSelect ? relSelect.value : "فقيدنا الغالي";
-        const baseUrl = window.location.origin + window.location.pathname;
+        const baseUrl = (window.getPublicAppUrl ? window.getPublicAppUrl() : "https://zadmuslim-zeta.vercel.app/").replace(/\/+$/, "");
 
         if (nameVal) {
             const fullUrl = `${baseUrl}?name=${encodeURIComponent(nameVal)}&rel=${encodeURIComponent(relVal)}`;
             urlOutput.value = fullUrl;
         } else {
-            urlOutput.value = baseUrl;
+            urlOutput.value = baseUrl + "/";
         }
     }
 
@@ -3009,7 +3009,7 @@ function initIslamicMediaHub() {
 
     function shareMediaItemWhatsApp(item) {
         const videoUrl = `https://www.youtube.com/watch?v=${item.youtubeId}`;
-        const siteUrl = window.location.href.split("#")[0];
+        const siteUrl = (window.getPublicAppUrl ? window.getPublicAppUrl() : "https://zadmuslim-zeta.vercel.app/").replace(/\/+$/, "");
 
         const text = `🎥 *${item.title}*\n🎙️ *${item.speaker}*\n⏱️ المدة: ${item.duration}\n\n📖 ${item.desc}\n\n▶️ لمشاهدة المقطع على يوتيوب:\n${videoUrl}\n\n🌸 من مكتبة المرئيات والبودكاست في زاد المسلم (صدقة جارية)\n🕌 تصفح المزيد:\n${siteUrl}#islamic-media`;
 

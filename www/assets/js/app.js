@@ -1,6 +1,17 @@
 /**
- * المنطق البرمجي لموقع صدقة جارية على روح جدي
+ * الرابط العام المعتمد للمشاركة والإهداء في الويب وتطبيق الهاتف
  */
+window.getPublicAppUrl = function(pathAndQuery = "") {
+    let base = "https://zadmuslim-zeta.vercel.app/";
+    if (typeof window !== "undefined" && window.location && window.location.hostname && !["localhost", "127.0.0.1", ""].includes(window.location.hostname)) {
+        base = window.location.origin + window.location.pathname;
+    }
+    if (!pathAndQuery) return base;
+    if (pathAndQuery.startsWith("?") || pathAndQuery.startsWith("#")) {
+        return base.replace(/\/+$/, "") + pathAndQuery;
+    }
+    return base.replace(/\/+$/, "") + "/" + pathAndQuery.replace(/^\/+/, "");
+};
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. تهيئة اسم الجد والمعلومات الرئيسية والتقويم الهجري
@@ -787,7 +798,7 @@ function initShareButtons() {
     const whatsappBtns = document.querySelectorAll(".btn-share-whatsapp");
     const twitterBtns = document.querySelectorAll(".btn-share-twitter");
 
-    const pageUrl = window.location.href;
+    const pageUrl = window.getPublicAppUrl();
     const shareMessage = `تطبيق زاد المسلم | القرآن الكريم كاملاً، مواقيت الصلاة، الأذكار والسبحة (صدقة جارية لوجه الله تعالى):\n${pageUrl}`;
 
     copyBtns.forEach(btn => {
@@ -2278,7 +2289,7 @@ function shareDuaCardImage() {
                 navigator.share({
                     files: [file],
                     title: `صدقة جارية ودعاء لروح: ${recipientName}`,
-                    text: `دعاء لروح (${recipientName}) • شاركنا بالدعاء وختمة القرآن: ${window.location.href}`
+                    text: `دعاء لروح (${recipientName}) • شاركنا بالدعاء وختمة القرآن: ${window.getPublicAppUrl()}`
                 }).catch(() => {});
                 return;
             }
@@ -2293,7 +2304,7 @@ function fallbackWhatsAppShare() {
     const dua = getSelectedDuaText();
     const recipientInput = document.getElementById("dua-card-recipient-input");
     const recipientName = (recipientInput && recipientInput.value.trim()) || "فقيدنا الغالي";
-    const text = encodeURIComponent(`🌿 صدقة جارية ودعاء لروح (${recipientName}):\n\n"${dua}"\n\nشاركنا الأجر والدعاء وختمات القرآن والتسبيح عبر الرابط:\n${window.location.href}`);
+    const text = encodeURIComponent(`🌿 صدقة جارية ودعاء لروح (${recipientName}):\n\n"${dua}"\n\nشاركنا الأجر والدعاء وختمات القرآن والتسبيح عبر الرابط:\n${window.getPublicAppUrl()}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
 }
 
