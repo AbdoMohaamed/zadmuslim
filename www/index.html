@@ -758,16 +758,30 @@
                             <i class="fa-solid fa-location-dot text-gold"></i>
                             <label for="select-prayer-city" class="sr-only">اختر المدينة:</label>
                             <select id="select-prayer-city" class="prayer-city-select">
-                                <option value="Cairo" selected>القاهرة (مصر)</option>
-                                <option value="Alexandria">الإسكندرية (مصر)</option>
-                                <option value="Giza">الجيزة (مصر)</option>
-                                <option value="Mansoura">المنصورة (الدقهلية)</option>
-                                <option value="Tanta">طنطا (الغربية)</option>
-                                <option value="Zagazig">الزقازيق (الشرقية)</option>
-                                <option value="Assiut">أسيوط (مصر)</option>
-                                <option value="Makkah">مكة المكرمة (السعودية)</option>
-                                <option value="Madinah">المدينة المنورة (السعودية)</option>
-                                <option value="gps" id="opt-auto-gps" style="display: none;">📍 موقعي الحالي (GPS)</option>
+                                <option value="gps" id="opt-auto-gps">📍 موقعي الحالي (تحديد تلقائي / GPS)</option>
+                                <optgroup label="المملكة العربية السعودية">
+                                    <option value="Riyadh">الرياض (السعودية)</option>
+                                    <option value="Makkah">مكة المكرمة (السعودية)</option>
+                                    <option value="Madinah">المدينة المنورة (السعودية)</option>
+                                    <option value="Jeddah">جدة (السعودية)</option>
+                                    <option value="Dammam">الدمام (السعودية)</option>
+                                </optgroup>
+                                <optgroup label="جمهورية مصر العربية">
+                                    <option value="Cairo" selected>القاهرة (مصر)</option>
+                                    <option value="Alexandria">الإسكندرية (مصر)</option>
+                                    <option value="Giza">الجيزة (مصر)</option>
+                                    <option value="Mansoura">المنصورة (الدقهلية)</option>
+                                    <option value="Tanta">طنطا (الغربية)</option>
+                                    <option value="Zagazig">الزقازيق (الشرقية)</option>
+                                    <option value="Assiut">أسيوط (مصر)</option>
+                                </optgroup>
+                                <optgroup label="العواصم والمدن العربية والإسلامية">
+                                    <option value="Jerusalem">القدس الشريف (فلسطين)</option>
+                                    <option value="Dubai">دبي (الإمارات)</option>
+                                    <option value="Kuwait">الكويت (الكويت)</option>
+                                    <option value="Doha">الدوحة (قطر)</option>
+                                    <option value="Amman">عمّان (الأردن)</option>
+                                </optgroup>
                             </select>
                         </div>
 
@@ -2968,7 +2982,7 @@
     <script src="assets/js/media-data.js?v=2"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/native-adhan-service.js"></script>
-    <script src="assets/js/app.js?v=15"></script>
+    <script src="assets/js/app.js?v=16"></script>
     <script src="assets/js/quran.js?v=15"></script>
     <script src="assets/js/extended-modules.js?v=21"></script>
 

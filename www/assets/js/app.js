@@ -1549,6 +1549,14 @@ let prayerTimings = null;
 let prayerTimerInterval = null;
 
 const CITY_CONFIGS = {
+    // المملكة العربية السعودية (طريقة أم القرى: method 4)
+    Riyadh: { city: "Riyadh", country: "Saudi Arabia", method: 4 },
+    Makkah: { city: "Makkah", country: "Saudi Arabia", method: 4 },
+    Madinah: { city: "Medina", country: "Saudi Arabia", method: 4 },
+    Jeddah: { city: "Jeddah", country: "Saudi Arabia", method: 4 },
+    Dammam: { city: "Dammam", country: "Saudi Arabia", method: 4 },
+
+    // جمهورية مصر العربية (الهيئة المصرية العامة للمساحة: method 5)
     Cairo: { city: "Cairo", country: "Egypt", method: 5 },
     Alexandria: { city: "Alexandria", country: "Egypt", method: 5 },
     Giza: { city: "Giza", country: "Egypt", method: 5 },
@@ -1556,10 +1564,31 @@ const CITY_CONFIGS = {
     Tanta: { city: "Tanta", country: "Egypt", method: 5 },
     Zagazig: { city: "Zagazig", country: "Egypt", method: 5 },
     Assiut: { city: "Assiut", country: "Egypt", method: 5 },
-    Makkah: { city: "Makkah", country: "Saudi Arabia", method: 4 },
-    Madinah: { city: "Medina", country: "Saudi Arabia", method: 4 },
-    Riyadh: { city: "Riyadh", country: "Saudi Arabia", method: 4 }
+
+    // العواصم والمدن الإسلامية
+    Jerusalem: { city: "Jerusalem", country: "Palestine", method: 3 },
+    Dubai: { city: "Dubai", country: "United Arab Emirates", method: 16 },
+    Kuwait: { city: "Kuwait", country: "Kuwait", method: 9 },
+    Doha: { city: "Doha", country: "Qatar", method: 10 },
+    Amman: { city: "Amman", country: "Jordan", method: 3 }
 };
+
+// كشف المدينة المبدئية بالمنطقة الزمنية لحظياً دون انتظار أي شبكة
+function detectInitialDefaultCity() {
+    try {
+        const tz = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
+        if (tz) {
+            if (tz.includes("Riyadh")) return "Riyadh";
+            if (tz.includes("Dubai")) return "Dubai";
+            if (tz.includes("Kuwait")) return "Kuwait";
+            if (tz.includes("Qatar")) return "Doha";
+            if (tz.includes("Amman")) return "Amman";
+            if (tz.includes("Jerusalem") || tz.includes("Gaza") || tz.includes("Hebron")) return "Jerusalem";
+            if (tz.includes("Cairo")) return "Cairo";
+        }
+    } catch(e) {}
+    return "Riyadh";
+}
 
 // مواقيت افتراضية احتياطية (في حال انقطاع الإنترنت التام)
 const FALLBACK_PRAYER_TIMES = {
@@ -1573,28 +1602,44 @@ const FALLBACK_PRAYER_TIMES = {
 
 function initPrayerTimes() {
     const citySelect = document.getElementById("select-prayer-city");
-    const savedCity = localStorage.getItem("selected_prayer_city") || "Cairo";
+    const isManual = localStorage.getItem("user_manually_selected_city") === "true";
+    let savedCity = localStorage.getItem("selected_prayer_city");
+
+    if (!savedCity) {
+        savedCity = detectInitialDefaultCity();
+        localStorage.setItem("selected_prayer_city", savedCity);
+    }
 
     if (citySelect) {
-        if (savedCity === "gps") {
-            let gpsOpt = citySelect.querySelector('option[value="gps"]');
-            if (!gpsOpt) {
-                gpsOpt = document.createElement("option");
-                gpsOpt.value = "gps";
-                gpsOpt.textContent = "📍 موقعي الحالي (GPS)";
-                citySelect.insertBefore(gpsOpt, citySelect.firstChild);
-            }
-        }
         citySelect.value = savedCity;
         citySelect.addEventListener("change", (e) => {
             const city = e.target.value;
             localStorage.setItem("selected_prayer_city", city);
-            fetchPrayerTimes(city);
+            if (city !== "gps") {
+                localStorage.setItem("user_manually_selected_city", "true");
+                fetchPrayerTimes(city);
+            } else {
+                localStorage.removeItem("user_manually_selected_city");
+                if (typeof window.requestGPSPosition === "function") {
+                    window.requestGPSPosition(false);
+                } else {
+                    fetchPrayerTimes("gps");
+                }
+            }
         });
     }
 
     checkSpecialTimesNotice();
     fetchPrayerTimes(savedCity);
+
+    // الكشف التلقائي الفوري عن الموقع إذا لم يحدد المستخدم مدينة يدوياً
+    if (!isManual) {
+        setTimeout(() => {
+            if (typeof window.requestGPSPosition === "function") {
+                window.requestGPSPosition(true);
+            }
+        }, 800);
+    }
 }
 
 function checkSpecialTimesNotice() {
@@ -1636,15 +1681,20 @@ function fetchPrayerTimes(cityKey) {
                 if (parsed.lat && parsed.lng) {
                     const latNum = Number(parsed.lat);
                     const lngNum = Number(parsed.lng);
+                    // تحديد طريقة الحساب الفقهية تلقائياً: أم القرى (4) للسعودية والخليج، مصر (5)، رابطة العالم الإسلامي (3)
+                    let method = 4; // الافتراضي: أم القرى
+                    if (latNum >= 21.5 && latNum <= 31.8 && lngNum >= 24.5 && lngNum <= 37) {
+                        method = 5; // جمهورية مصر العربية
+                    }
                     cacheKey = `prayer_times_gps_${latNum.toFixed(2)}_${lngNum.toFixed(2)}_${new Date().toISOString().slice(0, 10)}`;
-                    url = `https://api.aladhan.com/v1/timings?latitude=${latNum}&longitude=${lngNum}&method=5`;
+                    url = `https://api.aladhan.com/v1/timings?latitude=${latNum}&longitude=${lngNum}&method=${method}`;
                 }
             } catch(e) {}
         }
     }
 
     if (!url) {
-        const config = CITY_CONFIGS[cityKey] || CITY_CONFIGS["Cairo"];
+        const config = CITY_CONFIGS[cityKey] || CITY_CONFIGS["Riyadh"] || CITY_CONFIGS["Cairo"];
         cacheKey = `prayer_times_${cityKey}_${new Date().toISOString().slice(0, 10)}`;
         url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(config.city)}&country=${encodeURIComponent(config.country)}&method=${config.method}`;
     }
@@ -2802,9 +2852,40 @@ window.copyTextToClipboard = function(text) {
 function initGPSLocation() {
     const btnGps = document.getElementById("btn-gps-location");
 
+    function autoDetectLocationViaIP() {
+        if (localStorage.getItem("user_manually_selected_city") === "true") return;
+
+        fetch("https://api.bigdatacloud.net/data/reverse-geocode-client")
+            .then(res => res.json())
+            .then(data => {
+                if (data && typeof data.latitude === "number" && typeof data.longitude === "number") {
+                    const lat = data.latitude;
+                    const lng = data.longitude;
+                    const cityName = data.city || data.locality || data.principalSubdivision || "موقعي الحالي";
+                    const gpsData = { name: `📍 ${cityName}`, lat: lat, lng: lng };
+
+                    localStorage.setItem("gps_prayer_coords", JSON.stringify(gpsData));
+                    localStorage.setItem("selected_prayer_city", "gps");
+
+                    const citySelect = document.getElementById("select-prayer-city");
+                    if (citySelect) {
+                        let gpsOpt = citySelect.querySelector('option[value="gps"]');
+                        if (gpsOpt) {
+                            gpsOpt.textContent = `📍 ${cityName} (تحديد تلقائي)`;
+                            gpsOpt.style.display = "block";
+                        }
+                        citySelect.value = "gps";
+                    }
+                    fetchPrayerTimes("gps");
+                }
+            })
+            .catch(() => {});
+    }
+
     function requestGPSPosition(isSilent = false) {
         if (!navigator.geolocation) {
             if (!isSilent) showToast("خاصية تحديد الموقع الجغرافي غير مدعومة في متصفحك ⚠️");
+            if (!localStorage.getItem("user_manually_selected_city")) autoDetectLocationViaIP();
             return;
         }
 
@@ -2857,38 +2938,44 @@ function initGPSLocation() {
                     if (err.code === 1) msg = "يرجى منح الإذن للوصول إلى الموقع في المتصفح 📍";
                     showToast(msg);
                 }
+                // في حال عدم منح الإذن أو حدوث خطأ، الكشف التلقائي البديل عبر IP
+                if (!localStorage.getItem("user_manually_selected_city")) {
+                    autoDetectLocationViaIP();
+                }
             },
-            { timeout: 10000, enableHighAccuracy: false, maximumAge: 600000 }
+            { timeout: 8000, enableHighAccuracy: false, maximumAge: 600000 }
         );
     }
+
+    window.requestGPSPosition = requestGPSPosition;
+    window.autoDetectLocationViaIP = autoDetectLocationViaIP;
 
     if (btnGps) {
         btnGps.addEventListener("click", () => requestGPSPosition(false));
     }
 
     // الكشف التلقائي التام عن موقع GPS فور فتح التطبيق
-    const savedCity = localStorage.getItem("selected_prayer_city");
+    const isManual = localStorage.getItem("user_manually_selected_city") === "true";
 
-    // إذا كان المستخدم قد اختار GPS مسبقاً أو كانت أول زيارة له
-    if (navigator.permissions && navigator.permissions.query) {
-        navigator.permissions.query({ name: "geolocation" }).then((perm) => {
-            if (perm.state === "granted") {
-                requestGPSPosition(true); // جلب فوري صامت للموقع الدقيق
-            } else if (perm.state === "prompt" && (!savedCity || savedCity === "gps")) {
-                requestGPSPosition(true);
-            }
-            perm.onchange = () => {
+    if (!isManual) {
+        if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: "geolocation" }).then((perm) => {
                 if (perm.state === "granted") {
-                    requestGPSPosition(false);
+                    requestGPSPosition(true);
+                } else if (perm.state === "prompt") {
+                    requestGPSPosition(true);
+                } else {
+                    autoDetectLocationViaIP();
                 }
-            };
-        }).catch(() => {
-            if (!savedCity || savedCity === "gps") {
+                perm.onchange = () => {
+                    if (perm.state === "granted") {
+                        requestGPSPosition(false);
+                    }
+                };
+            }).catch(() => {
                 requestGPSPosition(true);
-            }
-        });
-    } else {
-        if (!savedCity || savedCity === "gps") {
+            });
+        } else {
             requestGPSPosition(true);
         }
     }

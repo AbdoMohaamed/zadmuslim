@@ -1,0 +1,51 @@
+name: Build iOS IPA (No Mac Needed)
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install NPM Dependencies
+        run: npm ci
+
+      - name: Build Web Assets & Sync Mobile
+        run: npm run build:mobile
+
+      - name: Compile iOS App with Xcode
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/derivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            clean build
+
+      - name: Package Payload into ZadMuslim.ipa
+        run: |
+          mkdir -p Payload
+          cp -r build/derivedData/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qr ZadMuslim-iOS.ipa Payload
+          echo "IPA build completed successfully!"
+
+      - name: Upload IPA to GitHub Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZadMuslim-iOS-IPA
+          path: ZadMuslim-iOS.ipa
+          retention-days: 14
