@@ -8,6 +8,8 @@ on:
 jobs:
   build-ios:
     runs-on: macos-14
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -77,3 +79,27 @@ jobs:
           name: ZadMuslim-iOS-IPA
           path: ZadMuslim-iOS.ipa
           retention-days: 14
+
+      - name: Publish ZadMuslim-iOS.ipa to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v3.6.0"
+          name: "تطبيق زاد المسلم v3.6.0"
+          draft: false
+          prerelease: false
+          make_latest: true
+          body: |
+            ## 📱 تطبيق زاد المسلم (نسخة iOS - ملف IPA)
+            تطبيق إسلامي شامل وصدقة جارية.
+
+            ### 📥 رابط التحميل المباشر للآيفون:
+            يمكنك تحميل ملف **`ZadMuslim-iOS.ipa`** مباشرة من قائمة المرفقات (Assets) في الأسفل.
+
+            ### 🛠️ طريقة التثبيت على الآيفون:
+            1. قم بتحميل ملف **`ZadMuslim-iOS.ipa`**.
+            2. استخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو برنامج **Sideloadly** لتوقيع وتثبيت التطبيق بحساب Apple ID الخاص بك مجاناً.
+            3. من إعدادات الآيفون: **عام** ⬅️ **إدارة VPN والجهاز** ⬅️ اضغط على حسابك واضغط **وثوق (Trust)**.
+          files: ZadMuslim-iOS.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
