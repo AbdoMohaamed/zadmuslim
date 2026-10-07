@@ -15,16 +15,12 @@ const pluginSwiftPath = path.join(
 
 if (fs.existsSync(pluginSwiftPath)) {
     let content = fs.readFileSync(pluginSwiftPath, 'utf8');
-    const target = 'guard let idsArray = call.getArray("ids") else {';
-    const replacement = 'guard let idsArray: JSArray = call.getArray("ids") else {';
     
-    if (content.includes(target)) {
-        content = content.split(target).join(replacement);
-        fs.writeFileSync(pluginSwiftPath, content, 'utf8');
-        console.log('✅ Successfully patched LocalNotificationsPlugin.swift for Swift 5.10 / Capacitor 8!');
-    } else {
-        console.log('ℹ️ LocalNotificationsPlugin.swift is already patched or target string not found.');
-    }
+    // تصحيح سطر getArray("ids") ليمرر النوع الصريح JSValue.self لمنع خطأ غموض الدوال في Swift
+    content = content.replace(/guard let idsArray.*= call\.getArray\("ids".*\) else \{/g, 'guard let idsArray = call.getArray("ids", JSValue.self) else {');
+    
+    fs.writeFileSync(pluginSwiftPath, content, 'utf8');
+    console.log('✅ Successfully patched LocalNotificationsPlugin.swift: guard let idsArray = call.getArray("ids", JSValue.self)');
 } else {
     console.log('ℹ️ Plugin file not found, skipping patch.');
 }

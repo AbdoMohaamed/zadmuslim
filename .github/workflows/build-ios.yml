@@ -33,6 +33,7 @@ jobs:
 
       - name: Create iOS Archive (xcodebuild archive)
         run: |
+          set -o pipefail
           xcodebuild archive \
             -project ios/App/App.xcodeproj \
             -scheme App \
@@ -43,7 +44,14 @@ jobs:
             -skipMacroValidation \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log || {
+              echo "=========================================="
+              echo "🚨 EXTRACTED XCODEBUILD COMPILATION ERRORS:"
+              echo "=========================================="
+              grep -E "error: |fatal error: " xcodebuild.log || tail -n 60 xcodebuild.log
+              echo "=========================================="
+              exit 1
+            }
 
       - name: Package Payload into ZadMuslim-iOS.ipa
         run: |
