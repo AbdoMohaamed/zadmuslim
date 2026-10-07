@@ -34,17 +34,25 @@ jobs:
       - name: Grant Execute Permission for Gradlew
         run: chmod +x android/gradlew
 
-      - name: Build Android Release APK
+      - name: Build Android Release AAB & APK
         run: |
           cd android
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew bundleRelease assembleRelease --no-daemon
 
-      - name: Prepare APK File
+      - name: Prepare Android Release Files
         run: |
+          cp android/app/build/outputs/bundle/release/app-release.aab ZadMuslim-Android.aab
           cp android/app/build/outputs/apk/release/app-release.apk ZadMuslim-Android.apk
-          echo "ZadMuslim-Android.apk successfully created!"
+          echo "ZadMuslim-Android.aab and ZadMuslim-Android.apk successfully created!"
 
-      - name: Upload APK to GitHub Artifacts
+      - name: Upload Android AAB to GitHub Artifacts (For Google Play Console)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZadMuslim-Android-AAB
+          path: ZadMuslim-Android.aab
+          retention-days: 14
+
+      - name: Upload Android APK to GitHub Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ZadMuslim-Android-APK
@@ -132,6 +140,13 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Download Android AAB (Google Play)
+        uses: actions/download-artifact@v4
+        with:
+          name: ZadMuslim-Android-AAB
+          path: release-files
+        continue-on-error: true
+
       - name: Download Android APK
         uses: actions/download-artifact@v4
         with:
