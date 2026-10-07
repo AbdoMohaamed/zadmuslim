@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const pluginSwiftPath = path.join(
+const basePluginDir = path.join(
     __dirname,
     '..',
     'node_modules',
@@ -9,18 +9,27 @@ const pluginSwiftPath = path.join(
     'local-notifications',
     'ios',
     'Sources',
-    'LocalNotificationsPlugin',
-    'LocalNotificationsPlugin.swift'
+    'LocalNotificationsPlugin'
 );
 
+const pluginSwiftPath = path.join(basePluginDir, 'LocalNotificationsPlugin.swift');
+const handlerSwiftPath = path.join(basePluginDir, 'LocalNotificationsHandler.swift');
+
+// 1. تصحيح LocalNotificationsPlugin.swift
 if (fs.existsSync(pluginSwiftPath)) {
     let content = fs.readFileSync(pluginSwiftPath, 'utf8');
-    
-    // تصحيح سطر getArray("ids") ليمرر النوع الصريح JSValue.self لمنع خطأ غموض الدوال في Swift
     content = content.replace(/guard let idsArray.*= call\.getArray\("ids".*\) else \{/g, 'guard let idsArray = call.getArray("ids", JSValue.self) else {');
-    
     fs.writeFileSync(pluginSwiftPath, content, 'utf8');
-    console.log('✅ Successfully patched LocalNotificationsPlugin.swift: guard let idsArray = call.getArray("ids", JSValue.self)');
-} else {
-    console.log('ℹ️ Plugin file not found, skipping patch.');
+    console.log('✅ Successfully patched LocalNotificationsPlugin.swift (JSValue.self)');
+}
+
+// 2. تصحيح LocalNotificationsHandler.swift
+if (fs.existsSync(handlerSwiftPath)) {
+    let handlerContent = fs.readFileSync(handlerSwiftPath, 'utf8');
+    handlerContent = handlerContent.replace(
+        'self.plugin?.getConfig().getArray("presentationOptions") as? [String]',
+        '(self.plugin?.getConfig().getConfigJSON()["presentationOptions"]) as? [String]'
+    );
+    fs.writeFileSync(handlerSwiftPath, handlerContent, 'utf8');
+    console.log('✅ Successfully patched LocalNotificationsHandler.swift (PluginConfig.getConfigJSON)');
 }
