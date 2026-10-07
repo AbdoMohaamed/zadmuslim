@@ -24,6 +24,9 @@ jobs:
       - name: Build Web Assets & Sync Mobile
         run: npm run build:mobile
 
+      - name: Patch Swift Types for Capacitor Local Notifications
+        run: node scripts/patch-swift.js
+
       - name: Configure Xcode Project for Unsigned CI Build
         run: |
           sed -i '' 's/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g' ios/App/App.xcodeproj/project.pbxproj || true

@@ -5,6 +5,7 @@
   "main": "index.html",
   "scripts": {
     "start": "serve .",
+    "postinstall": "node scripts/patch-swift.js",
     "build:mobile": "node build-mobile.js && npx cap sync"
   },
   "dependencies": {
