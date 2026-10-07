@@ -1,4 +1,4 @@
-name: Build iOS IPA (No Mac Needed)
+name: Build Mobile Apps (iOS & Android)
 
 on:
   push:
@@ -6,10 +6,54 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install NPM Dependencies
+        run: npm install
+
+      - name: Build Web Assets & Sync Mobile
+        run: npm run build:mobile
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x android/gradlew
+
+      - name: Build Android Release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Prepare APK File
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk ZadMuslim-Android.apk
+          echo "ZadMuslim-Android.apk successfully created!"
+
+      - name: Upload APK to GitHub Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZadMuslim-Android-APK
+          path: ZadMuslim-Android.apk
+          retention-days: 14
+
   build-ios:
+    name: Build iOS IPA
     runs-on: macos-14
-    permissions:
-      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -80,26 +124,51 @@ jobs:
           path: ZadMuslim-iOS.ipa
           retention-days: 14
 
-      - name: Publish ZadMuslim-iOS.ipa to GitHub Releases
+  publish-release:
+    name: Publish to GitHub Releases
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: always() && (needs.build-android.result == 'success' || needs.build-ios.result == 'success')
+    permissions:
+      contents: write
+    steps:
+      - name: Download Android APK
+        uses: actions/download-artifact@v4
+        with:
+          name: ZadMuslim-Android-APK
+          path: release-files
+        continue-on-error: true
+
+      - name: Download iOS IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: ZadMuslim-iOS-IPA
+          path: release-files
+        continue-on-error: true
+
+      - name: Publish to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v3.6.0"
-          name: "تطبيق زاد المسلم v3.6.0"
+          name: "زاد المسلم v3.6.0 (Android & iOS)"
           draft: false
           prerelease: false
           make_latest: true
           body: |
-            ## 📱 تطبيق زاد المسلم (نسخة iOS - ملف IPA)
+            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.0)
             تطبيق إسلامي شامل وصدقة جارية.
 
-            ### 📥 رابط التحميل المباشر للآيفون:
-            يمكنك تحميل ملف **`ZadMuslim-iOS.ipa`** مباشرة من قائمة المرفقات (Assets) في الأسفل.
+            ---
 
-            ### 🛠️ طريقة التثبيت على الآيفون:
-            1. قم بتحميل ملف **`ZadMuslim-iOS.ipa`**.
-            2. استخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو برنامج **Sideloadly** لتوقيع وتثبيت التطبيق بحساب Apple ID الخاص بك مجاناً.
-            3. من إعدادات الآيفون: **عام** ⬅️ **إدارة VPN والجهاز** ⬅️ اضغط على حسابك واضغط **وثوق (Trust)**.
-          files: ZadMuslim-iOS.ipa
+            ### 🤖 روابط تحميل الأندرويد (Android):
+            - **تحميل مباشر لملف APK:** [اضغط هنا لتحميل ZadMuslim-Android.apk](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-Android.apk)
+            - **طريقة التثبيت:** حمّل الملف وافتحه مباشرة على هاتفك لتثبيته.
+
+            ---
+
+            ### 🍏 روابط تحميل الآيفون (iOS):
+            - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-iOS.ipa)
+            - **طريقة التثبيت:** حمّل الملف واستخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو تطبيق **Sideloadly** لتوقيع وتثبيت التطبيق بحسابك مجاناً.
+          files: release-files/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
