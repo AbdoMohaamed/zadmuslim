@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v42";
+const CACHE_NAME = "zad-muslim-v45";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
@@ -23,6 +23,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/media-data.js",
   "./assets/js/extended-modules.js",
   "./assets/js/firebase-config.js",
+  "./assets/js/native-adhan-service.js",
   "./assets/js/app.js",
   "./assets/js/quran.js",
   "./assets/icon.svg",

@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة تحكم زاد المسلم • الإشعارات والإحصائيات</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #08121e;
+            --bg-card: #0d1e31;
+            --bg-card-hover: #122842;
+            --gold: #d4af37;
+            --gold-light: #fce38a;
+            --gold-dark: #aa820a;
+            --emerald: #10b981;
+            --emerald-dark: #059669;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(212, 175, 55, 0.25);
+            --danger: #ef4444;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow-glow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+        }
+
+        /* Login Screen */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 18, 30, 0.98);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 35px 24px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-glow);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .login-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(16, 185, 129, 0.1));
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--gold);
+            margin: 0 auto 18px;
+        }
+
+        .login-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gold-light);
+            margin-bottom: 8px;
+        }
+
+        .login-desc {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        /* Navbar */
+        .admin-nav {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .nav-brand img {
+            width: 34px;
+            height: 34px;
+        }
+
+        .nav-brand h1 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Navigation Tabs Bar */
+        .admin-tabs-bar {
+            background: rgba(13, 30, 49, 0.95);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            position: sticky;
+            top: 61px;
+            z-index: 90;
+        }
+        .admin-tabs-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 9px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-tab-btn:hover {
+            color: var(--gold-light);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        .admin-tab-btn.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.05));
+            border-color: var(--gold);
+            color: var(--gold-light);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Container & Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--gold);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.gold {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .stat-icon.emerald {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .stat-icon.blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-icon.purple {
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .stat-val {
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .stat-subtext {
+            font-size: 11px;
+            color: var(--gold-light);
+            margin-top: 3px;
+        }
+
+        /* Two columns main layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-glow);
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            background: #081524;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+            background: #0b1a2c;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 95px;
+            line-height: 1.5;
+        }
+
+        /* Preset Templates Pills */
+        .templates-wrapper {
+            margin-bottom: 18px;
+        }
+
+        .templates-title {
+            font-size: 12px;
+            color: var(--gold-light);
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .templates-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tpl-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tpl-btn:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--gold);
+            color: var(--gold-light);
+            transform: translateY(-1px);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37, #aa820a);
+            color: #08121e;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #fce38a, #d4af37);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.45);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--gold-light);
+        }
+
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--gold);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Mobile Preview mockup */
+        .phone-mockup {
+            background: #020617;
+            border: 6px solid #1e293b;
+            border-radius: 28px;
+            padding: 16px 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            position: relative;
+            max-width: 300px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .phone-notch {
+            width: 100px;
+            height: 14px;
+            background: #1e293b;
+            border-radius: 0 0 10px 10px;
+            margin: -16px auto 18px;
+        }
+
+        .phone-time {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 300;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .push-preview-card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .preview-app-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .preview-app-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .preview-app-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .preview-time {
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .preview-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--gold-light);
+            margin-bottom: 4px;
+            line-height: 1.35;
+        }
+
+        .preview-body {
+            font-size: 11px;
+            color: #e2e8f0;
+            line-height: 1.45;
+        }
+
+        /* Analytics Visual Bars */
+        .analytics-progress-wrapper {
+            margin-top: 14px;
+        }
+
+        .progress-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #cbd5e1;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-fill.gold { background: linear-gradient(90deg, #d4af37, #fce38a); }
+        .progress-fill.emerald { background: linear-gradient(90deg, #059669, #10b981); }
+        .progress-fill.blue { background: linear-gradient(90deg, #2563eb, #38bdf8); }
+
+        /* History Table */
+        .history-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            min-width: 600px;
+        }
+
+        .history-table th {
+            background: #081524;
+            color: var(--gold-light);
+            padding: 12px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .history-table td {
+            padding: 12px 14px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+        }
+
+        .history-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-badge.sent {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Toast Alert */
+        .admin-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--gold);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            z-index: 3000;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .admin-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile specific enhancements */
+        @media (max-width: 600px) {
+            .admin-nav {
+                padding: 10px 12px;
+            }
+            .nav-brand h1 {
+                font-size: 16px;
+            }
+            .admin-tabs-bar {
+                padding: 6px 10px;
+                top: 55px;
+            }
+            .admin-tab-btn {
+                padding: 7px 12px;
+                font-size: 13px;
+            }
+            .container {
+                padding: 14px 10px;
+            }
+            .section-card {
+                padding: 16px 14px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 12px;
+                gap: 10px;
+            }
+            .stat-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            .stat-val {
+                font-size: 18px;
+            }
+            .stat-label {
+                font-size: 11px;
+            }
+            .btn {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Security Login Screen -->
+    <div id="login-screen">
+        <div class="login-box">
+            <div class="login-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 class="login-title">لوحة إدارة زاد المسلم</h2>
+            <p class="login-desc">أدخل رمز المرور السري للدخول إلى لوحة التحكم وإرسال الإشعارات والإحصائيات</p>
+            <div class="form-group">
+                <input type="password" id="admin-pin-input" class="form-input" placeholder="الرمز السري" style="text-align: center; font-size: 18px; letter-spacing: 3px;" autofocus>
+            </div>
+            <button type="button" id="btn-login-submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-key"></i>
+                <span>تسجيل الدخول</span>
+            </button>
+            <div id="login-error-msg" style="color: var(--danger); font-size: 12px; margin-top: 10px; display: none;">الرمز السري غير صحيح، حاول ثانية.</div>
+        </div>
+    </div>
+
+    <!-- Admin Navigation Bar -->
+    <nav class="admin-nav">
+        <a href="index.html" class="nav-brand" title="العودة للتطبيق">
+            <img src="assets/icon.svg" alt="زاد المسلم">
+            <div>
+                <h1>زاد المسلم</h1>
+            </div>
+        </a>
+        <div class="nav-actions">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-test-notification-self" title="تجربة إشعار وصوت التنبيه">
+                <i class="fa-solid fa-bell"></i>
+                <span class="d-none-mobile">تجربة الإشعار</span>
+            </button>
+            <a href="index.html" class="btn btn-outline btn-sm" title="فتح التطبيق الرئيسي">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span class="d-none-mobile">الموقع</span>
+            </a>
+            <button type="button" class="btn btn-danger btn-sm" id="btn-admin-logout" title="تسجيل الخروج">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Navigation Tabs Bar -->
+    <div class="admin-tabs-bar">
+        <button type="button" class="admin-tab-btn active" data-tab="tab-broadcast">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>بث الإشعارات</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="tab-analytics">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>المشاهدات والإحصائيات</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="tab-history">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>سجل الإرسال</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="tab-settings">
+            <i class="fa-solid fa-gear"></i>
+            <span>تغيير الرمز السري والإعدادات</span>
+        </button>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="container">
+        
+        <!-- ==========================================
+             TAB 1: BROADCAST NOTIFICATIONS
+             ========================================== -->
+        <div id="tab-broadcast" class="tab-content active">
+            
+            <!-- Quick Top Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon emerald">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" id="stat-subscribers-count">0</div>
+                        <div class="stat-label">المشتركون في الإشعارات</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon gold">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" id="stat-broadcasts-count">0</div>
+                        <div class="stat-label">التنبيهات المرسلة</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fa-solid fa-tower-broadcast"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" id="stat-connection-status" style="font-size: 15px;">متصل 🟢</div>
+                        <div class="stat-label">حالة البث السحابي</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Columns: Broadcast Composer + Live Mobile Preview -->
+            <div class="main-layout">
+                
+                <!-- Composer Form -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fa-solid fa-pen-fancy"></i>
+                            <span>إنشاء وإرسال إشعار فوري لجميع المستخدمين</span>
+                        </h2>
+                    </div>
+
+                    <!-- Ready Fast Templates -->
+                    <div class="templates-wrapper">
+                        <div class="templates-title">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>قوالب جاهزة سريعة بضغطة زر:</span>
+                        </div>
+                        <div class="templates-grid">
+                            <button type="button" class="tpl-btn" data-tpl="friday">
+                                <span>🕌 سورة الكهف والجمعة</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="fasting">
+                                <span>🌙 تذكير صيام غداً</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="morning">
+                                <span>🌅 أذكار الصباح</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="evening">
+                                <span>🌆 أذكار المساء</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="deceased">
+                                <span>🤲 دعاء للموتى</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="quran">
+                                <span>📖 ورد القرآن اليومي</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="night">
+                                <span>🌌 قيام الليل والوتر</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="khatma">
+                                <span>✨ ختمة القرآن الجماعية</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_asr">
+                                <span>🕌 أذان العصر</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_maghrib">
+                                <span>🕌 أذان المغرب</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_isha">
+                                <span>🕌 أذان العشاء</span>
+                            </button>
+                            <button type="button" class="tpl-btn" data-tpl="adhan_fajr">
+                                <span>🕌 أذان الفجر</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="broadcast-form">
+                        <div class="form-group">
+                            <label class="form-label" for="notify-title">عنوان الإشعار:</label>
+                            <input type="text" id="notify-title" class="form-input" placeholder="مثال: سُورَةُ الكَهْفِ • نُورٌ لِمَا بَيْنَ الجُمُعَتَيْنِ 🌿" value="سُورَةُ الكَهْفِ • نُورٌ لِمَا بَيْنَ الجُمُعَتَيْنِ 🌿" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="notify-body">نص التذكير والدعاء:</label>
+                            <textarea id="notify-body" class="form-textarea" placeholder="اكتب نص التذكير أو الحديث الشريف..." required>لا تنسوا قراءة سورة الكهف اليوم، والإكثار من الصلاة على النبي ﷺ والدعاء لموتانا وموتى المسلمين جميعاً 🤲✨</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="notify-target-url">الصفحة أو القسم المستهدف عند النقر:</label>
+                            <select id="notify-target-url" class="form-select">
+                                <option value="index.html#subpart-mushaf">📖 المصحف الشريف وقراءة السور</option>
+                                <option value="index.html#azkar">📿 قسم الأذكار وحصن المسلم</option>
+                                <option value="index.html#prayers">🤲 حائط الأدعية والختمة الجماعية</option>
+                                <option value="index.html#nawawi">📜 الأربعون النووية وشروحها</option>
+                                <option value="index.html#stories">✨ قصص الأنبياء والصالحين</option>
+                                <option value="index.html#asmaa">🌟 أسماء الله الحسنى الـ 99</option>
+                                <option value="index.html#fasting">🌙 متتبع الصيام والأيام البيض</option>
+                                <option value="index.html">🏠 الصفحة الرئيسية للتطبيق</option>
+                            </select>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" id="btn-send-broadcast" class="btn btn-primary" style="flex: 1;">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>إرسال الإشعار لجميع المشتركين الآن 🚀</span>
+                            </button>
+                            <button type="button" id="btn-reset-form" class="btn btn-outline" title="إعادة تعيين">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Live Mockup Preview -->
+                <div class="section-card" style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="section-header" style="width: 100%;">
+                        <h2 class="section-title">
+                            <i class="fa-solid fa-mobile-screen"></i>
+                            <span>معاينة حية على شاشة الهاتف</span>
+                        </h2>
+                    </div>
+
+                    <div class="phone-mockup">
+                        <div class="phone-notch"></div>
+                        <div class="phone-time" id="preview-clock">12:30</div>
+                        
+                        <div class="push-preview-card">
+                            <div class="preview-header">
+                                <div class="preview-app-info">
+                                    <img src="assets/icon.svg" class="preview-app-icon" alt="icon">
+                                    <span class="preview-app-name">زاد المسلم • الآن</span>
+                                </div>
+                                <span class="preview-time">الآن</span>
+                            </div>
+                            <div class="preview-title" id="mock-preview-title">سُورَةُ الكَهْفِ • نُورٌ لِمَا بَيْنَ الجُمُعَتَيْنِ 🌿</div>
+                            <div class="preview-body" id="mock-preview-body">لا تنسوا قراءة سورة الكهف اليوم، والإكثار من الصلاة على النبي ﷺ والدعاء لموتانا وموتى المسلمين جميعاً 🤲✨</div>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 14px; text-align: center; line-height: 1.4;">
+                        <i class="fa-solid fa-circle-info text-gold"></i>
+                        يصل هذا الإشعار كنظام إشعار رسمي منبثق بصوت التنبيه وبانر تفاعلي.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 2: ANALYTICS & VIEWS DASHBOARD
+             ========================================== -->
+        <div id="tab-analytics" class="tab-content">
+            
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>إحصائيات المشاهدات والزيارات والتفاعل المباشر</span>
+                    </h2>
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-analytics">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>تحديث الإحصائيات</span>
+                    </button>
+                </div>
+
+                <!-- Complete Metric Cards Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon gold">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                        <div>
+                            <div class="stat-val" id="stat-total-visits">0</div>
+                            <div class="stat-label">إجمالي المشاهدات والزيارات</div>
+                            <div class="stat-subtext" id="stat-today-visits">اليوم: 0 زيارة</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon emerald">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                        <div>
+                            <div class="stat-val" id="stat-unique-visitors">0</div>
+                            <div class="stat-label">الزوار الفريدون (Unique)</div>
+                            <div class="stat-subtext">أجهزة ومستخدمين مختلفين</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-download"></i>
+                        </div>
+                        <div>
+                            <div class="stat-val" id="stat-total-downloads">0</div>
+                            <div class="stat-label">مرات التثبيت والتنزيل (PWA)</div>
+                            <div class="stat-subtext">تمت إضافته للشاشة الرئيسية</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fa-solid fa-hands-praying"></i>
+                        </div>
+                        <div>
+                            <div class="stat-val" id="stat-total-tasbeeh">0</div>
+                            <div class="stat-label">عداد التسبيح والذكر الجماعي</div>
+                            <div class="stat-subtext">تسبيحة مسجلة في التطبيق</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Device Distribution & Platform Breakdown -->
+                <div style="background: #081524; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 20px; margin-top: 20px;">
+                    <h3 style="font-size: 15px; color: var(--gold-light); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <span>توزيع الأجهزة وأنظمة التشغيل للمستخدمين:</span>
+                    </h3>
+
+                    <div class="analytics-progress-wrapper">
+                        <div class="progress-label-row">
+                            <span><i class="fa-solid fa-mobile text-gold"></i> الهواتف الذكية (Mobile)</span>
+                            <span id="stat-mobile-pct">0% (0 زيارة)</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill gold" id="bar-mobile-pct" style="width: 0%;"></div>
+                        </div>
+
+                        <div class="progress-label-row">
+                            <span><i class="fa-solid fa-desktop text-blue"></i> الحواسيب المكتبية والمحمولة (Desktop)</span>
+                            <span id="stat-desktop-pct">0% (0 زيارة)</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill blue" id="bar-desktop-pct" style="width: 0%;"></div>
+                        </div>
+
+                        <div class="progress-label-row">
+                            <span><i class="fa-solid fa-tablet-screen-button text-emerald"></i> الأجهزة اللوحية (Tablets)</span>
+                            <span id="stat-tablet-pct">0% (0 زيارة)</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill emerald" id="bar-tablet-pct" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==========================================
+             TAB 3: BROADCAST HISTORY LOG
+             ========================================== -->
+        <div id="tab-history" class="tab-content">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>سجل الإشعارات والتنبيهات السابقة</span>
+                    </h2>
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-history">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>تحديث السجل</span>
+                    </button>
+                </div>
+
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>الوقت والتاريخ</th>
+                                <th>عنوان الإشعار</th>
+                                <th>نص التنبيه</th>
+                                <th>الرابط المستهدف</th>
+                                <th>الحالة</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> جاري تحميل سجل الإشعارات...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 4: SETTINGS & CHANGE PIN
+             ========================================== -->
+        <div id="tab-settings" class="tab-content">
+            
+            <div class="section-card" style="max-width: 600px; margin: 0 auto 20px;">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-key"></i>
+                        <span>تغيير الرمز السري للوحة الإدارة (Admin PIN)</span>
+                    </h2>
+                </div>
+
+                <form id="change-pin-form">
+                    <div class="form-group">
+                        <label class="form-label" for="current-pin-input">الرمز السري الحالي:</label>
+                        <input type="password" id="current-pin-input" class="form-input" placeholder="أدخل الرمز الحالي" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="new-pin-input">الرمز السري الجديد:</label>
+                        <input type="password" id="new-pin-input" class="form-input" placeholder="أدخل الرمز الجديد (4 أرقام أو حروف على الأقل)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="confirm-pin-input">تأكيد الرمز السري الجديد:</label>
+                        <input type="password" id="confirm-pin-input" class="form-input" placeholder="أعد كتابة الرمز الجديد" required>
+                    </div>
+
+                    <button type="submit" id="btn-save-new-pin" class="btn btn-primary btn-block" style="margin-top: 15px;">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>حفظ الرمز السري الجديد</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Diagnostics Card -->
+            <div class="section-card" style="max-width: 600px; margin: 0 auto;">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-server"></i>
+                        <span>معلومات النظام والجاهزية</span>
+                    </h2>
+                </div>
+                <div style="font-size: 13px; color: #cbd5e1; line-height: 2;">
+                    <div><i class="fa-solid fa-code-branch text-gold"></i> الإصدار: <strong>زاد المسلم v3.6</strong></div>
+                    <div><i class="fa-solid fa-database text-emerald"></i> قاعدة البيانات السحابية: <strong id="diag-db-status">متصلة بنجاح 🟢</strong></div>
+                    <div><i class="fa-solid fa-bell text-blue"></i> مشغل إشعارات الخدمة (ServiceWorker): <strong id="diag-sw-status">مفعّل وجاهز 🚀</strong></div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Admin Toast Notification -->
+    <div id="admin-toast" class="admin-toast">
+        <i class="fa-solid fa-circle-check text-emerald" id="toast-icon"></i>
+        <span id="admin-toast-text">تمت العملية بنجاح!</span>
+    </div>
+
+    <script>
+        // Preset Templates Data
+        const TEMPLATES = {
+            friday: {
+                title: "سُورَةُ الكَهْفِ • نُورٌ لِمَا بَيْنَ الجُمُعَتَيْنِ 🌿",
+                body: "جمعة مباركة طيبة! لا تنسوا قراءة سورة الكهف اليوم، والإكثار من الصلاة على الحبيب ﷺ والدعاء لموتانا وموتى المسلمين 🤲",
+                url: "index.html#subpart-mushaf"
+            },
+            fasting: {
+                title: "🌙 تذكير بصيام السُنَّة غداً",
+                body: "إن في الجنة باباً يقال له الريان يدخل منه الصائمون.. هنيئاً لمن نوى صيام غدٍ تقرباً لله تعالى 🌿",
+                url: "index.html#fasting"
+            },
+            morning: {
+                title: "🌅 أذكار الصباح • حِصْنُكَ اليَوْمِيُّ",
+                body: "«أصبحنا وأصبح الملك لله والحمد لله».. افتح يومك بنور الذكر والسكينة والبركة ✨",
+                url: "index.html#azkar"
+            },
+            evening: {
+                title: "🌆 أذكار المساء • طُمَأْنِينَةُ القَلْبِ",
+                body: "«أمسينا وأمسى الملك لله».. اختم يومك بذكر الله وحصّن نفسك وأهلك وأحبابك 🌿",
+                url: "index.html#azkar"
+            },
+            deceased: {
+                title: "🤲 دَعْوَةٌ خَالِصَةٌ لِمَوْتَى المُسْلِمِينَ",
+                body: "اللهم اغفر لموتانا وموتى المسلمين، وارحمهم برحمتك الواسعة واجعل قبورهم روضة من رياض الجنة 🤍",
+                url: "index.html#prayers"
+            },
+            quran: {
+                title: "📖 وَرْدُكَ القُرْآنِيُّ • رَبِيعُ القُلُوبِ",
+                body: "لا تهجر مصحفك اليوم، آيات يسيرة تثقل موازينك وتنير دربك وتدفع عنك البلاء بإذن الله 🌿",
+                url: "index.html#subpart-mushaf"
+            },
+            night: {
+                title: "🌌 قِيَامُ اللَّيْلِ وَرَكْعَةُ الوِتْرِ",
+                body: "ينزل ربنا تبارك وتعالى كل ليلة إلى السماء الدنيا.. فهل من سائل فيُعطى؟ هل من مستغفر فيُغفر له؟ 🤲",
+                url: "index.html#azkar"
+            },
+            khatma: {
+                title: "✨ ختمة القرآن الجماعية • شارك بأجزائك",
+                body: "شارك معنا في ختمة القرآن الكريم وإهداء ثوابها لموتانا وموتى المسلمين.. تقبل الله طاعاتكم 📖",
+                url: "index.html#prayers"
+            },
+            adhan_asr: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ العَصْرِ",
+                body: "«حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ».. حان موعد صلاة العصر حسب توقيتكم المحلي 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=asr"
+            },
+            adhan_maghrib: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ المَغْرِبِ",
+                body: "الله أكبر الله أكبر.. حان موعد صلاة المغرب ودعاء الإفطار للصائمين، تقبل الله طاعاتكم 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=maghrib"
+            },
+            adhan_isha: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ العِشَاءِ",
+                body: "الله أكبر الله أكبر.. حان الآن موعد صلاة العشاء وسنة الوتر، حيّ على الصلاة حيّ على الفلاح 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=isha"
+            },
+            adhan_fajr: {
+                title: "🕌 حَانَ الآنَ مَوْعِدُ أَذَانِ الفَجْرِ",
+                body: "الصلاة خيرٌ من النوم.. الله أكبر الله أكبر، أفلح من قام ولبّى نداء الرحمن 🌿",
+                url: "index.html#prayer-times?playAdhan=1&prayer=fajr"
+            }
+        };
+
+        const DEFAULT_PIN = "zad2026";
+        let db = null;
+        let activeAdminPin = DEFAULT_PIN;
+
+        // Register Service Worker in Admin Panel
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("./sw.js").catch(err => {
+                console.warn("Admin SW registration warning:", err);
+            });
+        }
+
+        // Tab Switching Logic
+        const tabBtns = document.querySelectorAll(".admin-tab-btn");
+        const tabContents = document.querySelectorAll(".tab-content");
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const targetTabId = btn.dataset.tab;
+                tabBtns.forEach(b => b.classList.remove("active"));
+                tabContents.forEach(c => c.classList.remove("active"));
+
+                btn.classList.add("active");
+                const targetContent = document.getElementById(targetTabId);
+                if (targetContent) targetContent.classList.add("active");
+
+                if (targetTabId === "tab-analytics") {
+                    loadLiveAnalyticsData();
+                }
+            });
+        });
+
+        // Clock in mockup
+        function updateMockupClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const el = document.getElementById("preview-clock");
+            if (el) el.textContent = `${hours}:${mins}`;
+        }
+        setInterval(updateMockupClock, 1000);
+        updateMockupClock();
+
+        // Toast Helper
+        function showAdminToast(msg, isError = false) {
+            const toast = document.getElementById("admin-toast");
+            const text = document.getElementById("admin-toast-text");
+            const icon = document.getElementById("toast-icon");
+            if (!toast || !text) return;
+            text.textContent = msg;
+            toast.style.borderColor = isError ? "var(--danger)" : "var(--gold)";
+            if (icon) {
+                icon.className = isError ? "fa-solid fa-circle-exclamation text-danger" : "fa-solid fa-circle-check text-emerald";
+            }
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 4000);
+        }
+
+        // Web Audio notification chime
+        function playNotificationChime() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                if (ctx.state === "suspended") ctx.resume();
+
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+
+                const now = ctx.currentTime;
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
+
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.35, now + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.85);
+            } catch(e) {}
+        }
+
+        // On-screen floating push banner for direct feedback
+        function showInAppPushBanner(data) {
+            let banner = document.getElementById("admin-push-preview-banner");
+            if (!banner) {
+                banner = document.createElement("div");
+                banner.id = "admin-push-preview-banner";
+                banner.className = "zad-cloud-push-banner";
+                banner.style.position = "fixed";
+                banner.style.top = "15px";
+                banner.style.left = "50%";
+                banner.style.transform = "translateX(-50%)";
+                banner.style.width = "92%";
+                banner.style.maxWidth = "520px";
+                banner.style.background = "linear-gradient(135deg, #0d1e31, #08121e)";
+                banner.style.border = "1.5px solid var(--gold)";
+                banner.style.borderRadius = "14px";
+                banner.style.padding = "12px 16px";
+                banner.style.boxShadow = "0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(212,175,55,0.3)";
+                banner.style.zIndex = "999999";
+                banner.style.direction = "rtl";
+                document.body.appendChild(banner);
+            }
+
+            banner.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(212,175,55,0.2); border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--gold); flex-shrink: 0;">
+                        <i class="fa-solid fa-bell fa-shake"></i>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 800; color: var(--gold-light); font-size: 14px; margin-bottom: 2px;">${escapeHtml(data.title || "تنبيه جديد")}</div>
+                        <div style="font-size: 12px; color: #e2e8f0; line-height: 1.4;">${escapeHtml(data.body || "")}</div>
+                    </div>
+                    <button type="button" onclick="this.closest('#admin-push-preview-banner').style.display='none'" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 4px;">&times;</button>
+                </div>
+            `;
+            banner.style.display = "block";
+            setTimeout(() => {
+                if (banner) banner.style.display = "none";
+            }, 8000);
+        }
+
+        // Trigger native notification with vibration and audio
+        async function triggerNativeNotification(title, body, url = "./") {
+            playNotificationChime();
+            showInAppPushBanner({ title, body, url });
+
+            if (!("Notification" in window)) return;
+
+            try {
+                if (Notification.permission === "default") {
+                    const perm = await Notification.requestPermission();
+                    if (perm !== "granted") return;
+                }
+
+                if (Notification.permission === "granted") {
+                    if ("serviceWorker" in navigator) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification(title, {
+                                body: body,
+                                icon: "assets/icon.svg",
+                                badge: "assets/icon.svg",
+                                vibrate: [120, 80, 120, 80, 300],
+                                data: { url: url }
+                            });
+                        }).catch(() => {
+                            try {
+                                new Notification(title, { body: body, icon: "assets/icon.svg" });
+                            } catch(e) {}
+                        });
+                    } else {
+                        new Notification(title, { body: body, icon: "assets/icon.svg" });
+                    }
+                }
+            } catch(e) {
+                console.warn("Native notification trigger error:", e);
+            }
+        }
+
+        // Initialize Firebase
+        function initAdminFirebase() {
+            try {
+                if (typeof firebase !== "undefined" && isFirebaseConfigured()) {
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(FIREBASE_CONFIG);
+                    }
+                    db = firebase.database();
+                    const statusEl = document.getElementById("stat-connection-status");
+                    if (statusEl) statusEl.textContent = "متصل 🟢";
+                    
+                    fetchAdminPinFromFirebase();
+                    listenToSubscribersAndHistory();
+                    loadLiveAnalyticsData();
+                } else {
+                    const statusEl = document.getElementById("stat-connection-status");
+                    if (statusEl) statusEl.textContent = "غير مهيأ ⚠️";
+                }
+            } catch (e) {
+                console.error("Firebase admin init error:", e);
+                const statusEl = document.getElementById("stat-connection-status");
+                if (statusEl) statusEl.textContent = "خطأ في الاتصال 🔴";
+            }
+        }
+
+        // Fetch PIN from Firebase with fallback
+        function fetchAdminPinFromFirebase() {
+            if (!db) return;
+            db.ref("admin_settings/pin").on("value", snapshot => {
+                const pin = snapshot.val();
+                if (pin) {
+                    activeAdminPin = String(pin);
+                    localStorage.setItem("zad_admin_pin", activeAdminPin);
+                } else {
+                    activeAdminPin = localStorage.getItem("zad_admin_pin") || DEFAULT_PIN;
+                }
+            });
+        }
+
+        // Listen to Subscribers and History
+        function listenToSubscribersAndHistory() {
+            if (!db) return;
+
+            // Subscribers count
+            db.ref("push_subscribers").on("value", (snapshot) => {
+                const count = snapshot.numChildren() || 0;
+                const el = document.getElementById("stat-subscribers-count");
+                if (el) el.textContent = count.toLocaleString("ar-EG");
+            });
+
+            // Broadcasts history
+            db.ref("push_broadcasts").on("value", (snapshot) => {
+                const broadcasts = [];
+                snapshot.forEach((child) => {
+                    broadcasts.push({ id: child.key, ...child.val() });
+                });
+                broadcasts.reverse(); // Newest first
+                const el = document.getElementById("stat-broadcasts-count");
+                if (el) el.textContent = broadcasts.length.toLocaleString("ar-EG");
+                renderHistoryTable(broadcasts);
+            });
+        }
+
+        // Load & Render Analytics & Pageviews
+        function loadLiveAnalyticsData() {
+            if (!db) return;
+
+            const todayKey = new Date().toISOString().slice(0, 10);
+
+            db.ref("stats").once("value").then(snap => {
+                const stats = snap.val() || {};
+
+                const totalVisits = stats.totalVisits || 0;
+                const uniqueVisitors = stats.uniqueVisitors || 0;
+                const totalDownloads = stats.totalDownloads || 0;
+                const todayVisits = (stats.dailyVisits && stats.dailyVisits[todayKey]) || 0;
+                const totalTasbeeh = stats.globalTasbeehCount || 0;
+
+                const visitsEl = document.getElementById("stat-total-visits");
+                const todayEl = document.getElementById("stat-today-visits");
+                const uniqueEl = document.getElementById("stat-unique-visitors");
+                const downloadsEl = document.getElementById("stat-total-downloads");
+                const tasbeehEl = document.getElementById("stat-total-tasbeeh");
+
+                if (visitsEl) visitsEl.textContent = totalVisits.toLocaleString("ar-EG");
+                if (todayEl) todayEl.textContent = `اليوم: ${todayVisits.toLocaleString("ar-EG")} زيارة`;
+                if (uniqueEl) uniqueEl.textContent = uniqueVisitors.toLocaleString("ar-EG");
+                if (downloadsEl) downloadsEl.textContent = totalDownloads.toLocaleString("ar-EG");
+                if (tasbeehEl) tasbeehEl.textContent = totalTasbeeh.toLocaleString("ar-EG");
+
+                // Device Distribution
+                const devices = stats.devices || {};
+                const mobileCount = Number(devices.mobile || 0);
+                const desktopCount = Number(devices.desktop || 0);
+                const tabletCount = Number(devices.tablet || 0);
+                const totalDevices = mobileCount + desktopCount + tabletCount || 1;
+
+                const mobPct = Math.round((mobileCount / totalDevices) * 100);
+                const deskPct = Math.round((desktopCount / totalDevices) * 100);
+                const tabPct = Math.round((tabletCount / totalDevices) * 100);
+
+                const mobLabel = document.getElementById("stat-mobile-pct");
+                const deskLabel = document.getElementById("stat-desktop-pct");
+                const tabLabel = document.getElementById("stat-tablet-pct");
+
+                const mobBar = document.getElementById("bar-mobile-pct");
+                const deskBar = document.getElementById("bar-desktop-pct");
+                const tabBar = document.getElementById("bar-tablet-pct");
+
+                if (mobLabel) mobLabel.textContent = `${mobPct}% (${mobileCount.toLocaleString("ar-EG")} زيارة)`;
+                if (deskLabel) deskLabel.textContent = `${deskPct}% (${desktopCount.toLocaleString("ar-EG")} زيارة)`;
+                if (tabLabel) tabLabel.textContent = `${tabPct}% (${tabletCount.toLocaleString("ar-EG")} زيارة)`;
+
+                if (mobBar) mobBar.style.width = `${mobPct}%`;
+                if (deskBar) deskBar.style.width = `${deskPct}%`;
+                if (tabBar) tabBar.style.width = `${tabPct}%`;
+            });
+        }
+
+        // Render History Table
+        function renderHistoryTable(broadcasts) {
+            const tbody = document.getElementById("history-table-body");
+            if (!tbody) return;
+
+            if (broadcasts.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            لم يتم إرسال أي إشعارات بعد. اكتب إشعارك الأول من تبويب "بث الإشعارات" وأرسله فوراً! 🚀
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = broadcasts.map(b => {
+                const dateStr = b.timestamp ? new Date(b.timestamp).toLocaleString("ar-EG") : "الآن";
+                return `
+                    <tr>
+                        <td style="font-size: 12px; color: var(--gold-light); white-space: nowrap;">${dateStr}</td>
+                        <td style="font-weight: 700; color: #fff;">${escapeHtml(b.title || "")}</td>
+                        <td style="max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(b.body || "")}</td>
+                        <td><span style="font-size: 12px; color: var(--text-muted);">${escapeHtml(b.url || "الرئيسية")}</span></td>
+                        <td><span class="status-badge sent"><i class="fa-solid fa-check-double"></i> تم البث</span></td>
+                        <td style="white-space: nowrap;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}')" title="إعادة الإرسال">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteBroadcast('${b.id}')" title="حذف من السجل">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Live Preview Sync
+        const titleInput = document.getElementById("notify-title");
+        const bodyInput = document.getElementById("notify-body");
+        const mockTitle = document.getElementById("mock-preview-title");
+        const mockBody = document.getElementById("mock-preview-body");
+
+        if (titleInput && mockTitle) {
+            titleInput.addEventListener("input", () => {
+                mockTitle.textContent = titleInput.value || "عنوان الإشعار...";
+            });
+        }
+
+        if (bodyInput && mockBody) {
+            bodyInput.addEventListener("input", () => {
+                mockBody.textContent = bodyInput.value || "نص رسالة الإشعار والتذكير...";
+            });
+        }
+
+        // Apply Templates
+        document.querySelectorAll(".tpl-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const tplKey = btn.dataset.tpl;
+                const data = TEMPLATES[tplKey];
+                if (data) {
+                    titleInput.value = data.title;
+                    bodyInput.value = data.body;
+                    document.getElementById("notify-target-url").value = data.url;
+                    mockTitle.textContent = data.title;
+                    mockBody.textContent = data.body;
+                    showAdminToast("تم تطبيق القالب الجاهز ✨");
+                }
+            });
+        });
+
+        // Form Submit -> Send Broadcast
+        document.getElementById("broadcast-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const title = titleInput.value.trim();
+            const body = bodyInput.value.trim();
+            const url = document.getElementById("notify-target-url").value;
+
+            if (!title || !body) {
+                showAdminToast("يرجى ملء العنوان ونص الإشعار", true);
+                return;
+            }
+
+            const sendBtn = document.getElementById("btn-send-broadcast");
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري بث الإشعار للجميع...';
+
+            try {
+                if (db) {
+                    const newBroadcastRef = db.ref("push_broadcasts").push();
+                    await newBroadcastRef.set({
+                        title: title,
+                        body: body,
+                        url: url,
+                        icon: "assets/icon-192.png",
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+
+                // Call Serverless Web Push API to wake up and notify all closed devices
+                let pushInfo = "";
+                try {
+                    const pushRes = await fetch("/api/send-push", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            title: title,
+                            body: body,
+                            url: url,
+                            icon: "/assets/icon-192.png"
+                        })
+                    });
+                    const pushResult = await pushRes.json();
+                    if (pushResult && pushResult.sentCount > 0) {
+                        pushInfo = ` (تم الإرسال لـ ${pushResult.sentCount} هاتف وجهاز مقفل)`;
+                    }
+                } catch (pushErr) {
+                    console.warn("Web Push API call warning:", pushErr);
+                }
+
+                // Trigger local device feedback
+                triggerNativeNotification(title, body, url);
+
+                showAdminToast("تم بث الإشعار بنجاح لجميع المشتركين والزوار!" + pushInfo + " 🚀🌿");
+            } catch (err) {
+                console.error("Broadcast failed:", err);
+                showAdminToast("حدث خطأ أثناء الإرسال: " + err.message, true);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>إرسال الإشعار لجميع المشتركين الآن 🚀</span>';
+            }
+        });
+
+        // Test Notification On Self
+        document.getElementById("btn-test-notification-self").addEventListener("click", () => {
+            const title = titleInput.value.trim() || "زاد المسلم • تجربة إشعار";
+            const body = bodyInput.value.trim() || "هذه تجربة حية للإشعار وصوت التنبيه للتأكد من وصوله 🌿";
+            const url = document.getElementById("notify-target-url").value;
+
+            triggerNativeNotification(title, body, url);
+            showAdminToast("تم إطلاق التنبيه التجريبي وصوت الإشعار 🔔✨");
+        });
+
+        // Resend Broadcast
+        window.resendBroadcast = async function(id) {
+            if (!db || !confirm("هل أنت متأكد من إعادة إرسال هذا الإشعار الآن؟")) return;
+            try {
+                const snap = await db.ref("push_broadcasts/" + id).once("value");
+                const val = snap.val();
+                if (val) {
+                    await db.ref("push_broadcasts").push({
+                        ...val,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+
+                    // Trigger Web Push to closed devices
+                    try {
+                        await fetch("/api/send-push", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                title: val.title || "تنبيه",
+                                body: val.body || "",
+                                url: val.url || "./",
+                                icon: "/assets/icon-192.png"
+                            })
+                        });
+                    } catch(e) {}
+
+                    triggerNativeNotification(val.title || "تنبيه معاد", val.body || "", val.url || "./");
+                    showAdminToast("تمت إعادة إرسال الإشعار لجميع الأجهزة بنجاح! 🚀");
+                }
+            } catch(e) {
+                showAdminToast("فشل إعادة الإرسال: " + e.message, true);
+            }
+        };
+
+        // Delete Broadcast
+        window.deleteBroadcast = async function(id) {
+            if (!db || !confirm("هل ترغب في حذف هذا الإشعار من السجل؟")) return;
+            try {
+                await db.ref("push_broadcasts/" + id).remove();
+                showAdminToast("تم حذف الإشعار من السجل بنجاح");
+            } catch (e) {
+                showAdminToast("فشل الحذف: " + e.message, true);
+            }
+        };
+
+        // Refresh buttons
+        document.getElementById("btn-refresh-history").addEventListener("click", () => {
+            listenToSubscribersAndHistory();
+            showAdminToast("تم تحديث السجل 🔄");
+        });
+
+        document.getElementById("btn-refresh-analytics").addEventListener("click", () => {
+            loadLiveAnalyticsData();
+            showAdminToast("تم تحديث الإحصائيات 📊");
+        });
+
+        // ==========================================
+        // Change PIN Logic
+        // ==========================================
+        document.getElementById("change-pin-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const currentVal = document.getElementById("current-pin-input").value.trim();
+            const newVal = document.getElementById("new-pin-input").value.trim();
+            const confirmVal = document.getElementById("confirm-pin-input").value.trim();
+
+            const savedPin = localStorage.getItem("zad_admin_pin") || activeAdminPin || DEFAULT_PIN;
+
+            if (currentVal !== savedPin) {
+                showAdminToast("الرمز السري الحالي غير صحيح!", true);
+                return;
+            }
+
+            if (newVal.length < 4) {
+                showAdminToast("الرمز الجديد يجب أن يحتوي على 4 خانات على الأقل!", true);
+                return;
+            }
+
+            if (newVal !== confirmVal) {
+                showAdminToast("الرمز الجديد غير متطابق مع التأكيد!", true);
+                return;
+            }
+
+            try {
+                // Save in Firebase & localStorage
+                if (db) {
+                    await db.ref("admin_settings/pin").set(newVal);
+                }
+                localStorage.setItem("zad_admin_pin", newVal);
+                activeAdminPin = newVal;
+
+                document.getElementById("change-pin-form").reset();
+                showAdminToast("تم تغيير الرمز السري بنجاح وحفظه! 🔐✨");
+            } catch(err) {
+                showAdminToast("حدث خطأ أثناء حفظ الرمز: " + err.message, true);
+            }
+        });
+
+        // ==========================================
+        // Security & Login Check
+        // ==========================================
+        const loginScreen = document.getElementById("login-screen");
+        const pinInput = document.getElementById("admin-pin-input");
+        const loginBtn = document.getElementById("btn-login-submit");
+        const logoutBtn = document.getElementById("btn-admin-logout");
+        const loginErrorMsg = document.getElementById("login-error-msg");
+
+        function checkAuth() {
+            const isAuth = sessionStorage.getItem("zad_admin_auth");
+            if (isAuth === "true") {
+                loginScreen.style.display = "none";
+                initAdminFirebase();
+            } else {
+                loginScreen.style.display = "flex";
+                // Read local or Firebase pin before login
+                activeAdminPin = localStorage.getItem("zad_admin_pin") || DEFAULT_PIN;
+                if (typeof firebase !== "undefined" && isFirebaseConfigured()) {
+                    try {
+                        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+                        firebase.database().ref("admin_settings/pin").once("value").then(s => {
+                            if (s.val()) {
+                                activeAdminPin = String(s.val());
+                                localStorage.setItem("zad_admin_pin", activeAdminPin);
+                            }
+                        }).catch(() => {});
+                    } catch(e) {}
+                }
+            }
+        }
+
+        loginBtn.addEventListener("click", () => {
+            const entered = pinInput.value.trim();
+            const savedPin = localStorage.getItem("zad_admin_pin") || activeAdminPin || DEFAULT_PIN;
+            
+            if (entered === savedPin) {
+                sessionStorage.setItem("zad_admin_auth", "true");
+                loginScreen.style.display = "none";
+                initAdminFirebase();
+                showAdminToast("أهلاً بك يا مدير النظام! تم تسجيل الدخول بنجاح 🌿");
+            } else {
+                if (loginErrorMsg) loginErrorMsg.style.display = "block";
+                showAdminToast("الرمز السري غير صحيح. يرجى المحاولة ثانية", true);
+            }
+        });
+
+        pinInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") loginBtn.click();
+        });
+
+        logoutBtn.addEventListener("click", () => {
+            sessionStorage.removeItem("zad_admin_auth");
+            location.reload();
+        });
+
+        // Run Auth Check
+        checkAuth();
+    </script>
+</body>
+</html>

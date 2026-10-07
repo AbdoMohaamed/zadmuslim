@@ -1433,29 +1433,41 @@ function initPWA() {
     const closeIosModalBtn = document.getElementById("btn-close-ios-install-modal");
     const understoodIosBtn = document.getElementById("btn-ios-install-understood");
 
-    // التحقق من تثبيت التطبيق مسبقاً (وضع Standalone)
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-    if (isStandalone) {
+    // التحقق الشامل من تثبيت التطبيق مسبقاً (سواء كتطبيق أصلي Native أو وضع PWA Standalone أو تم تثبيته سابقاً)
+    const isNative = (typeof window !== "undefined" && window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform());
+    const isStandalone = isNative ||
+                         window.matchMedia("(display-mode: standalone)").matches ||
+                         window.navigator.standalone === true ||
+                         document.referrer.includes("android-app://") ||
+                         window.location.search.includes("mode=standalone") ||
+                         localStorage.getItem("zad_app_installed") === "true";
+
+    if (isStandalone || isNative) {
         if (installBtn) installBtn.style.display = "none";
         if (banner) banner.style.display = "none";
-        return;
+        return; // الخروج فوراً لعدم إظهار أي بنر أو أزرار تثبيت بعد اكتمال التثبيت
     }
 
-    // إظهار زر التثبيت دائماً لجميع الأجهزة طالما لم يتم التثبيت بعد (بما في ذلك هواتف الآيفون iOS)
+    // إظهار زر التثبيت فقط للمستخدمين الذين يتصفحون عبر الويب ولم يثبتوا التطبيق بعد
     if (installBtn) {
         installBtn.style.display = "inline-flex";
     }
 
-    // إظهار بنر التثبيت التلقائي بعد قليل إن لم يغلقه الزائر
-    const isDismissed = sessionStorage.getItem("pwa_banner_dismissed");
+    // إظهار بنر التثبيت التلقائي بعد قليل إن لم يغلقه الزائر نهائياً
+    const isDismissed = localStorage.getItem("pwa_banner_dismissed") === "true";
     if (!isDismissed && banner) {
         setTimeout(() => {
-            banner.style.display = "flex";
+            // إعادة الفحص لضمان عدم إظهاره إذا تغيرت الحالة
+            const recheckNative = (typeof window !== "undefined" && window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform());
+            if (!recheckNative && localStorage.getItem("zad_app_installed") !== "true") {
+                banner.style.display = "flex";
+            }
         }, 3000);
     }
 
     // التقاط حدث التثبيت لمتصفحات أندرويد وكروم
     window.addEventListener("beforeinstallprompt", (e) => {
+        if (isNative || localStorage.getItem("zad_app_installed") === "true") return;
         e.preventDefault();
         deferredPrompt = e;
         if (installBtn) {
@@ -1476,6 +1488,7 @@ function initPWA() {
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === "accepted") {
+                    localStorage.setItem("zad_app_installed", "true");
                     showToast("جزاكم الله خيراً! تم تثبيت تطبيق زاد المسلم بنجاح 🌿📱");
                 }
                 deferredPrompt = null;
@@ -1497,18 +1510,20 @@ function initPWA() {
     if (bannerDismissBtn && banner) {
         bannerDismissBtn.addEventListener("click", () => {
             banner.style.display = "none";
-            sessionStorage.setItem("pwa_banner_dismissed", "true");
+            localStorage.setItem("pwa_banner_dismissed", "true");
         });
     }
 
     if (closeIosModalBtn && iosModal) {
         closeIosModalBtn.addEventListener("click", () => {
             iosModal.classList.remove("open");
+            localStorage.setItem("pwa_banner_dismissed", "true");
         });
     }
     if (understoodIosBtn && iosModal) {
         understoodIosBtn.addEventListener("click", () => {
             iosModal.classList.remove("open");
+            localStorage.setItem("pwa_banner_dismissed", "true");
         });
     }
     if (iosModal) {
@@ -1520,6 +1535,7 @@ function initPWA() {
     }
 
     window.addEventListener("appinstalled", () => {
+        localStorage.setItem("zad_app_installed", "true");
         if (installBtn) installBtn.style.display = "none";
         if (banner) banner.style.display = "none";
         deferredPrompt = null;
@@ -1641,6 +1657,9 @@ function fetchPrayerTimes(cityKey) {
             renderPrayerTimesUI(prayerTimings);
             startPrayerCountdown();
             initFastingTracker();
+            if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
+                window.NativeAdhanService.schedulePrayers(prayerTimings);
+            }
             return;
         } catch(e) {}
     }
@@ -1654,6 +1673,9 @@ function fetchPrayerTimes(cityKey) {
                 renderPrayerTimesUI(prayerTimings);
                 startPrayerCountdown();
                 initFastingTracker();
+                if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
+                    window.NativeAdhanService.schedulePrayers(prayerTimings);
+                }
             } else {
                 useFallbackTimings();
             }
@@ -1668,6 +1690,9 @@ function useFallbackTimings() {
     renderPrayerTimesUI(prayerTimings);
     startPrayerCountdown();
     initFastingTracker();
+    if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
+        window.NativeAdhanService.schedulePrayers(prayerTimings);
+    }
 }
 
 function renderPrayerTimesUI(timings) {
@@ -1764,14 +1789,35 @@ function startPrayerCountdown() {
 
         const now = new Date();
         const prayersList = [
-            { name: "الفجر", key: "fajr", time: prayerTimings.Fajr },
+            { name: "صلاة الفجر", key: "fajr", time: prayerTimings.Fajr },
             { name: "الشروق", key: "sunrise", time: prayerTimings.Sunrise },
-            { name: "الظهر", key: "dhuhr", time: prayerTimings.Dhuhr },
-            { name: "العصر", key: "asr", time: prayerTimings.Asr },
-            { name: "المغرب", key: "maghrib", time: prayerTimings.Maghrib },
-            { name: "العشاء", key: "isha", time: prayerTimings.Isha }
+            { name: "صلاة الظهر", key: "dhuhr", time: prayerTimings.Dhuhr },
+            { name: "صلاة العصر", key: "asr", time: prayerTimings.Asr },
+            { name: "صلاة المغرب", key: "maghrib", time: prayerTimings.Maghrib },
+            { name: "صلاة العشاء", key: "isha", time: prayerTimings.Isha }
         ];
 
+        // 1. فحص الصلوات: هل دخل وقت أي صلاة من صلوات اليوم خلال آخر 20 دقيقة ولم يؤذن لها بعد؟
+        for (const p of prayersList) {
+            if (p.key === "sunrise") continue;
+            const [ph, pm] = p.time.split(" ")[0].split(":").map(Number);
+            const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ph, pm, 0);
+            const elapsedMs = now.getTime() - pDate.getTime();
+
+            // إذا دخل وقت الصلاة (بين ثانية قبلها وحتى 20 دقيقة بعدها)
+            if (elapsedMs >= -1500 && elapsedMs <= 20 * 60 * 1000) {
+                const todayPrayerKey = `${p.key}_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}`;
+                const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
+                if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {
+                    window._lastAdhanTriggeredKey = todayPrayerKey;
+                    localStorage.setItem("zad_last_adhan_date_key", todayPrayerKey);
+                    triggerPrayerAdhanNotification(p.name, p.key);
+                    break;
+                }
+            }
+        }
+
+        // 2. تحديد الصلاة القادمة لحساب العداد التنازلي
         let nextPrayer = null;
         let nextPrayerDate = null;
 
@@ -1820,23 +1866,6 @@ function startPrayerCountdown() {
         if (nameEl) nameEl.textContent = nextPrayer.name;
         if (timerEl) {
             timerEl.textContent = `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-        }
-
-        // إطلاق الأذان الصوتي وإشعار المتصفح عند حلول وقت الصلاة
-        // استخدام نافذة زمنية مرنة لمنع تفويت الأذان بسبب تجميد المتصفح أو تأخر المؤقتات على الهواتف
-        if (nextPrayer.key !== "sunrise") {
-            const todayPrayerKey = `${nextPrayer.key}_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}`;
-            const diffFromTarget = nextPrayerDate.getTime() - now.getTime();
-
-            // إطلاق الأذان إذا كان المتبقي أقل من ثانيتين أو مرت أقل من دقيقتين على موعد الصلاة
-            if (diffFromTarget <= 1500 && diffFromTarget >= -120000) {
-                const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
-                if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {
-                    window._lastAdhanTriggeredKey = todayPrayerKey;
-                    localStorage.setItem("zad_last_adhan_date_key", todayPrayerKey);
-                    triggerPrayerAdhanNotification(nextPrayer.name, nextPrayer.key);
-                }
-            }
         }
     };
 
@@ -3248,6 +3277,11 @@ function setSelectedMuazzin(id) {
         });
     }
 
+    // إعادة جدولة إشعارات ومنبهات الأذان الأصلية في النظام بالصوت الجديد
+    if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function" && prayerTimings) {
+        window.NativeAdhanService.schedulePrayers(prayerTimings);
+    }
+
     showToast(`تم اختيار صوت ${found.title} (${found.name}) مؤذناً معتمداً 🕌`);
 }
 
@@ -3286,9 +3320,24 @@ function initAdhanNotifications() {
             localStorage.setItem("adhan_sound_enabled", isAdhanAudioEnabled ? "1" : "0");
             updateAdhanButtonUI();
 
-            // طلب إذن الإشعارات عند التفعيل
-            if (isAdhanAudioEnabled && ("Notification" in window) && Notification.permission === "default") {
-                Notification.requestPermission();
+            // طلب إذن الإشعارات والجدولة عند التفعيل / الإلغاء
+            if (isAdhanAudioEnabled) {
+                if (window.NativeAdhanService && typeof window.NativeAdhanService.requestPermissions === "function") {
+                    window.NativeAdhanService.requestPermissions();
+                    if (prayerTimings) {
+                        window.NativeAdhanService.schedulePrayers(prayerTimings);
+                    }
+                } else if (("Notification" in window) && Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+            } else {
+                if (window.NativeAdhanService && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+                    window.Capacitor.Plugins.LocalNotifications.getPending().then(p => {
+                        if (p && p.notifications && p.notifications.length) {
+                            window.Capacitor.Plugins.LocalNotifications.cancel({ notifications: p.notifications });
+                        }
+                    }).catch(() => {});
+                }
             }
 
             showToast(isAdhanAudioEnabled ? "تم تفعيل صوت الأذان وتنبيهات الصلوات 🕌" : "تم كتم صوت الأذان 🔇");
@@ -3297,6 +3346,23 @@ function initAdhanNotifications() {
 
     updateAdhanButtonUI();
     updateMuazzinButtonUI();
+    initAdhanAudioUnlock();
+}
+
+function initAdhanAudioUnlock() {
+    const unlock = () => {
+        const audioEl = document.getElementById("audio-adhan");
+        if (audioEl) {
+            audioEl.play().then(() => {
+                audioEl.pause();
+                audioEl.currentTime = 0;
+            }).catch(() => {});
+        }
+        document.removeEventListener("touchstart", unlock);
+        document.removeEventListener("click", unlock);
+    };
+    document.addEventListener("touchstart", unlock, { once: true, passive: true });
+    document.addEventListener("click", unlock, { once: true, passive: true });
 }
 
 function triggerPrayerAdhanNotification(prayerName, prayerKey) {
@@ -3304,7 +3370,7 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
 
     // 1. تشغيل صوت الأذان إذا كان مفعلاً
     if (isAdhanAudioEnabled) {
-        playAdhanAudio(prayerKey);
+        playAdhanAudio(prayerKey, null, prayerName);
     }
 
     // 2. إرسال إشعار المتصفح والنظام
@@ -3348,7 +3414,7 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
     showToast(`🕌 حان الآن موعد ${prayerName}.. حيّ على الصلاة، حيّ على الفلاح`);
 }
 
-function playAdhanAudio(prayerKey, specificMuazzinId) {
+function playAdhanAudio(prayerKey, specificMuazzinId, prayerName) {
     const audioEl = document.getElementById("audio-adhan");
     if (!audioEl) return;
 
@@ -3359,14 +3425,78 @@ function playAdhanAudio(prayerKey, specificMuazzinId) {
     // تحديث مسار الصوت إذا اختلف
     if (!audioEl.src.endsWith(sourceFile)) {
         audioEl.src = sourceFile;
+        audioEl.load();
     }
 
     audioEl.currentTime = 0;
     const playPromise = audioEl.play();
     if (playPromise !== undefined) {
-        playPromise.catch(err => {
-            console.warn("Autoplay audio blocked or pending user gesture:", err);
+        playPromise.then(() => {
+            hideAdhanAutoplayBanner();
+        }).catch(err => {
+            console.warn("Autoplay audio blocked or pending user gesture on iOS:", err);
+            // إظهار بنر تفاعلي مباشر لسماع الأذان فوراً عند النقر أو لمس الشاشة
+            showAdhanAutoplayBanner(prayerName || "الصلاة", prayerKey, muazzin);
         });
+    }
+}
+
+function showAdhanAutoplayBanner(prayerName, prayerKey, muazzin) {
+    let banner = document.getElementById("adhan-autoplay-banner");
+    if (!banner) {
+        banner = document.createElement("div");
+        banner.id = "adhan-autoplay-banner";
+        banner.className = "adhan-autoplay-banner";
+        document.body.appendChild(banner);
+    }
+
+    banner.innerHTML = `
+        <div class="adhan-banner-inner">
+            <div class="adhan-banner-icon">
+                <i class="fa-solid fa-mosque fa-bounce text-gold"></i>
+            </div>
+            <div class="adhan-banner-text">
+                <strong class="adhan-banner-title">🕌 حَانَ الآنَ مَوْعِدُ ${prayerName}</strong>
+                <span class="adhan-banner-sub">اضغط هنا لسماع الأذان المبارك بصوت ${muazzin.name || 'المؤذن'} 🔊</span>
+            </div>
+            <button type="button" class="btn btn-gold btn-sm adhan-banner-btn">
+                <i class="fa-solid fa-volume-high"></i>
+                <span>سماع الأذان</span>
+            </button>
+        </div>
+    `;
+
+    banner.classList.add("active");
+
+    const triggerPlayNow = (e) => {
+        if (e) e.stopPropagation();
+        const audioEl = document.getElementById("audio-adhan");
+        if (audioEl) {
+            audioEl.play().then(() => {
+                hideAdhanAutoplayBanner();
+            }).catch(() => {});
+        }
+    };
+
+    banner.onclick = triggerPlayNow;
+
+    // تشغيل فوري بمجرد أن يلمس المستخدم الشاشة في أي مكان (Global Touch to Play)
+    const onTouchAnywhere = () => {
+        triggerPlayNow();
+        document.removeEventListener("touchstart", onTouchAnywhere);
+        document.removeEventListener("click", onTouchAnywhere);
+    };
+    document.addEventListener("touchstart", onTouchAnywhere, { once: true });
+    document.addEventListener("click", onTouchAnywhere, { once: true });
+}
+
+function hideAdhanAutoplayBanner() {
+    const banner = document.getElementById("adhan-autoplay-banner");
+    if (banner) {
+        banner.classList.remove("active");
+        setTimeout(() => {
+            if (banner.parentNode) banner.remove();
+        }, 400);
     }
 }
 
@@ -3389,7 +3519,7 @@ function checkUrlForAdhanAutoPlay() {
 
         // تشغيل صوت الأذان فوراً
         setTimeout(() => {
-            playAdhanAudio(prayerKey, muazzinKey);
+            playAdhanAudio(prayerKey, muazzinKey, "الصلاة");
             showToast("🕌 الله أكبر، الله أكبر.. بدأ تشغيل نداء الأذان المبارك");
         }, 300);
     }
