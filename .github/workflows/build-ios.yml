@@ -19,10 +19,14 @@ jobs:
           cache: 'npm'
 
       - name: Install NPM Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Web Assets & Sync Mobile
         run: npm run build:mobile
+
+      - name: Configure Xcode Project for Unsigned CI Build
+        run: |
+          sed -i '' 's/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g' ios/App/App.xcodeproj/project.pbxproj || true
 
       - name: Compile iOS App with Xcode
         run: |
@@ -32,14 +36,23 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -derivedDataPath build/derivedData \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_ENTITLEMENTS="" \
+            CODE_SIGNING_INJECT_BASE_ENTITLEMENTS=NO \
             clean build
 
       - name: Package Payload into ZadMuslim.ipa
         run: |
           mkdir -p Payload
-          cp -r build/derivedData/Build/Products/Release-iphoneos/App.app Payload/
+          APP_PATH=$(find build/derivedData -name "*.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: App.app was not found in derivedData!"
+            exit 1
+          fi
+          echo "Found compiled app at: $APP_PATH"
+          cp -r "$APP_PATH" Payload/
           zip -qr ZadMuslim-iOS.ipa Payload
           echo "IPA build completed successfully!"
 
