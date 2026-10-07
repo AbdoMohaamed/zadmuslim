@@ -9,11 +9,11 @@
     "build:mobile": "node build-mobile.js && npx cap sync"
   },
   "dependencies": {
-    "@capacitor/android": "^8.5.2",
-    "@capacitor/cli": "^8.5.2",
-    "@capacitor/core": "^8.5.2",
-    "@capacitor/ios": "^8.5.2",
-    "@capacitor/local-notifications": "^8.3.1",
+    "@capacitor/android": "^7.6.9",
+    "@capacitor/cli": "^7.6.9",
+    "@capacitor/core": "^7.6.9",
+    "@capacitor/ios": "^7.6.9",
+    "@capacitor/local-notifications": "^7.0.7",
     "web-push": "^3.6.7"
   },
   "devDependencies": {

@@ -15,21 +15,27 @@ const basePluginDir = path.join(
 const pluginSwiftPath = path.join(basePluginDir, 'LocalNotificationsPlugin.swift');
 const handlerSwiftPath = path.join(basePluginDir, 'LocalNotificationsHandler.swift');
 
-// 1. تصحيح LocalNotificationsPlugin.swift
 if (fs.existsSync(pluginSwiftPath)) {
     let content = fs.readFileSync(pluginSwiftPath, 'utf8');
-    content = content.replace(/guard let idsArray.*= call\.getArray\("ids".*\) else \{/g, 'guard let idsArray = call.getArray("ids", JSValue.self) else {');
-    fs.writeFileSync(pluginSwiftPath, content, 'utf8');
-    console.log('✅ Successfully patched LocalNotificationsPlugin.swift (JSValue.self)');
+    if (content.includes('call.getArray("ids")')) {
+        content = content.replace(/guard let idsArray.*= call\.getArray\("ids".*\) else \{/g, 'guard let idsArray = call.getArray("ids", JSValue.self) else {');
+        fs.writeFileSync(pluginSwiftPath, content, 'utf8');
+        console.log('✅ Patched LocalNotificationsPlugin.swift');
+    } else {
+        console.log('ℹ️ LocalNotificationsPlugin.swift is compatible.');
+    }
 }
 
-// 2. تصحيح LocalNotificationsHandler.swift
 if (fs.existsSync(handlerSwiftPath)) {
     let handlerContent = fs.readFileSync(handlerSwiftPath, 'utf8');
-    handlerContent = handlerContent.replace(
-        'self.plugin?.getConfig().getArray("presentationOptions") as? [String]',
-        '(self.plugin?.getConfig().getConfigJSON()["presentationOptions"]) as? [String]'
-    );
-    fs.writeFileSync(handlerSwiftPath, handlerContent, 'utf8');
-    console.log('✅ Successfully patched LocalNotificationsHandler.swift (PluginConfig.getConfigJSON)');
+    if (handlerContent.includes('self.plugin?.getConfig().getArray("presentationOptions")')) {
+        handlerContent = handlerContent.replace(
+            'self.plugin?.getConfig().getArray("presentationOptions") as? [String]',
+            '(self.plugin?.getConfig().getConfigJSON()["presentationOptions"]) as? [String]'
+        );
+        fs.writeFileSync(handlerSwiftPath, handlerContent, 'utf8');
+        console.log('✅ Patched LocalNotificationsHandler.swift');
+    } else {
+        console.log('ℹ️ LocalNotificationsHandler.swift is compatible.');
+    }
 }
