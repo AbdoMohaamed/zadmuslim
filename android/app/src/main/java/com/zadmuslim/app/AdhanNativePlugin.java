@@ -147,7 +147,18 @@ public class AdhanNativePlugin extends Plugin {
     }
 
     private void scheduleExactAlarm(AlarmManager alarmManager, long triggerAtMillis, PendingIntent pendingIntent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        Context context = getContext();
+        Intent showIntent = new Intent(context, MainActivity.class);
+        showIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingShow = PendingIntent.getActivity(
+                context, (int) (triggerAtMillis % 100000), showIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AlarmManager.AlarmClockInfo clockInfo = new AlarmManager.AlarmClockInfo(triggerAtMillis, pendingShow);
+            alarmManager.setAlarmClock(clockInfo, pendingIntent);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
         } else {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
@@ -186,10 +197,14 @@ public class AdhanNativePlugin extends Plugin {
 
     @PluginMethod
     public void stopAdhan(PluginCall call) {
+        AdhanPlayer.stop();
+
         Context context = getContext();
         Intent stopIntent = new Intent(context, AdhanService.class);
         stopIntent.setAction(AdhanService.ACTION_STOP_ADHAN);
-        context.startService(stopIntent);
+        try {
+            context.startService(stopIntent);
+        } catch (Exception ignored) {}
 
         JSObject ret = new JSObject();
         ret.put("success", true);
@@ -200,7 +215,7 @@ public class AdhanNativePlugin extends Plugin {
     @PluginMethod
     public void isAdhanPlaying(PluginCall call) {
         JSObject ret = new JSObject();
-        ret.put("isPlaying", AdhanService.isPlaying);
+        ret.put("isPlaying", AdhanPlayer.isPlaying() || AdhanService.isPlaying);
         call.resolve(ret);
     }
 

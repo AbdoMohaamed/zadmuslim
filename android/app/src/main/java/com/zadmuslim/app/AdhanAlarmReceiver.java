@@ -1,5 +1,6 @@
 package com.zadmuslim.app;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,7 +12,6 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import org.json.JSONObject;
 
@@ -24,13 +24,18 @@ import java.util.Iterator;
 public class AdhanAlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "AdhanAlarmReceiver";
     public static final String PRE_ALERT_CHANNEL_ID = "prayer_pre_alert_channel";
+    public static final String ADHAN_ALARM_CHANNEL_ID = "adhan_alarm_notification_channel";
     public static final String BROADCAST_CHANNEL_ID = "zad_cloud_broadcast_channel";
 
     public static final String ACTION_CHECK_CLOUD_BROADCASTS = "com.zadmuslim.app.ACTION_CHECK_CLOUD_BROADCASTS";
+    public static final String ACTION_STOP_ADHAN = "com.zadmuslim.app.ACTION_STOP_ADHAN";
+
     public static final String EXTRA_IS_PRE_ALERT = "is_pre_alert";
     public static final String EXTRA_PRAYER_NAME = "prayer_name";
     public static final String EXTRA_PRAYER_KEY = "prayer_key";
     public static final String EXTRA_MUAZZIN = "muazzin";
+
+    public static final int ADHAN_NOTIFICATION_ID = 99992;
 
     private static final String FIREBASE_BROADCASTS_URL = "https://sadqah-jaddi-default-rtdb.firebaseio.com/push_broadcasts.json?orderBy=\"$key\"&limitToLast=1";
 
@@ -40,6 +45,13 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
         String action = intent.getAction();
         Log.d(TAG, "onReceive triggered with action: " + action);
+
+        if (ACTION_STOP_ADHAN.equals(action)) {
+            Log.d(TAG, "User requested to stop Adhan");
+            AdhanPlayer.stop();
+            dismissAdhanNotification(context);
+            return;
+        }
 
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             Log.d(TAG, "Device rebooted - Scheduling periodic broadcast check");
@@ -64,31 +76,68 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             // تنبيه اقتراب موعد الصلاة قبل 5 دقائق
             showPrePrayerNotification(context, prayerName, prayerKey);
         } else {
-            // تشغيل الأذان الفعلي في الخلفية عبر Foreground Service
-            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            PowerManager.WakeLock wakeLock = null;
-            if (pm != null) {
-                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zadmuslim:alarm_receiver_wake");
-                wakeLock.acquire(10 * 1000L); // 10 ثوانٍ
-            }
+            // 1. تشغيل الأذان الصوتي فوراً عبر AdhanPlayer على تيار المنبه (STREAM_ALARM)
+            AdhanPlayer.play(context, prayerName, prayerKey, muazzin);
 
-            try {
-                Intent serviceIntent = new Intent(context, AdhanService.class);
-                serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_NAME, prayerName);
-                serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_KEY, prayerKey);
-                serviceIntent.putExtra(AdhanService.EXTRA_MUAZZIN, muazzin);
+            // 2. إظهار إشعار الأذان المتكامل مع زر إيقاف الأذان وميزة الإيقاف عند المسح
+            showAdhanAlarmNotification(context, prayerName, prayerKey);
+        }
+    }
 
-                ContextCompat.startForegroundService(context, serviceIntent);
-                Log.d(TAG, "AdhanService started successfully for " + prayerName);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to start AdhanService", e);
-            } finally {
-                if (wakeLock != null && wakeLock.isHeld()) {
-                    try {
-                        wakeLock.release();
-                    } catch (Exception ignored) {}
-                }
-            }
+    private void showAdhanAlarmNotification(Context context, String prayerName, String prayerKey) {
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    ADHAN_ALARM_CHANNEL_ID,
+                    "أذان الصلوات المفروضة (صوت كامل)",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("تشغيل الأذان والتنبيه بدخول وقت الصلاة");
+            channel.enableVibration(true);
+            channel.enableLights(true);
+            channel.setLightColor(0xFFD4AF37);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            nm.createNotificationChannel(channel);
+        }
+
+        // نية فتح التطبيق
+        Intent openIntent = new Intent(context, MainActivity.class);
+        openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingOpen = PendingIntent.getActivity(
+                context, 0, openIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        // نية إيقاف الأذان عند النقر على زر الإيقاف أو مسح الإشعار
+        Intent stopIntent = new Intent(context, AdhanAlarmReceiver.class);
+        stopIntent.setAction(ACTION_STOP_ADHAN);
+        PendingIntent pendingStop = PendingIntent.getBroadcast(
+                context, 9991, stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, ADHAN_ALARM_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_stat_icon)
+                .setContentTitle("🕌 حَانَ الآنَ مَوْعِدُ " + prayerName)
+                .setContentText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح")
+                .setContentIntent(pendingOpen)
+                .setDeleteIntent(pendingStop) // عند مسح الإشعار يتم إيقاف الصوت
+                .addAction(R.drawable.ic_stat_icon, "إيقاف الأذان ⏹", pendingStop)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setColor(0xFFD4AF37)
+                .setAutoCancel(true);
+
+        nm.notify(ADHAN_NOTIFICATION_ID, builder.build());
+    }
+
+    private void dismissAdhanNotification(Context context) {
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) {
+            nm.cancel(ADHAN_NOTIFICATION_ID);
         }
     }
 
@@ -129,9 +178,6 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         nm.notify(notifId, builder.build());
     }
 
-    /**
-     * فحص الإشعارات السحابية المرسلة من الأدمن وعرضها حتى والتطبيق مغلق تماماً
-     */
     private void checkCloudBroadcastsInBackground(Context context) {
         new Thread(() -> {
             try {
@@ -164,7 +210,6 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     String body = broadcast.optString("body", "");
                     long timestamp = broadcast.optLong("timestamp", 0);
 
-                    // التأكد من أن الإشعار جديد ولم يمض عليه أكثر من 24 ساعة
                     long now = System.currentTimeMillis();
                     if (timestamp > 0 && (now - timestamp) > 24 * 60 * 60 * 1000L) {
                         return;
@@ -174,7 +219,6 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     String lastSeenKey = prefs.getString("last_seen_broadcast_id", "");
 
                     if (!broadcastKey.equals(lastSeenKey) && !body.isEmpty()) {
-                        // إشعار جديد لم يسبق للمستخدم رؤيته
                         showCloudBroadcastNotification(context, title, body);
                         prefs.edit().putString("last_seen_broadcast_id", broadcastKey).apply();
                         Log.d(TAG, "New cloud broadcast displayed successfully: " + broadcastKey);

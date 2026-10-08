@@ -2819,25 +2819,58 @@ function initQiblaCompass() {
         }
     }
 
+    let currentFilteredHeading = null;
+    let activeSensorEventName = null;
+
+    function calculateAndroidCompassHeading(alpha, beta, gamma) {
+        if (alpha === null || typeof alpha === "undefined") return null;
+
+        // إذا كان الهاتف مسطحاً تقريباً (flat)
+        if (Math.abs(beta || 0) < 15 && Math.abs(gamma || 0) < 15) {
+            return (360 - alpha) % 360;
+        }
+
+        // تعويض الميل الثلاثي الأبعاد لحركة اليد (3D Tilt-Compensated Heading)
+        const rad = Math.PI / 180;
+        const b = (beta || 0) * rad;
+        const g = (gamma || 0) * rad;
+        const a = alpha * rad;
+
+        const sA = Math.sin(a), cA = Math.cos(a);
+        const sB = Math.sin(b), cB = Math.cos(b);
+        const sG = Math.sin(g), cG = Math.cos(g);
+
+        const Vx = -cA * sG - sA * sB * cG;
+        const Vy = -sA * sG + cA * sB * cG;
+
+        let h = Math.atan2(Vx, Vy) * (180 / Math.PI);
+        if (h < 0) h += 360;
+        return (h + 360) % 360;
+    }
+
     function handleOrientation(e) {
-        let heading = null;
+        let rawHeading = null;
 
         // 1. أجهزة iOS Safari (webkitCompassHeading يقيس الزاوية بالنسبة للشمال الحقيقي أو المغناطيسي)
         if (typeof e.webkitCompassHeading !== "undefined" && e.webkitCompassHeading !== null) {
-            heading = e.webkitCompassHeading;
+            rawHeading = e.webkitCompassHeading;
         } 
-        // 2. أجهزة أندرويد (alpha يعتمد على نظام إحداثيات الجهاز)
+        // 2. أجهزة أندرويد عبر حساس الاتجاه المطلق أو alpha مع تعويض الميلان
         else if (e.alpha !== null && typeof e.alpha !== "undefined") {
-            if (e.absolute === true || typeof e.webkitCompassHeading === "undefined") {
-                heading = (360 - e.alpha) % 360;
-            } else {
-                heading = (360 - e.alpha) % 360;
-            }
+            rawHeading = calculateAndroidCompassHeading(e.alpha, e.beta, e.gamma);
         }
 
-        if (heading !== null && dialEl) {
-            // تنعيم الحركة (Smoothing filter)
-            lastHeading = Math.round(heading);
+        if (rawHeading !== null && dialEl) {
+            // فلتر تنعيم الحركة الدائرية لمنع القفزات والارتعاش عند نقطة الصفر
+            if (currentFilteredHeading === null) {
+                currentFilteredHeading = rawHeading;
+            } else {
+                let diff = (rawHeading - currentFilteredHeading + 180) % 360 - 180;
+                if (diff < -180) diff += 360;
+                currentFilteredHeading = (currentFilteredHeading + diff * 0.35 + 360) % 360;
+            }
+
+            lastHeading = Math.round(currentFilteredHeading);
             dialEl.style.transform = `rotate(${-lastHeading}deg)`;
 
             if (sensorText) {
@@ -2850,7 +2883,7 @@ function initQiblaCompass() {
                 } else {
                     dialEl.style.borderColor = "var(--gold-500)";
                     dialEl.style.boxShadow = "0 0 35px rgba(212, 175, 55, 0.2), inset 0 0 25px rgba(0, 0, 0, 0.8)";
-                    sensorText.innerHTML = '<span>وجّه أعلى الهاتف نحو علامة الكعبة الذهبية 🧭</span>';
+                    sensorText.innerHTML = '<span>وجّه أعلى الهاتف نحو علامة الكعبة الذهبية 🧭 <br><small style="opacity:0.8; font-size:0.75rem;">(لأفضل دقة على أندرويد: حرك الهاتف أفقياً على شكل رقم 8 لمعايرة الحساس ♾️)</small></span>';
                 }
             }
         }
@@ -2865,6 +2898,7 @@ function initQiblaCompass() {
                         if (!orientationActive) {
                             window.addEventListener("deviceorientation", handleOrientation, true);
                             orientationActive = true;
+                            activeSensorEventName = "deviceorientation";
                         }
                         if (sensorText) sensorText.textContent = "حساس الحركة والبوصلة يعمل بنجاح 🧭";
                     } else {
@@ -2875,26 +2909,35 @@ function initQiblaCompass() {
                     if (!orientationActive) {
                         window.addEventListener("deviceorientation", handleOrientation, true);
                         orientationActive = true;
+                        activeSensorEventName = "deviceorientation";
                     }
                 });
-        } else if (window.DeviceOrientationEvent) {
-            // أندرويد ومتصفحات الكروم
+        } else if ("ondeviceorientationabsolute" in window) {
+            // أندرويد كروم وWebView - استخدام الحساس المطلق الدقيق فقط بدون تكرار
             if (!orientationActive) {
                 window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+                orientationActive = true;
+                activeSensorEventName = "deviceorientationabsolute";
+            }
+            if (sensorText) sensorText.innerHTML = "حساس الاتجاه يعمل بنجاح • حرك الهاتف لضبط البوصلة 🧭";
+        } else if (window.DeviceOrientationEvent) {
+            // بديل للمتصفحات التي لا تدعم absolute
+            if (!orientationActive) {
                 window.addEventListener("deviceorientation", handleOrientation, true);
                 orientationActive = true;
+                activeSensorEventName = "deviceorientation";
             }
-            if (sensorText) sensorText.textContent = "حساس الاتجاه يعمل بنجاح • حرك الهاتف لضبط البوصلة 🧭";
+            if (sensorText) sensorText.innerHTML = "حساس الاتجاه يعمل بنجاح • حرك الهاتف لضبط البوصلة 🧭";
         } else {
             if (sensorText) sensorText.textContent = "جهازك لا يدعم حساس البوصلة. اعتمد على زاوية الكعبة الموضحة.";
         }
     }
 
     function removeSensor() {
-        if (orientationActive) {
-            window.removeEventListener("deviceorientationabsolute", handleOrientation, true);
-            window.removeEventListener("deviceorientation", handleOrientation, true);
+        if (orientationActive && activeSensorEventName) {
+            window.removeEventListener(activeSensorEventName, handleOrientation, true);
             orientationActive = false;
+            activeSensorEventName = null;
         }
     }
 
