@@ -26,7 +26,23 @@ window.getPublicAppUrl = function(pathAndQuery = "") {
     } catch(e) {}
 })();
 
+// قياس وتحديث ارتفاع الهيدر الفعلي لدعم الحواف الآمنة والجزيرة التفاعلية (Dynamic Island & Safe Area)
+function updateNavbarActualHeight() {
+    try {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            const h = navbar.getBoundingClientRect().height || navbar.offsetHeight;
+            if (h > 0) {
+                document.documentElement.style.setProperty('--navbar-actual-height', `${Math.round(h)}px`);
+            }
+        }
+    } catch(e) {}
+}
+window.addEventListener('resize', updateNavbarActualHeight);
+window.addEventListener('orientationchange', () => setTimeout(updateNavbarActualHeight, 250));
+
 document.addEventListener("DOMContentLoaded", () => {
+    updateNavbarActualHeight();
     // 1. تهيئة اسم الجد والمعلومات الرئيسية والتقويم الهجري
     initDeceasedInfo();
     initHijriDate();

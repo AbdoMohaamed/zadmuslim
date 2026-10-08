@@ -1098,7 +1098,7 @@ function playNotificationChime() {
 }
 
 /**
- * بنر إشعار تفاعلي منبثق أعلى الموقع يظهر فوراً لجميع المستخدمين
+ * بنر إشعار تفاعلي منبثق يظهر مباشرة أسفل شريط التنقل (Header) لحماية الجزيرة التفاعلية والبار العلوي
  */
 function showInAppPushBanner(data) {
     let banner = document.getElementById("zad-cloud-push-banner");
@@ -1108,6 +1108,18 @@ function showInAppPushBanner(data) {
         banner.className = "zad-cloud-push-banner";
         document.body.appendChild(banner);
     }
+
+    // قياس وتحديث ارتفاع الهيدر الفعلي لوضع الإشعار تحته بدقة تامة
+    try {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            const navRect = navbar.getBoundingClientRect();
+            const navH = navRect.height || navbar.offsetHeight;
+            if (navH > 0) {
+                document.documentElement.style.setProperty('--navbar-actual-height', `${Math.round(navH)}px`);
+            }
+        }
+    } catch (e) {}
 
     const title = data.title || "زاد المسلم • تذكير بالطاعة 🌿";
     const body = data.body || "";
@@ -1133,13 +1145,14 @@ function showInAppPushBanner(data) {
         </div>
     `;
 
-    // إظهار البنر مع الأنيميشن
+    // إظهار البنر مع الأنيميشن أسفل الهيدر
     setTimeout(() => {
         banner.classList.add("show");
     }, 50);
 
-    // إخفاء تلقائي بعد 10 ثوانٍ
-    setTimeout(() => {
+    // إلغاء أي مؤقت إخفاء سابق وإخفاء تلقائي بعد 10 ثوانٍ
+    if (window._zadPushBannerTimeout) clearTimeout(window._zadPushBannerTimeout);
+    window._zadPushBannerTimeout = setTimeout(() => {
         if (banner) banner.classList.remove("show");
     }, 10000);
 }
