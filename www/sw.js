@@ -231,6 +231,21 @@ function armBackgroundPrayerAlarms() {
     const targetTime = Number(prayer.timestamp);
     const delay = targetTime - now;
 
+    // 1. تنبيه اقتراب موعد الصلاة قبل 5 دقائق
+    const preAlertDelay = delay - (5 * 60 * 1000);
+    if (preAlertDelay > 0 && preAlertDelay <= 86400000) {
+      const preTimer = setTimeout(() => {
+        showDeviceNotification(
+          `⏳ اقتربت ${prayer.name}`,
+          `بقي 5 دقائق على دخول وقت ${prayer.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
+          `./#prayer-times`,
+          `pre_prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`
+        );
+      }, preAlertDelay);
+      activeAlarmTimers.push(preTimer);
+    }
+
+    // 2. إشعار دخول وقت الصلاة وسماع الأذان
     if (delay > 0 && delay <= 86400000) {
       const timer = setTimeout(() => {
         showPrayerNotification(prayer);

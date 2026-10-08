@@ -1872,16 +1872,38 @@ function startPrayerCountdown() {
             { name: "صلاة العشاء", key: "isha", time: prayerTimings.Isha }
         ];
 
-        // 1. فحص الصلوات: هل دخل وقت أي صلاة من صلوات اليوم خلال آخر 20 دقيقة ولم يؤذن لها بعد؟
+        // 1. فحص الصلوات: تنبيه قبل الأذان بـ 5 دقائق + إشعار الأذان عند دخول الوقت
         for (const p of prayersList) {
             if (p.key === "sunrise") continue;
             const [ph, pm] = p.time.split(" ")[0].split(":").map(Number);
             const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ph, pm, 0);
+            const diffMs = pDate.getTime() - now.getTime();
             const elapsedMs = now.getTime() - pDate.getTime();
+            const dateStr = `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}`;
 
-            // إذا دخل وقت الصلاة (بين ثانية قبلها وحتى 20 دقيقة بعدها)
+            // أ) تنبيه اقتراب موعد الصلاة قبل 5 دقائق (بين 5 دقائق و 4 دقائق قبل الوقت)
+            if (diffMs > 0 && diffMs <= 5 * 60 * 1000) {
+                const preKey = `pre_${p.key}_${dateStr}`;
+                if (!window._prePrayerAlertTriggered) window._prePrayerAlertTriggered = {};
+                if (!window._prePrayerAlertTriggered[preKey] && localStorage.getItem(preKey) !== "1") {
+                    window._prePrayerAlertTriggered[preKey] = true;
+                    localStorage.setItem(preKey, "1");
+                    showToast(`⏳ اقتربت ${p.name} • بقي 5 دقائق على دخول الوقت`);
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        try {
+                            new Notification(`⏳ اقتربت ${p.name}`, {
+                                body: `بقي 5 دقائق على دخول وقت ${p.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
+                                icon: "assets/icon-192.png",
+                                tag: `pre_${p.key}_${dateStr}`
+                            });
+                        } catch(e) {}
+                    }
+                }
+            }
+
+            // ب) إذا دخل وقت الصلاة (بين ثانية قبلها وحتى 20 دقيقة بعدها)
             if (elapsedMs >= -1500 && elapsedMs <= 20 * 60 * 1000) {
-                const todayPrayerKey = `${p.key}_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}`;
+                const todayPrayerKey = `${p.key}_${dateStr}`;
                 const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
                 if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {
                     window._lastAdhanTriggeredKey = todayPrayerKey;

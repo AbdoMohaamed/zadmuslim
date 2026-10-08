@@ -2505,11 +2505,22 @@
 
                 <div class="toggle-switch-row">
                     <div class="toggle-switch-info">
-                        <span class="toggle-switch-title">🕋 تنبيه مواقيت الصلاة والأذان</span>
-                        <span class="toggle-switch-desc">صوت الأذان والتنبيه مع دخول وقت كل صلاة</span>
+                        <span class="toggle-switch-title">⏳ اقتربت الصلاة (قبل 5 دقائق)</span>
+                        <span class="toggle-switch-desc">تنبيه بالاستعداد للوضوء والتهيؤ للصلاة قبل الأذان بـ 5 دقائق</span>
                     </div>
                     <label class="custom-switch">
-                        <input type="checkbox" id="notify-adhan-calls">
+                        <input type="checkbox" id="notify-pre-prayer" checked>
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-switch-row">
+                    <div class="toggle-switch-info">
+                        <span class="toggle-switch-title">🕋 تنبيه مواقيت الصلاة والأذان</span>
+                        <span class="toggle-switch-desc">صوت الأذان والتنبيه مع دخول وقت كل صلاة حتى والتطبيق مغلق</span>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-adhan-calls" checked>
                         <span class="slider-round"></span>
                     </label>
                 </div>

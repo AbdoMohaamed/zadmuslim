@@ -792,20 +792,30 @@ function initSmartNotifications() {
     const chkEvening = document.getElementById("notify-evening-azkar");
     const chkFriday = document.getElementById("notify-friday-kahf");
     const chkFasting = document.getElementById("notify-fasting-days");
+    const chkPrePrayer = document.getElementById("notify-pre-prayer");
     const chkAdhan = document.getElementById("notify-adhan-calls");
 
-    const allCheckboxes = [chkMorning, chkEvening, chkFriday, chkFasting, chkAdhan].filter(Boolean);
+    const allCheckboxes = [chkMorning, chkEvening, chkFriday, chkFasting, chkPrePrayer, chkAdhan].filter(Boolean);
 
-    // استعادة الإعدادات المحفوظة، وإذا لم تكن محفوظة تكون معطلة افتراضياً (OFF)
+    // استعادة الإعدادات المحفوظة مع تفعيل الأذان والتنبيه المسبق افتراضياً
     try {
-        const savedSettings = JSON.parse(localStorage.getItem("smart_notify_settings") || "{}");
-        if (chkMorning) chkMorning.checked = savedSettings.morning === true;
-        if (chkEvening) chkEvening.checked = savedSettings.evening === true;
-        if (chkFriday) chkFriday.checked = savedSettings.friday === true;
-        if (chkFasting) chkFasting.checked = savedSettings.fasting === true;
-        if (chkAdhan) chkAdhan.checked = savedSettings.adhan === true;
+        const rawSettings = localStorage.getItem("smart_notify_settings");
+        const savedSettings = rawSettings ? JSON.parse(rawSettings) : null;
+        if (savedSettings) {
+            if (chkMorning) chkMorning.checked = savedSettings.morning === true;
+            if (chkEvening) chkEvening.checked = savedSettings.evening === true;
+            if (chkFriday) chkFriday.checked = savedSettings.friday === true;
+            if (chkFasting) chkFasting.checked = savedSettings.fasting === true;
+            if (chkPrePrayer) chkPrePrayer.checked = savedSettings.prePrayer !== false;
+            if (chkAdhan) chkAdhan.checked = savedSettings.adhan !== false;
+        } else {
+            // الإعداد الافتراضي الذكي: الأذان والتنبيه المسبق مفعلان تلقائياً
+            if (chkPrePrayer) chkPrePrayer.checked = true;
+            if (chkAdhan) chkAdhan.checked = true;
+        }
     } catch(e) {
-        allCheckboxes.forEach(chk => { if (chk) chk.checked = false; });
+        if (chkPrePrayer) chkPrePrayer.checked = true;
+        if (chkAdhan) chkAdhan.checked = true;
     }
 
     // زر تحديد الكل
@@ -852,10 +862,16 @@ function initSmartNotifications() {
                 evening: chkEvening ? chkEvening.checked : false,
                 friday: chkFriday ? chkFriday.checked : false,
                 fasting: chkFasting ? chkFasting.checked : false,
-                adhan: chkAdhan ? chkAdhan.checked : false
+                prePrayer: chkPrePrayer ? chkPrePrayer.checked : true,
+                adhan: chkAdhan ? chkAdhan.checked : true
             };
             localStorage.setItem("smart_notify_settings", JSON.stringify(settings));
             localStorage.setItem("smart_notify_configured", "true");
+
+            // مزامنة مواقيت الأذان والمنبهات مع نظام التشغيل فوراً
+            if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function" && window.prayerTimings) {
+                window.NativeAdhanService.schedulePrayers(window.prayerTimings);
+            }
 
             const hasAnyActive = Object.values(settings).some(v => v === true);
 
