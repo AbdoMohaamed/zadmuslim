@@ -2911,11 +2911,14 @@ function initIslamicMediaHub() {
                     </div>
                     <div class="media-card-content">
                         <div>
-                            <span class="media-speaker-tag">
-                                <span class="speaker-avatar-icon"><i class="${catInfo.icon}"></i></span>
-                                <span>${item.speaker}</span>
-                                <i class="fa-solid fa-circle-check text-gold" style="font-size: 0.72rem;" title="موثوق"></i>
-                            </span>
+                            <div class="media-header-meta">
+                                <span class="media-speaker-tag">
+                                    <span class="speaker-avatar-icon"><i class="${catInfo.icon}"></i></span>
+                                    <span>${item.speaker}</span>
+                                    <i class="fa-solid fa-circle-check text-gold" style="font-size: 0.72rem;" title="موثوق"></i>
+                                </span>
+                                ${item.views ? `<span class="media-views-pill"><i class="fa-solid fa-fire text-gold"></i> ${item.views}</span>` : ''}
+                            </div>
                             <h3 class="media-card-title" data-action="play">${item.title}</h3>
                         </div>
                         <p class="media-card-desc">${item.desc}</p>
