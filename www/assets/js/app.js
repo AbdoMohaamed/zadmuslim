@@ -13,6 +13,19 @@ window.getPublicAppUrl = function(pathAndQuery = "") {
     return base.replace(/\/+$/, "") + "/" + pathAndQuery.replace(/^\/+/, "");
 };
 
+// كشف أجهزة iOS و Capacitor لتأمين الحواف الآمنة للجزيرة التفاعلية (Dynamic Island & Notch)
+(function initSafeAreaDetection() {
+    try {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (isIOS) {
+            document.documentElement.classList.add('ios-device');
+        }
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            document.documentElement.classList.add('capacitor-native-app');
+        }
+    } catch(e) {}
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
     // 1. تهيئة اسم الجد والمعلومات الرئيسية والتقويم الهجري
     initDeceasedInfo();
