@@ -1630,7 +1630,11 @@
                 // Call Serverless Web Push API to wake up and notify all closed devices
                 let pushInfo = "";
                 try {
-                    const pushRes = await fetch("/api/send-push", {
+                    const pushApiUrl = (location.hostname === "localhost" || location.hostname === "127.0.0.1") 
+                        ? "/api/send-push" 
+                        : "https://zadmuslim-zeta.vercel.app/api/send-push";
+
+                    const pushRes = await fetch(pushApiUrl, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
