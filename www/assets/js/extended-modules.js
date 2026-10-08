@@ -956,7 +956,8 @@ async function registerPushSubscriberInFirebase() {
                 const reg = await navigator.serviceWorker.ready;
                 let subscription = await reg.pushManager.getSubscription();
 
-                if (!subscription && typeof ZAD_VAPID_PUBLIC_KEY !== "undefined" && ZAD_VAPID_PUBLIC_KEY) {
+                // إذا كان المستخدم وافق على الإشعارات ولم يكن مسجلاً في السيرفر بعد
+                if (!subscription && typeof Notification !== "undefined" && Notification.permission === "granted" && typeof ZAD_VAPID_PUBLIC_KEY !== "undefined" && ZAD_VAPID_PUBLIC_KEY) {
                     const convertedVapidKey = urlBase64ToUint8Array(ZAD_VAPID_PUBLIC_KEY);
                     subscription = await reg.pushManager.subscribe({
                         userVisibleOnly: true,

@@ -37,7 +37,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
     public static final int ADHAN_NOTIFICATION_ID = 99992;
 
-    private static final String FIREBASE_BROADCASTS_URL = "https://sadqah-jaddi-default-rtdb.firebaseio.com/push_broadcasts.json?orderBy=\"$key\"&limitToLast=1";
+    private static final String FIREBASE_BROADCASTS_URL = "https://sadqah-jaddi-default-rtdb.firebaseio.com/push_broadcasts.json?orderBy=%22%24key%22&limitToLast=1";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -203,7 +203,12 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     Iterator<String> keys = root.keys();
                     if (!keys.hasNext()) return;
 
-                    String broadcastKey = keys.next();
+                    String broadcastKey = "";
+                    while (keys.hasNext()) {
+                        broadcastKey = keys.next();
+                    }
+                    if (broadcastKey.isEmpty()) return;
+
                     JSONObject broadcast = root.getJSONObject(broadcastKey);
 
                     String title = broadcast.optString("title", "زاد المسلم 🌿");
