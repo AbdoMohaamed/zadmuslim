@@ -199,6 +199,20 @@ const NativeAdhanService = {
                 }
             }
 
+            // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي في الخلفية والمغلق والتحكم عبر زر القفل
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+                try {
+                    const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
+                        timings: prayersTimings,
+                        muazzin: selectedMuazzin,
+                        preAlert: true
+                    });
+                    console.log("✅ Native Adhan Android Service: Exact alarms scheduled successfully:", nativeRes);
+                } catch(nativeErr) {
+                    console.warn("Native Adhan Android plugin call failed, falling back to LocalNotifications:", nativeErr);
+                }
+            }
+
             if (notificationsToSchedule.length > 0) {
                 // إلغاء الجدولة القديمة أولاً لعدم تكرار التنبيهات
                 try {
@@ -208,12 +222,30 @@ const NativeAdhanService = {
                     }
                 } catch(cancelErr) {}
 
-                // جدولة الإشعارات الكاملة في نظام التشغيل
+                // جدولة الإشعارات الكاملة في نظام التشغيل (يدعم نظام iOS وأندرويد)
                 await LocalNotifications.schedule({ notifications: notificationsToSchedule });
                 console.log(`✅ Native Adhan Service: Scheduled ${notificationsToSchedule.length} upcoming prayer alarms & pre-alerts directly into OS.`);
             }
         } catch (e) {
             console.warn("Failed to schedule native prayer alarms:", e);
+        }
+    },
+
+    /**
+     * إيقاف الأذان الجاري تشغيله في الخلفية فوراً
+     */
+    async stopAdhan() {
+        try {
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+                await window.Capacitor.Plugins.AdhanNative.stopAdhan();
+            }
+            const audioEl = document.getElementById("audio-adhan");
+            if (audioEl) {
+                audioEl.pause();
+                audioEl.currentTime = 0;
+            }
+        } catch(e) {
+            console.warn("Error stopping native adhan:", e);
         }
     }
 };
