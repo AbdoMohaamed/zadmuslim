@@ -84,15 +84,23 @@ const NativeAdhanService = {
             const LocalNotifications = window.Capacitor.Plugins.LocalNotifications;
             if (!LocalNotifications) return;
 
-            // عند النقر على إشعار الأذان من شاشة القفل أو الستارة
+            // عند النقر على إشعار الأذان من شاشة القفل أو الستارة في نظام iOS و Android
             LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
-                console.log("Native Notification clicked:", action);
+                console.log("🕌 Native Notification Action performed:", action);
                 const notif = action.notification;
                 if (notif && notif.extra && notif.extra.prayerKey) {
+                    const pKey = notif.extra.prayerKey;
+                    const pName = notif.extra.prayerName || "الصلاة";
+                    const muazzin = notif.extra.muazzin;
                     if (typeof playAdhanAudio === "function") {
-                        playAdhanAudio(notif.extra.prayerKey);
+                        playAdhanAudio(pKey, muazzin, pName);
                     }
                 }
+            });
+
+            // الاستماع أيضاً لاستلام الإشعار عند فتح التطبيق
+            LocalNotifications.addListener("localNotificationReceived", (notif) => {
+                console.log("🕌 Native Notification received:", notif);
             });
         } catch (e) {
             console.warn("Error setting up native notification listeners:", e);
