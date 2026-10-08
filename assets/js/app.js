@@ -55,8 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
     initAudioPlayer();
     initLiveRadio();
 
-    // 9. تهيئة تطبيق الهاتف التقدمي (PWA)
+    // 9. تهيئة تطبيق الهاتف التقدمي (PWA) وزر الرجوع الذكي للأندرويد
     initPWA();
+    initAndroidBackButton();
 
     // 10. تهيئة مواقيت الصلاة وساعة الاستجابة ومواسم الصيام وبوصلة القبلة وتحديد الموقع GPS وصوت الأذان
     initPrayerTimes();
@@ -3994,6 +3995,79 @@ function playTasbeehClickTone() {
         osc.start();
         osc.stop(ctx.currentTime + 0.3);
     } catch(e) {}
+}
+
+/* ==========================================================================
+   التعامل الذكي مع زر الرجوع لنظام الأندرويد (Android Hardware Back Button)
+   ========================================================================== */
+function initAndroidBackButton() {
+    function handleBackNavigation() {
+        // 1. هل هناك مشغل مرئيات أو فيديو مفتوح؟
+        const mediaModal = document.getElementById("media-player-modal");
+        if (mediaModal && (mediaModal.classList.contains("open") || mediaModal.classList.contains("active"))) {
+            const closeBtn = document.getElementById("btn-close-media-modal");
+            if (closeBtn) closeBtn.click();
+            else {
+                mediaModal.classList.remove("open", "active");
+                const iframe = document.getElementById("media-player-iframe");
+                if (iframe) iframe.src = "";
+            }
+            return true;
+        }
+
+        // 2. هل القائمة الجانبية للهاتف مفتوحة؟
+        const drawer = document.getElementById("mobile-nav-drawer");
+        if (drawer && (drawer.classList.contains("open") || drawer.classList.contains("active"))) {
+            const closeNavBtn = document.getElementById("btn-close-mobile-nav");
+            if (closeNavBtn) closeNavBtn.click();
+            else drawer.classList.remove("open", "active");
+            return true;
+        }
+
+        // 3. هل هناك أي نافذة منبثقة (Modal) مفتوحة؟
+        const openModals = document.querySelectorAll(".modal-overlay.open, .modal-overlay.active");
+        if (openModals.length > 0) {
+            openModals.forEach(m => {
+                const closeBtn = m.querySelector(".modal-close-btn");
+                if (closeBtn) closeBtn.click();
+                else m.classList.remove("open", "active");
+            });
+            return true;
+        }
+
+        // 4. هل المصحف في وضع الشاشة الكاملة؟
+        const mushafCard = document.querySelector(".real-mushaf-card.mushaf-fullscreen-mode");
+        if (mushafCard) {
+            const exitFullscreenBtn = document.getElementById("btn-exit-mushaf-fullscreen");
+            if (exitFullscreenBtn) exitFullscreenBtn.click();
+            else mushafCard.classList.remove("mushaf-fullscreen-mode");
+            return true;
+        }
+
+        return false;
+    }
+
+    // دعم تطبيق Capacitor على أجهزة الأندرويد
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+        window.Capacitor.Plugins.App.addListener('backButton', () => {
+            const handled = handleBackNavigation();
+            if (!handled) {
+                if (!window._lastBackPressTime || Date.now() - window._lastBackPressTime > 2000) {
+                    window._lastBackPressTime = Date.now();
+                    if (typeof showToast === "function") {
+                        showToast("اضغط مرة أخرى للخروج من التطبيق 🚪");
+                    }
+                } else {
+                    window.Capacitor.Plugins.App.exitApp();
+                }
+            }
+        });
+    }
+
+    // دعم إيماءة الرجوع في المتصفحات والشاشات التفاعلية
+    window.addEventListener("popstate", () => {
+        handleBackNavigation();
+    });
 }
 
 
