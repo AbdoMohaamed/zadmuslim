@@ -3826,17 +3826,36 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-color);
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 0.9rem;
   border-radius: var(--radius-md);
   margin-bottom: 1.25rem;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.qibla-city-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  text-align: right;
+}
+
+.btn-qibla-gps {
+  padding: 0.35rem 0.75rem !important;
+  font-size: 0.8rem !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-sm);
 }
 
 .qibla-angle-badge {
   color: var(--gold-300);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .compass-container {

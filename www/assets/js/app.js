@@ -2752,9 +2752,13 @@ function initQiblaCompass() {
     const dialEl = document.getElementById("compass-dial");
     const calibrateBtn = document.getElementById("btn-calibrate-compass");
     const sensorText = document.getElementById("compass-sensor-text");
+    const qiblaGpsBtn = document.getElementById("btn-qibla-gps");
 
     let currentQiblaAngle = 136; // افتراضي للقاهرة
+    let lastHeading = 0;
+    let orientationActive = false;
 
+    // حساب زاوية القبلة الكروية الدقيقة الكبرى (Great-Circle Bearing) نحو الكعبة المشرفة
     function calculateBearing(lat, lng) {
         const kaabaLat = 21.4225 * Math.PI / 180;
         const kaabaLng = 39.8262 * Math.PI / 180;
@@ -2786,7 +2790,7 @@ function initQiblaCompass() {
         if (!coords) {
             coords = (typeof QIBLA_CITIES_COORDS !== "undefined" && QIBLA_CITIES_COORDS[cityKey])
                 ? QIBLA_CITIES_COORDS[cityKey]
-                : { name: "القاهرة", lat: 30.0444, lng: 31.2357 };
+                : { name: "القاهرة (مصر)", lat: 30.0444, lng: 31.2357 };
         }
 
         currentQiblaAngle = calculateBearing(coords.lat, coords.lng);
@@ -2802,24 +2806,35 @@ function initQiblaCompass() {
     function handleOrientation(e) {
         let heading = null;
 
-        // أجهزة iOS Safari
-        if (typeof e.webkitCompassHeading !== "undefined") {
+        // 1. أجهزة iOS Safari (webkitCompassHeading يقيس الزاوية بالنسبة للشمال الحقيقي أو المغناطيسي)
+        if (typeof e.webkitCompassHeading !== "undefined" && e.webkitCompassHeading !== null) {
             heading = e.webkitCompassHeading;
         } 
-        // أجهزة أندرويد
-        else if (e.alpha !== null) {
-            heading = 360 - e.alpha;
+        // 2. أجهزة أندرويد (alpha يعتمد على نظام إحداثيات الجهاز)
+        else if (e.alpha !== null && typeof e.alpha !== "undefined") {
+            if (e.absolute === true || typeof e.webkitCompassHeading === "undefined") {
+                heading = (360 - e.alpha) % 360;
+            } else {
+                heading = (360 - e.alpha) % 360;
+            }
         }
 
         if (heading !== null && dialEl) {
-            dialEl.style.transform = `rotate(${-heading}deg)`;
+            // تنعيم الحركة (Smoothing filter)
+            lastHeading = Math.round(heading);
+            dialEl.style.transform = `rotate(${-lastHeading}deg)`;
+
             if (sensorText) {
-                const diffToQibla = Math.abs((heading - currentQiblaAngle + 360) % 360);
-                if (diffToQibla < 6 || diffToQibla > 354) {
-                    sensorText.innerHTML = '<span style="color: #34d399; font-weight: 700;">✦ أنت باتجاه القبلة الشريفة الآن تماماً ✦</span>';
+                const diffToQibla = Math.abs((lastHeading - currentQiblaAngle + 360) % 360);
+                if (diffToQibla <= 6 || diffToQibla >= 354) {
+                    sensorText.innerHTML = '<span style="color: #34d399; font-weight: 800; text-shadow: 0 0 10px rgba(52, 211, 153, 0.5);">✦ أنت باتجاه القبلة الشريفة الآن تماماً 🕋 ✦</span>';
+                    dialEl.style.borderColor = "#34d399";
+                    dialEl.style.boxShadow = "0 0 45px rgba(52, 211, 153, 0.4)";
                     if ("vibrate" in navigator) navigator.vibrate(40);
                 } else {
-                    sensorText.textContent = "وجّه أعلى الهاتف نحو علامة الكعبة الذهبية";
+                    dialEl.style.borderColor = "var(--gold-500)";
+                    dialEl.style.boxShadow = "0 0 35px rgba(212, 175, 55, 0.2), inset 0 0 25px rgba(0, 0, 0, 0.8)";
+                    sensorText.innerHTML = '<span>وجّه أعلى الهاتف نحو علامة الكعبة الذهبية 🧭</span>';
                 }
             }
         }
@@ -2827,20 +2842,43 @@ function initQiblaCompass() {
 
     function setupSensor() {
         if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+            // نظام iOS 13+ يتطلب إذن صريح من المستخدم
             DeviceOrientationEvent.requestPermission()
                 .then(response => {
                     if (response === "granted") {
-                        window.addEventListener("deviceorientation", handleOrientation, true);
-                        if (sensorText) sensorText.textContent = "حساس الحركة يعمل بنجاح 🧭";
+                        if (!orientationActive) {
+                            window.addEventListener("deviceorientation", handleOrientation, true);
+                            orientationActive = true;
+                        }
+                        if (sensorText) sensorText.textContent = "حساس الحركة والبوصلة يعمل بنجاح 🧭";
                     } else {
-                        if (sensorText) sensorText.textContent = "تم رفض إذن الحساس. استعن بالزاوية المعروضة.";
+                        if (sensorText) sensorText.textContent = "يرجى السماح بالحساس لتوجيه البوصلة تلقائياً.";
                     }
                 })
                 .catch(() => {
-                    window.addEventListener("deviceorientation", handleOrientation, true);
+                    if (!orientationActive) {
+                        window.addEventListener("deviceorientation", handleOrientation, true);
+                        orientationActive = true;
+                    }
                 });
         } else if (window.DeviceOrientationEvent) {
-            window.addEventListener("deviceorientation", handleOrientation, true);
+            // أندرويد ومتصفحات الكروم
+            if (!orientationActive) {
+                window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+                window.addEventListener("deviceorientation", handleOrientation, true);
+                orientationActive = true;
+            }
+            if (sensorText) sensorText.textContent = "حساس الاتجاه يعمل بنجاح • حرك الهاتف لضبط البوصلة 🧭";
+        } else {
+            if (sensorText) sensorText.textContent = "جهازك لا يدعم حساس البوصلة. اعتمد على زاوية الكعبة الموضحة.";
+        }
+    }
+
+    function removeSensor() {
+        if (orientationActive) {
+            window.removeEventListener("deviceorientationabsolute", handleOrientation, true);
+            window.removeEventListener("deviceorientation", handleOrientation, true);
+            orientationActive = false;
         }
     }
 
@@ -2855,7 +2893,7 @@ function initQiblaCompass() {
     if (closeBtn && modal) {
         closeBtn.addEventListener("click", () => {
             modal.classList.remove("open");
-            window.removeEventListener("deviceorientation", handleOrientation);
+            removeSensor();
         });
     }
 
@@ -2863,15 +2901,47 @@ function initQiblaCompass() {
         modal.addEventListener("click", (e) => {
             if (e.target === modal) {
                 modal.classList.remove("open");
-                window.removeEventListener("deviceorientation", handleOrientation);
+                removeSensor();
             }
         });
     }
 
     if (calibrateBtn) {
         calibrateBtn.addEventListener("click", () => {
+            removeSensor();
             setupSensor();
-            showToast("تم إعادة تفعيل حساس اتجاه القبلة 🧭");
+            showToast("تم إعادة ضبط ومعايرة بوصلة القبلة بنجاح 🧭✨");
+        });
+    }
+
+    // زر التحديد المباشر لموقع الـ GPS من داخل نافذة القبلة
+    if (qiblaGpsBtn) {
+        qiblaGpsBtn.addEventListener("click", () => {
+            if (typeof window.requestGPSPosition === "function") {
+                showToast("جاري تحديد موقعك الجغرافي لحساب زاوية القبلة الدقيقة... 📍");
+                window.requestGPSPosition(false);
+                setTimeout(() => {
+                    refreshQiblaData();
+                }, 1800);
+            } else if (navigator.geolocation) {
+                showToast("جاري تحديد إحداثياتك عبر GPS... 📍");
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const coords = {
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude
+                        };
+                        localStorage.setItem("gps_prayer_coords", JSON.stringify(coords));
+                        localStorage.setItem("selected_prayer_city", "gps");
+                        refreshQiblaData();
+                        showToast("تم تحديد اتجاه القبلة بدقة متناهية وفق موقعك الحالي 🕋✨");
+                    },
+                    (err) => {
+                        showToast("تعذر الوصول للموقع. يرجى تفعيل الـ GPS من إعدادات الهاتف.");
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            }
         });
     }
 }
