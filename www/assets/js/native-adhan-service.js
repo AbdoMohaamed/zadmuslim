@@ -90,7 +90,7 @@ const NativeAdhanService = {
             LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
                 console.log("🕌 Native Notification Action performed:", action);
                 const notif = action.notification;
-                if (notif && notif.extra && notif.extra.prayerKey) {
+                if (notif && notif.extra && notif.extra.type === "adhan_call" && notif.extra.prayerKey) {
                     const pKey = notif.extra.prayerKey;
                     const pName = notif.extra.prayerName || "الصلاة";
                     const muazzin = notif.extra.muazzin;

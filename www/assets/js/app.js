@@ -1917,8 +1917,8 @@ function startPrayerCountdown() {
                 }
             }
 
-            // ب) إذا دخل وقت الصلاة في اللحظة الراهنة (بين ثانية قبلها وحتى دقيقة ونصف بعدها فقط)
-            if (elapsedMs >= -1500 && elapsedMs <= 90 * 1000) {
+            // ب) إذا دخل وقت الصلاة في اللحظة الراهنة بالضبط (أثناء متابعة العداد التنازلي)
+            if (elapsedMs >= -1000 && elapsedMs <= 15 * 1000) {
                 const todayPrayerKey = `${p.key}_${dateStr}`;
                 const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
                 if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {
@@ -3614,13 +3614,15 @@ function initAdhanNotifications() {
 
 function initAdhanAudioUnlock() {
     const unlock = () => {
-        const audioEl = document.getElementById("audio-adhan");
-        if (audioEl) {
-            audioEl.play().then(() => {
-                audioEl.pause();
-                audioEl.currentTime = 0;
-            }).catch(() => {});
-        }
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                const ctx = new AudioCtx();
+                if (ctx.state === "suspended") {
+                    ctx.resume();
+                }
+            }
+        } catch(e) {}
         document.removeEventListener("touchstart", unlock);
         document.removeEventListener("click", unlock);
     };
@@ -3742,15 +3744,6 @@ function showAdhanAutoplayBanner(prayerName, prayerKey, muazzin) {
     };
 
     banner.onclick = triggerPlayNow;
-
-    // تشغيل فوري بمجرد أن يلمس المستخدم الشاشة في أي مكان (Global Touch to Play)
-    const onTouchAnywhere = () => {
-        triggerPlayNow();
-        document.removeEventListener("touchstart", onTouchAnywhere);
-        document.removeEventListener("click", onTouchAnywhere);
-    };
-    document.addEventListener("touchstart", onTouchAnywhere, { once: true });
-    document.addEventListener("click", onTouchAnywhere, { once: true });
 }
 
 function hideAdhanAutoplayBanner() {
@@ -3774,13 +3767,19 @@ function checkUrlForAdhanAutoPlay() {
         const prayerKey = urlParams.get("prayer") || "";
         const muazzinKey = urlParams.get("muazzin") || getSelectedMuazzinId();
 
-        // تنظيف عنوان الـ URL لمنع تكرار التشغيل عند التحديث
+        // تنظيف عنوان الـ URL لمنع تكرار التشغيل عند التحديث أو استعادة الجلسة
         try {
             const cleanHash = currentHash.split("?")[0] || "#prayer-times";
             window.history.replaceState(null, "", window.location.pathname + cleanHash);
         } catch(e) {}
 
-        // تشغيل صوت الأذان فوراً
+        // التحقق من أن النقر على الإشعار حدث الآن (خلال آخر 60 ثانية) وليس رابطاً قديماً مستعاداً
+        const notifTimestamp = parseInt(urlParams.get("t") || "0", 10);
+        if (notifTimestamp > 0 && (Date.now() - notifTimestamp) > 60 * 1000) {
+            return;
+        }
+
+        // تشغيل صوت الأذان
         setTimeout(() => {
             playAdhanAudio(prayerKey, muazzinKey, "الصلاة");
             showToast("🕌 الله أكبر، الله أكبر.. بدأ تشغيل نداء الأذان المبارك");
