@@ -119,4 +119,47 @@ public class AdhanPlayer {
         int res = context.getResources().getIdentifier(name, "raw", context.getPackageName());
         return res != 0 ? res : R.raw.adhan_makkah;
     }
+
+    public static synchronized void playPrePrayerVoice(Context context, String prayerKey) {
+        stop();
+        appContext = context.getApplicationContext();
+
+        try {
+            PowerManager pm = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
+            if (pm != null) {
+                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zadmuslim:pre_prayer_audio_wakelock");
+                wakeLock.acquire(10 * 1000L); // 10 ثوان كافية لمقطع التنبيه الصوتي
+            }
+
+            int soundResId = getPrePrayerSoundResourceId(appContext, prayerKey);
+            mediaPlayer = new MediaPlayer();
+
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+            mediaPlayer.setAudioAttributes(audioAttributes);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+
+            Uri uri = Uri.parse("android.resource://" + appContext.getPackageName() + "/" + soundResId);
+            mediaPlayer.setDataSource(appContext, uri);
+            mediaPlayer.prepare();
+            mediaPlayer.setOnCompletionListener(mp -> stop());
+            mediaPlayer.start();
+
+            Log.d(TAG, "PrePrayerVoice started successfully with resource: " + soundResId + " for " + prayerKey);
+        } catch (Exception e) {
+            Log.e(TAG, "Error playing PrePrayerVoice", e);
+            stop();
+        }
+    }
+
+    private static int getPrePrayerSoundResourceId(Context context, String prayerKey) {
+        if (prayerKey != null && !prayerKey.trim().isEmpty()) {
+            String name = "pre_" + prayerKey.trim().toLowerCase();
+            int res = context.getResources().getIdentifier(name, "raw", context.getPackageName());
+            if (res != 0) return res;
+        }
+        return R.raw.pre_prayer;
+    }
 }

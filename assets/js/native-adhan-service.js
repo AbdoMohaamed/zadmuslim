@@ -41,9 +41,14 @@ const NativeAdhanService = {
             const LocalNotifications = window.Capacitor.Plugins.LocalNotifications;
             if (!LocalNotifications || this.channelsCreated) return;
 
-            // قنوات الأذان وقناة التنبيه المسبق
+            // قنوات الأذان وقنوات التنبيه المسبق بصوت ناطق
             const channels = [
-                { id: "prayer_pre_alert", name: "تنبيه اقتراب موعد الصلاة (قبل 5 دقائق)", sound: null, importance: 4 },
+                { id: "prayer_pre_alert", name: "تنبيه اقتراب موعد الصلاة", sound: "pre_prayer", importance: 4 },
+                { id: "prayer_pre_fajr", name: "تنبيه اقتراب صلاة الفجر", sound: "pre_fajr", importance: 4 },
+                { id: "prayer_pre_dhuhr", name: "تنبيه اقتراب صلاة الظهر", sound: "pre_dhuhr", importance: 4 },
+                { id: "prayer_pre_asr", name: "تنبيه اقتراب صلاة العصر", sound: "pre_asr", importance: 4 },
+                { id: "prayer_pre_maghrib", name: "تنبيه اقتراب صلاة المغرب", sound: "pre_maghrib", importance: 4 },
+                { id: "prayer_pre_isha", name: "تنبيه اقتراب صلاة العشاء", sound: "pre_isha", importance: 4 },
                 { id: "adhan_makkah", name: "أذان الحرم المكي", sound: "adhan_makkah", importance: 5 },
                 { id: "adhan_madinah", name: "أذان المسجد النبوي", sound: "adhan_madinah", importance: 5 },
                 { id: "adhan_aqsa", name: "أذان المسجد الأقصى", sound: "adhan_aqsa", importance: 5 },
@@ -90,12 +95,18 @@ const NativeAdhanService = {
             LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
                 console.log("🕌 Native Notification Action performed:", action);
                 const notif = action.notification;
-                if (notif && notif.extra && notif.extra.type === "adhan_call" && notif.extra.prayerKey) {
-                    const pKey = notif.extra.prayerKey;
-                    const pName = notif.extra.prayerName || "الصلاة";
-                    const muazzin = notif.extra.muazzin;
-                    if (typeof playAdhanAudio === "function") {
-                        playAdhanAudio(pKey, muazzin, pName);
+                if (notif && notif.extra) {
+                    if (notif.extra.type === "adhan_call" && notif.extra.prayerKey) {
+                        const pKey = notif.extra.prayerKey;
+                        const pName = notif.extra.prayerName || "الصلاة";
+                        const muazzin = notif.extra.muazzin;
+                        if (typeof playAdhanAudio === "function") {
+                            playAdhanAudio(pKey, muazzin, pName);
+                        }
+                    } else if (notif.extra.type === "pre_prayer_alert" && notif.extra.prayerKey) {
+                        if (typeof playPrePrayerAudio === "function") {
+                            playPrePrayerAudio(notif.extra.prayerKey);
+                        }
                     }
                 }
             });
@@ -103,6 +114,11 @@ const NativeAdhanService = {
             // الاستماع أيضاً لاستلام الإشعار عند فتح التطبيق
             LocalNotifications.addListener("localNotificationReceived", (notif) => {
                 console.log("🕌 Native Notification received:", notif);
+                if (notif && notif.extra && notif.extra.type === "pre_prayer_alert" && notif.extra.prayerKey) {
+                    if (typeof playPrePrayerAudio === "function") {
+                        playPrePrayerAudio(notif.extra.prayerKey);
+                    }
+                }
             });
         } catch (e) {
             console.warn("Error setting up native notification listeners:", e);
@@ -155,10 +171,11 @@ const NativeAdhanService = {
 
                     const prayerMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), h, m, 0);
 
-                    // 1. تنبيه اقتراب موعد الصلاة قبل 5 دقائق (Pre-prayer 5-minute reminder)
+                    // 1. تنبيه اقتراب موعد الصلاة قبل 5 دقائق (Pre-prayer 5-minute reminder بصوت ناطق)
                     const preAlertMoment = new Date(prayerMoment.getTime() - (5 * 60 * 1000));
                     if (preAlertMoment.getTime() > now.getTime() + 1000) {
                         const preNotifId = p.idBase + 1000 + (dayOffset * 10);
+                        const preSoundName = `pre_${p.key}.mp3`;
                         notificationsToSchedule.push({
                             id: preNotifId,
                             title: `⏳ اقتربت ${p.name}`,
@@ -167,7 +184,8 @@ const NativeAdhanService = {
                                 at: preAlertMoment,
                                 allowWhileIdle: true
                             },
-                            channelId: "prayer_pre_alert",
+                            sound: preSoundName,
+                            channelId: `prayer_pre_${p.key}`,
                             smallIcon: "res://ic_stat_icon",
                             iconColor: "#d4af37",
                             extra: {

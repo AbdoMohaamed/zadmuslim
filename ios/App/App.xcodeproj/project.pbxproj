@@ -23,6 +23,12 @@
 		95AD000A2DB07C7200EA8C01 /* adhan_refaat.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95AD00092DB07C7200EA8C01 /* adhan_refaat.mp3 */; };
 		95AD000C2DB07C7200EA8C01 /* adhan_qatami.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95AD000B2DB07C7200EA8C01 /* adhan_qatami.mp3 */; };
 		95AD000E2DB07C7200EA8C01 /* adhan_fajr.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95AD000D2DB07C7200EA8C01 /* adhan_fajr.mp3 */; };
+		95PR00022DB07C7200EA8C01 /* pre_fajr.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00012DB07C7200EA8C01 /* pre_fajr.mp3 */; };
+		95PR00042DB07C7200EA8C01 /* pre_dhuhr.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00032DB07C7200EA8C01 /* pre_dhuhr.mp3 */; };
+		95PR00062DB07C7200EA8C01 /* pre_asr.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00052DB07C7200EA8C01 /* pre_asr.mp3 */; };
+		95PR00082DB07C7200EA8C01 /* pre_maghrib.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00072DB07C7200EA8C01 /* pre_maghrib.mp3 */; };
+		95PR000A2DB07C7200EA8C01 /* pre_isha.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */; };
+		95PR000C2DB07C7200EA8C01 /* pre_prayer.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +50,12 @@
 		95AD00092DB07C7200EA8C01 /* adhan_refaat.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_refaat.mp3; sourceTree = "<group>"; };
 		95AD000B2DB07C7200EA8C01 /* adhan_qatami.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_qatami.mp3; sourceTree = "<group>"; };
 		95AD000D2DB07C7200EA8C01 /* adhan_fajr.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = adhan_fajr.mp3; sourceTree = "<group>"; };
+		95PR00012DB07C7200EA8C01 /* pre_fajr.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_fajr.mp3; sourceTree = "<group>"; };
+		95PR00032DB07C7200EA8C01 /* pre_dhuhr.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_dhuhr.mp3; sourceTree = "<group>"; };
+		95PR00052DB07C7200EA8C01 /* pre_asr.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_asr.mp3; sourceTree = "<group>"; };
+		95PR00072DB07C7200EA8C01 /* pre_maghrib.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_maghrib.mp3; sourceTree = "<group>"; };
+		95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_isha.mp3; sourceTree = "<group>"; };
+		95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_prayer.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +106,12 @@
 				95AD00092DB07C7200EA8C01 /* adhan_refaat.mp3 */,
 				95AD000B2DB07C7200EA8C01 /* adhan_qatami.mp3 */,
 				95AD000D2DB07C7200EA8C01 /* adhan_fajr.mp3 */,
+				95PR00012DB07C7200EA8C01 /* pre_fajr.mp3 */,
+				95PR00032DB07C7200EA8C01 /* pre_dhuhr.mp3 */,
+				95PR00052DB07C7200EA8C01 /* pre_asr.mp3 */,
+				95PR00072DB07C7200EA8C01 /* pre_maghrib.mp3 */,
+				95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */,
+				95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -176,6 +194,12 @@
 				95AD000A2DB07C7200EA8C01 /* adhan_refaat.mp3 in Resources */,
 				95AD000C2DB07C7200EA8C01 /* adhan_qatami.mp3 in Resources */,
 				95AD000E2DB07C7200EA8C01 /* adhan_fajr.mp3 in Resources */,
+				95PR00022DB07C7200EA8C01 /* pre_fajr.mp3 in Resources */,
+				95PR00042DB07C7200EA8C01 /* pre_dhuhr.mp3 in Resources */,
+				95PR00062DB07C7200EA8C01 /* pre_asr.mp3 in Resources */,
+				95PR00082DB07C7200EA8C01 /* pre_maghrib.mp3 in Resources */,
+				95PR000A2DB07C7200EA8C01 /* pre_isha.mp3 in Resources */,
+				95PR000C2DB07C7200EA8C01 /* pre_prayer.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -3716,6 +3716,25 @@ function playAdhanAudio(prayerKey, specificMuazzinId, prayerName) {
     }
 }
 
+function playPrePrayerAudio(prayerKey) {
+    let audioEl = document.getElementById("audio-pre-prayer");
+    if (!audioEl) {
+        audioEl = document.createElement("audio");
+        audioEl.id = "audio-pre-prayer";
+        document.body.appendChild(audioEl);
+    }
+    const key = (prayerKey || "prayer").toLowerCase();
+    const sourceFile = `assets/audio/pre/pre_${key}.mp3`;
+    audioEl.src = sourceFile;
+    audioEl.currentTime = 0;
+    const playPromise = audioEl.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(err => {
+            console.warn("Pre-prayer voice playback notice:", err);
+        });
+    }
+}
+
 function showAdhanAutoplayBanner(prayerName, prayerKey, muazzin) {
     let banner = document.getElementById("adhan-autoplay-banner");
     if (!banner) {

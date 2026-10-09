@@ -76,7 +76,8 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         if (prayerName == null) prayerName = "الصلاة";
 
         if (isPreAlert) {
-            // تنبيه اقتراب موعد الصلاة قبل 5 دقائق
+            // تنبيه اقتراب موعد الصلاة قبل 5 دقائق بصوت ناطق: "اقتربت صلاة..."
+            AdhanPlayer.playPrePrayerVoice(context, prayerKey);
             showPrePrayerNotification(context, prayerName, prayerKey);
         } else {
             // 1. تشغيل الأذان الصوتي فوراً عبر AdhanPlayer على تيار المنبه (STREAM_ALARM)
@@ -157,6 +158,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             channel.setDescription("تذكير بالاستعداد للصلاة والوضوء قبل الأذان بـ 5 دقائق");
             channel.enableVibration(true);
             channel.enableLights(true);
+            channel.setSound(null, null); // الصوت يتم تشغيله ناطقاً عبر AdhanPlayer
             channel.setLightColor(0xFFD4AF37);
             nm.createNotificationChannel(channel);
         }
