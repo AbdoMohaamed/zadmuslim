@@ -15,6 +15,7 @@
     "@capacitor/geolocation": "^7.1.8",
     "@capacitor/ios": "^7.6.9",
     "@capacitor/local-notifications": "^7.0.7",
+    "onesignal-cordova-plugin": "^5.6.0",
     "web-push": "^3.6.7"
   },
   "devDependencies": {

@@ -922,6 +922,35 @@
                             </select>
                         </div>
 
+                        <!-- OneSignal / APNs / FCM Cloud Settings Box -->
+                        <div class="onesignal-config-box" style="margin-top: 15px; padding: 12px; background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.25); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleOneSignalConfig()">
+                                <span style="font-size: 0.85rem; font-weight: bold; color: var(--gold-accent, #d4af37);">
+                                    <i class="fa-solid fa-tower-broadcast"></i> إعدادات البث السحابي للهواتف المغلقة (OneSignal • APNs & FCM)
+                                </span>
+                                <i id="os-toggle-icon" class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: var(--gold-accent, #d4af37);"></i>
+                            </div>
+                            <div id="os-config-fields" style="display: none; margin-top: 12px;">
+                                <p style="font-size: 0.78rem; color: #888; margin-bottom: 10px; line-height: 1.4;">
+                                    تتيح هذه الإعدادات إيقاظ جميع هواتف الآيفون والأندرويد المغلقة تماماً وإطلاق صوت الأذان في نفس ثانية الإرسال عبر خوادم أبل وجوجل الرسمية مجاناً.
+                                </p>
+                                <div class="form-group" style="margin-bottom: 8px;">
+                                    <label class="form-label" style="font-size: 0.75rem;">OneSignal App ID:</label>
+                                    <input type="text" id="os-app-id" class="form-input" placeholder="مثال: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-size: 0.8rem; padding: 6px 10px;">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 8px;">
+                                    <label class="form-label" style="font-size: 0.75rem;">OneSignal REST API Key:</label>
+                                    <input type="password" id="os-rest-key" class="form-input" placeholder="مثال: os_v2_app_xxxxxxxxxxxx" style="font-size: 0.8rem; padding: 6px 10px;">
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button type="button" id="btn-save-os-config" class="btn btn-outline" style="font-size: 0.78rem; padding: 5px 14px;">
+                                        <i class="fa-solid fa-floppy-disk"></i> حفظ إعدادات البث السحابي
+                                    </button>
+                                    <span id="os-status-badge" style="font-size: 0.75rem; color: #aaa;"></span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div style="display: flex; gap: 10px; margin-top: 20px;">
                             <button type="submit" id="btn-send-broadcast" class="btn btn-primary" style="flex: 1;">
                                 <i class="fa-solid fa-paper-plane"></i>
@@ -1646,10 +1675,42 @@
                     });
                     const pushResult = await pushRes.json();
                     if (pushResult && pushResult.sentCount > 0) {
-                        pushInfo = ` (تم الإرسال لـ ${pushResult.sentCount} هاتف وجهاز مقفل)`;
+                        pushInfo += ` (تم الإرسال لـ ${pushResult.sentCount} متصفح ويب)`;
                     }
                 } catch (pushErr) {
                     console.warn("Web Push API call warning:", pushErr);
+                }
+
+                // Call OneSignal REST API to wake up and notify all closed iOS and Android phones
+                try {
+                    const osAppId = document.getElementById("os-app-id") ? document.getElementById("os-app-id").value.trim() : "";
+                    const osRestKey = document.getElementById("os-rest-key") ? document.getElementById("os-rest-key").value.trim() : "";
+
+                    if (osAppId && osRestKey) {
+                        const osRes = await fetch("https://api.onesignal.com/notifications", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json; charset=utf-8",
+                                "Authorization": "Key " + osRestKey
+                            },
+                            body: JSON.stringify({
+                                app_id: osAppId,
+                                included_segments: ["Total Subscriptions"],
+                                headings: { en: title, ar: title },
+                                contents: { en: body, ar: body },
+                                ios_sound: "adhan_makkah.mp3",
+                                android_sound: "adhan_makkah",
+                                android_channel_id: "zad_cloud_broadcast_channel",
+                                data: { url: url, type: "admin_broadcast" }
+                            })
+                        });
+                        const osData = await osRes.json();
+                        if (osData && (osData.recipients > 0 || osData.id)) {
+                            pushInfo += ` (تم إيقاظ وإشعار ${osData.recipients || 'جميع'} هواتف الموبايل عبر OneSignal • APNs & FCM)`;
+                        }
+                    }
+                } catch (osErr) {
+                    console.warn("OneSignal REST API call warning:", osErr);
                 }
 
                 // Trigger local device feedback
@@ -1664,6 +1725,62 @@
                 sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>إرسال الإشعار لجميع المشتركين الآن 🚀</span>';
             }
         });
+
+        // OneSignal Config Toggle and Save
+        window.toggleOneSignalConfig = function() {
+            const fields = document.getElementById("os-config-fields");
+            const icon = document.getElementById("os-toggle-icon");
+            if (fields) {
+                const isOpen = fields.style.display !== "none";
+                fields.style.display = isOpen ? "none" : "block";
+                if (icon) icon.className = isOpen ? "fa-solid fa-chevron-down" : "fa-solid fa-chevron-up";
+            }
+        };
+
+        async function loadOneSignalConfig() {
+            try {
+                if (!db) return;
+                const snap = await db.ref("admin_settings/onesignal").once("value");
+                if (snap.exists()) {
+                    const cfg = snap.val();
+                    if (cfg.app_id && document.getElementById("os-app-id")) {
+                        document.getElementById("os-app-id").value = cfg.app_id;
+                    }
+                    if (cfg.rest_key && document.getElementById("os-rest-key")) {
+                        document.getElementById("os-rest-key").value = cfg.rest_key;
+                    }
+                    const badge = document.getElementById("os-status-badge");
+                    if (badge) badge.textContent = "✅ متصل وجاهز للبث السحابي";
+                }
+            } catch(e) {}
+        }
+        loadOneSignalConfig();
+
+        if (document.getElementById("btn-save-os-config")) {
+            document.getElementById("btn-save-os-config").addEventListener("click", async () => {
+                const appId = document.getElementById("os-app-id").value.trim();
+                const restKey = document.getElementById("os-rest-key").value.trim();
+                if (!appId || !restKey) {
+                    showAdminToast("يرجى إدخال OneSignal App ID و REST API Key", true);
+                    return;
+                }
+                try {
+                    if (db) {
+                        await db.ref("admin_settings/onesignal").set({
+                            app_id: appId,
+                            rest_key: restKey,
+                            updatedAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
+                    localStorage.setItem("zad_onesignal_app_id", appId);
+                    const badge = document.getElementById("os-status-badge");
+                    if (badge) badge.textContent = "✅ تم الحفظ بنجاح";
+                    showAdminToast("تم حفظ إعدادات OneSignal وتفعيل البث السحابي ✨");
+                } catch(err) {
+                    showAdminToast("فشل الحفظ: " + err.message, true);
+                }
+            });
+        }
 
         // Test Notification On Self
         document.getElementById("btn-test-notification-self").addEventListener("click", () => {

@@ -70,6 +70,7 @@
 	<array>
 		<string>audio</string>
 		<string>fetch</string>
+		<string>remote-notification</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>يحتاج تطبيق زاد المسلم لتحديد الموقع الجغرافي لحساب مواقيت الصلاة بدقة واتجاه القبلة.</string>
