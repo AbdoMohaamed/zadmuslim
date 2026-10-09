@@ -132,15 +132,7 @@ public class AdhanNativePlugin extends Plugin {
 
     private void schedulePeriodicBroadcastCheck(Context context, AlarmManager alarmManager) {
         try {
-            Intent syncIntent = new Intent(context, AdhanAlarmReceiver.class);
-            syncIntent.setAction(AdhanAlarmReceiver.ACTION_CHECK_CLOUD_BROADCASTS);
-            PendingIntent pendingSync = PendingIntent.getBroadcast(
-                    context, 77701, syncIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-            );
-            long interval = 30 * 60 * 1000L; // كل 30 دقيقة
-            long firstTrigger = System.currentTimeMillis() + (5 * 60 * 1000L);
-            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstTrigger, interval, pendingSync);
+            AdhanAlarmReceiver.scheduleNextBroadcastCheck(context);
         } catch (Exception e) {
             Log.w(TAG, "Failed to schedule periodic broadcast check", e);
         }

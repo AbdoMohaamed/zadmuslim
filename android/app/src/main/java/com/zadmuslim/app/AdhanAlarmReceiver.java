@@ -37,7 +37,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
     public static final int ADHAN_NOTIFICATION_ID = 99992;
 
-    private static final String FIREBASE_BROADCASTS_URL = "https://sadqah-jaddi-default-rtdb.firebaseio.com/push_broadcasts.json?orderBy=%22%24key%22&limitToLast=1";
+    private static final String FIREBASE_BROADCASTS_URL = "https://sadqah-jaddi-default-rtdb.firebaseio.com/push_broadcasts.json";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -56,12 +56,14 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             Log.d(TAG, "Device rebooted - Scheduling periodic broadcast check");
             checkCloudBroadcastsInBackground(context);
+            scheduleNextBroadcastCheck(context);
             return;
         }
 
         if (ACTION_CHECK_CLOUD_BROADCASTS.equals(action)) {
             Log.d(TAG, "Checking cloud broadcasts in background");
             checkCloudBroadcastsInBackground(context);
+            scheduleNextBroadcastCheck(context);
             return;
         }
 
@@ -232,8 +234,31 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 conn.disconnect();
             } catch (Exception e) {
                 Log.w(TAG, "Error checking cloud broadcasts in background: " + e.getMessage());
+            } finally {
+                scheduleNextBroadcastCheck(context);
             }
         }).start();
+    }
+
+    public static void scheduleNextBroadcastCheck(Context context) {
+        try {
+            android.app.AlarmManager am = (android.app.AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+            Intent syncIntent = new Intent(context, AdhanAlarmReceiver.class);
+            syncIntent.setAction(ACTION_CHECK_CLOUD_BROADCASTS);
+            PendingIntent pendingSync = PendingIntent.getBroadcast(
+                    context, 77701, syncIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
+            long nextTrigger = System.currentTimeMillis() + (15 * 60 * 1000L); // فحص دوري كل 15 دقيقة
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, nextTrigger, pendingSync);
+            } else {
+                am.setExact(android.app.AlarmManager.RTC_WAKEUP, nextTrigger, pendingSync);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to schedule next broadcast check: " + e.getMessage());
+        }
     }
 
     private void showCloudBroadcastNotification(Context context, String title, String body) {

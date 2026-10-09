@@ -1,6 +1,7 @@
 import UIKit
 import Capacitor
 import AVFoundation
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,7 +16,82 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("Failed to configure AVAudioSession:", error)
         }
+
+        // Enable iOS Background Fetch to check for admin broadcasts in background
+        UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
+
         return true
+    }
+
+    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        checkCloudBroadcastsInBackground(completionHandler: completionHandler)
+    }
+
+    private func checkCloudBroadcastsInBackground(completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        guard let url = URL(string: "https://sadqah-jaddi-default-rtdb.firebaseio.com/push_broadcasts.json") else {
+            completionHandler(.failed)
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 10.0
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data, error == nil else {
+                completionHandler(.failed)
+                return
+            }
+
+            do {
+                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: [String: Any]] else {
+                    completionHandler(.noData)
+                    return
+                }
+
+                let sortedKeys = json.keys.sorted()
+                guard let lastKey = sortedKeys.last, let broadcast = json[lastKey] else {
+                    completionHandler(.noData)
+                    return
+                }
+
+                let lastSeenKey = UserDefaults.standard.string(forKey: "zad_last_seen_broadcast_id") ?? ""
+                if lastKey == lastSeenKey {
+                    completionHandler(.noData)
+                    return
+                }
+
+                let title = broadcast["title"] as? String ?? "زاد المسلم 🌿"
+                let body = broadcast["body"] as? String ?? ""
+                let timestamp = broadcast["timestamp"] as? Double ?? 0
+
+                let now = Date().timeIntervalSince1970 * 1000
+                if timestamp > 0 && (now - timestamp) > (24 * 60 * 60 * 1000) {
+                    completionHandler(.noData)
+                    return
+                }
+
+                guard !body.isEmpty else {
+                    completionHandler(.noData)
+                    return
+                }
+
+                let content = UNMutableNotificationContent()
+                content.title = title
+                content.body = body
+                content.sound = UNNotificationSound(named: UNNotificationSoundName("adhan_makkah.mp3"))
+                content.badge = 1
+
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+                let notifRequest = UNNotificationRequest(identifier: "broadcast_\(lastKey)", content: content, trigger: trigger)
+
+                UNUserNotificationCenter.current().add(notifRequest) { _ in
+                    UserDefaults.standard.set(lastKey, forKey: "zad_last_seen_broadcast_id")
+                    completionHandler(.newData)
+                }
+            } catch {
+                completionHandler(.failed)
+            }
+        }.resume()
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

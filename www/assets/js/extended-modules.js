@@ -1023,10 +1023,8 @@ function listenToCloudBroadcastNotifications() {
             // إظهار البنر المنبثق الأنيق داخل الموقع دائماً
             showInAppPushBanner(data);
 
-            // إظهار إشعار النظام الأصلي إذا كان إذن المتصفح متاحاً
-            if ("Notification" in window && Notification.permission === "granted") {
-                triggerNativeNotification(data.title || "زاد المسلم • تذكير بالطاعة", data.body || "", data.url || "./");
-            }
+            // إظهار إشعار النظام الأصلي للموبايل والمتصفح
+            triggerNativeNotification(data.title || "زاد المسلم • تذكير بالطاعة", data.body || "", data.url || "./");
         });
 
         // بعد انتهاء التحميل الأولي
@@ -1040,10 +1038,31 @@ function listenToCloudBroadcastNotifications() {
 }
 
 /**
- * إطلاق إشعار النظام الأصلي للمتصفح والموبايل عبر Service Worker
+ * إطلاق إشعار النظام الأصلي للمتصفح والموبايل عبر Capacitor أو Service Worker
  */
-function triggerNativeNotification(title, body, url = "./") {
+async function triggerNativeNotification(title, body, url = "./") {
     try {
+        // 1. إذا كان التطبيق يعمل على الهاتف (Capacitor Android / iOS)
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            const LocalNotifications = window.Capacitor.Plugins ? window.Capacitor.Plugins.LocalNotifications : null;
+            if (LocalNotifications) {
+                const notifId = Math.floor(Date.now() % 100000) + Math.floor(Math.random() * 1000);
+                await LocalNotifications.schedule({
+                    notifications: [{
+                        id: notifId,
+                        title: title || "زاد المسلم 🌿",
+                        body: body || "",
+                        channelId: "zad_cloud_broadcast_channel",
+                        sound: "adhan_makkah.mp3",
+                        extra: { url: url },
+                        schedule: { at: new Date(Date.now() + 500) }
+                    }]
+                });
+                return;
+            }
+        }
+
+        // 2. إذا كان متصفح ويب عادي / PWA
         if ("Notification" in window && Notification.permission === "granted") {
             if ("serviceWorker" in navigator) {
                 navigator.serviceWorker.ready.then(reg => {
