@@ -3058,13 +3058,7 @@ function initGPSLocation() {
             .catch(() => {});
     }
 
-    function requestGPSPosition(isSilent = false) {
-        if (!navigator.geolocation) {
-            if (!isSilent) showToast("خاصية تحديد الموقع الجغرافي غير مدعومة في متصفحك ⚠️");
-            if (!localStorage.getItem("user_manually_selected_city")) autoDetectLocationViaIP();
-            return;
-        }
-
+    async function requestGPSPosition(isSilent = false) {
         let originalContent = "";
         if (btnGps && !isSilent) {
             originalContent = btnGps.innerHTML;
@@ -3072,53 +3066,88 @@ function initGPSLocation() {
             btnGps.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-gold"></i> <span>جارٍ التحديد...</span>';
         }
 
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                if (btnGps && !isSilent) {
-                    btnGps.disabled = false;
-                    btnGps.innerHTML = originalContent;
+        const handleSuccess = (lat, lng) => {
+            if (btnGps && !isSilent) {
+                btnGps.disabled = false;
+                btnGps.innerHTML = originalContent;
+            }
+            const gpsData = { name: "موقعي الحالي (GPS)", lat: lat, lng: lng };
+            localStorage.setItem("gps_prayer_coords", JSON.stringify(gpsData));
+            localStorage.setItem("selected_prayer_city", "gps");
+
+            const citySelect = document.getElementById("select-prayer-city");
+            if (citySelect) {
+                let gpsOpt = citySelect.querySelector('option[value="gps"]');
+                if (!gpsOpt) {
+                    gpsOpt = document.createElement("option");
+                    gpsOpt.value = "gps";
+                    gpsOpt.textContent = "📍 موقعي الحالي (GPS)";
+                    citySelect.insertBefore(gpsOpt, citySelect.firstChild);
                 }
+                gpsOpt.style.display = "block";
+                citySelect.value = "gps";
+            }
 
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                const gpsData = { name: "موقعي الحالي (GPS)", lat: lat, lng: lng };
+            if (!isSilent) {
+                showToast("تم تحديد موقعك بدقة 📍 وحساب مواقيت الصلاة والقبلة بنجاح");
+            }
+            fetchPrayerTimes("gps");
+        };
 
-                localStorage.setItem("gps_prayer_coords", JSON.stringify(gpsData));
-                localStorage.setItem("selected_prayer_city", "gps");
+        const handleError = (err) => {
+            if (btnGps && !isSilent) {
+                btnGps.disabled = false;
+                btnGps.innerHTML = originalContent;
+            }
+            if (!isSilent) {
+                let msg = "تعذر الحصول على إحداثيات الموقع عبر GPS";
+                if (err && (err.code === 1 || err.message === "Permission denied")) {
+                    msg = "يرجى منح الإذن للوصول إلى الموقع الجغرافي 📍";
+                }
+                showToast(msg);
+            }
+            if (!localStorage.getItem("user_manually_selected_city")) {
+                autoDetectLocationViaIP();
+            }
+        };
 
-                const citySelect = document.getElementById("select-prayer-city");
-                if (citySelect) {
-                    let gpsOpt = citySelect.querySelector('option[value="gps"]');
-                    if (!gpsOpt) {
-                        gpsOpt = document.createElement("option");
-                        gpsOpt.value = "gps";
-                        gpsOpt.textContent = "📍 موقعي الحالي (GPS)";
-                        citySelect.insertBefore(gpsOpt, citySelect.firstChild);
+        // 1. استخدام بلجن الموقع الأصلي للموبايل (Capacitor Geolocation) لمنع ظهور رسالة localhost في الآيفون
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            const Geolocation = window.Capacitor.Plugins ? window.Capacitor.Plugins.Geolocation : null;
+            if (Geolocation) {
+                try {
+                    const perm = await Geolocation.checkPermissions();
+                    if (perm.location !== "granted") {
+                        const req = await Geolocation.requestPermissions();
+                        if (req.location !== "granted") {
+                            handleError(new Error("Permission denied"));
+                            return;
+                        }
                     }
-                    gpsOpt.style.display = "block";
-                    citySelect.value = "gps";
+                    const pos = await Geolocation.getCurrentPosition({
+                        enableHighAccuracy: true,
+                        timeout: 10000
+                    });
+                    if (pos && pos.coords) {
+                        handleSuccess(pos.coords.latitude, pos.coords.longitude);
+                        return;
+                    }
+                } catch (nativeErr) {
+                    console.warn("Native Geolocation error:", nativeErr);
                 }
+            }
+        }
 
-                if (!isSilent) {
-                    showToast("تم تحديد موقعك بدقة 📍 وحساب مواقيت الصلاة والقبلة بنجاح");
-                }
-                fetchPrayerTimes("gps");
-            },
-            (err) => {
-                if (btnGps && !isSilent) {
-                    btnGps.disabled = false;
-                    btnGps.innerHTML = originalContent;
-                }
-                if (!isSilent) {
-                    let msg = "تعذر الحصول على إحداثيات الموقع عبر GPS";
-                    if (err.code === 1) msg = "يرجى منح الإذن للوصول إلى الموقع في المتصفح 📍";
-                    showToast(msg);
-                }
-                // في حال عدم منح الإذن أو حدوث خطأ، الكشف التلقائي البديل عبر IP
-                if (!localStorage.getItem("user_manually_selected_city")) {
-                    autoDetectLocationViaIP();
-                }
-            },
+        // 2. المتصفح العادي (Web / PWA)
+        if (!navigator.geolocation) {
+            if (!isSilent) showToast("خاصية تحديد الموقع الجغرافي غير مدعومة في متصفحك ⚠️");
+            if (!localStorage.getItem("user_manually_selected_city")) autoDetectLocationViaIP();
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => handleSuccess(pos.coords.latitude, pos.coords.longitude),
+            (err) => handleError(err),
             { timeout: 8000, enableHighAccuracy: false, maximumAge: 600000 }
         );
     }
@@ -3134,26 +3163,7 @@ function initGPSLocation() {
     const isManual = localStorage.getItem("user_manually_selected_city") === "true";
 
     if (!isManual) {
-        if (navigator.permissions && navigator.permissions.query) {
-            navigator.permissions.query({ name: "geolocation" }).then((perm) => {
-                if (perm.state === "granted") {
-                    requestGPSPosition(true);
-                } else if (perm.state === "prompt") {
-                    requestGPSPosition(true);
-                } else {
-                    autoDetectLocationViaIP();
-                }
-                perm.onchange = () => {
-                    if (perm.state === "granted") {
-                        requestGPSPosition(false);
-                    }
-                };
-            }).catch(() => {
-                requestGPSPosition(true);
-            });
-        } else {
-            requestGPSPosition(true);
-        }
+        requestGPSPosition(true);
     }
 }
 
