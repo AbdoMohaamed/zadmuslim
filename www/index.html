@@ -226,85 +226,20 @@
                 <span class="hero-title-sub">القرآن الكريم • مواقيت الصلاة • الأذكار والسبحة</span>
             </h1>
 
-            <!-- شريط الإهداء الوقفي النبيل لروح الجد -->
-            <div class="charity-memorial-banner">
-                <div class="charity-memorial-icon"><i class="fa-solid fa-hand-holding-heart text-gold"></i></div>
-                <div class="charity-memorial-text">
-                    تطبيق إسلامي متاح مجاناً لوجه الله تعالى •
-                    <strong>
-                        صدقة جارية على روح جدي الغالي (عبدالمعبود أمين سعيد) رحمه الله،
-                        وستي الغالية (حكم عبدالصمد) رحمها الله
-                    </strong>
-                    — نسألكم الفاتحة وصالح الدعاء لهما ولكل موتى المسلمين.
-                </div>
-                <button class="btn btn-gold btn-open-prayer-modal">
-                    <i class="fa-solid fa-hands-praying"></i>
-                    <span>ادعُ لهم</span>
-                </button>
-            </div>
-
-            <!-- بطاقة الدعاء الكبرى البارزة -->
-            <div class="featured-prayer-card">
-                <div class="prayer-ornament-top">
-                    <i class="fa-solid fa-star-and-crescent"></i> ✦ ✦ ✦
-                </div>
-                <div class="prayer-main-text">
-                    "اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ ، وَعَافِهِ وَاعْفُ عَنْهُ ، وَأَكْرِمْ نُزُلَهُ ، وَوَسِّعْ مُدْخَلَهُ ، وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الأَبْيَضُ مِنَ الدَّنَسِ"
-                </div>
-                <div class="prayer-ornament-bottom">
-                    ✦ ✦ ✦ <i class="fa-solid fa-star-and-crescent"></i>
-                </div>
-
-                <div class="prayer-action-row">
-                    <button class="btn btn-gold btn-open-prayer-modal">
-                        <i class="fa-solid fa-pen-fancy"></i>
-                        <span>اكتب دعاءً لروحه</span>
-                    </button>
-                    <button class="btn btn-gold" id="btn-open-custom-share-hero" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
-                        <i class="fa-solid fa-gift"></i>
-                        <span>إهداء صدقة لفقيدك 🌿</span>
-                    </button>
-                    <button class="btn btn-outline" id="btn-open-notifications-hero">
-                        <i class="fa-solid fa-bell text-gold"></i>
-                        <span>تنبيهات الطاعات 🔔</span>
-                    </button>
-                    <button class="btn btn-outline" id="btn-open-dua-card">
-                        <i class="fa-solid fa-image text-gold"></i>
-                        <span>تصميم بطاقة دعاء</span>
-                    </button>
-                    <button class="btn btn-outline btn-share-whatsapp">
-                        <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
-                        <span>واتساب</span>
-                    </button>
-                    <button class="btn btn-outline btn-copy-link">
-                        <i class="fa-solid fa-link"></i>
-                        <span>نسخ الرابط</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- شريط إحصائيات الصدقة الجارية العالمي الموحد -->
-            <div class="global-stats-banner">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-hands-praying"></i></div>
-                    <div class="stat-details">
-                        <span class="stat-number" id="global-tasbeeh-stat">0</span>
-                        <span class="stat-title">تسبيحة واستغفار أهداها الزوار</span>
+            <!-- بنر التذكير الذكي بالسياق الزمني (Smart Contextual Reminder Banner) -->
+            <div class="smart-reminder-banner container" id="smart-reminder-banner">
+                <div class="smart-reminder-main">
+                    <div class="smart-reminder-icon"><i class="fa-solid fa-moon text-gold" id="reminder-icon"></i></div>
+                    <div class="smart-reminder-text-group">
+                        <span class="smart-reminder-title" id="reminder-title">سكينة الليل ونور القبر 🌙</span>
+                        <span class="smart-reminder-desc" id="reminder-desc">سورة الملك تنجي من عذاب القبر وتشفع لصاحبها، واختم ليلتك بركعة الوتر.</span>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-book-quran"></i></div>
-                    <div class="stat-details">
-                        <span class="stat-number" id="global-khatma-stat">1</span>
-                        <span class="stat-title">الختمة القرآنية الحالية</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-heart"></i></div>
-                    <div class="stat-details">
-                        <span class="stat-number" id="global-prayers-stat">60+</span>
-                        <span class="stat-title">دعاء في ميزان حسناته</span>
-                    </div>
+                <div class="smart-reminder-actions">
+                    <button type="button" class="btn btn-gold btn-sm btn-reminder-act" id="btn-reminder-act">
+                        <span id="reminder-act-text">قراءة سورة الملك 📖</span>
+                    </button>
+                    <button type="button" class="btn-close-radio btn-dismiss-reminder" id="btn-dismiss-reminder" style="font-size: 1.3rem;" title="إغلاق">&times;</button>
                 </div>
             </div>
 
@@ -342,6 +277,32 @@
                     </div>
                 </div>
             </div>
+            <!-- شريط إحصائيات الصدقة الجارية العالمي الموحد -->
+            <div class="global-stats-banner">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-hands-praying"></i></div>
+                    <div class="stat-details">
+                        <span class="stat-number" id="global-tasbeeh-stat">0</span>
+                        <span class="stat-title">تسبيحة واستغفار أهداها الزوار</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-book-quran"></i></div>
+                    <div class="stat-details">
+                        <span class="stat-number" id="global-khatma-stat">1</span>
+                        <span class="stat-title">الختمة القرآنية الحالية</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-heart"></i></div>
+                    <div class="stat-details">
+                        <span class="stat-number" id="global-prayers-stat">60+</span>
+                        <span class="stat-title">دعاء في ميزان حسناته</span>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </section>
 
@@ -1553,10 +1514,12 @@
         </div>
     </section>
 
+  
     <!-- ==========================================
     سلايدر أدعية الزوار (Swiper Slider Section)
     ========================================== -->
     <section id="prayers" class="prayers-section">
+ 
         <div class="container">
             <div class="section-header">
                 <span class="section-tag"><i class="fa-solid fa-heart"></i> في ميزان حسناته</span>
@@ -1564,6 +1527,62 @@
                 <p class="section-desc">
                     كل دعوة تؤمّن عليها أو تكتبها ترفع درجته وتؤنس وحشته وتثقل ميزانك بالأجر إن شاء الله.
                 </p>
+            </div>
+            <!-- شريط الإهداء الوقفي النبيل لروح الجد -->
+            <div class="charity-memorial-banner">
+                <div class="charity-memorial-icon"><i class="fa-solid fa-hand-holding-heart text-gold"></i></div>
+                <div class="charity-memorial-text">
+                    تطبيق إسلامي متاح مجاناً لوجه الله تعالى •
+                    <strong>
+                        صدقة جارية على روح جدي الغالي (عبدالمعبود أمين سعيد) رحمه الله،
+                        وستي الغالية (حكم عبدالصمد) رحمها الله
+                    </strong>
+                    — نسألكم الفاتحة وصالح الدعاء لهما ولكل موتى المسلمين.
+                </div>
+                <button class="btn btn-gold btn-open-prayer-modal">
+                    <i class="fa-solid fa-hands-praying"></i>
+                    <span>ادعُ لهم</span>
+                </button>
+            </div>
+
+            <!-- بطاقة الدعاء الكبرى البارزة -->
+            <div class="featured-prayer-card">
+                <div class="prayer-ornament-top">
+                    <i class="fa-solid fa-star-and-crescent"></i> ✦ ✦ ✦
+                </div>
+                <div class="prayer-main-text">
+                    "اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ ، وَعَافِهِ وَاعْفُ عَنْهُ ، وَأَكْرِمْ نُزُلَهُ ، وَوَسِّعْ مُدْخَلَهُ ، وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الأَبْيَضُ مِنَ الدَّنَسِ"
+                </div>
+                <div class="prayer-ornament-bottom">
+                    ✦ ✦ ✦ <i class="fa-solid fa-star-and-crescent"></i>
+                </div>
+
+                <div class="prayer-action-row">
+                    <button class="btn btn-gold btn-open-prayer-modal">
+                        <i class="fa-solid fa-pen-fancy"></i>
+                        <span>اكتب دعاءً لروحه</span>
+                    </button>
+                    <button class="btn btn-gold" id="btn-open-custom-share-hero" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
+                        <i class="fa-solid fa-gift"></i>
+                        <span>إهداء صدقة لفقيدك 🌿</span>
+                    </button>
+                    <button class="btn btn-outline" id="btn-open-notifications-hero">
+                        <i class="fa-solid fa-bell text-gold"></i>
+                        <span>تنبيهات الطاعات 🔔</span>
+                    </button>
+                    <button class="btn btn-outline" id="btn-open-dua-card">
+                        <i class="fa-solid fa-image text-gold"></i>
+                        <span>تصميم بطاقة دعاء</span>
+                    </button>
+                    <button class="btn btn-outline btn-share-whatsapp">
+                        <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
+                        <span>واتساب</span>
+                    </button>
+                    <button class="btn btn-outline btn-copy-link">
+                        <i class="fa-solid fa-link"></i>
+                        <span>نسخ الرابط</span>
+                    </button>
+                </div>
             </div>
 
             <!-- حاوية Swiper -->

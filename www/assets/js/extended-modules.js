@@ -2833,46 +2833,36 @@ function initSmartTimelyReminders() {
 
     if (reminderConfig) {
         const dismissKey = `reminder_dismissed_${reminderConfig.id}_${now.toISOString().slice(0, 10)}`;
-        if (sessionStorage.getItem(dismissKey)) return;
+        let banner = document.getElementById("smart-reminder-banner");
 
-        const banner = document.createElement("div");
-        banner.className = "smart-reminder-banner container";
-        banner.innerHTML = `
-            <div class="smart-reminder-main">
-                <div class="smart-reminder-icon"><i class="${reminderConfig.icon} text-gold"></i></div>
-                <div class="smart-reminder-text-group">
-                    <span class="smart-reminder-title">${reminderConfig.title}</span>
-                    <span class="smart-reminder-desc">${reminderConfig.desc}</span>
-                </div>
-            </div>
-            <div class="smart-reminder-actions">
-                <button type="button" class="btn btn-gold btn-sm btn-reminder-act">
-                    <span>${reminderConfig.actionText}</span>
-                </button>
-                <button type="button" class="btn-close-radio btn-dismiss-reminder" style="font-size: 1.3rem;" title="إغلاق">&times;</button>
-            </div>
-        `;
-
-        const actBtn = banner.querySelector(".btn-reminder-act");
-        if (actBtn) {
-            actBtn.addEventListener("click", () => {
-                reminderConfig.actionCallback();
-            });
+        if (sessionStorage.getItem(dismissKey)) {
+            if (banner) banner.style.display = "none";
+            return;
         }
 
-        const dismissBtn = banner.querySelector(".btn-dismiss-reminder");
-        if (dismissBtn) {
-            dismissBtn.addEventListener("click", () => {
-                banner.remove();
-                sessionStorage.setItem(dismissKey, "1");
-            });
-        }
+        if (banner) {
+            banner.style.display = "flex";
+            const iconEl = banner.querySelector(".smart-reminder-icon i");
+            if (iconEl) iconEl.className = `${reminderConfig.icon} text-gold`;
+            const titleEl = banner.querySelector(".smart-reminder-title");
+            if (titleEl) titleEl.textContent = reminderConfig.title;
+            const descEl = banner.querySelector(".smart-reminder-desc");
+            if (descEl) descEl.textContent = reminderConfig.desc;
 
-        const charityBanner = heroSection.querySelector(".charity-memorial-banner");
-        if (charityBanner) {
-            charityBanner.insertAdjacentElement("afterend", banner);
-        } else {
-            heroSection.querySelector(".container").appendChild(banner);
+            const actBtn = banner.querySelector(".btn-reminder-act");
+            if (actBtn) {
+                const actSpan = actBtn.querySelector("span");
+                if (actSpan) actSpan.textContent = reminderConfig.actionText;
+                actBtn.onclick = () => reminderConfig.actionCallback();
+            }
+
+            const dismissBtn = banner.querySelector(".btn-dismiss-reminder");
+            if (dismissBtn) {
+                dismissBtn.onclick = () => {
+                    banner.style.display = "none";
+                    sessionStorage.setItem(dismissKey, "1");
+                };
+            }
         }
     }
 }
