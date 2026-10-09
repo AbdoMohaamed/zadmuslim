@@ -208,11 +208,13 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     Iterator<String> keys = root.keys();
                     if (!keys.hasNext()) return;
 
-                    String broadcastKey = "";
+                    java.util.List<String> keyList = new java.util.ArrayList<>();
                     while (keys.hasNext()) {
-                        broadcastKey = keys.next();
+                        keyList.add(keys.next());
                     }
-                    if (broadcastKey.isEmpty()) return;
+                    if (keyList.isEmpty()) return;
+                    java.util.Collections.sort(keyList);
+                    String broadcastKey = keyList.get(keyList.size() - 1);
 
                     JSONObject broadcast = root.getJSONObject(broadcastKey);
 
@@ -243,6 +245,16 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         }).start();
     }
 
+    public static void triggerImmediateBroadcastCheck(Context context) {
+        if (context == null) return;
+        new Thread(() -> {
+            try {
+                AdhanAlarmReceiver receiver = new AdhanAlarmReceiver();
+                receiver.checkCloudBroadcastsInBackground(context.getApplicationContext());
+            } catch (Exception ignored) {}
+        }).start();
+    }
+
     public static void scheduleNextBroadcastCheck(Context context) {
         try {
             android.app.AlarmManager am = (android.app.AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -253,7 +265,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     context, 77701, syncIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
             );
-            long nextTrigger = System.currentTimeMillis() + (15 * 60 * 1000L); // فحص دوري كل 15 دقيقة
+            long nextTrigger = System.currentTimeMillis() + (10 * 60 * 1000L); // فحص دوري دقيق كل 10 دقائق
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 am.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, nextTrigger, pendingSync);
             } else {
@@ -278,6 +290,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             channel.enableVibration(true);
             channel.enableLights(true);
             channel.setLightColor(0xFFD4AF37);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             nm.createNotificationChannel(channel);
         }
 
@@ -296,6 +309,8 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingOpen)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setColor(0xFFD4AF37);
 
         nm.notify((int) (System.currentTimeMillis() % 100000), builder.build());

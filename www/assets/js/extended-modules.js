@@ -881,9 +881,27 @@ function initSmartNotifications() {
                 return;
             }
 
+            // 1. إذا كان التطبيق يعمل داخل الموبايل كـ Native App (Capacitor iOS & Android)
+            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                try {
+                    if (window.NativeAdhanService && typeof window.NativeAdhanService.requestPermissions === "function") {
+                        await window.NativeAdhanService.requestPermissions();
+                    } else if (window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+                        await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
+                    }
+                } catch (e) {
+                    console.warn("Native notification permission request:", e);
+                }
+                showToast("تم تفعيل وتثبيت التنبيهات والأذان في نظام الهاتف لتصلك داخل وخارج التطبيق والشاشة مقفلة 🔔✨");
+                registerPushSubscriberInFirebase();
+                if (modal) modal.classList.remove("open");
+                return;
+            }
+
+            // 2. إذا كان متصفح ويب عادي / PWA
             if ("Notification" in window) {
                 if (Notification.permission === "granted") {
-                    showToast("تم حفظ وتفعيل التنبيهات المختارة بنجاح 🔔✨");
+                    showToast("تم حفظ وتفعيل التنبيهات المختارة بنجاح لتصلك في مواعيدها المباركة 🔔✨");
                     registerPushSubscriberInFirebase();
                     if (modal) modal.classList.remove("open");
                 } else if (Notification.permission !== "denied") {
@@ -897,11 +915,11 @@ function initSmartNotifications() {
                         showToast("يرجى السماح بالإشعارات من إعدادات المتصفح لتصلك التنبيهات في الخلفية.");
                     }
                 } else {
-                    showToast("الإشعارات محظورة في متصفحك. ستصلك التنبيهات داخل التطبيق مباشرة 🔔");
+                    showToast("تم حفظ التفضيلات! لتصلك خارج المتصفح يرجى تمكين الإشعارات من إعدادات المتصفح 🔔");
                     if (modal) modal.classList.remove("open");
                 }
             } else {
-                showToast("ستصلك التنبيهات داخل التطبيق مباشرة 🔔");
+                showToast("تم تفعيل وحفظ التنبيهات المختارة بنجاح 🔔✨");
                 if (modal) modal.classList.remove("open");
             }
         });
