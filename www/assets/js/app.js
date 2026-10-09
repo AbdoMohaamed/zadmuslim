@@ -1917,8 +1917,8 @@ function startPrayerCountdown() {
                 }
             }
 
-            // ب) إذا دخل وقت الصلاة (بين ثانية قبلها وحتى 20 دقيقة بعدها)
-            if (elapsedMs >= -1500 && elapsedMs <= 20 * 60 * 1000) {
+            // ب) إذا دخل وقت الصلاة في اللحظة الراهنة (بين ثانية قبلها وحتى دقيقة ونصف بعدها فقط)
+            if (elapsedMs >= -1500 && elapsedMs <= 90 * 1000) {
                 const todayPrayerKey = `${p.key}_${dateStr}`;
                 const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
                 if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {

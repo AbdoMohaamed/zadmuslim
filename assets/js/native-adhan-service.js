@@ -205,6 +205,51 @@ const NativeAdhanService = {
                         });
                     }
                 }
+
+                // 3. جدولة أذكار الصباح والمساء في نظام الهاتف الأصلي (Morning & Evening Azkar)
+                // أذكار الصباح: الساعة 06:30 صباحاً
+                const morningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 6, 30, 0);
+                if (morningMoment.getTime() > now.getTime() + 1000) {
+                    notificationsToSchedule.push({
+                        id: 70000 + (dayOffset * 10),
+                        title: "🌅 أذكار الصباح • حصن المسلم",
+                        body: "أصبحنا وأصبح الملك لله.. ابدأ يومك بذكر الله وحصّن نفسك وأهلك بنور الأذكار 🌿",
+                        schedule: { at: morningMoment, allowWhileIdle: true },
+                        smallIcon: "res://ic_stat_icon",
+                        iconColor: "#d4af37",
+                        extra: { type: "morning_azkar" }
+                    });
+                }
+
+                // أذكار المساء: الساعة 17:00 (5:00 عصراً)
+                const eveningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 17, 0, 0);
+                if (eveningMoment.getTime() > now.getTime() + 1000) {
+                    notificationsToSchedule.push({
+                        id: 71000 + (dayOffset * 10),
+                        title: "🌇 أذكار المساء • طمأنينة القلب",
+                        body: "أمسينا وأمسى الملك لله.. حان وقت أذكار المساء لطمأنينة القلب وحفظ الرحمن 🤲",
+                        schedule: { at: eveningMoment, allowWhileIdle: true },
+                        smallIcon: "res://ic_stat_icon",
+                        iconColor: "#d4af37",
+                        extra: { type: "evening_azkar" }
+                    });
+                }
+
+                // تذكير سورة الكهف والصلاة على النبي يوم الجمعة (الساعة 09:00 صباحاً)
+                if (targetDay.getDay() === 5) { // 5 = Friday
+                    const fridayMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 9, 0, 0);
+                    if (fridayMoment.getTime() > now.getTime() + 1000) {
+                        notificationsToSchedule.push({
+                            id: 72000 + (dayOffset * 10),
+                            title: "✨ جمعة مباركة • نور ما بين الجمعتين",
+                            body: "لا تنس قراءة سورة الكهف والإكثار من الصلاة والسلام على الحبيب المصطفى ﷺ 🌿",
+                            schedule: { at: fridayMoment, allowWhileIdle: true },
+                            smallIcon: "res://ic_stat_icon",
+                            iconColor: "#d4af37",
+                            extra: { type: "friday_kahf" }
+                        });
+                    }
+                }
             }
 
             // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي في الخلفية والمغلق والتحكم عبر زر القفل
