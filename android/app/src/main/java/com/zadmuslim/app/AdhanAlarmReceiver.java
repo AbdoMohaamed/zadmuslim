@@ -53,8 +53,9 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             return;
         }
 
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-            Log.d(TAG, "Device rebooted - Scheduling periodic broadcast check");
+        if (Intent.ACTION_BOOT_COMPLETED.equals(action) || "android.intent.action.QUICKBOOT_POWERON".equals(action) || "com.htc.intent.action.QUICKBOOT_POWERON".equals(action)) {
+            Log.d(TAG, "Device rebooted - Rescheduling prayer alarms and periodic broadcast check");
+            AdhanNativePlugin.rescheduleAlarmsFromPrefs(context);
             checkCloudBroadcastsInBackground(context);
             scheduleNextBroadcastCheck(context);
             return;
