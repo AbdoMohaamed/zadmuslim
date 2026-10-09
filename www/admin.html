@@ -941,10 +941,16 @@
                                 <div class="form-group" style="margin-bottom: 8px;">
                                     <label class="form-label" style="font-size: 0.75rem;">OneSignal REST API Key:</label>
                                     <input type="password" id="os-rest-key" class="form-input" placeholder="مثال: os_v2_app_xxxxxxxxxxxx" style="font-size: 0.8rem; padding: 6px 10px;">
+                                    <div style="font-size: 0.72rem; color: #d4af37; margin-top: 4px; line-height: 1.4;">
+                                        ⚠️ تنبيه هام: لا تنسخ (Key ID)، بل اضغط على زر (+ Add key) في OneSignal وانسخ المفتاح السري الذي يظهر لك ويبدأ عادة بـ <code>os_v2_app_</code>.
+                                    </div>
                                 </div>
-                                <div style="display: flex; gap: 8px; align-items: center;">
-                                    <button type="button" id="btn-save-os-config" class="btn btn-outline" style="font-size: 0.78rem; padding: 5px 14px;">
-                                        <i class="fa-solid fa-floppy-disk"></i> حفظ إعدادات البث السحابي
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <button type="button" id="btn-save-os-config" class="btn btn-primary" style="font-size: 0.78rem; padding: 5px 14px;">
+                                        <i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات
+                                    </button>
+                                    <button type="button" id="btn-test-os-connection" class="btn btn-outline" style="font-size: 0.78rem; padding: 5px 14px;">
+                                        <i class="fa-solid fa-plug"></i> فحص الاتصال بـ OneSignal
                                     </button>
                                     <span id="os-status-badge" style="font-size: 0.75rem; color: #aaa;"></span>
                                 </div>
@@ -1707,6 +1713,10 @@
                         const osData = await osRes.json();
                         if (osData && (osData.recipients > 0 || osData.id)) {
                             pushInfo += ` (تم إيقاظ وإشعار ${osData.recipients || 'جميع'} هواتف الموبايل عبر OneSignal • APNs & FCM)`;
+                        } else if (osData && osData.errors) {
+                            const errStr = Array.isArray(osData.errors) ? osData.errors.join(", ") : JSON.stringify(osData.errors);
+                            console.warn("OneSignal API errors:", osData.errors);
+                            showAdminToast("⚠️ تنبيه OneSignal: " + errStr + " (تأكد من نسخ REST API Key وليس Key ID)", true);
                         }
                     }
                 } catch (osErr) {
@@ -1750,7 +1760,7 @@
                         document.getElementById("os-rest-key").value = cfg.rest_key;
                     }
                     const badge = document.getElementById("os-status-badge");
-                    if (badge) badge.textContent = "✅ متصل وجاهز للبث السحابي";
+                    if (badge) badge.innerHTML = '<span style="color: #4ade80;">✅ الإعدادات محفوظة</span>';
                 }
             } catch(e) {}
         }
@@ -1774,10 +1784,48 @@
                     }
                     localStorage.setItem("zad_onesignal_app_id", appId);
                     const badge = document.getElementById("os-status-badge");
-                    if (badge) badge.textContent = "✅ تم الحفظ بنجاح";
-                    showAdminToast("تم حفظ إعدادات OneSignal وتفعيل البث السحابي ✨");
+                    if (badge) badge.innerHTML = '<span style="color: #4ade80;">✅ تم الحفظ بنجاح</span>';
+                    showAdminToast("تم حفظ إعدادات OneSignal بنجاح ✨");
                 } catch(err) {
                     showAdminToast("فشل الحفظ: " + err.message, true);
+                }
+            });
+        }
+
+        // Test OneSignal Connection
+        if (document.getElementById("btn-test-os-connection")) {
+            document.getElementById("btn-test-os-connection").addEventListener("click", async () => {
+                const appId = document.getElementById("os-app-id").value.trim();
+                const restKey = document.getElementById("os-rest-key").value.trim();
+                const badge = document.getElementById("os-status-badge");
+                if (!appId || !restKey) {
+                    showAdminToast("يرجى إدخال OneSignal App ID و REST API Key أولاً", true);
+                    return;
+                }
+                if (badge) badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري فحص الاتصال...';
+                try {
+                    const res = await fetch(`https://api.onesignal.com/apps/${appId}`, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": "Key " + restKey
+                        }
+                    });
+                    const data = await res.json();
+                    if (data && data.id === appId) {
+                        const count = (data.players !== undefined) ? data.players : (data.total_users || 0);
+                        if (badge) badge.innerHTML = `<span style="color: #4ade80; font-weight: bold;">✅ متصل ومصرح بنجاح! المشتركون: ${count}</span>`;
+                        showAdminToast(`تم التحقق بنجاح! مفتاح OneSignal صحيح ومصرح به.`);
+                    } else if (data && data.errors) {
+                        const errMsg = Array.isArray(data.errors) ? data.errors.join(", ") : JSON.stringify(data.errors);
+                        if (badge) badge.innerHTML = `<span style="color: #f87171; font-weight: bold;">❌ غير مصرح: تأكد من نسخ REST API Key وليس Key ID</span>`;
+                        showAdminToast(`خطأ من OneSignal: ${errMsg}`, true);
+                    } else {
+                        if (badge) badge.innerHTML = `<span style="color: #f87171;">❌ الاستجابة: كود ${res.status}</span>`;
+                        showAdminToast("فشل التحقق من المفتاح", true);
+                    }
+                } catch(err) {
+                    if (badge) badge.innerHTML = `<span style="color: #f87171;">❌ خطأ شبكة</span>`;
+                    showAdminToast("خطأ في الاتصال بخوادم OneSignal: " + err.message, true);
                 }
             });
         }
