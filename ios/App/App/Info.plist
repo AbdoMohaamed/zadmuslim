@@ -73,5 +73,7 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>يحتاج تطبيق زاد المسلم لتحديد الموقع الجغرافي لحساب مواقيت الصلاة بدقة واتجاه القبلة.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
