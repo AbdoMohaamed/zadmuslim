@@ -227,17 +227,17 @@
             </h1>
 
             <!-- بنر التذكير الذكي بالسياق الزمني (Smart Contextual Reminder Banner) -->
-            <div class="smart-reminder-banner container" id="smart-reminder-banner">
+            <div class="smart-reminder-banner container" id="smart-reminder-banner" style="display: none;">
                 <div class="smart-reminder-main">
                     <div class="smart-reminder-icon"><i class="fa-solid fa-moon text-gold" id="reminder-icon"></i></div>
                     <div class="smart-reminder-text-group">
-                        <span class="smart-reminder-title" id="reminder-title">سكينة الليل ونور القبر 🌙</span>
-                        <span class="smart-reminder-desc" id="reminder-desc">سورة الملك تنجي من عذاب القبر وتشفع لصاحبها، واختم ليلتك بركعة الوتر.</span>
+                        <span class="smart-reminder-title" id="reminder-title">زاد المسلم • رفيق طاعاتك اليومية</span>
+                        <span class="smart-reminder-desc" id="reminder-desc">تذكير مبارك يتجدد تلقائياً بحسب الوقت وسياق اليوم</span>
                     </div>
                 </div>
                 <div class="smart-reminder-actions">
                     <button type="button" class="btn btn-gold btn-sm btn-reminder-act" id="btn-reminder-act">
-                        <span id="reminder-act-text">قراءة سورة الملك 📖</span>
+                        <span id="reminder-act-text">فتح 📖</span>
                     </button>
                     <button type="button" class="btn-close-radio btn-dismiss-reminder" id="btn-dismiss-reminder" style="font-size: 1.3rem;" title="إغلاق">&times;</button>
                 </div>
@@ -2531,7 +2531,13 @@
                 <div class="toggle-switch-row">
                     <div class="toggle-switch-info">
                         <span class="toggle-switch-title">⏳ اقتربت الصلاة (قبل 5 دقائق)</span>
-                        <span class="toggle-switch-desc">تنبيه بالاستعداد للوضوء والتهيؤ للصلاة قبل الأذان بـ 5 دقائق</span>
+                        <span class="toggle-switch-desc">تنبيه بالاستعداد للوضوء والتهيؤ للصلاة قبل الأذان بـ 5 دقائق بصوت ناطق</span>
+                        <div style="margin-top: 6px;">
+                            <button type="button" class="btn btn-outline btn-sm" id="btn-test-pre-prayer-sound" style="font-size: 11px; padding: 4px 10px;">
+                                <i class="fa-solid fa-volume-high text-gold"></i>
+                                <span>تجربة صوت التنبيه 🔊</span>
+                            </button>
+                        </div>
                     </div>
                     <label class="custom-switch">
                         <input type="checkbox" id="notify-pre-prayer" checked>

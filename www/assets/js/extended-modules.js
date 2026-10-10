@@ -2756,25 +2756,38 @@ function initSpiritualGarden() {
 }
 
 /* ==========================================================================
-   13. تنبيهات الطاعات الذكية الصامتة واللطيفة (Smart Timely Reminders)
+   13. التذكير السياقي الذكي بحسب الوقت واليوم (Smart Timely Reminders)
+   يتغير تلقائياً بحسب وقت اليوم:
+   - سورة الكهف يوم الجمعة المباركة
+   - صيام الإثنين والخميس
+   - قيام الليل والأسحار والوتر
+   - أذكار الصباح وحصن المسلم
+   - صلاة الضحى صدقة المفاصل
+   - وقت الظهيرة وتلاوة القرآن الكريم
+   - أذكار المساء وحفظ الرحمن
+   - ما بين المغرب والعشاء وروضة الطاعات
+   - سكينة الليل وسورة الملك وركعة الوتر
    ========================================================================== */
 function initSmartTimelyReminders() {
     const now = new Date();
-    const dayOfWeek = now.getDay(); // 5 = Friday
+    const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, 4 = Thursday, 5 = Friday
     const hour = now.getHours();
+    const minutes = now.getMinutes();
+    const timeVal = hour + (minutes / 60);
 
-    const heroSection = document.getElementById("hero");
-    if (!heroSection) return;
+    const banner = document.getElementById("smart-reminder-banner");
+    if (!banner) return;
 
     let reminderConfig = null;
 
-    // 1. تذكير يوم الجمعة المباركة
-    if (dayOfWeek === 5) {
+    // 1. يوم الجمعة المباركة (من مغرب الخميس 18:30 وحتى مغرب الجمعة 18:00)
+    const isFridayTime = (dayOfWeek === 4 && timeVal >= 18.5) || (dayOfWeek === 5 && timeVal < 18.0);
+    if (isFridayTime) {
         reminderConfig = {
             id: "friday_kahf",
             icon: "fa-solid fa-star-and-crescent",
-            title: "اليوم الجمعة المباركة 🌸",
-            desc: "لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ، والدعاء في ساعة الاستجابة.",
+            title: "اليوم الجمعة المباركة • نور ما بين الجمعتين 🌸",
+            desc: "خير يوم طلعت عليه الشمس؛ لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة والسلام على النبي ﷺ، والدعاء في ساعة الاستجابة.",
             actionText: "قراءة سورة الكهف 📖",
             actionCallback: () => {
                 if (typeof goToMushafPage === "function") goToMushafPage(293, 18);
@@ -2782,29 +2795,58 @@ function initSmartTimelyReminders() {
                 if (quranSec) quranSec.scrollIntoView({ behavior: "smooth" });
             }
         };
-    } 
-    // 2. تذكير الليل وسورة الملك والوتر (9 مساءً إلى 1 صباحاً)
-    else if (hour >= 21 || hour < 2) {
+    }
+    // 2. سنة صيام الإثنين والخميس (نهار الإثنين حتى 15:30، أو نهار الخميس حتى 15:30)
+    else if ((dayOfWeek === 1 && timeVal >= 5.0 && timeVal < 15.5) || (dayOfWeek === 4 && timeVal >= 5.0 && timeVal < 15.5)) {
+        const dayName = dayOfWeek === 1 ? "الإثنين" : "الخميس";
         reminderConfig = {
-            id: "night_mulk",
-            icon: "fa-solid fa-moon",
-            title: "سكينة الليل ونور القبر 🌙",
-            desc: "سورة الملك تنجي من عذاب القبر وتشفع لصاحبها، واختم ليلتك بركعة الوتر.",
-            actionText: "قراءة سورة الملك 📖",
+            id: `fasting_${dayName}`,
+            icon: "fa-solid fa-hand-holding-heart",
+            title: `سنة صيام ${dayName} • ترفع فيه الأعمال 🌿`,
+            desc: "قال ﷺ: 'تُعرض الأعمال يوم الاثنين والخميس، فأحب أن يُعرض عملي وأنا صائم'. هنيئاً للصائمين وبشرى بباب الريان.",
+            actionText: "تتبع صيام النوافل 🤲",
             actionCallback: () => {
-                if (typeof goToMushafPage === "function") goToMushafPage(562, 67);
-                const quranSec = document.getElementById("quran-khatma");
-                if (quranSec) quranSec.scrollIntoView({ behavior: "smooth" });
+                const fastingSec = document.getElementById("fasting-tracker") || document.getElementById("hero-prayers-strip");
+                if (fastingSec) fastingSec.scrollIntoView({ behavior: "smooth" });
             }
         };
     }
-    // 3. تذكير أذكار الصباح (الفجر وحتى 11 صباحاً)
-    else if (hour >= 5 && hour < 11) {
+    // 3. التذكير بصيام الغد (ليلة الإثنين: الأحد بعد 18:30، أو ليلة الخميس: الأربعاء بعد 18:30)
+    else if ((dayOfWeek === 0 && timeVal >= 18.5 && timeVal < 23.5) || (dayOfWeek === 3 && timeVal >= 18.5 && timeVal < 23.5)) {
+        const targetDay = dayOfWeek === 0 ? "الإثنين" : "الخميس";
+        reminderConfig = {
+            id: `eve_fasting_${targetDay}`,
+            icon: "fa-solid fa-moon text-gold",
+            title: `غداً سنة صيام ${targetDay} المبارك 🌙`,
+            desc: "بيّت النية لصيام الغد؛ تُعرض الأعمال على الله تعالى ويُباعد الله وجه الصائم عن النار سبعين خريفاً.",
+            actionText: "أذكار وطاعات الصيام 🤲",
+            actionCallback: () => {
+                const azkarSec = document.getElementById("azkar");
+                if (azkarSec) azkarSec.scrollIntoView({ behavior: "smooth" });
+            }
+        };
+    }
+    // 4. الثلث الأخير من الليل • قيام الليل والاستغفار بالأسحار (02:00 إلى 05:00 فجراً)
+    else if (timeVal >= 2.0 && timeVal < 5.0) {
+        reminderConfig = {
+            id: "night_qiyam_sahoor",
+            icon: "fa-solid fa-mosque",
+            title: "قيام الليل والأسحار • شرف المؤمن 🌌",
+            desc: "ينزل ربنا تبارك وتعالى إلى السماء الدنيا: 'هل من داعٍ فأستجيب له؟'... صلِّ ركعتين خاشعتين واختم ليلتك بالوتر واستغفر بالأسحار.",
+            actionText: "أدعية قيام الليل والوتر 🤲",
+            actionCallback: () => {
+                const duaaSec = document.getElementById("daily-duas") || document.getElementById("azkar");
+                if (duaaSec) duaaSec.scrollIntoView({ behavior: "smooth" });
+            }
+        };
+    }
+    // 5. أذكار الصباح وحصن المسلم (05:00 إلى 08:30 صباحاً)
+    else if (timeVal >= 5.0 && timeVal < 8.5) {
         reminderConfig = {
             id: "morning_azkar",
             icon: "fa-solid fa-sun",
-            title: "ألا بذكر الله تطمئن القلوب 🌅",
-            desc: "ابدأ يومك بحفظ الله ورعايته عبر أذكار الصباح وحصن المسلم.",
+            title: "ألا بذكر الله تطمئن القلوب • أذكار الصباح 🌅",
+            desc: "ابدأ يومك بحفظ الله ورعايته؛ أذكار الصباح حصن منيع وانشراح للصدر وبركة في الرزق ليومك كله.",
             actionText: "أذكار الصباح 🛡️",
             actionCallback: () => {
                 const azkarTab = document.getElementById("tab-morning");
@@ -2814,13 +2856,41 @@ function initSmartTimelyReminders() {
             }
         };
     }
-    // 4. تذكير أذكار المساء (العصر وحتى 7 مساءً)
-    else if (hour >= 16 && hour < 19) {
+    // 6. صلاة الضحى • صلاة الأوابين وصدقة المفاصل (08:30 إلى 11:30 صباحاً)
+    else if (timeVal >= 8.5 && timeVal < 11.5) {
+        reminderConfig = {
+            id: "duha_prayer",
+            icon: "fa-solid fa-cloud-sun",
+            title: "صلاة الضحى • صدقة عن كل مفصل ☀️",
+            desc: "يصبح على كل سلامى من أحدكم صدقة، وتجزئ عن ذلك ركعتان يركعهما من الضحى صلاة الأوابين لجلب البركة والسكينة.",
+            actionText: "فضل صلاة الضحى 🕌",
+            actionCallback: () => {
+                const prayersSec = document.getElementById("prayer-times") || document.getElementById("azkar");
+                if (prayersSec) prayersSec.scrollIntoView({ behavior: "smooth" });
+            }
+        };
+    }
+    // 7. وقت الظهيرة وما بعد الظهر • ورد القرآن وذكر الله (11:30 إلى 15:30 عصراً)
+    else if (timeVal >= 11.5 && timeVal < 15.5) {
+        reminderConfig = {
+            id: "noon_quran",
+            icon: "fa-solid fa-book-quran",
+            title: "طيّب وقتك بذكر الله وتلاوة كتابه 📖",
+            desc: "اجعل لقلبك نصيباً من كتاب الله في منتصف يومك؛ تلاوة صفحة من المصحف الشريف والصلاة على النبي ﷺ تنير دربك وتبارك وقتك.",
+            actionText: "ورد القرآن اليومي 📖",
+            actionCallback: () => {
+                const quranSec = document.getElementById("quran-khatma");
+                if (quranSec) quranSec.scrollIntoView({ behavior: "smooth" });
+            }
+        };
+    }
+    // 8. أذكار المساء وحفظ الرحمن (15:30 إلى 18:30 مساءً)
+    else if (timeVal >= 15.5 && timeVal < 18.5) {
         reminderConfig = {
             id: "evening_azkar",
             icon: "fa-solid fa-cloud-sun",
-            title: "حصّن نفسك وأهلك 🌇",
-            desc: "حان وقت أذكار المساء لطمأنينة القلب والوقاية من كل مكروه.",
+            title: "حصّن نفسك وأهلك • أذكار المساء 🌇",
+            desc: "أمسينا وأمسى الملك لله؛ حان وقت أذكار المساء لطمأنينة القلب والوقاية من كل سوء والتحصين الشامل حتى تصبح.",
             actionText: "أذكار المساء 🛡️",
             actionCallback: () => {
                 const azkarTab = document.getElementById("tab-evening");
@@ -2830,40 +2900,75 @@ function initSmartTimelyReminders() {
             }
         };
     }
+    // 9. ما بين المغرب والعشاء • روضة الطاعات والسنن (18:30 إلى 20:30 مساءً)
+    else if (timeVal >= 18.5 && timeVal < 20.5) {
+        reminderConfig = {
+            id: "maghrib_isha_awabin",
+            icon: "fa-solid fa-hands-praying",
+            title: "ما بين المغرب والعشاء • روضة الطاعات 🕌",
+            desc: "وقت مبارك لشهود السنن الرواتب، وتدبر آيات الذكر الحكيم، ومداومة الاستغفار والتسبيح قبل صلاة العشاء.",
+            actionText: "السبحة والأذكار 📿",
+            actionCallback: () => {
+                const sebhaSec = document.getElementById("sebha") || document.getElementById("azkar");
+                if (sebhaSec) sebhaSec.scrollIntoView({ behavior: "smooth" });
+            }
+        };
+    }
+    // 10. سكينة الليل وسورة الملك وركعة الوتر (20:30 إلى 02:00 بعد منتصف الليل)
+    else {
+        reminderConfig = {
+            id: "night_mulk",
+            icon: "fa-solid fa-moon",
+            title: "سكينة الليل ونور القبر 🌙",
+            desc: "سورة الملك تنجي من عذاب القبر وتشفع لصاحبها، واختم ليلتك بركعة الوتر قبل النوم لتنام على طاعة.",
+            actionText: "قراءة سورة الملك 📖",
+            actionCallback: () => {
+                if (typeof goToMushafPage === "function") goToMushafPage(562, 67);
+                const quranSec = document.getElementById("quran-khatma");
+                if (quranSec) quranSec.scrollIntoView({ behavior: "smooth" });
+            }
+        };
+    }
 
     if (reminderConfig) {
         const dismissKey = `reminder_dismissed_${reminderConfig.id}_${now.toISOString().slice(0, 10)}`;
-        let banner = document.getElementById("smart-reminder-banner");
 
         if (sessionStorage.getItem(dismissKey)) {
-            if (banner) banner.style.display = "none";
+            banner.style.display = "none";
             return;
         }
 
-        if (banner) {
-            banner.style.display = "flex";
-            const iconEl = banner.querySelector(".smart-reminder-icon i");
-            if (iconEl) iconEl.className = `${reminderConfig.icon} text-gold`;
-            const titleEl = banner.querySelector(".smart-reminder-title");
-            if (titleEl) titleEl.textContent = reminderConfig.title;
-            const descEl = banner.querySelector(".smart-reminder-desc");
-            if (descEl) descEl.textContent = reminderConfig.desc;
+        banner.style.display = "flex";
+        const iconEl = banner.querySelector(".smart-reminder-icon i");
+        if (iconEl) iconEl.className = `${reminderConfig.icon} text-gold`;
+        const titleEl = banner.querySelector(".smart-reminder-title");
+        if (titleEl) titleEl.textContent = reminderConfig.title;
+        const descEl = banner.querySelector(".smart-reminder-desc");
+        if (descEl) descEl.textContent = reminderConfig.desc;
 
-            const actBtn = banner.querySelector(".btn-reminder-act");
-            if (actBtn) {
-                const actSpan = actBtn.querySelector("span");
-                if (actSpan) actSpan.textContent = reminderConfig.actionText;
-                actBtn.onclick = () => reminderConfig.actionCallback();
-            }
-
-            const dismissBtn = banner.querySelector(".btn-dismiss-reminder");
-            if (dismissBtn) {
-                dismissBtn.onclick = () => {
-                    banner.style.display = "none";
-                    sessionStorage.setItem(dismissKey, "1");
-                };
-            }
+        const actBtn = banner.querySelector(".btn-reminder-act");
+        if (actBtn) {
+            const actSpan = actBtn.querySelector("span");
+            if (actSpan) actSpan.textContent = reminderConfig.actionText;
+            actBtn.onclick = () => reminderConfig.actionCallback();
         }
+
+        const dismissBtn = banner.querySelector(".btn-dismiss-reminder");
+        if (dismissBtn) {
+            dismissBtn.onclick = () => {
+                banner.style.display = "none";
+                sessionStorage.setItem(dismissKey, "1");
+            };
+        }
+    }
+
+    // جدولة التحديث الدوري كل دقيقة ليتغير المحتوى تلقائياً بالثانية
+    if (!window._smartReminderTimerInitialized) {
+        window._smartReminderTimerInitialized = true;
+        setInterval(initSmartTimelyReminders, 60000);
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) initSmartTimelyReminders();
+        });
     }
 }
 

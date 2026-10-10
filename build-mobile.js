@@ -42,4 +42,24 @@ if (fs.existsSync(assetsSrc)) {
     copyDirRecursive(assetsSrc, assetsDest);
 }
 
-console.log('Mobile assets successfully packaged into ./www directory!');
+// -------------------------------------------------------------
+// Sync pre-prayer custom sounds to Android raw & iOS App bundle
+// -------------------------------------------------------------
+const preAudioSrc = path.join(srcDir, 'assets', 'audio', 'pre');
+const androidRawDir = path.join(srcDir, 'android', 'app', 'src', 'main', 'res', 'raw');
+const iosAppDir = path.join(srcDir, 'ios', 'App', 'App');
+
+if (fs.existsSync(preAudioSrc)) {
+    const preFiles = fs.readdirSync(preAudioSrc);
+    preFiles.forEach(f => {
+        const src = path.join(preAudioSrc, f);
+        if (fs.existsSync(androidRawDir)) {
+            fs.copyFileSync(src, path.join(androidRawDir, f));
+        }
+        if (fs.existsSync(iosAppDir)) {
+            fs.copyFileSync(src, path.join(iosAppDir, f));
+        }
+    });
+}
+
+console.log('Mobile assets successfully packaged into ./www directory and native sound resources synced!');

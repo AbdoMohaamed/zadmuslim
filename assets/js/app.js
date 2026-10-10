@@ -1651,6 +1651,20 @@ function initPrayerTimes() {
         localStorage.setItem("selected_prayer_city", savedCity);
     }
 
+    // جدولة فورية سريعة للمواقيت لتشغيل إشعارات الأذان والمنبه فور فتح التطبيق دون انتظار حوار الـ GPS
+    if (!prayerTimings) {
+        const lastCached = localStorage.getItem("last_active_prayer_timings");
+        if (lastCached) {
+            try { prayerTimings = JSON.parse(lastCached); } catch(e) {}
+        }
+        if (!prayerTimings) prayerTimings = FALLBACK_PRAYER_TIMES;
+        renderPrayerTimesUI(prayerTimings);
+        startPrayerCountdown();
+        if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
+            window.NativeAdhanService.schedulePrayers(prayerTimings);
+        }
+    }
+
     if (citySelect) {
         citySelect.value = savedCity;
         citySelect.addEventListener("change", (e) => {
@@ -1761,6 +1775,7 @@ function fetchPrayerTimes(cityKey) {
             if (result && result.code === 200 && result.data && result.data.timings) {
                 prayerTimings = result.data.timings;
                 localStorage.setItem(cacheKey, JSON.stringify(prayerTimings));
+                localStorage.setItem("last_active_prayer_timings", JSON.stringify(prayerTimings));
                 renderPrayerTimesUI(prayerTimings);
                 startPrayerCountdown();
                 initFastingTracker();
@@ -3614,6 +3629,15 @@ function initAdhanNotifications() {
             }
 
             showToast(isAdhanAudioEnabled ? "تم تفعيل صوت الأذان وتنبيهات الصلوات 🕌" : "تم كتم صوت الأذان 🔇");
+        });
+    }
+
+    const btnTestPre = document.getElementById("btn-test-pre-prayer-sound");
+    if (btnTestPre) {
+        btnTestPre.addEventListener("click", () => {
+            const pKey = (typeof currentNextPrayerKey !== "undefined" && currentNextPrayerKey) ? currentNextPrayerKey : "dhuhr";
+            playPrePrayerAudio(pKey);
+            showToast("جاري تشغيل صوت: اقتربت الصلاة 🔊");
         });
     }
 

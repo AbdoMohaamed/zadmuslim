@@ -160,8 +160,8 @@ const NativeAdhanService = {
 
             const notificationsToSchedule = [];
 
-            // جدولة لليوم الحالي وللأيام الأربعة القادمة لضمان استمرار العمل حتى والتطبيق مغلق تماماً
-            for (let dayOffset = 0; dayOffset <= 4; dayOffset++) {
+            // جدولة لليوم الحالي ولليومين القادمين (3 أيام = 36 إشعاراً) للبقاء بأمان تام تحت الحد الأقصى لنظام iOS (64 إشعاراً)
+            for (let dayOffset = 0; dayOffset <= 2; dayOffset++) {
                 const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
 
                 for (const p of prayersList) {
