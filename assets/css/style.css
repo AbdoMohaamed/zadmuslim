@@ -11679,5 +11679,739 @@ html.light-theme .adhan-banner-sub {
   color: #735200 !important;
 }
 
+/* ==========================================================================
+   22. تصميم واجهة زاد المسلم العصرية والتفاعلية (ZadMuslim Modern Responsive Interface)
+   متجاوب بالكامل للآيفون، الأندرويد، والشاشات الكبيرة (Desktop)
+   ========================================================================== */
+
+/* الحاوية العصرية العامة */
+.modern-shell {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* بطاقة البداية العصرية (Modern Hero Card) */
+.modern-hero-card {
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: 28px;
+  background: radial-gradient(circle at 8% 20%, #216f5a 0%, transparent 40%), linear-gradient(115deg, #064034 0%, #0d5a49 100%);
+  color: #ffffff;
+  min-height: 280px;
+  padding: 2.5rem 3rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 15px 35px rgba(6, 64, 52, 0.35), 0 0 20px rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.modern-hero-card::before {
+  content: "۞";
+  position: absolute;
+  left: 6%;
+  top: -120px;
+  font-size: 380px;
+  color: rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+  font-family: serif;
+}
+
+.modern-hero-content {
+  max-width: 650px;
+  z-index: 2;
+}
+
+.modern-hero-eyebrow {
+  color: #f1d7a1;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.modern-hero-title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.modern-hero-desc {
+  font-size: 0.98rem;
+  line-height: 1.9;
+  color: #d4e9df;
+  margin: 0.6rem 0 1.4rem;
+}
+
+.modern-hero-actions {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.btn-modern-gold {
+  background: linear-gradient(135deg, #d9b773 0%, #c49b50 100%);
+  color: #163d31 !important;
+  font-weight: 800;
+  padding: 0.75rem 1.6rem;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 6px 18px rgba(196, 155, 80, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-modern-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(196, 155, 80, 0.45);
+}
+
+.btn-modern-glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff !important;
+  font-weight: 800;
+  padding: 0.75rem 1.5rem;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-modern-glass:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+
+.modern-hero-moon {
+  font-size: 100px;
+  color: #f6dc8d;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 35px rgba(246, 220, 141, 0.45));
+  margin-left: 2rem;
+  z-index: 2;
+  user-select: none;
+  animation: floatMoon 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatMoon {
+  0% { transform: translateY(0px) rotate(-5deg); }
+  100% { transform: translateY(-8px) rotate(5deg); }
+}
+
+/* رؤوس الأقسام العصرية */
+.modern-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 2.2rem 0 1.2rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.modern-section-title-wrap h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modern-section-title-wrap p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0 0;
+}
+
+.modern-section-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--gold-400);
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+}
+
+/* لوحة "يومي مع الله" التفاعلية (Dashboard) */
+.modern-dashboard {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.25rem;
+}
+
+.modern-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 22px;
+  padding: 1.6rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-panel-head h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.3rem;
+}
+
+.modern-panel-head .modern-small {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* شريط الصلاة داخل لوحة يومي */
+.modern-prayer-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(14, 102, 84, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 1.1rem 1.3rem;
+  border-radius: 17px;
+  margin-top: 1.2rem;
+  gap: 1rem;
+}
+
+.modern-prayer-info strong {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  display: block;
+  margin: 0.2rem 0;
+}
+
+.modern-prayer-tag {
+  font-size: 0.8rem;
+  color: var(--gold-400);
+  font-weight: 700;
+}
+
+.btn-modern-outline {
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--gold-300) !important;
+  font-weight: 800;
+  padding: 0.55rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-modern-outline:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--gold-400);
+}
+
+/* شريط الإنجاز اليومي والمهام */
+.modern-progress-wrap {
+  margin-top: 1.2rem;
+}
+
+.modern-progress-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.modern-progress-bar {
+  height: 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin: 0.5rem 0 1rem;
+}
+
+.modern-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #e8c45a 100%);
+  border-radius: 99px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-tasks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.modern-task-btn {
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.8rem 1rem;
+  border-radius: 13px;
+  text-align: right;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.modern-task-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--gold-400);
+}
+
+.modern-task-btn.done {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.modern-task-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.modern-task-btn.done .modern-task-check {
+  border-color: #10b981;
+  background: #10b981;
+  color: white;
+}
+
+/* لوحة التسبيح السريع */
+.modern-dhikr-panel {
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(10, 41, 33, 0.6) 100%);
+}
+
+.modern-dhikr-quote {
+  font-size: 1.35rem;
+  line-height: 1.9;
+  font-weight: 800;
+  margin: 1.2rem auto;
+  max-width: 360px;
+  color: var(--gold-200);
+  font-family: var(--font-quran), Amiri, serif;
+}
+
+.modern-dhikr-counter {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #34d399;
+  margin: 0.3rem 0;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+}
+
+.modern-dhikr-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-modern-solid {
+  background: linear-gradient(135deg, #0e6654 0%, #064034 100%);
+  border: 1px solid #10b981;
+  color: #ffffff !important;
+  font-weight: 800;
+  padding: 0.75rem 1.6rem;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+  box-shadow: 0 4px 15px rgba(6, 64, 52, 0.3);
+  font-family: inherit;
+}
+
+.btn-modern-solid:active {
+  transform: scale(0.96);
+}
+
+/* شبكة أقسام المنصة (Modern Features Grid) */
+.modern-features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+}
+
+.modern-feature-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.5rem 1.25rem;
+  min-height: 175px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modern-feature-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--gold-400);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 15px rgba(212, 175, 55, 0.15);
+}
+
+.modern-fi {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(14, 102, 84, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+  margin-bottom: 1rem;
+}
+
+.modern-feature-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.modern-feature-card p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.8;
+}
+
+/* قسم الصدقة الجارية وتحدي 7 أيام (Bottom Grid) */
+.modern-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin: 2.2rem 0 3.5rem;
+}
+
+.modern-panel-sadaqa {
+  background: linear-gradient(135deg, rgba(30, 24, 15, 0.85) 0%, rgba(20, 15, 10, 0.95) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.modern-panel-challenge {
+  background: linear-gradient(135deg, rgba(14, 38, 30, 0.85) 0%, rgba(10, 26, 21, 0.95) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.modern-tag-gold {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: #fce8a8;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 0.28rem 0.85rem;
+  border-radius: 30px;
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+}
+
+.modern-tag-green {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.28rem 0.85rem;
+  border-radius: 30px;
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+}
+
+/* شريط التنقل السفلي للهواتف (Mobile Bottom Bar) */
+.modern-mobilebar {
+  display: none;
+}
+
+/* ==========================================================================
+   الملاءمة للوضع النهاري (Light Theme Support)
+   ========================================================================== */
+body.light-theme,
+html[data-theme="light"] body {
+  background: #f7f9f6 !important;
+  color: #193b34 !important;
+}
+
+body.light-theme .modern-panel,
+html[data-theme="light"] .modern-panel {
+  background: #ffffff !important;
+  border: 1px solid #e8eee9 !important;
+  box-shadow: 0 6px 28px rgba(25, 59, 52, 0.06) !important;
+}
+
+body.light-theme .modern-panel-head h3,
+html[data-theme="light"] .modern-panel-head h3,
+body.light-theme .modern-section-title-wrap h2,
+html[data-theme="light"] .modern-section-title-wrap h2,
+body.light-theme .modern-feature-card h3,
+html[data-theme="light"] .modern-feature-card h3 {
+  color: #193b34 !important;
+}
+
+body.light-theme .modern-feature-card,
+html[data-theme="light"] .modern-feature-card {
+  background: #ffffff !important;
+  border: 1px solid #e7eee8 !important;
+  box-shadow: 0 4px 16px rgba(21, 62, 48, 0.05) !important;
+}
+
+body.light-theme .modern-feature-card:hover,
+html[data-theme="light"] .modern-feature-card:hover {
+  box-shadow: 0 12px 26px rgba(21, 62, 48, 0.1) !important;
+  border-color: #0e6654 !important;
+}
+
+body.light-theme .modern-fi,
+html[data-theme="light"] .modern-fi {
+  background: #eaf5ee !important;
+  border: 1px solid #d4e8dc !important;
+}
+
+body.light-theme .modern-prayer-strip,
+html[data-theme="light"] .modern-prayer-strip {
+  background: #eff7f1 !important;
+  border: 1px solid #d6ece0 !important;
+}
+
+body.light-theme .modern-prayer-info strong,
+html[data-theme="light"] .modern-prayer-info strong {
+  color: #193b34 !important;
+}
+
+body.light-theme .modern-task-btn,
+html[data-theme="light"] .modern-task-btn {
+  background: #ffffff !important;
+  border: 1px solid #e3ede5 !important;
+  color: #193b34 !important;
+}
+
+body.light-theme .modern-task-btn.done,
+html[data-theme="light"] .modern-task-btn.done {
+  background: #edf8f0 !important;
+  border-color: #8fcdb0 !important;
+  color: #0e6654 !important;
+}
+
+body.light-theme .modern-dhikr-panel,
+html[data-theme="light"] .modern-dhikr-panel {
+  background: linear-gradient(180deg, #ffffff 0%, #fafcf9 100%) !important;
+}
+
+body.light-theme .modern-dhikr-quote,
+html[data-theme="light"] .modern-dhikr-quote {
+  color: #0e6654 !important;
+}
+
+body.light-theme .modern-dhikr-counter,
+html[data-theme="light"] .modern-dhikr-counter {
+  color: #0e6654 !important;
+}
+
+body.light-theme .modern-panel-sadaqa,
+html[data-theme="light"] .modern-panel-sadaqa {
+  background: #f3eadd !important;
+  border-color: #eadbc2 !important;
+}
+
+body.light-theme .modern-panel-challenge,
+html[data-theme="light"] .modern-panel-challenge {
+  background: #eaf4ed !important;
+  border-color: #d1e8d7 !important;
+}
+
+body.light-theme .btn-modern-solid,
+html[data-theme="light"] .btn-modern-solid {
+  background: #073f35 !important;
+  border-color: #0e6654 !important;
+  color: #ffffff !important;
+}
+
+body.light-theme .btn-modern-outline,
+html[data-theme="light"] .btn-modern-outline {
+  background: #ffffff !important;
+  border: 1px solid #d7e4db !important;
+  color: #073f35 !important;
+}
+
+/* ==========================================================================
+   التجاوب التام للهواتف (Responsive Media Queries for Mobile & Tablet)
+   ========================================================================== */
+@media (max-width: 992px) {
+  .modern-dashboard {
+    grid-template-columns: 1fr;
+  }
+  .modern-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+  .modern-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .modern-hero-card {
+    padding: 2.2rem;
+  }
+  .modern-hero-moon {
+    font-size: 70px;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .modern-shell {
+    padding: 0 14px;
+  }
+  .modern-hero-card {
+    min-height: auto;
+    padding: 1.6rem 1.4rem;
+    border-radius: 22px;
+    margin-top: 0.8rem;
+    margin-bottom: 1.1rem;
+  }
+  .modern-hero-title {
+    font-size: 1.65rem;
+    line-height: 1.45;
+  }
+  .modern-hero-desc {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    margin-bottom: 1.1rem;
+  }
+  .modern-hero-moon {
+    display: none;
+  }
+  .modern-hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .modern-hero-actions .btn-modern-gold,
+  .modern-hero-actions .btn-modern-glass {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+  .modern-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .modern-feature-card {
+    padding: 1.2rem 1rem;
+    min-height: 150px;
+    border-radius: 16px;
+  }
+  .modern-feature-card h3 {
+    font-size: 0.96rem;
+  }
+  .modern-feature-card p {
+    font-size: 0.76rem;
+    line-height: 1.6;
+  }
+  .modern-fi {
+    width: 44px;
+    height: 44px;
+    font-size: 1.4rem;
+    border-radius: 12px;
+    margin-bottom: 0.7rem;
+  }
+  .modern-tasks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* شريط التبويبات السفلي للآيفون والأندرويد (Mobile Bottom Bar) */
+  .modern-mobilebar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: rgba(7, 13, 24, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    justify-content: space-around;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.5);
+  }
+
+  body.light-theme .modern-mobilebar,
+  html[data-theme="light"] .modern-mobilebar {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-top: 1px solid #e3eae4 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .modern-mobile-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 4px 12px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+  }
+
+  body.light-theme .modern-mobile-tab,
+  html[data-theme="light"] .modern-mobile-tab {
+    color: #64748b !important;
+  }
+
+  .modern-mobile-tab i,
+  .modern-mobile-tab span.tab-icon {
+    font-size: 1.25rem;
+  }
+
+  .modern-mobile-tab.active,
+  .modern-mobile-tab:hover {
+    color: var(--gold-400) !important;
+    transform: translateY(-2px);
+  }
+
+  body.light-theme .modern-mobile-tab.active,
+  html[data-theme="light"] .modern-mobile-tab.active {
+    color: #0e6654 !important;
+  }
+}
+
+
 
 

@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initIslamicMediaHub();
     trackSiteTelemetry();
     initAdminDashboard();
+    initModernZadDashboard();
 });
 
 /* ==========================================================================
@@ -3685,6 +3686,319 @@ function initThemeToggle() {
     }
 }
 
+/* ==========================================================================
+   21. لوحة المتابعة الإيمانية اليومية وشريط التنقل المتجاوب (Modern Faith Dashboard)
+   ========================================================================== */
+function initModernZadDashboard() {
+    try {
+        // --- 1. تحديث تاريخ اليوم المعروض في لوحة يومي مع الله ---
+        const dateBadge = document.getElementById("daily-current-date-badge");
+        if (dateBadge) {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            try {
+                dateBadge.textContent = today.toLocaleDateString('ar-EG', options);
+            } catch(e) {
+                dateBadge.textContent = "اليوم المبارك 🌿";
+            }
+        }
 
+        // --- 2. إدارة ومتابعة قائمة المهام اليومية (Daily Faith Checklist) ---
+        const todayKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        const storageKey = `zad_daily_tasks_${todayKey}`;
+        let savedTasks = {};
+        try {
+            savedTasks = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        } catch(e) {
+            savedTasks = {};
+        }
 
+        const taskButtons = document.querySelectorAll(".modern-task-btn");
+        const pctEl = document.getElementById("zad-daily-pct");
+        const fillEl = document.getElementById("zad-daily-fill");
 
+        function updateTasksProgressUI() {
+            if (!taskButtons || taskButtons.length === 0) return;
+            let completed = 0;
+            taskButtons.forEach(btn => {
+                const taskName = btn.getAttribute("data-task");
+                const isDone = !!savedTasks[taskName];
+                const checkIcon = btn.querySelector(".modern-task-check");
+                if (isDone) {
+                    btn.classList.add("completed");
+                    if (checkIcon) checkIcon.textContent = "✓";
+                } else {
+                    btn.classList.remove("completed");
+                    if (checkIcon) checkIcon.textContent = "○";
+                }
+                if (isDone) completed++;
+            });
+
+            const total = taskButtons.length;
+            const percent = Math.round((completed / total) * 100);
+            if (pctEl) pctEl.textContent = `${percent}%`;
+            if (fillEl) fillEl.style.width = `${percent}%`;
+        }
+
+        taskButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const taskName = btn.getAttribute("data-task");
+                if (!taskName) return;
+                savedTasks[taskName] = !savedTasks[taskName];
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(savedTasks));
+                } catch(e) {}
+                updateTasksProgressUI();
+
+                if (savedTasks[taskName] && typeof showToast === "function") {
+                    showToast("تقبل الله طاعتكم وجعلها في ميزان حسناتكم 🤍");
+                }
+            });
+        });
+
+        updateTasksProgressUI();
+
+        // --- 3. مزامنة موعد الصلاة القادمة في شريط يومي مع الله ---
+        function updateModernPrayerStrip() {
+            const prayerNameEl = document.getElementById("daily-next-prayer-name");
+            const prayerTimeEl = document.getElementById("daily-next-prayer-time");
+            if (!prayerNameEl || !prayerTimeEl) return;
+
+            const existingName = document.getElementById("next-prayer-name");
+            const existingTimer = document.getElementById("next-prayer-timer");
+
+            if (existingName && existingName.textContent && existingName.textContent !== "...") {
+                const pName = existingName.textContent;
+                const pTime = existingTimer ? existingTimer.textContent : "";
+                prayerNameEl.textContent = pName;
+                prayerTimeEl.textContent = pTime ? `متبقي على دخول الوقت: ${pTime}` : "صلاتك في وقتها نور وطمأنينة";
+            } else if (typeof prayerTimings !== "undefined" && prayerTimings) {
+                const now = new Date();
+                const prayersList = [
+                    { name: "صلاة الفجر", key: "fajr", time: prayerTimings.Fajr },
+                    { name: "الشروق", key: "sunrise", time: prayerTimings.Sunrise },
+                    { name: "صلاة الظهر", key: "dhuhr", time: prayerTimings.Dhuhr },
+                    { name: "صلاة العصر", key: "asr", time: prayerTimings.Asr },
+                    { name: "صلاة المغرب", key: "maghrib", time: prayerTimings.Maghrib },
+                    { name: "صلاة العشاء", key: "isha", time: prayerTimings.Isha }
+                ];
+
+                let nextP = null;
+                for (const p of prayersList) {
+                    if (!p.time) continue;
+                    const [h, m] = p.time.split(" ")[0].split(":").map(Number);
+                    const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+                    if (pDate > now) {
+                        nextP = p;
+                        break;
+                    }
+                }
+                if (!nextP) nextP = prayersList[0];
+
+                prayerNameEl.textContent = nextP.name;
+                prayerTimeEl.textContent = `موعد الأذان: ${nextP.time}`;
+            }
+        }
+
+        updateModernPrayerStrip();
+        setInterval(updateModernPrayerStrip, 2000);
+
+        // --- 4. عداد التسبيح السريع في بطاقة يومي مع الله ---
+        const quickCounterEl = document.getElementById("quick-tasbeeh-counter");
+        const btnQuickAdd = document.getElementById("btn-quick-tasbeeh-add");
+        const btnQuickReset = document.getElementById("btn-quick-tasbeeh-reset");
+
+        let quickCount = parseInt(localStorage.getItem("zad_quick_tasbeeh_count") || "0", 10);
+        if (isNaN(quickCount)) quickCount = 0;
+        if (quickCounterEl) quickCounterEl.textContent = quickCount;
+
+        if (btnQuickAdd && quickCounterEl) {
+            btnQuickAdd.addEventListener("click", () => {
+                quickCount++;
+                quickCounterEl.textContent = quickCount;
+                try {
+                    localStorage.setItem("zad_quick_tasbeeh_count", quickCount);
+                } catch(e) {}
+
+                // اهتزاز خفيف للأجهزة الداعمة (Haptic Feedback)
+                if ("vibrate" in navigator) {
+                    navigator.vibrate(15);
+                }
+            });
+        }
+
+        if (btnQuickReset && quickCounterEl) {
+            btnQuickReset.addEventListener("click", () => {
+                if (quickCount === 0) return;
+                quickCount = 0;
+                quickCounterEl.textContent = 0;
+                try {
+                    localStorage.setItem("zad_quick_tasbeeh_count", "0");
+                } catch(e) {}
+                if (typeof showToast === "function") {
+                    showToast("تمت إعادة ضبط عداد التسبيح السريع ↺");
+                }
+            });
+        }
+
+        // --- 5. نافذة وتحدي الـ 7 أيام الإيماني ---
+        init7DaysChallengeModal();
+
+        // --- 6. تمييز التبويب النشط في شريط الجوال السفلي عند التمرير ---
+        initModernMobileBarActiveState();
+
+    } catch(err) {
+        console.warn("Modern dashboard init error:", err);
+    }
+}
+
+function init7DaysChallengeModal() {
+    const modal = document.getElementById("challenge-modal");
+    const openBtn = document.getElementById("btn-open-7days-challenge");
+    const closeBtn = document.getElementById("btn-close-challenge-modal");
+    const resetBtn = document.getElementById("btn-reset-challenge");
+    const listEl = document.getElementById("challenge-days-list");
+
+    if (!modal) return;
+
+    const challengeGoals = [
+        { day: 1, title: "اليوم الأول: صفاء النية والاستغفار", task: "استغفر الله 100 مرة واقرأ صفحة من القرآن الكريم." },
+        { day: 2, title: "اليوم الثاني: بر الوالدين وصلة الرحم", task: "اتصل بأحد والديك أو قريب لك وادعُ لهما بالخير." },
+        { day: 3, title: "اليوم الثالث: ركعتي الضحى وصلاة على النبي", task: "صلّ ركعتي صلاة الضحى وصلّ على النبي ﷺ 50 مرة." },
+        { day: 4, title: "اليوم الرابع: الصدقة وإدخال السرور", task: "تصدق ولو بالقليل أو تبسم وأدخل السرور على مسلم." },
+        { day: 5, title: "اليوم الخامس: سورة الكهف أو تلاوة متأنية", task: "اقرأ ما تيسر من كتاب الله بتدبر وخشوع." },
+        { day: 6, title: "اليوم السادس: أذكار الصباح والمساء كاملة", task: "حافظ على أذكار الصباح والمساء في وقتها بحضور قلب." },
+        { day: 7, title: "اليوم السابع: ركعة الوتر ودعاء خاشع", task: "اختم أسبوعك بركعة الوتر وسؤال الله الثبات والقبول." }
+    ];
+
+    let savedProgress = {};
+    try {
+        savedProgress = JSON.parse(localStorage.getItem("zad_7days_challenge_progress") || "{}");
+    } catch(e) {
+        savedProgress = {};
+    }
+
+    function renderDays() {
+        if (!listEl) return;
+        listEl.innerHTML = "";
+
+        challengeGoals.forEach(g => {
+            const isCompleted = !!savedProgress[g.day];
+            const item = document.createElement("div");
+            item.className = "modern-challenge-item";
+            item.style.cssText = `
+                display: flex;
+                align-items: center;
+                gap: 0.85rem;
+                padding: 0.75rem 0.9rem;
+                border-radius: 12px;
+                background: ${isCompleted ? 'rgba(16, 185, 129, 0.12)' : 'var(--bg-secondary)'};
+                border: 1px solid ${isCompleted ? 'rgba(16, 185, 129, 0.35)' : 'var(--border-color)'};
+                cursor: pointer;
+                transition: all 0.2s ease;
+            `;
+
+            item.innerHTML = `
+                <div style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    background: ${isCompleted ? '#10b981' : 'rgba(255,255,255,0.08)'};
+                    color: ${isCompleted ? '#fff' : 'var(--text-muted)'};
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.85rem;
+                    font-weight: bold;
+                    flex-shrink: 0;
+                ">
+                    ${isCompleted ? '✓' : g.day}
+                </div>
+                <div style="flex: 1; text-align: right;">
+                    <div style="font-size: 0.92rem; font-weight: 700; color: ${isCompleted ? '#10b981' : 'var(--text-primary)'};">
+                        ${g.title}
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                        ${g.task}
+                    </div>
+                </div>
+            `;
+
+            item.addEventListener("click", () => {
+                savedProgress[g.day] = !savedProgress[g.day];
+                try {
+                    localStorage.setItem("zad_7days_challenge_progress", JSON.stringify(savedProgress));
+                } catch(e) {}
+                renderDays();
+                if (savedProgress[g.day] && typeof showToast === "function") {
+                    showToast(`ما شاء الله! أنجزت خطوة ${g.title} 🎉`);
+                }
+            });
+
+            listEl.appendChild(item);
+        });
+    }
+
+    if (openBtn) {
+        openBtn.addEventListener("click", () => {
+            renderDays();
+            modal.classList.add("active");
+            document.body.style.overflow = "hidden";
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            modal.classList.remove("active");
+            document.body.style.overflow = "";
+        });
+    }
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.remove("active");
+            document.body.style.overflow = "";
+        }
+    });
+
+    if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+            savedProgress = {};
+            try {
+                localStorage.removeItem("zad_7days_challenge_progress");
+            } catch(e) {}
+            renderDays();
+            if (typeof showToast === "function") {
+                showToast("تمت إعادة ضبط التحدي من جديد 🌿");
+            }
+        });
+    }
+}
+
+function initModernMobileBarActiveState() {
+    const tabs = document.querySelectorAll(".modern-mobile-tab");
+    if (!tabs || tabs.length === 0) return;
+
+    window.addEventListener("scroll", () => {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const heroSection = document.getElementById("hero");
+        const dailySection = document.getElementById("daily-faith-journey");
+        const platformSection = document.getElementById("platform-services");
+
+        let activeId = "hero";
+        if (platformSection && scrollY >= (platformSection.offsetTop - 200)) {
+            activeId = "platform-services";
+        } else if (dailySection && scrollY >= (dailySection.offsetTop - 200)) {
+            activeId = "daily-faith-journey";
+        }
+
+        tabs.forEach(tab => {
+            const target = tab.getAttribute("data-target");
+            if (target === activeId) {
+                tab.classList.add("active");
+            } else if (target !== "custom-share-card") {
+                tab.classList.remove("active");
+            }
+        });
+    }, { passive: true });
+}
