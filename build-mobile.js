@@ -46,6 +46,7 @@ if (fs.existsSync(assetsSrc)) {
 // Sync pre-prayer custom sounds to Android raw & iOS App bundle
 // -------------------------------------------------------------
 const preAudioSrc = path.join(srcDir, 'assets', 'audio', 'pre');
+const adhanAudioSrc = path.join(srcDir, 'assets', 'audio', 'adhan');
 const androidRawDir = path.join(srcDir, 'android', 'app', 'src', 'main', 'res', 'raw');
 const iosAppDir = path.join(srcDir, 'ios', 'App', 'App');
 
@@ -58,6 +59,20 @@ if (fs.existsSync(preAudioSrc)) {
         }
         if (fs.existsSync(iosAppDir)) {
             fs.copyFileSync(src, path.join(iosAppDir, f));
+        }
+    });
+}
+
+if (fs.existsSync(adhanAudioSrc)) {
+    const adhanFiles = fs.readdirSync(adhanAudioSrc);
+    adhanFiles.forEach(f => {
+        const destName = f.startsWith('adhan_') ? f : `adhan_${f}`;
+        const src = path.join(adhanAudioSrc, f);
+        if (fs.existsSync(androidRawDir)) {
+            fs.copyFileSync(src, path.join(androidRawDir, destName));
+        }
+        if (fs.existsSync(iosAppDir)) {
+            fs.copyFileSync(src, path.join(iosAppDir, destName));
         }
     });
 }
