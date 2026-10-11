@@ -4,6 +4,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -11,6 +14,13 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(AdhanNativePlugin.class);
         super.onCreate(savedInstanceState);
+
+        // حماية رأس التطبيق من تداخل شريط حالة النظام (Status Bar & Display Cutout Insets)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
+            view.setPadding(0, insets.top, 0, 0);
+            return windowInsets;
+        });
 
         // طلب إذن الإشعارات تلقائياً على نظام أندرويد 13 فما فوق فور تشغيل التطبيق
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
