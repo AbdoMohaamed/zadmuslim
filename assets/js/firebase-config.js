@@ -36,3 +36,10 @@ function urlBase64ToUint8Array(base64String) {
     }
     return outputArray;
 }
+
+// إتاحة الكائنات والدوال صراحة على كائن window لضمان التوافق مع كافة البيئات والمكتبات
+if (typeof window !== "undefined") {
+    window.FIREBASE_CONFIG = FIREBASE_CONFIG;
+    window.ZAD_VAPID_PUBLIC_KEY = ZAD_VAPID_PUBLIC_KEY;
+    window.isFirebaseConfigured = isFirebaseConfigured;
+}
