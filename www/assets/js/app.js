@@ -290,6 +290,9 @@ function updateAllPrayerRelativeDates() {
 }
 
 function initPrayersSwiper() {
+    const swiperEl = document.querySelector(".swiper-prayers");
+    if (!swiperEl) return;
+
     // 1. تحميل الأدعية المحلية أو الافتراضية أولاً لضمان سرعة الفتح الفوري
     const storedPrayers = localStorage.getItem("user_prayers_list");
     if (storedPrayers) {
@@ -306,6 +309,11 @@ function initPrayersSwiper() {
     renderPrayerSlides();
 
     // تهيئة مكتبة Swiper مع دعم كامل لاتجاه اليمين لليسار (RTL)
+    if (typeof Swiper === "undefined") {
+        console.warn("Swiper library is not available yet, slides rendered statically.");
+        return;
+    }
+
     prayersSwiperInstance = new Swiper(".swiper-prayers", {
         slidesPerView: 1,
         spaceBetween: 24,
@@ -701,6 +709,8 @@ function updateTotalDisplays() {
    ========================================================================== */
 function initAddPrayerModal() {
     const modal = document.getElementById("add-prayer-modal");
+    if (!modal) return;
+
     const openBtns = document.querySelectorAll(".btn-open-prayer-modal");
     const closeBtn = document.getElementById("btn-close-modal");
     const form = document.getElementById("add-prayer-form");

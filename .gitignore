@@ -361,3 +361,50 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ZadMuslim V3 - Testing artifacts & scratches
+scratch/
+test-results/
+comp-*.png
+final-*.png
+garden-*.png
+hero-*.png
+screenshot-*.png
+sec-*.png
+mobile_*.png
+wird-*.png
+*.log
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Android Build Outputs & Caches
+.gradle/
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/local.properties
+*.apk
+*.aab
+
+# iOS Build Outputs & Caches
+ios/App/Pods/
+ios/App/build/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/App.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+DerivedData/
+
+# IDEs & System files
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db

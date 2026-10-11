@@ -7,17 +7,64 @@
     <meta name="description" content="سياسة الخصوصية الرسمية لتطبيق زاد المسلم - حماية بيانات المستخدمين، الخصوصية والأمان.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- ضبط المظهر فورياً قبل المعالجة البصرية لمنع أي وميض نهائياً (Zero FOUC Theme Init) -->
+    <script>
+    (function() {
+        try {
+            document.documentElement.classList.add('preload-theme-no-transitions');
+            var saved = localStorage.getItem('zadmuslim-theme');
+            if (!saved) {
+                var legacy = localStorage.getItem('sadqah_theme');
+                if (legacy === 'dark' || legacy === 'light') {
+                    saved = legacy;
+                    localStorage.setItem('zadmuslim-theme', saved);
+                }
+            }
+            var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var theme = (saved === 'dark' || saved === 'light') ? saved : (systemDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.style.colorScheme = theme;
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+            }
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) {
+                meta.setAttribute('content', theme === 'light' ? '#F7F9F6' : '#081C17');
+            }
+        } catch(e) {}
+    })();
+    </script>
+    <script src="assets/js/theme-controller.js"></script>
+
     <style>
-        :root {
+        :root,
+        [data-theme="light"],
+        body.light-theme {
             --primary-emerald: #064e3b;
             --emerald-accent: #059669;
-            --gold-accent: #d97706;
-            --bg-color: #f8fafc;
+            --gold-accent: #b48316;
+            --bg-color: #F7F9F6;
             --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
+            --text-main: #193B34;
+            --text-muted: #536A60;
+            --border-color: #DFE9E1;
+            --highlight-bg: #f0fdf4;
+            --footer-bg: #f1f5f9;
+        }
+
+        [data-theme="dark"] {
+            --primary-emerald: #73d3ab;
+            --emerald-accent: #10b981;
+            --gold-accent: #e6bd70;
+            --bg-color: #081c17;
+            --card-bg: #163329;
+            --text-main: #f3f8f4;
+            --text-muted: #c0d4c8;
+            --border-color: #315346;
+            --highlight-bg: #1d4033;
+            --footer-bg: #102820;
         }
 
         * {
@@ -102,18 +149,18 @@
 
         .badge-sadaqah {
             display: inline-block;
-            background: rgba(217, 119, 6, 0.15);
-            color: #b45309;
+            background: rgba(254, 243, 199, 0.2);
+            color: #fef3c7;
             padding: 6px 16px;
             border-radius: 50px;
             font-weight: bold;
             font-size: 0.95rem;
             margin-top: 15px;
-            border: 1px solid rgba(217, 119, 6, 0.3);
+            border: 1px solid rgba(254, 243, 199, 0.4);
         }
 
         .highlight-box {
-            background: #f0fdf4;
+            background: var(--highlight-bg);
             border-right: 4px solid var(--emerald-accent);
             padding: 20px;
             border-radius: 12px;
@@ -121,7 +168,7 @@
         }
 
         footer {
-            background: #f1f5f9;
+            background: var(--footer-bg);
             text-align: center;
             padding: 25px;
             border-top: 1px solid var(--border-color);

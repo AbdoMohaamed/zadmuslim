@@ -2365,8 +2365,11 @@ function initLiveRadioWidgetWithSleepTimer() {
     const playIcon = document.getElementById("radio-play-icon");
     const select = document.getElementById("radio-station-select");
     const volumeSlider = document.getElementById("radio-volume-slider");
+    const muteBtn = document.getElementById("btn-radio-mute");
+    const volumeIcon = document.getElementById("radio-volume-icon");
     const nameEl = document.getElementById("current-station-name");
     const descEl = document.getElementById("current-station-desc");
+    const badgeEl = document.getElementById("current-station-badge");
     const sleepSelect = document.getElementById("radio-sleep-timer-select");
     const countdownEl = document.getElementById("radio-timer-countdown");
     const remTimeEl = document.getElementById("radio-timer-rem-time");
@@ -2382,8 +2385,10 @@ function initLiveRadioWidgetWithSleepTimer() {
 
     let isPlaying = false;
     let sleepTimerInterval = null;
+    let previousVolume = 0.8;
+    let fallbackAttempts = 0;
 
-    // 1. ملء قائمة المحطات
+    // 1. ملء قائمة المحطات واختيار المحطة النشطة
     if (select) {
         select.innerHTML = "";
         stations.forEach(st => {
@@ -2392,39 +2397,99 @@ function initLiveRadioWidgetWithSleepTimer() {
             opt.textContent = st.name;
             select.appendChild(opt);
         });
+    }
 
+    // استرجاع المحطة المحفوظة أو البدء بالإذاعة العامة المستقرة 100%
+    let savedStationId = null;
+    try {
+        savedStationId = localStorage.getItem("zadmuslim_active_radio_station");
+    } catch(e) {}
+
+    let currentStation = stations.find(s => s.id === savedStationId);
+    if (!currentStation) {
+        // افتراضياً الإذاعة العامة المضمونة أو الشيخ علي جابر
+        currentStation = stations.find(s => s.id === "general") || stations.find(s => s.id === "ali_jaber") || stations[0];
+    }
+
+    const applyStationUI = (st) => {
+        if (!st) return;
+        if (nameEl) nameEl.textContent = st.name;
+        if (descEl) descEl.textContent = st.desc;
+        if (select) select.value = st.id;
+        if (badgeEl && st.icon) {
+            badgeEl.innerHTML = `<i class="${st.icon}"></i>`;
+        }
+    };
+
+    const setStation = (st, autoPlay = false) => {
+        if (!st) return;
+        currentStation = st;
+        try {
+            localStorage.setItem("zadmuslim_active_radio_station", st.id);
+        } catch(e) {}
+        applyStationUI(st);
+        radioAudio.src = st.url;
+        if (autoPlay || isPlaying) {
+            radioAudio.play().then(() => {
+                fallbackAttempts = 0;
+                updatePlayState(true);
+            }).catch(e => {
+                console.warn("Radio playback error, trying fallback:", e);
+                triggerStreamFallback(st);
+            });
+        }
+    };
+
+    applyStationUI(currentStation);
+    radioAudio.src = currentStation.url;
+
+    if (select) {
         select.addEventListener("change", () => {
             const st = stations.find(s => s.id === select.value) || stations[0];
-            if (nameEl) nameEl.textContent = st.name;
-            if (descEl) descEl.textContent = st.desc;
-            radioAudio.src = st.url;
-            if (isPlaying) {
-                radioAudio.play().catch(e => console.warn("Radio playback error:", e));
-            }
+            fallbackAttempts = 0;
+            setStation(st, isPlaying);
         });
     }
 
-    const defaultStation = stations[0];
-    radioAudio.src = defaultStation.url;
-    if (nameEl) nameEl.textContent = defaultStation.name;
-    if (descEl) descEl.textContent = defaultStation.desc;
+    // التحويل التلقائي الذكي للبث البديل في حال تعثر أي إذاعة لضمان عدم انقطاع التلاوة
+    const triggerStreamFallback = (failedStation) => {
+        fallbackAttempts++;
+        if (fallbackAttempts > 4) {
+            fallbackAttempts = 0;
+            return;
+        }
 
-    // معالجة الأخطاء الذكية والتحويل التلقائي لمحطة قرآنية بديلة إذا انقطع البث
-    radioAudio.addEventListener("error", () => {
-        console.warn("Radio stream error, attempting fallback station...");
-        const fallback = stations.find(s => s.id === "minshawi" || s.id === "sleep_calm") || stations[1];
-        if (fallback && radioAudio.src !== fallback.url) {
-            radioAudio.src = fallback.url;
-            if (nameEl) nameEl.textContent = fallback.name;
-            if (descEl) descEl.textContent = fallback.desc;
-            if (select) select.value = fallback.id;
+        // إذا كانت المحطة تحتوي على رابط احتياطي
+        if (failedStation && failedStation.backupUrl && radioAudio.src !== failedStation.backupUrl) {
+            console.warn("Switching to backup stream URL:", failedStation.backupUrl);
+            radioAudio.src = failedStation.backupUrl;
             if (isPlaying) {
-                radioAudio.play().catch(e => console.warn(e));
+                radioAudio.play().then(() => updatePlayState(true)).catch(() => triggerStreamFallback(null));
+            }
+            return;
+        }
+
+        // الانتقال الفوري لمحطة بديلة فائقة الاستقرار (الإذاعة العامة أو الشيخ علي جابر أو المنشاوي)
+        const reliable = stations.find(s => s.id === "general" && s.id !== failedStation?.id)
+                      || stations.find(s => s.id === "ali_jaber" && s.id !== failedStation?.id)
+                      || stations.find(s => s.id === "minshawi")
+                      || stations[0];
+
+        if (reliable && reliable.id !== failedStation?.id) {
+            console.warn("Switching to reliable station:", reliable.name);
+            setStation(reliable, isPlaying);
+            if (typeof showToast === "function") {
+                showToast(`تم التحويل تلقائياً إلى «${reliable.name}» لضمان استمرار البث 📻✨`);
             }
         }
+    };
+
+    radioAudio.addEventListener("error", () => {
+        console.warn("Radio stream error event fired, attempting fallback...");
+        triggerStreamFallback(currentStation);
     });
 
-    // 2. تحديث حالة التشغيل
+    // 2. تحديث حالة التشغيل والمظهر
     const updatePlayState = (playing) => {
         isPlaying = playing;
         if (playIcon) {
@@ -2444,6 +2509,13 @@ function initLiveRadioWidgetWithSleepTimer() {
                 navBtn.classList.remove("active");
             }
         }
+        if (panel) {
+            if (playing) {
+                panel.classList.add("is-playing");
+            } else {
+                panel.classList.remove("is-playing");
+            }
+        }
         if (wavesEl) {
             wavesEl.style.display = playing ? "flex" : "none";
         }
@@ -2455,7 +2527,7 @@ function initLiveRadioWidgetWithSleepTimer() {
             updatePlayState(false);
             if (typeof showToast === "function") showToast("تم إيقاف إذاعة القرآن الكريم ⏸️");
         } else {
-            // إيقاف مشغل الخلفية الافتراضي لمنع تداخل الأصوات
+            // إيقاف مشغلات الصوت الأخرى لمنع التداخل
             const legacyAudio = document.getElementById("quran-audio");
             if (legacyAudio && !legacyAudio.paused) {
                 legacyAudio.pause();
@@ -2464,11 +2536,12 @@ function initLiveRadioWidgetWithSleepTimer() {
             }
 
             radioAudio.play().then(() => {
+                fallbackAttempts = 0;
                 updatePlayState(true);
                 if (typeof showToast === "function") showToast("جاري الاستماع لإذاعة القرآن الكريم 📻🌿");
             }).catch(e => {
                 console.warn("Radio stream play error:", e);
-                if (typeof showToast === "function") showToast("جاري الاتصال بالبث المباشر للإذاعة...");
+                triggerStreamFallback(currentStation);
             });
         }
     };
@@ -2480,10 +2553,46 @@ function initLiveRadioWidgetWithSleepTimer() {
         });
     }
 
+    // التحكم بالصوت وزر الكتم
+    const updateVolumeUI = (vol) => {
+        if (volumeIcon) {
+            if (vol <= 0) {
+                volumeIcon.className = "fa-solid fa-volume-xmark";
+            } else if (vol < 0.5) {
+                volumeIcon.className = "fa-solid fa-volume-low";
+            } else {
+                volumeIcon.className = "fa-solid fa-volume-high";
+            }
+        }
+    };
+
     if (volumeSlider) {
         radioAudio.volume = parseFloat(volumeSlider.value) || 0.8;
+        previousVolume = radioAudio.volume;
+        updateVolumeUI(radioAudio.volume);
+
         volumeSlider.addEventListener("input", () => {
-            radioAudio.volume = parseFloat(volumeSlider.value);
+            const val = parseFloat(volumeSlider.value);
+            radioAudio.volume = val;
+            if (val > 0) previousVolume = val;
+            updateVolumeUI(val);
+        });
+    }
+
+    if (muteBtn) {
+        muteBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (radioAudio.volume > 0) {
+                previousVolume = radioAudio.volume || 0.8;
+                radioAudio.volume = 0;
+                if (volumeSlider) volumeSlider.value = 0;
+                updateVolumeUI(0);
+            } else {
+                const restore = previousVolume > 0 ? previousVolume : 0.8;
+                radioAudio.volume = restore;
+                if (volumeSlider) volumeSlider.value = restore;
+                updateVolumeUI(restore);
+            }
         });
     }
 
@@ -2515,7 +2624,7 @@ function initLiveRadioWidgetWithSleepTimer() {
         e.stopPropagation();
     });
 
-    // إغلاق النافذة عند النقر في أي مكان خارجها
+    // إغلاق النافذة عند النقر خارجها
     document.addEventListener("click", (e) => {
         if (panel.classList.contains("open") && !panel.contains(e.target) && e.target !== fabBtn && !fabBtn.contains(e.target)) {
             panel.classList.remove("open");
@@ -2533,7 +2642,7 @@ function initLiveRadioWidgetWithSleepTimer() {
             const minutes = parseInt(sleepSelect.value, 10);
             if (minutes > 0) {
                 const targetTime = Date.now() + minutes * 60 * 1000;
-                if (countdownEl) countdownEl.style.display = "block";
+                if (countdownEl) countdownEl.style.display = "flex";
 
                 const updateTimer = () => {
                     const remMs = targetTime - Date.now();
@@ -3629,60 +3738,8 @@ function initAdminDashboard() {
    نظام تبديل المظهر النهاري / الليلي (White Mode / Light Theme Toggle)
    ========================================================================== */
 function initThemeToggle() {
-    const navBtn = document.getElementById("btn-toggle-theme-nav");
-    const mobileBtn = document.getElementById("btn-mobile-theme-toggle");
-    const navIcon = document.getElementById("theme-toggle-icon");
-    const navText = document.getElementById("theme-toggle-text");
-    const mobileIcon = document.getElementById("mobile-theme-toggle-icon");
-    const mobileText = document.getElementById("mobile-theme-toggle-text");
-
-    function applyTheme(theme, showNotification = false) {
-        const isLight = theme === "light";
-        document.body.classList.toggle("light-theme", isLight);
-        document.documentElement.classList.toggle("light-theme", isLight);
-        document.documentElement.setAttribute("data-theme", theme);
-        localStorage.setItem("sadqah_theme", theme);
-
-        // Update Theme Color meta tag for mobile browser status bar
-        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        if (metaThemeColor) {
-            metaThemeColor.setAttribute("content", isLight ? "#f6f3eb" : "#070d18");
-        }
-
-        // When in light mode, the button offers switching to dark mode (moon icon)
-        // When in dark mode, the button offers switching to light mode (sun icon)
-        if (navIcon) {
-            navIcon.className = isLight ? "fa-solid fa-moon text-gold" : "fa-solid fa-sun text-gold";
-        }
-        if (navText) {
-            navText.textContent = isLight ? "الليلي" : "النهاري";
-        }
-        if (mobileIcon) {
-            mobileIcon.className = isLight ? "fa-solid fa-moon text-gold" : "fa-solid fa-sun text-gold";
-        }
-        if (mobileText) {
-            mobileText.textContent = isLight ? "المظهر الليلي (Dark Mode)" : "المظهر النهاري (White Mode)";
-        }
-
-        if (showNotification && typeof showToast === "function") {
-            showToast(isLight ? "تم تفعيل المظهر النهاري الفاخر ☀️" : "تم تفعيل المظهر الليلي الملكي 🌙");
-        }
-    }
-
-    const savedTheme = localStorage.getItem("sadqah_theme") || "dark";
-    applyTheme(savedTheme, false);
-
-    function toggleTheme() {
-        const currentIsLight = document.body.classList.contains("light-theme");
-        const nextTheme = currentIsLight ? "dark" : "light";
-        applyTheme(nextTheme, true);
-    }
-
-    if (navBtn) {
-        navBtn.addEventListener("click", toggleTheme);
-    }
-    if (mobileBtn) {
-        mobileBtn.addEventListener("click", toggleTheme);
+    if (window.zadTheme && typeof window.zadTheme.init === "function") {
+        window.zadTheme.init();
     }
 }
 
@@ -3979,26 +4036,47 @@ function initModernMobileBarActiveState() {
     const tabs = document.querySelectorAll(".modern-mobile-tab");
     if (!tabs || tabs.length === 0) return;
 
-    window.addEventListener("scroll", () => {
-        const scrollY = window.scrollY || window.pageYOffset;
-        const heroSection = document.getElementById("hero");
-        const dailySection = document.getElementById("daily-faith-journey");
-        const platformSection = document.getElementById("platform-services");
+    const navTargets = [
+        { id: "hero", target: "hero" },
+        { id: "daily-faith-journey", target: "hero" },
+        { id: "quran-khatma", target: "quran-khatma" },
+        { id: "prayer-times", target: "prayer-times" },
+        { id: "azkar", target: "azkar" },
+        { id: "platform-services", target: "platform-services" }
+    ];
 
-        let activeId = "hero";
-        if (platformSection && scrollY >= (platformSection.offsetTop - 200)) {
-            activeId = "platform-services";
-        } else if (dailySection && scrollY >= (dailySection.offsetTop - 200)) {
-            activeId = "daily-faith-journey";
+    function updateActive() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        let currentTarget = "hero";
+
+        for (let i = navTargets.length - 1; i >= 0; i--) {
+            const el = document.getElementById(navTargets[i].id);
+            if (el && scrollY >= (el.offsetTop - 220)) {
+                currentTarget = navTargets[i].target;
+                break;
+            }
         }
 
         tabs.forEach(tab => {
             const target = tab.getAttribute("data-target");
-            if (target === activeId) {
+            if (target === currentTarget) {
                 tab.classList.add("active");
-            } else if (target !== "custom-share-card") {
+            } else {
                 tab.classList.remove("active");
             }
         });
-    }, { passive: true });
+    }
+
+    window.addEventListener("scroll", updateActive, { passive: true });
+    updateActive();
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(12);
+            }
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+        });
+    });
 }
