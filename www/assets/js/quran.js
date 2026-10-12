@@ -121,6 +121,40 @@ const SURAHS_INDEX = [
     { id: 114, name: "الناس", page: 604, ayahs: 6, type: "مكية" }
 ];
 
+// فهرس أجزاء القرآن الكريم الـ 30 المباركة
+const JUZ_INDEX = [
+    { juz: 1, name: "الجزء الأول", startSurah: "الفاتحة", startAyah: 1, page: 1 },
+    { juz: 2, name: "الجزء الثاني", startSurah: "البقرة", startAyah: 142, page: 22 },
+    { juz: 3, name: "الجزء الثالث", startSurah: "البقرة", startAyah: 253, page: 42 },
+    { juz: 4, name: "الجزء الرابع", startSurah: "آل عمران", startAyah: 93, page: 62 },
+    { juz: 5, name: "الجزء الخامس", startSurah: "النساء", startAyah: 24, page: 82 },
+    { juz: 6, name: "الجزء السادس", startSurah: "النساء", startAyah: 148, page: 102 },
+    { juz: 7, name: "الجزء السابع", startSurah: "المائدة", startAyah: 82, page: 121 },
+    { juz: 8, name: "الجزء الثامن", startSurah: "الأنعام", startAyah: 111, page: 142 },
+    { juz: 9, name: "الجزء التاسع", startSurah: "الأعراف", startAyah: 88, page: 162 },
+    { juz: 10, name: "الجزء العاشر", startSurah: "الأنفال", startAyah: 41, page: 182 },
+    { juz: 11, name: "الجزء الحادي عشر", startSurah: "التوبة", startAyah: 93, page: 201 },
+    { juz: 12, name: "الجزء الثاني عشر", startSurah: "هود", startAyah: 6, page: 222 },
+    { juz: 13, name: "الجزء الثالث عشر", startSurah: "يوسف", startAyah: 53, page: 242 },
+    { juz: 14, name: "الجزء الرابع عشر", startSurah: "الحجر", startAyah: 1, page: 262 },
+    { juz: 15, name: "الجزء الخامس عشر", startSurah: "الإسراء", startAyah: 1, page: 282 },
+    { juz: 16, name: "الجزء السادس عشر", startSurah: "الكهف", startAyah: 75, page: 302 },
+    { juz: 17, name: "الجزء السابع عشر", startSurah: "الأنبياء", startAyah: 1, page: 322 },
+    { juz: 18, name: "الجزء الثامن عشر", startSurah: "المؤمنون", startAyah: 1, page: 342 },
+    { juz: 19, name: "الجزء التاسع عشر", startSurah: "الفرقان", startAyah: 21, page: 362 },
+    { juz: 20, name: "الجزء العشرون", startSurah: "النمل", startAyah: 56, page: 382 },
+    { juz: 21, name: "الجزء الحادي والعشرون", startSurah: "العنكبوت", startAyah: 46, page: 402 },
+    { juz: 22, name: "الجزء الثاني والعشرون", startSurah: "الأحزاب", startAyah: 31, page: 422 },
+    { juz: 23, name: "الجزء الثالث والعشرون", startSurah: "يس", startAyah: 28, page: 442 },
+    { juz: 24, name: "الجزء الرابع والعشرون", startSurah: "الزمر", startAyah: 32, page: 462 },
+    { juz: 25, name: "الجزء الخامس والعشرون", startSurah: "فصلت", startAyah: 47, page: 482 },
+    { juz: 26, name: "الجزء السادس والعشرون", startSurah: "الأحقاف", startAyah: 1, page: 502 },
+    { juz: 27, name: "الجزء السابع والعشرون", startSurah: "الذاريات", startAyah: 31, page: 522 },
+    { juz: 28, name: "الجزء الثامن والعشرون", startSurah: "المجادلة", startAyah: 1, page: 542 },
+    { juz: 29, name: "الجزء التاسع والعشرون", startSurah: "الملك", startAyah: 1, page: 562 },
+    { juz: 30, name: "الجزء الثلاثون", startSurah: "النبأ", startAyah: 1, page: 582 }
+];
+
 // السور الفاضلة السريعة
 const MUSHAF_QUICK_JUMPS = [
     { name: "سورة الملك", page: 562, surahId: 67 },
@@ -2595,18 +2629,26 @@ function renderPageInteractiveVerses(ayahs) {
             const ayahArabicNum = toArabicDigits(ayah.numberInSurah);
             const isActive = (idx === currentAyahIndexInPage && isAyahSyncPlaying);
 
+            const ayahObjStr = JSON.stringify({
+                index: idx,
+                surahId: surahNumber || 1,
+                surahName: surahName,
+                numberInSurah: ayah.numberInSurah,
+                text: displayText,
+                pageNumber: currentPageNumber
+            }).replace(/"/g, '&quot;');
+
             html += `
                 <span class="continuous-ayah-block ${isActive ? 'is-active-ayah' : ''}" 
                       id="ayah-card-${idx}" 
                       data-ayah-index="${idx}"
-                      style="display: inline; transition: all 0.2s ease; border-radius: 6px; padding: 2px 4px; ${isActive ? 'background: rgba(212, 175, 55, 0.25); border-bottom: 2px solid var(--gold-400);' : ''}">
-                    <span class="continuous-ayah-word" 
-                          onclick="playAyahSync(${idx})" 
-                          title="انقر للاستماع إلى الآية ${ayah.numberInSurah}">
+                      style="display: inline; transition: all 0.2s ease; border-radius: 6px; padding: 2px 4px; cursor: pointer; ${isActive ? 'background: rgba(212, 175, 55, 0.25); border-bottom: 2px solid var(--gold-400);' : ''}"
+                      onclick="openAyahActionSheet(${ayahObjStr})"
+                      title="انقر لخيارات الآية (استماع، حفظ، نسخ، مشاركة)">
+                    <span class="continuous-ayah-word">
                         ${displayText}
                     </span>
                     <span class="continuous-ayah-symbol" 
-                          onclick="playAyahSync(${idx})" 
                           title="${surahName} - آية ${ayah.numberInSurah}">
                         ﴿${ayahArabicNum}﴾
                     </span>
@@ -2642,10 +2684,21 @@ function renderPageInteractiveVerses(ayahs) {
 
     container.innerHTML = ayahs.map((ayah, idx) => {
         const surahName = ayah.surah ? ayah.surah.name : "السورة";
+        const surahNumber = ayah.surah ? ayah.surah.number : 1;
+        const ayahObjStr = JSON.stringify({
+            index: idx,
+            surahId: surahNumber,
+            surahName: surahName,
+            numberInSurah: ayah.numberInSurah,
+            text: ayah.text,
+            pageNumber: currentPageNumber
+        }).replace(/"/g, '&quot;');
+
         return `
             <div class="ayah-verse-card ${idx === currentAyahIndexInPage && isAyahSyncPlaying ? 'is-active-ayah' : ''}" 
                  id="ayah-card-${idx}" 
-                 onclick="playAyahSync(${idx})">
+                 onclick="openAyahActionSheet(${ayahObjStr})"
+                 title="انقر لفتح خيارات الآية">
                 <div class="ayah-verse-text">
                     <span>${ayah.text}</span>
                     <span class="ayah-num-symbol">﴿${toArabicDigits(ayah.numberInSurah)}﴾</span>
@@ -2654,14 +2707,14 @@ function renderPageInteractiveVerses(ayahs) {
                     <span style="font-size: 0.75rem; color: var(--gold-400); margin-inline-end: auto;">
                         ${surahName} • آية ${ayah.numberInSurah}
                     </span>
+                    <button type="button" class="ayah-action-btn" onclick="openAyahActionSheet(${ayahObjStr})" title="خيارات الآية">
+                        <i class="fa-solid fa-ellipsis-vertical"></i> خيارات
+                    </button>
                     <button type="button" class="ayah-action-btn" onclick="playAyahSync(${idx})" title="استماع">
                         <i class="fa-solid fa-play"></i> استماع
                     </button>
                     <button type="button" class="ayah-action-btn" onclick="copyAyahText('${escapeSingleQuotes(ayah.text)}', '${surahName}', ${ayah.numberInSurah})" title="نسخ">
                         <i class="fa-solid fa-copy"></i> نسخ
-                    </button>
-                    <button type="button" class="ayah-action-btn" onclick="createStoryCardFromAyah('${escapeSingleQuotes(ayah.text)}', '${surahName}', ${ayah.numberInSurah})" title="صناعة بطاقة واستوري">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> بطاقة
                     </button>
                 </div>
             </div>
@@ -2847,5 +2900,287 @@ window.createStoryCardFromAyah = function(text, surahName, ayahNum) {
     if (modal) modal.classList.add("open");
     if (typeof drawDuaCard === "function") drawDuaCard();
 };
+
+// ==========================================================================
+// زاد المسلم V4 — واجهة المصحف الشريف الشاملة (Quran Landing Hub & Ayah Action Sheet)
+// ==========================================================================
+
+let selectedAyahContext = null;
+
+/**
+ * فتح لوحة إجراءات الآية (Ayah Action Sheet) التفاعلية مع الخيارات الخمسة الحقيقية
+ */
+window.openAyahActionSheet = function(ayahObj) {
+    if (!ayahObj) return;
+    selectedAyahContext = ayahObj;
+
+    const sheet = document.getElementById('ayah-action-sheet');
+    const titleEl = document.getElementById('ayah-sheet-title');
+    const textEl = document.getElementById('ayah-sheet-text');
+
+    if (titleEl) {
+        titleEl.textContent = `${ayahObj.surahName} • آية ${ayahObj.numberInSurah} (صفحة ${ayahObj.pageNumber})`;
+    }
+    if (textEl) {
+        textEl.textContent = `﴿${ayahObj.text}﴾`;
+    }
+
+    if (sheet) {
+        sheet.classList.add('open');
+    }
+};
+
+window.closeAyahActionSheet = function() {
+    const sheet = document.getElementById('ayah-action-sheet');
+    if (sheet) {
+        sheet.classList.remove('open');
+    }
+    selectedAyahContext = null;
+};
+
+// 1. إضافة علامة مرجعية للآية
+window.handleSheetBookmarkAyah = function() {
+    if (!selectedAyahContext) return;
+    const { pageNumber, surahId, surahName, numberInSurah } = selectedAyahContext;
+    saveQuranBookmark(pageNumber, surahId, numberInSurah, `وقوف آية ${numberInSurah} سورة ${surahName}`);
+    closeAyahActionSheet();
+};
+
+// 2. تحديد موضع القراءة الحالي (أكمل من حيث توقفت)
+window.handleSheetSetReadingPosition = function() {
+    if (!selectedAyahContext) return;
+    const { pageNumber, surahId, surahName, numberInSurah } = selectedAyahContext;
+    const lastReadData = {
+        pageNumber,
+        surahId,
+        surahName,
+        ayahNumber: numberInSurah,
+        timestamp: Date.now()
+    };
+    localStorage.setItem("zad_quran_last_read", JSON.stringify(lastReadData));
+    localStorage.setItem("mushaf_last_page", String(pageNumber));
+    updateQuranHubResumeCard();
+    if (typeof showToast === "function") {
+        showToast(`تم تحديد موضع القراءة: سورة ${surahName} - آية ${numberInSurah} (صفحة ${pageNumber}) 📍✨`);
+    }
+    closeAyahActionSheet();
+};
+
+// 3. نسخ الآية الكريمة
+window.handleSheetCopyAyah = function() {
+    if (!selectedAyahContext) return;
+    const { text, surahName, numberInSurah } = selectedAyahContext;
+    copyAyahText(text, surahName, numberInSurah);
+    closeAyahActionSheet();
+};
+
+// 4. مشاركة الآية الكريمة
+window.handleSheetShareAyah = function() {
+    if (!selectedAyahContext) return;
+    const { text, surahName, numberInSurah, pageNumber } = selectedAyahContext;
+    const shareText = `﴿${text}﴾\n[سورة ${surahName}: آية ${numberInSurah} • صفحة ${pageNumber}]\n— تطبيق زاد المسلم 🕌`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: `سورة ${surahName} - آية ${numberInSurah}`,
+            text: shareText
+        }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            if (typeof showToast === "function") showToast("تم نسخ الآية الكريمة للمشاركة 📤✨");
+        });
+    }
+    closeAyahActionSheet();
+};
+
+// 5. الاستماع للآية الكريمة
+window.handleSheetListenAyah = function() {
+    if (!selectedAyahContext) return;
+    const index = selectedAyahContext.index !== undefined ? selectedAyahContext.index : 0;
+    closeAyahActionSheet();
+    playAyahSync(index);
+};
+
+/**
+ * تحديث وعرض بطاقة "أكمل من حيث توقفت"
+ */
+function updateQuranHubResumeCard() {
+    const cardContainer = document.getElementById('quran-hub-resume-card');
+    if (!cardContainer) return;
+
+    let lastRead = null;
+    try {
+        const raw = localStorage.getItem("zad_quran_last_read");
+        if (raw) lastRead = JSON.parse(raw);
+    } catch(e) {}
+
+    if (!lastRead) {
+        const oldPage = parseInt(localStorage.getItem("mushaf_last_page") || "562", 10);
+        const surah = findSurahForPage(oldPage);
+        lastRead = {
+            pageNumber: oldPage,
+            surahId: surah ? surah.id : 67,
+            surahName: surah ? surah.name : "الملك",
+            ayahNumber: 1,
+            timestamp: Date.now()
+        };
+    }
+
+    const ayahText = lastRead.ayahNumber ? `• آية ${lastRead.ayahNumber}` : '';
+    cardContainer.innerHTML = `
+        <div class="quran-resume-card-inner">
+            <div class="quran-resume-badge"><i class="fa-solid fa-bookmark text-gold"></i> آخر موضع قراءة</div>
+            <div class="quran-resume-details">
+                <h3 class="quran-resume-surah">سورة ${lastRead.surahName}</h3>
+                <p class="quran-resume-meta">صفحة ${lastRead.pageNumber} ${ayahText}</p>
+            </div>
+            <button type="button" class="btn btn-gold btn-resume-reading" onclick="jumpToMushafAndRead(${lastRead.pageNumber}, ${lastRead.surahId})">
+                <i class="fa-solid fa-book-open-reader"></i>
+                <span>متابعة القراءة</span>
+            </button>
+        </div>
+    `;
+}
+
+/**
+ * بناء شاشات تبويبات مركز القرآن: [السور]، [الأجزاء]، [العلامات المرجعية]
+ */
+function initQuranHubTabs() {
+    renderQuranHubSurahsList();
+    renderQuranHubJuzList();
+    renderQuranHubBookmarksList();
+    updateQuranHubResumeCard();
+
+    // مستمع لتبويبات القرآن الثلاث
+    const tabBtns = document.querySelectorAll('.quran-hub-nav-tab');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tab = this.getAttribute('data-tab');
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            document.querySelectorAll('.quran-hub-tab-pane').forEach(p => p.classList.remove('active-pane'));
+            const targetPane = document.getElementById(`quran-tab-pane-${tab}`);
+            if (targetPane) targetPane.classList.add('active-pane');
+
+            if (tab === 'bookmarks') {
+                renderQuranHubBookmarksList();
+            }
+        });
+    });
+
+    // البحث في السور بمركز القرآن
+    const hubSearch = document.getElementById('input-quran-hub-surah-search');
+    if (hubSearch) {
+        hubSearch.addEventListener('input', (e) => {
+            renderQuranHubSurahsList(e.target.value);
+        });
+    }
+}
+
+function renderQuranHubSurahsList(query = "") {
+    const listContainer = document.getElementById('quran-hub-surahs-list');
+    if (!listContainer) return;
+
+    let list = SURAHS_INDEX;
+    if (query && query.trim()) {
+        const qNorm = normalizeArabicText(query.trim()).toLowerCase();
+        list = SURAHS_INDEX.filter(s => {
+            const nameNorm = normalizeArabicText(s.name).toLowerCase();
+            return nameNorm.includes(qNorm) || String(s.id) === query.trim() || String(s.page) === query.trim();
+        });
+    }
+
+    listContainer.innerHTML = list.map(s => `
+        <div class="quran-surah-item-card" onclick="jumpToMushafAndRead(${s.page}, ${s.id})">
+            <div class="quran-surah-number-badge">${s.id}</div>
+            <div class="quran-surah-info">
+                <h4 class="quran-surah-item-name">سورة ${s.name}</h4>
+                <div class="quran-surah-item-meta">${s.type} • ${s.ayahs} آية</div>
+            </div>
+            <div class="quran-surah-page-badge">صفحة ${s.page}</div>
+        </div>
+    `).join('');
+}
+
+function renderQuranHubJuzList() {
+    const listContainer = document.getElementById('quran-hub-juz-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = JUZ_INDEX.map(j => `
+        <div class="quran-juz-item-card" onclick="jumpToMushafAndRead(${j.page})">
+            <div class="quran-juz-number-badge">${j.juz}</div>
+            <div class="quran-juz-info">
+                <h4 class="quran-juz-item-name">${j.name}</h4>
+                <div class="quran-juz-item-meta">يبدأ من: سورة ${j.startSurah} (آية ${j.startAyah})</div>
+            </div>
+            <div class="quran-juz-page-badge">صفحة ${j.page}</div>
+        </div>
+    `).join('');
+}
+
+function renderQuranHubBookmarksList() {
+    const listContainer = document.getElementById('quran-hub-bookmarks-list');
+    if (!listContainer) return;
+
+    const bookmarks = getQuranBookmarks();
+    if (!bookmarks || bookmarks.length === 0) {
+        listContainer.innerHTML = `
+            <div class="quran-bookmarks-empty">
+                <i class="fa-solid fa-bookmark" style="font-size: 2.2rem; color: var(--gold-400); margin-bottom: 10px;"></i>
+                <h4>لا توجد علامات مرجعية محفوظة حتى الآن</h4>
+                <p>يمكنك حفظ أي صفحة أو آية بالضغط على علامة 🔖 أثناء القراءة للعودة إليها بسهولة.</p>
+            </div>
+        `;
+        return;
+    }
+
+    listContainer.innerHTML = bookmarks.map(b => {
+        const timeAgo = formatTimeAgoArabic(b.createdAt);
+        return `
+            <div class="quran-hub-bookmark-card">
+                <div class="quran-hub-bookmark-main" onclick="jumpToMushafAndRead(${b.pageNumber}, ${b.surahId})">
+                    <div class="quran-hub-bookmark-icon"><i class="fa-solid fa-bookmark text-gold"></i></div>
+                    <div class="quran-hub-bookmark-info">
+                        <h4>${escapeHtml(b.label || `وقوف صفحة ${b.pageNumber}`)}</h4>
+                        <div class="quran-hub-bookmark-meta">سورة ${b.surahName} • صفحة ${b.pageNumber} • ${timeAgo}</div>
+                    </div>
+                </div>
+                <div class="quran-hub-bookmark-actions">
+                    <button type="button" class="btn btn-sm btn-gold" onclick="jumpToMushafAndRead(${b.pageNumber}, ${b.surahId})">
+                        <i class="fa-solid fa-book-open"></i> قراءة
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline text-danger" onclick="removeQuranBookmark(${b.id}); renderQuranHubBookmarksList();" title="حذف">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * الانتقال السلس إلى شاشة قراءة المصحف
+ */
+window.jumpToMushafAndRead = function(pageNumber, surahId = null) {
+    const readingView = document.getElementById('real-mushaf-card');
+    if (readingView) {
+        readingView.style.display = 'block';
+    }
+
+    goToMushafPage(pageNumber, surahId);
+
+    if (readingView) {
+        readingView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
+
+window.initQuranHubTabs = initQuranHubTabs;
+window.updateQuranHubResumeCard = updateQuranHubResumeCard;
+
+document.addEventListener("DOMContentLoaded", () => {
+    initQuranHubTabs();
+});
+
 
 

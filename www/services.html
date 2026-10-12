@@ -46,7 +46,8 @@
     
     <!-- تنسيقات الموقع المتطابقة مع النموذج المرجعي -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <link rel="stylesheet" href="assets/css/style.css?v=92">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="assets/css/style.css?v=93">
     
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
@@ -183,6 +184,28 @@
                         </div>
                     </div>
                     <span class="service-action-link">عرض التقويم والمواسم ←</span>
+                </a>
+
+                <a class="service-card" href="#zakat-calculator-section">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🧮</div>
+                        <div class="service-info">
+                            <h3>حاسبة الزكاة الذكية</h3>
+                            <p>حساب زكاة المال، الذهب، الفضة، عروض التجارة والأسهم بدقة شرعية 100%.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">احسب زكاتك الآن ←</span>
+                </a>
+
+                <a class="service-card" href="#nearby-mosques-section">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🕌</div>
+                        <div class="service-info">
+                            <h3>مساجد قريبة منك</h3>
+                            <p>اكتشف أقرب بيوت الله إليك والمسافة إليها مع خريطة تفاعلية واتجاهات فورية.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">عرض أقرب المساجد ←</span>
                 </a>
             </div>
         </section>
@@ -369,15 +392,62 @@
 
             <!-- الجزء الأول: مصحف الصدقة الجارية (تلاوة وتدبر) -->
             <div class="quran-subpart-block" id="subpart-mushaf">
-                <div class="subpart-header">
-                    <div class="subpart-title">
-                        <i class="fa-solid fa-book-open-reader text-gold"></i>
-                        <span>مصحف الصدقة الجارية • تلاوة وتدبر</span>
-                    </div>
-                    <span class="subpart-badge">طبعة مجمع الملك فهد بالمدينة المنورة</span>
+                <!-- ترويسة هاب المصحف الشريف الكبرى -->
+                <div class="quran-hub-header-hero">
+                    <span class="section-tag"><i class="fa-solid fa-book-quran"></i> كلام رب العالمين • هدى ونور</span>
+                    <h2 class="quran-hub-title">المصحف الشريف</h2>
+                    <p class="quran-hub-desc">طبعة مجمع الملك فهد بالمدينة المنورة برواية حفص عن عاصم، بتلاوة عذبة وتدبر مبارك.</p>
                 </div>
 
-                <!-- شريط فاصلة المصحف الذكية ومتابع القراءة والختمة -->
+                <!-- بطاقة أكمل من حيث توقفت البارزة (Resume Reading Card) -->
+                <div class="quran-hub-resume-card" id="quran-hub-resume-card">
+                    <!-- تُملأ وتُحدث برمجياً من quran.js -->
+                </div>
+
+                <!-- شريط التبويبات الثلاثة الرئيسية: [السور] • [الأجزاء] • [العلامات المرجعية] -->
+                <div class="quran-hub-tabs-nav">
+                    <button type="button" class="quran-hub-nav-tab active" data-tab="surahs">
+                        <i class="fa-solid fa-list-ol"></i>
+                        <span>السور (114)</span>
+                    </button>
+                    <button type="button" class="quran-hub-nav-tab" data-tab="juz">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                        <span>الأجزاء (30)</span>
+                    </button>
+                    <button type="button" class="quran-hub-nav-tab" data-tab="bookmarks">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>العلامات المرجعية</span>
+                    </button>
+                </div>
+
+                <!-- محتوى تبويب السور الـ 114 مع بحث سريع -->
+                <div class="quran-hub-tab-pane active-pane" id="quran-tab-pane-surahs">
+                    <div style="position: relative; margin-bottom: 12px;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 12px; color: var(--gold-400); pointer-events: none;"></i>
+                        <input type="text" id="input-quran-hub-surah-search" class="form-input" placeholder="ابحث عن أي سورة بالاسم أو الرقم (مثال: الكهف، يس، 67)..." style="padding-right: 40px; border-radius: 20px;">
+                    </div>
+                    <div class="quran-items-grid" id="quran-hub-surahs-list">
+                        <!-- يُملأ من quran.js -->
+                    </div>
+                </div>
+
+                <!-- محتوى تبويب الأجزاء الـ 30 -->
+                <div class="quran-hub-tab-pane" id="quran-tab-pane-juz">
+                    <div class="quran-items-grid" id="quran-hub-juz-list">
+                        <!-- يُملأ من quran.js -->
+                    </div>
+                </div>
+
+                <!-- محتوى تبويب العلامات المرجعية المحفوظة -->
+                <div class="quran-hub-tab-pane" id="quran-tab-pane-bookmarks">
+                    <div id="quran-hub-bookmarks-list">
+                        <!-- يُملأ من quran.js -->
+                    </div>
+                </div>
+
+                <div style="margin: 24px 0 16px; border-top: 1px dashed var(--border-color);"></div>
+
+                <!-- شريط فاصلة المصحف ومتابع القراءة والختمة -->
                 <div class="mushaf-reading-tracker-bar" id="mushaf-reading-tracker-bar">
                     <div class="tracker-bookmark-col">
                         <div class="tracker-badge-icon"><i class="fa-solid fa-bookmark text-gold"></i></div>
@@ -1713,6 +1783,261 @@
             </div>
         </div>
     </section>
+
+    <!-- ==========================================
+         زاد المسلم V4 — 1. حاسبة الزكاة الذكية الشاملة (Zakat Calculator)
+         ========================================== -->
+    <section id="zakat-calculator-section" class="cemetery-guide-section" style="padding: 40px 0;">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag"><i class="fa-solid fa-calculator"></i> ركن الإسلام الثالث • طهرة وبركة</span>
+                <h2 class="section-title">حاسبة الزكاة الذكية الشاملة</h2>
+                <p class="section-desc">
+                    احسب زكاة أموالك والذهب والفضة والأسهم وعروض التجارة بدقة شرعية 100% وفق النصاب الشرعي المعتمد وحولان الحول.
+                </p>
+            </div>
+
+            <div class="zakat-calc-card">
+                <!-- شريط الإعدادات والعملة والنصاب -->
+                <div class="zakat-settings-bar">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label for="zakat-currency-select" style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); margin: 0;">العملة:</label>
+                        <select id="zakat-currency-select" class="form-input" style="height: 38px; width: 140px; padding: 0 10px; font-weight: 700;">
+                            <option value="SAR">🇸🇦 ريال سعودي (SAR)</option>
+                            <option value="EGP">🇪🇬 جنيه مصري (EGP)</option>
+                            <option value="AED">🇦🇪 درهم إماراتي (AED)</option>
+                            <option value="KWD">🇰🇼 دينار كويتي (KWD)</option>
+                            <option value="QAR">🇶🇦 ريال قطري (QAR)</option>
+                            <option value="USD">🇺🇸 دولار أمريكي (USD)</option>
+                            <option value="EUR">🇪🇺 يورو (EUR)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <span style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary);">أساس النصاب:</span>
+                        <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; cursor: pointer; color: var(--text-secondary); margin: 0;">
+                            <input type="radio" name="zakat-nisab-basis" id="zakat-nisab-basis-gold" value="gold" checked>
+                            <span>الذهب (85 جم)</span>
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; cursor: pointer; color: var(--text-secondary); margin: 0;">
+                            <input type="radio" name="zakat-nisab-basis" id="zakat-nisab-basis-silver" value="silver">
+                            <span>الفضة (595 جم)</span>
+                        </label>
+                    </div>
+
+                    <div id="zakat-last-saved-badge" style="display: none;"></div>
+                </div>
+
+                <form id="zakat-calculator-form" onsubmit="event.preventDefault(); calculateZakat();">
+                    <!-- أسعار الجرام لليوم -->
+                    <div class="zakat-settings-bar" style="background: var(--bg-card); border: 1px dashed var(--border-color); margin-bottom: 20px;">
+                        <div style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-circle-info text-gold"></i> أسعار الجرام المعتمدة (<span id="zakat-prices-date">اليوم</span>): يمكنك تعديلها يدوياً إن شئت:</div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.82rem; font-weight: 700;">ذهب عيار 24:</span>
+                                <input type="number" id="zakat-gold24-price" class="form-input" style="width: 100px; height: 32px; font-size: 0.85rem;" placeholder="310">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.82rem; font-weight: 700;">فضة خام:</span>
+                                <input type="number" id="zakat-silver-price" class="form-input" style="width: 90px; height: 32px; font-size: 0.85rem;" placeholder="3.8">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="zakat-form-grid">
+                        <!-- 1. السيولة النقدية والأرصدة البنكية -->
+                        <div class="zakat-category-box">
+                            <h4 class="zakat-cat-title"><i class="fa-solid fa-money-bill-wave"></i> 1. السيولة النقدية والحسابات البنكية</h4>
+                            <div class="zakat-input-group">
+                                <label for="zakat-cash-in-hand">النقد المتوفر في اليد أو الخزينة:</label>
+                                <div class="zakat-input-wrap">
+                                    <input type="number" min="0" step="any" id="zakat-cash-in-hand" placeholder="0">
+                                    <span class="zakat-currency-unit">ر.س</span>
+                                </div>
+                            </div>
+                            <div class="zakat-input-group">
+                                <label for="zakat-bank-balance">الأرصدة بالحسابات البنكية والودائع:</label>
+                                <div class="zakat-input-wrap">
+                                    <input type="number" min="0" step="any" id="zakat-bank-balance" placeholder="0">
+                                    <span class="zakat-currency-unit">ر.س</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. الذهب المعد للادخار والاستثمار -->
+                        <div class="zakat-category-box">
+                            <h4 class="zakat-cat-title"><i class="fa-solid fa-coins"></i> 2. الذهب والسبائك (بالجرام)</h4>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">ملاحظة: حلي المرأة الشخصي المعتاد لا زكاة فيه عند جمهور الفقهاء. الزكاة في سبائك الادخار والاستثمار.</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div class="zakat-input-group">
+                                    <label for="zakat-gold-24k">ذهب عيار 24 (جم):</label>
+                                    <input type="number" min="0" step="any" id="zakat-gold-24k" class="form-input" placeholder="0">
+                                </div>
+                                <div class="zakat-input-group">
+                                    <label for="zakat-gold-22k">ذهب عيار 22 (جم):</label>
+                                    <input type="number" min="0" step="any" id="zakat-gold-22k" class="form-input" placeholder="0">
+                                </div>
+                                <div class="zakat-input-group">
+                                    <label for="zakat-gold-21k">ذهب عيار 21 (جم):</label>
+                                    <input type="number" min="0" step="any" id="zakat-gold-21k" class="form-input" placeholder="0">
+                                </div>
+                                <div class="zakat-input-group">
+                                    <label for="zakat-gold-18k">ذهب عيار 18 (جم):</label>
+                                    <input type="number" min="0" step="any" id="zakat-gold-18k" class="form-input" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. الفضة وعروض التجارة والأسهم -->
+                        <div class="zakat-category-box">
+                            <h4 class="zakat-cat-title"><i class="fa-solid fa-chart-line"></i> 3. الفضة وعروض التجارة والأسهم</h4>
+                            <div class="zakat-input-group">
+                                <label for="zakat-silver-grams">وزن الفضة الخالصة (بالجرام):</label>
+                                <input type="number" min="0" step="any" id="zakat-silver-grams" class="form-input" placeholder="0">
+                            </div>
+                            <div class="zakat-input-group">
+                                <label for="zakat-trade-goods">قيمة بضاعة عروض التجارة (بسعر البيع الحالي):</label>
+                                <div class="zakat-input-wrap">
+                                    <input type="number" min="0" step="any" id="zakat-trade-goods" placeholder="0">
+                                    <span class="zakat-currency-unit">ر.س</span>
+                                </div>
+                            </div>
+                            <div class="zakat-input-group">
+                                <label for="zakat-stocks-shares">الأسهم والصناديق الاستثمارية (بغرض التجارة):</label>
+                                <div class="zakat-input-wrap">
+                                    <input type="number" min="0" step="any" id="zakat-stocks-shares" placeholder="0">
+                                    <span class="zakat-currency-unit">ر.س</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. الديون لك وعليك وشرط الحول -->
+                        <div class="zakat-category-box">
+                            <h4 class="zakat-cat-title"><i class="fa-solid fa-scale-balanced"></i> 4. الديون والخصومات وشرط الحول</h4>
+                            <div class="zakat-input-group">
+                                <label for="zakat-receivables">ديون مرجوة السداد لك عند الآخرين:</label>
+                                <div class="zakat-input-wrap">
+                                    <input type="number" min="0" step="any" id="zakat-receivables" placeholder="0">
+                                    <span class="zakat-currency-unit">ر.س</span>
+                                </div>
+                            </div>
+                            <div class="zakat-input-group">
+                                <label for="zakat-debts-due">ديون مستحقة عليك واجبة السداد حالاً (تُخصم):</label>
+                                <div class="zakat-input-wrap">
+                                    <input type="number" min="0" step="any" id="zakat-debts-due" placeholder="0">
+                                    <span class="zakat-currency-unit">ر.س</span>
+                                </div>
+                            </div>
+
+                            <div style="background: var(--bg-card); border-radius: 10px; padding: 12px; margin-top: 14px; border: 1px solid var(--border-color);">
+                                <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; margin: 0; font-size: 0.88rem; color: var(--text-primary); font-weight: 600;">
+                                    <input type="checkbox" id="zakat-hawl-confirmed" checked style="margin-top: 4px;">
+                                    <span>أقر بأن هذا المال قد حال عليه الحول القمري (مضى عليه عام هجري كامل وهو في ملكي).</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- لوحة نتائج حساب الزكاة -->
+                <div class="zakat-result-panel">
+                    <div id="zakat-res-status-badge" class="zakat-status-badge badge-success">
+                        <i class="fa-solid fa-circle-check"></i> تجب فيه الزكاة شرعاً
+                    </div>
+                    <div style="font-size: 0.95rem; opacity: 0.9;">مقدار الزكاة الواجب إخراجها شرعاً (2.5%):</div>
+                    <div class="zakat-due-display">
+                        <span id="zakat-res-due-amount">0</span>
+                        <span id="zakat-res-due-unit" style="font-size: 1.5rem; margin-inline-start: 4px;">ر.س</span>
+                    </div>
+                    <p id="zakat-res-status-text" style="font-size: 0.9rem; max-width: 520px; margin: 8px auto 14px; opacity: 0.95; line-height: 1.6;"></p>
+
+                    <div class="zakat-breakdown-box" id="zakat-res-breakdown-details">
+                        <!-- يُملأ من zakat-calculator.js -->
+                    </div>
+
+                    <div class="zakat-actions-row">
+                        <button type="button" class="btn btn-gold btn-sm" id="btn-zakat-save">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>حفظ النتيجة</span>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" id="btn-zakat-share" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: white;">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            <span>مشاركة النتيجة</span>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" id="btn-zakat-reset" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: white;">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>إعادة الحساب</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         زاد المسلم V4 — 2. مساجد قريبة منك (Nearby Mosques)
+         ========================================== -->
+    <section id="nearby-mosques-section" class="cemetery-guide-section" style="padding: 40px 0; background: var(--bg-elevated);">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag"><i class="fa-solid fa-mosque"></i> في بيوتٍ أذن الله أن تُرفع</span>
+                <h2 class="section-title">مساجد قريبة منك</h2>
+                <p class="section-desc">
+                    تعرّف على بيوت الله القريبة من موقعك الحالي، واحصل على الاتجاهات الدقيقة إليها لصلاتي الجماعة والجمعة.
+                </p>
+            </div>
+
+            <div class="mosques-container-card">
+                <!-- شريط البحث والتحكم والتبديل بين القائمة والخريطة -->
+                <div class="mosques-top-bar">
+                    <button type="button" class="btn btn-gold" id="btn-find-nearby-mosques">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <span>تحديد موقعي والبحث عن المساجد 📍</span>
+                    </button>
+
+                    <div class="mosques-view-tabs">
+                        <button type="button" class="mosques-view-tab active" id="btn-mosques-view-list">
+                            <i class="fa-solid fa-list-ul"></i>
+                            <span>قائمة المساجد</span>
+                        </button>
+                        <button type="button" class="mosques-view-tab" id="btn-mosques-view-map">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <span>الخريطة التفاعلية</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- صندوق حالة البحث والرسائل التفاعلية -->
+                <div class="mosques-status-box" id="mosques-status-box" style="display: none;"></div>
+
+                <!-- البحث اليدوي البديل بالمدينة/الحي عند تعذر الـ GPS -->
+                <div id="mosques-manual-fallback" style="display: none; margin-bottom: 18px; background: var(--bg-card); padding: 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div style="font-size: 0.88rem; font-weight: 700; margin-bottom: 8px;"><i class="fa-solid fa-magnifying-glass text-gold"></i> أو ابحث باسم مدينتك أو حيك:</div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="input-mosques-city-search" class="form-input" placeholder="اكتب اسم المدينة أو الحي (مثال: القاهرة، مكة، الرياض، المنصورة)..." style="flex: 1;">
+                        <button type="button" class="btn btn-gold btn-sm" id="btn-mosques-city-search">بحث</button>
+                    </div>
+                </div>
+
+                <!-- عرض القائمة (List View) -->
+                <div id="mosques-list-container">
+                    <div id="mosques-results-list">
+                        <div class="mosques-empty-state" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                            <i class="fa-solid fa-mosque" style="font-size: 2.5rem; color: var(--gold-400); margin-bottom: 12px;"></i>
+                            <h4 style="font-size: 1.15rem; color: var(--text-primary); margin: 0 0 6px;">اضغط على "تحديد موقعي" لعرض أقرب المساجد إليك</h4>
+                            <p style="font-size: 0.88rem; margin: 0;">يتم جلب البيانات الحقيقية بأعلى دقة وخصوصية كاملة دون أي تتبع لموقعك.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عرض الخريطة (Map View) -->
+                <div id="mosques-map-container" style="display: none;">
+                    <div id="mosques-leaflet-map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ==========================================
          قسم دليل أحكام الجنائز والصدقة الجارية (Islamic Deceased Guide)
          ========================================== -->
@@ -3202,8 +3527,45 @@
     <script src="assets/js/native-adhan-service.js?v=2"></script>
     <script src="assets/js/onesignal-service.js?v=1"></script>
     <script src="assets/js/app.js?v=18"></script>
-    <script src="assets/js/quran.js?v=16"></script>
+    <script src="assets/js/quran.js?v=17"></script>
     <script src="assets/js/extended-modules.js?v=22"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="assets/js/zakat-calculator.js?v=1"></script>
+    <script src="assets/js/nearby-mosques.js?v=1"></script>
+
+    <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
+    <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">
+        <div class="ayah-action-sheet-card">
+            <div class="ayah-sheet-drag-handle"></div>
+            <div class="ayah-sheet-header">
+                <h3 class="ayah-sheet-title" id="ayah-sheet-title">سورة الفاتحة • آية 1</h3>
+                <p class="ayah-sheet-text" id="ayah-sheet-text">﴿بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ﴾</p>
+            </div>
+            <div class="ayah-sheet-actions-list">
+                <button type="button" class="ayah-sheet-action-item" onclick="handleSheetBookmarkAyah()">
+                    <div class="ayah-sheet-action-icon"><i class="fa-solid fa-bookmark"></i></div>
+                    <span>إضافة علامة مرجعية 🔖</span>
+                </button>
+                <button type="button" class="ayah-sheet-action-item" onclick="handleSheetSetReadingPosition()">
+                    <div class="ayah-sheet-action-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <span>تحديد موضع القراءة (أكمل من هنا) 📍</span>
+                </button>
+                <button type="button" class="ayah-sheet-action-item" onclick="handleSheetCopyAyah()">
+                    <div class="ayah-sheet-action-icon"><i class="fa-solid fa-copy"></i></div>
+                    <span>نسخ الآية الكريمة 📋</span>
+                </button>
+                <button type="button" class="ayah-sheet-action-item" onclick="handleSheetShareAyah()">
+                    <div class="ayah-sheet-action-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                    <span>مشاركة الآية 📤</span>
+                </button>
+                <button type="button" class="ayah-sheet-action-item" onclick="handleSheetListenAyah()">
+                    <div class="ayah-sheet-action-icon"><i class="fa-solid fa-headphones"></i></div>
+                    <span>الاستماع للآية 🔊</span>
+                </button>
+            </div>
+            <button type="button" class="ayah-sheet-close-btn" onclick="closeAyahActionSheet()">إغلاق</button>
+        </div>
+    </div>
 
     <!-- نافذة تحدي الـ 7 أيام الإيماني (7-Day Spiritual Challenge Modal) -->
     <div class="modal-overlay" id="challenge-modal">
