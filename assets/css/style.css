@@ -1660,7 +1660,7 @@ html[data-theme="light"] .nav-links a.active {
   font-family: var(--font-quran);
   font-size: 1.7rem;
   line-height: 2.1;
-  color: var(--gold-100);
+  color: var(--gold-500);
   margin: 1.2rem 0;
   font-weight: 600;
 }
@@ -1776,7 +1776,7 @@ html[data-theme="light"] .nav-links a.active {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gold-300);
+  color: var(--gold-500);
   font-size: 1rem;
 }
 
@@ -1844,7 +1844,6 @@ html[data-theme="light"] .nav-links a.active {
 .swiper-button-next,
 .swiper-button-prev {
   color: var(--gold-500) !important;
-  background: rgba(15, 28, 48, 0.8);
   width: 44px !important;
   height: 44px !important;
   border-radius: 50%;
@@ -2206,7 +2205,7 @@ html[data-theme="light"] .nav-links a.active {
 .verse-text {
   font-family: var(--font-quran);
   font-size: 1.45rem;
-  color: var(--gold-100);
+  color: var(--gold-500);
   line-height: 2;
   margin-bottom: 1.2rem;
 }
@@ -2470,19 +2469,19 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .surah-pill {
-  background: rgba(19, 35, 60, 0.7);
-  border: 1px solid var(--border-color);
-  color: var(--text-gold);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 0.6rem 1.3rem;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: var(--transition-fast);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
+    background: #081C17;
+    border: 1px solid var(--border-color);
+    color: var(--text-gold);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.6rem 1.3rem;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 .surah-pill:hover {
@@ -2599,11 +2598,10 @@ html[data-theme="light"] .nav-links a.active {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(15, 28, 48, 0.8);
   border: 1px solid var(--border-color);
   padding: 0.35rem 0.8rem;
   border-radius: var(--radius-full);
-  color: var(--text-gold);
+  color: var(--gold-500);
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -3240,7 +3238,6 @@ html[data-theme="light"] .nav-links a.active {
   margin: 0 auto 2.5rem;
   flex-wrap: wrap;
   max-width: 640px;
-  background: rgba(15, 23, 42, 0.6);
   padding: 0.45rem;
   border-radius: var(--radius-full, 9999px);
   border: 1px solid rgba(212, 175, 55, 0.25);
@@ -4637,7 +4634,6 @@ html[data-theme="light"] .nav-links a.active {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  background: rgba(15, 28, 48, 0.7);
   border: 1px solid var(--border-color);
   padding: 0.4rem 0.9rem;
   border-radius: var(--radius-full);
@@ -4647,11 +4643,10 @@ html[data-theme="light"] .nav-links a.active {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: var(--font-arabic-heading, inherit);
+  font-family: var(--font-body, inherit);
   font-size: 0.92rem;
   font-weight: 600;
-  color: var(--gold-300);
-  background: rgba(15, 23, 42, 0.6);
+  color: var(--gold-500);
   padding: 0.45rem 1rem;
   border-radius: var(--radius-full);
   border: 1px solid rgba(212, 175, 55, 0.25);
@@ -4661,7 +4656,7 @@ html[data-theme="light"] .nav-links a.active {
 .prayer-city-select {
   background: transparent;
   border: none;
-  color: var(--gold-200);
+  color: var(--gold-500);
   font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 600;
@@ -4945,7 +4940,7 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .cemetery-list li strong {
-  color: var(--gold-200);
+  color: var(--gold-500);
 }
 
 /* نافذة صانع بطاقات الأدعية المصورة */
@@ -5239,19 +5234,19 @@ html[data-theme="light"] .nav-links a.active {
    بنر مواسم الصيام المستحب والعد التنازلي (Fasting Tracker)
    ========================================================================== */
 .fasting-tracker-banner {
-  background: linear-gradient(135deg, rgba(8, 30, 24, 0.9) 0%, rgba(15, 28, 48, 0.95) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(212, 175, 55, 0.2);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1.2rem;
-  position: relative;
-  overflow: hidden;
+    background: linear-gradient(135deg, rgba(20, 108, 90, 0.99), rgba(14, 102, 84, 0.99));
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(212, 175, 55, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .fasting-tracker-banner::before {
@@ -5657,7 +5652,7 @@ html[data-theme="light"] .nav-links a.active {
 .charity-memorial-text {
     font-size: 0.95rem;
     line-height: 1.6;
-    color: #193B34;
+    color: #FFF;
     width: 80%;
 }
 
@@ -6297,8 +6292,8 @@ html[data-theme="light"] .nav-links a.active {
 
 .btn-audio-quick {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(16, 185, 129, 0.15));
-  border: 1px solid var(--gold-400);
-  color: var(--gold-200);
+  border: 1px solid var(--gold-500);
+  color: var(--gold-500);
   padding: 0.45rem 1rem;
   border-radius: var(--radius-full);
   font-size: 0.84rem;
@@ -6374,8 +6369,8 @@ html[data-theme="light"] .nav-links a.active {
 
 .btn-mushaf-pill.active {
   background: rgba(212, 175, 55, 0.25);
-  border-color: var(--gold-400);
-  color: var(--gold-200);
+  border-color: var(--gold-500);
+  color: var(--gold-500);
 }
 
 .btn-bookmark-saved {
@@ -6386,8 +6381,8 @@ html[data-theme="light"] .nav-links a.active {
 
 .btn-more-tools-toggle {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.22), rgba(15, 28, 48, 0.85));
-  border: 1px solid var(--gold-400);
-  color: var(--gold-300);
+  border: 1px solid var(--gold-500);
+  color: var(--gold-500);
   font-weight: 700;
 }
 
@@ -6703,7 +6698,7 @@ html[data-theme="light"] .nav-links a.active {
 .categorized-duas-section {
     padding: 0 0 35px 0;
     position: relative;
-    background: radial-gradient(circle at 50% 0%, rgba(5, 150, 105, 0.08) 0%, rgba(7, 13, 24, 0.98) 75%);
+    background: radial-gradient(circle at 50% 10%, rgba(212, 175, 55, 0.04) 0%, transparent 60%);
 }
 
 .duas-categories-tabs {
@@ -8322,7 +8317,7 @@ input:checked + .slider-round:before {
 .story-title-group h3 {
   font-size: 1.18rem;
   font-weight: 700;
-  color: var(--gold-200);
+  color: var(--gold-500);
   margin: 0 0 0.2rem 0;
 }
 
@@ -8344,15 +8339,15 @@ input:checked + .slider-round:before {
 }
 
 .story-verse-preview {
-  background: rgba(14, 25, 43, 0.85);
-  border-right: 3px solid var(--gold-500);
-  border-radius: var(--radius-sm);
-  padding: 0.8rem 1rem;
-  font-family: var(--font-quran, serif);
-  font-size: 1.05rem;
-  color: var(--gold-300);
-  line-height: 1.8;
-  margin: 0;
+    background: rgba(16, 185, 129, 0.08);
+    border-right: 3px solid var(--gold-500);
+    border-radius: var(--radius-sm);
+    padding: 0.8rem 1rem;
+    font-family: var(--font-quran, serif);
+    font-size: 1.05rem;
+    color: var(--gold-500);
+    line-height: 1.8;
+    margin: 0;
 }
 
 .story-card-summary {
@@ -8717,7 +8712,7 @@ input:checked + .slider-round:before {
 .tracker-value {
   font-size: 0.98rem;
   font-weight: 700;
-  color: var(--gold-200);
+  color: var(--gold-500);
 }
 
 .tracker-khatma-col {
@@ -9044,21 +9039,21 @@ input:checked + .slider-round:before {
    3. بنر التنبيهات اللطيفة الذكية (Smart Contextual Reminders Banner)
    ========================================================================== */
 .smart-reminder-banner {
-  background: linear-gradient(135deg, rgba(8, 30, 24, 0.95), rgba(15, 28, 48, 0.98));
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.4rem;
-  margin: 1.5rem auto 0;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.15);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  animation: slideDownFade 0.4s ease;
-  position: relative;
-  overflow: hidden;
-  margin-bottom:20px;
+    background: linear-gradient(135deg, rgba(20, 108, 90, 0.99), rgba(14, 102, 84, 0.99));
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.4rem;
+    margin: 1.5rem auto 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    animation: slideDownFade 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .smart-reminder-banner::before {
@@ -9099,9 +9094,9 @@ input:checked + .slider-round:before {
 }
 
 .smart-reminder-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--gold-200);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e5c68c;
 }
 
 .smart-reminder-desc {
