@@ -41,7 +41,7 @@ body.light-theme {
     --border-glow: rgba(14, 102, 84, 0.25);
     /* تدرجات الذهب والأخضر */
     --gold-100: #FFF5E3;
-    --gold-200: #FCE8A8;
+    --gold-200: #A87927;
     --gold-300: #D8A547;
     --gold-400: #BF8C2E;
     --gold-500: #A87927;
@@ -65,7 +65,7 @@ body.light-theme {
     --radius-sm: 8px;
     --radius-md: 13px;
     --radius-lg: 22px;
-    --radius-xl:25px;
+    --radius-xl: 25px;
     --radius-full: 9999px;
 }
 
@@ -1185,9 +1185,6 @@ html[data-theme="dark"] .prayer-city-select, [data-theme="dark"] .prayer-city-se
 html[data-theme="light"] .select-surah-dropdown,
 [data-theme="light"] .select-surah-dropdown,
 body.light-theme .select-surah-dropdown,
-html[data-theme="light"] .prayer-city-select,
-[data-theme="light"] .prayer-city-select,
-body.light-theme .prayer-city-select,
 html[data-theme="light"] .select-reciter-dropdown,
 [data-theme="light"] .select-reciter-dropdown,
 body.light-theme .select-reciter-dropdown {
@@ -1195,29 +1192,36 @@ body.light-theme .select-reciter-dropdown {
   border-color: #DFE9E1 !important;
   color: #193B34 !important;
 }
-
-/* التجاوب وفقاً للنموذج المرجعي */
-@media(max-width: 850px) {
-  .links {
-    display: none;
-  }
-  .dashboard, .bottom {
-    grid-template-columns: 1fr;
-  }
-  .features {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .hero {
-    padding: 32px;
-  }
-  .moon {
-    font-size: 70px;
-    margin-left: 0;
-  }
-  .hero h1 {
-    font-size: 29px;
-  }
+html[data-theme="light"] .prayer-city-select, [data-theme="light"] .prayer-city-select, body.light-theme .prayer-city-select {
+    border-color: none !important;
 }
+    /* التجاوب وفقاً للنموذج المرجعي */
+    @media(max-width: 850px) {
+        .links {
+            display: none;
+        }
+
+        .dashboard, .bottom {
+            grid-template-columns: 1fr;
+        }
+
+        .features {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .hero {
+            padding: 20px;
+        }
+
+        .moon {
+            font-size: 70px;
+            margin-left: 0;
+        }
+
+        .hero h1 {
+            font-size: 29px;
+        }
+    }
 
 @media(max-width: 520px) {
   .shell {
@@ -2777,7 +2781,7 @@ html[data-theme="light"] .nav-links a.active {
     font-size: 0.85rem;
   }
   .hero {
-    padding: 1.5rem 0 1.8rem;
+    padding:20px;
   }
   .hero-badge {
     font-size: 0.8rem;
@@ -3472,7 +3476,7 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .khatma-filter-btn {
-  background: rgba(15, 28, 48, 0.7);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   padding: 0.5rem 1.1rem;
@@ -3778,7 +3782,7 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .azkar-tab-btn {
-  background: rgba(15, 28, 48, 0.7);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   padding: 0.7rem 1.8rem;
@@ -3917,7 +3921,7 @@ html[data-theme="light"] .nav-links a.active {
 .azkar-tap-btn {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
   border: 1px solid var(--gold-500);
-  color: var(--gold-200);
+  color: var(--gold-500);
   padding: 0.5rem 1.4rem;
   border-radius: var(--radius-full);
   font-weight: 700;
@@ -3980,7 +3984,7 @@ html[data-theme="light"] .nav-links a.active {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(15, 28, 48, 0.9);
+    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
     border: 1px solid var(--gold-500);
     color: var(--gold-300);
     display: flex;
@@ -4681,7 +4685,7 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .countdown-label strong {
-  color: var(--gold-300);
+  color: var(--gold-500);
 }
 
 .countdown-badge {
@@ -5038,7 +5042,7 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .theme-pill {
-  background: rgba(15, 28, 48, 0.7);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   padding: 0.45rem 0.85rem;
@@ -5333,7 +5337,7 @@ html[data-theme="light"] .nav-links a.active {
   font-family: var(--font-primary);
   font-size: 1.35rem;
   font-weight: 800;
-  color: var(--gold-300);
+  color: var(--gold-500);
   letter-spacing: 1px;
 }
 
@@ -6069,7 +6073,7 @@ html[data-theme="light"] .nav-links a.active {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(14, 25, 43, 0.85);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.25);
   display: flex;
   align-items: center;
@@ -6116,7 +6120,7 @@ html[data-theme="light"] .nav-links a.active {
    1. بطاقة آية وحديث اليوم المتجددة (Daily Wisdom Card)
    ========================================================================== */
 .daily-wisdom-card {
-    background: rgba(14, 25, 43, 0.85);
+    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
     border: 1px solid rgba(212, 175, 55, 0.4);
     border-radius: var(--radius-lg);
     padding: 1.8rem;
@@ -6345,7 +6349,7 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .btn-mushaf-pill {
-  background: rgba(15, 28, 48, 0.7);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.25);
   color: #e2e8f0;
   padding: 0.45rem 0.95rem;
@@ -6468,7 +6472,7 @@ html[data-theme="light"] .nav-links a.active {
   height: 30px;
   border-radius: 50%;
   border: 1px solid rgba(212, 175, 55, 0.35);
-  background: rgba(15, 28, 48, 0.85);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   color: var(--gold-300);
   display: inline-flex;
   align-items: center;
@@ -6715,7 +6719,7 @@ html[data-theme="light"] .nav-links a.active {
   align-items: center;
   gap: 0.55rem;
   padding: 0.6rem 1.25rem;
-  background: rgba(15, 28, 48, 0.7);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-full);
   color: var(--text-secondary);
@@ -6757,7 +6761,7 @@ html[data-theme="light"] .nav-links a.active {
   width: 100%;
   padding-right: 2.8rem;
   padding-left: 2.5rem;
-  background: rgba(14, 25, 43, 0.85);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: var(--radius-full);
   color: #fff;
@@ -7096,7 +7100,7 @@ html[data-theme="light"] .nav-links a.active {
 
 .hadith-category-tag {
   background: rgba(255, 255, 255, 0.06);
-  color: var(--text-gold);
+  color: var(--gold-500);
   font-size: 0.8rem;
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
@@ -7241,7 +7245,7 @@ html[data-theme="light"] .nav-links a.active {
 .asmaa-search-input {
   width: 100%;
   padding: 0.85rem 3.2rem 0.85rem 2.8rem;
-  background: rgba(15, 28, 48, 0.85);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: var(--radius-full);
   color: #ffffff;
@@ -7365,7 +7369,7 @@ html[data-theme="light"] .nav-links a.active {
   font-family: var(--font-quran, serif);
   font-size: 2.1rem;
   font-weight: 700;
-  color: var(--gold-300);
+  color: var(--gold-500);
   margin: 0.4rem 0 0.2rem;
   line-height: 1.3;
   text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
@@ -7879,7 +7883,7 @@ input:checked + .slider-round:before {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(15, 28, 48, 0.9);
+    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
     border: 1px solid var(--gold-500);
     color: var(--gold-300);
     display: flex;
@@ -7928,7 +7932,7 @@ input:checked + .slider-round:before {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(15, 28, 48, 0.9);
+    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
     border: 1px solid var(--gold-500);
     color: var(--gold-300);
     display: flex;
@@ -8033,7 +8037,7 @@ input:checked + .slider-round:before {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(15, 28, 48, 0.9);
+    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
     border: 1px solid var(--gold-500);
     color: var(--gold-300);
     display: flex;
@@ -8131,7 +8135,7 @@ input:checked + .slider-round:before {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(15, 28, 48, 0.9);
+    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
     border: 1px solid var(--gold-500);
     color: var(--gold-300);
     display: flex;
@@ -8202,7 +8206,7 @@ input:checked + .slider-round:before {
 .cat-dua-title {
   font-weight: 700;
   font-size: 1.12rem;
-  color: var(--gold-300);
+  color: var(--gold-500);
   line-height: 1.4;
   margin: 0;
 }
@@ -8210,7 +8214,7 @@ input:checked + .slider-round:before {
 .cat-dua-category-badge {
   background: rgba(212, 175, 55, 0.12);
   border: 1px solid rgba(212, 175, 55, 0.25);
-  color: var(--gold-300);
+  color: var(--gold-500);
   padding: 0.25rem 0.75rem;
   border-radius: var(--radius-full);
   font-size: 0.78rem;
@@ -9220,7 +9224,7 @@ input:checked + .slider-round:before {
 .media-search-input {
   width: 100%;
   padding: 0.75rem 2.8rem 0.75rem 2.5rem;
-  background: rgba(14, 25, 43, 0.85);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: var(--radius-full);
   color: #fff;
@@ -9321,7 +9325,7 @@ input:checked + .slider-round:before {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(15, 28, 48, 0.9);
+    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
     border: 1px solid var(--gold-500);
     color: var(--gold-300);
     display: flex;
@@ -9514,7 +9518,7 @@ input:checked + .slider-round:before {
 
 .media-speaker-tag {
   font-size: 0.84rem;
-  color: var(--gold-300);
+  color: var(--gold-500);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -9586,7 +9590,7 @@ input:checked + .slider-round:before {
 .btn-watch-media {
   background: rgba(212, 175, 55, 0.12);
   border: 1px solid rgba(212, 175, 55, 0.35);
-  color: var(--gold-300);
+  color: var(--gold-500);
   padding: 0.45rem 0.95rem;
   border-radius: var(--radius-sm);
   font-size: 0.84rem;
@@ -9634,7 +9638,7 @@ input:checked + .slider-round:before {
 .btn-load-more-media {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(184, 134, 11, 0.1) 100%);
   border: 1px solid rgba(212, 175, 55, 0.45);
-  color: var(--gold-200);
+  color: var(--gold-500);
   padding: 0.8rem 2.2rem;
   border-radius: var(--radius-full);
   font-size: 0.98rem;
@@ -12502,7 +12506,7 @@ body.light-theme .toast {
 
 /* بطاقة حالة التخزين */
 .offline-status-card {
-  background: rgba(14, 25, 43, 0.85);
+  background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: var(--radius-lg, 16px);
   padding: 1.1rem 1.25rem;
