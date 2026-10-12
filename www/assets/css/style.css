@@ -16454,6 +16454,168 @@ body.light-theme .quran-font-scale-group {
     z-index: 1;
 }
 
+/* ==========================================================================
+   ZADMUSLIM V4 — COMPREHENSIVE LIGHT MODE MASTER HARMONIZATION
+   ضمان التناسق البصري التام والوضوح بنسبة 100% في المظهر النهاري لجميع الأقسام
+   ========================================================================== */
+html[data-theme="light"],
+body.light-theme {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-primary) !important;
+}
 
+/* 1. خلفيات الأقسام المحددة في طلب المراجعة */
+html[data-theme="light"] .quran-khatma-section,
+body.light-theme .quran-khatma-section,
+html[data-theme="light"] .prayer-times-section,
+body.light-theme .prayer-times-section,
+html[data-theme="light"] .azkar-section,
+body.light-theme .azkar-section,
+html[data-theme="light"] .spiritual-garden-section,
+body.light-theme .spiritual-garden-section,
+html[data-theme="light"] .daily-wird-section,
+body.light-theme .daily-wird-section,
+html[data-theme="light"] .seasons-section,
+body.light-theme .seasons-section,
+html[data-theme="light"] .categorized-duas-section,
+body.light-theme .categorized-duas-section,
+html[data-theme="light"] .asmaa-section,
+body.light-theme .asmaa-section,
+html[data-theme="light"] .islamic-media-section,
+body.light-theme .islamic-media-section,
+html[data-theme="light"] .stories-section,
+body.light-theme .stories-section,
+html[data-theme="light"] .quiz-section,
+body.light-theme .quiz-section,
+html[data-theme="light"] .prayers-section,
+body.light-theme .prayers-section,
+html[data-theme="light"] .quran-section,
+body.light-theme .quran-section,
+html[data-theme="light"] .faq-section,
+body.light-theme .faq-section,
+html[data-theme="light"] .cemetery-guide-section,
+body.light-theme .cemetery-guide-section,
+html[data-theme="light"] #zakat-calculator-section,
+body.light-theme #zakat-calculator-section,
+html[data-theme="light"] #nearby-mosques-section,
+body.light-theme #nearby-mosques-section {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
 
+/* 2. البطاقات والعناصر الحاوية */
+html[data-theme="light"] .cemetery-dua-featured-card,
+body.light-theme .cemetery-dua-featured-card,
+html[data-theme="light"] .cemetery-card,
+body.light-theme .cemetery-card,
+html[data-theme="light"] .quran-hub-resume-card,
+body.light-theme .quran-hub-resume-card,
+html[data-theme="light"] .quran-surah-item-card,
+body.light-theme .quran-surah-item-card,
+html[data-theme="light"] .quran-juz-item-card,
+body.light-theme .quran-juz-item-card,
+html[data-theme="light"] .zakat-calc-card,
+body.light-theme .zakat-calc-card,
+html[data-theme="light"] .mosques-container-card,
+body.light-theme .mosques-container-card,
+html[data-theme="light"] .mosque-item-card,
+body.light-theme .mosque-item-card,
+html[data-theme="light"] .ayah-action-sheet-card,
+body.light-theme .ayah-action-sheet-card {
+    background-color: #FFFFFF !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
+}
 
+/* 3. عناصر الإدخال والقوائم المنسدلة */
+html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+body.light-theme input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="light"] select,
+body.light-theme select,
+html[data-theme="light"] textarea,
+body.light-theme textarea {
+    background-color: #FFFFFF !important;
+    color: #193B34 !important;
+    border-color: #DFE9E1 !important;
+}
+
+html[data-theme="light"] select option,
+body.light-theme select option {
+    background-color: #FFFFFF !important;
+    color: #193B34 !important;
+}
+
+/* 4. تبويبات وأزرار التصفية في الوضع النهاري */
+html[data-theme="light"] .quran-tab-btn,
+body.light-theme .quran-tab-btn,
+html[data-theme="light"] .khatma-filter-btn,
+body.light-theme .khatma-filter-btn,
+html[data-theme="light"] .azkar-tab-btn,
+body.light-theme .azkar-tab-btn,
+html[data-theme="light"] .duas-tab-btn,
+body.light-theme .duas-tab-btn,
+html[data-theme="light"] .nawawi-filter-pill,
+body.light-theme .nawawi-filter-pill,
+html[data-theme="light"] .media-filter-btn,
+body.light-theme .media-filter-btn,
+html[data-theme="light"] .surah-pill,
+body.light-theme .surah-pill,
+html[data-theme="light"] .quran-hub-nav-tab,
+body.light-theme .quran-hub-nav-tab {
+    color: var(--text-secondary);
+    background: transparent;
+}
+
+html[data-theme="light"] .quran-tab-btn.active,
+body.light-theme .quran-tab-btn.active,
+html[data-theme="light"] .khatma-filter-btn.active,
+body.light-theme .khatma-filter-btn.active,
+html[data-theme="light"] .azkar-tab-btn.active,
+body.light-theme .azkar-tab-btn.active,
+html[data-theme="light"] .duas-tab-btn.active,
+body.light-theme .duas-tab-btn.active,
+html[data-theme="light"] .nawawi-filter-pill.active,
+body.light-theme .nawawi-filter-pill.active,
+html[data-theme="light"] .media-filter-btn.active,
+body.light-theme .media-filter-btn.active,
+html[data-theme="light"] .surah-pill.active,
+body.light-theme .surah-pill.active,
+html[data-theme="light"] .quran-hub-nav-tab.active,
+body.light-theme .quran-hub-nav-tab.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
+    color: #FFFFFF !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 4px 14px rgba(7, 63, 53, 0.2) !important;
+}
+
+/* 5. زر btn-gold الموحد لضمان التباين العالي دائماً */
+html[data-theme="light"] .btn-gold,
+body.light-theme .btn-gold {
+    background: linear-gradient(135deg, #c59318 0%, #a17400 100%) !important;
+    color: #ffffff !important;
+    border-color: #a17400 !important;
+    box-shadow: 0 4px 15px rgba(184, 134, 11, 0.25) !important;
+}
+
+/* 6. نافذة إجراءات الآية وقوائم الإشعارات */
+html[data-theme="light"] .ayah-sheet-action-item,
+body.light-theme .ayah-sheet-action-item {
+    background: #FFFFFF !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+html[data-theme="light"] .ayah-sheet-action-item:hover,
+body.light-theme .ayah-sheet-action-item:hover {
+    background: var(--bg-elevated) !important;
+    border-color: var(--gold-400) !important;
+}
+
+html[data-theme="light"] .zakat-category-box,
+body.light-theme .zakat-category-box,
+html[data-theme="light"] .zakat-settings-bar,
+body.light-theme .zakat-settings-bar {
+    background: var(--bg-elevated) !important;
+    border-color: var(--border-color) !important;
+}

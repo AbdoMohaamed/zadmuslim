@@ -922,6 +922,46 @@ function initSmartNotifications() {
         });
     }
 
+    const btnTestAdhanBackground = document.getElementById("btn-test-adhan-background");
+    const statusBox = document.getElementById("adhan-bg-test-status");
+    if (btnTestAdhanBackground) {
+        btnTestAdhanBackground.addEventListener("click", async () => {
+            if (btnTestAdhanBackground.disabled) return;
+            btnTestAdhanBackground.disabled = true;
+            btnTestAdhanBackground.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-gold"></i> <span>جاري الجدولة...</span>';
+
+            if (statusBox) {
+                statusBox.style.display = "block";
+                statusBox.innerHTML = `
+                    <div style="font-weight: 700; color: var(--gold-500); margin-bottom: 4px;">
+                        <i class="fa-solid fa-clock"></i> جاري إرسال طلب المنبه الأصلي للنظام...
+                    </div>
+                `;
+            }
+
+            if (window.NativeAdhanService) {
+                const res = await window.NativeAdhanService.scheduleBackgroundDiagnosticTest(120);
+                if (statusBox) {
+                    statusBox.innerHTML = `
+                        <div style="font-weight: 700; color: var(--gold-500); margin-bottom: 6px;">
+                            <i class="fa-solid fa-circle-check text-success"></i> ${res.platform === "android_native" ? "تم ضبط منبه أندرويد الأصلي بنجاح!" : "تمت جدولة إشعار الأذان المسموع بنجاح!"}
+                        </div>
+                        <div style="font-size: 0.8rem; opacity: 0.95;">
+                            ⏰ وقت انطلاق الأذان الصوتي: <strong>${res.triggerTime}</strong> (بعد دقيقتين).<br>
+                            🔒 <strong>الخطوة المطلوبة الآن:</strong> اغلق التطبيق أو اقفل شاشة هاتفك (Lock Screen) ودع الهاتف، سينطلق صوت الأذان كاملاً تلقائياً من نظام التشغيل.
+                        </div>
+                    `;
+                }
+                if (typeof showToast === "function") showToast("تمت جدولة الأذان بعد دقيقتين.. اقفل الشاشة للتجربة 📱");
+            }
+
+            setTimeout(() => {
+                btnTestAdhanBackground.disabled = false;
+                btnTestAdhanBackground.innerHTML = '<i class="fa-solid fa-mobile-screen-button text-gold"></i> <span>اختبار الأذان في الخلفية (دقيقتين) ⏳</span>';
+            }, 5000);
+        });
+    }
+
     // الاستماع الدائم للبث السحابي لجميع الزوار لظهور الإشعار المنبثق والصوت
     listenToCloudBroadcastNotifications();
     registerPushSubscriberInFirebase();

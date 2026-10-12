@@ -474,6 +474,71 @@ const NativeAdhanService = {
         } catch(e) {
             console.warn("Error stopping native adhan:", e);
         }
+    },
+
+    /**
+     * اختبار الأذان الحقيقي في الخلفية والشاشة مقفلة (تشغيل منبه أندرويد حقيقي بعد دقيقتين)
+     */
+    async scheduleBackgroundDiagnosticTest(delaySeconds = 120) {
+        const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah";
+        const triggerTime = new Date(Date.now() + (delaySeconds * 1000));
+        const timeStr = triggerTime.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+        // أندرويد عبر بلجن AdhanNative
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                const res = await window.Capacitor.Plugins.AdhanNative.scheduleDiagnosticTestAlarm({
+                    delaySeconds: delaySeconds,
+                    muazzin: muazzin,
+                    prayerName: "صلاة العصر (اختبار الخلفية)"
+                });
+                return {
+                    success: true,
+                    platform: "android_native",
+                    delaySeconds,
+                    triggerTime: timeStr,
+                    message: `تمت جدولة منبه الأذان الفعلي في النظام بعد ${delaySeconds} ثانية (${timeStr}). يرجى قفل شاشة الهاتف أو الخروج من التطبيق الآن للتأكد من انطلاق صوت الأذان 🕌`
+                };
+            } catch(e) {
+                console.warn("Native diagnostic alarm failed:", e);
+            }
+        }
+
+        // iOS أو Fallback عبر LocalNotifications
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+            try {
+                await window.Capacitor.Plugins.LocalNotifications.schedule({
+                    notifications: [{
+                        id: 99997,
+                        title: "🕌 اختبار الأذان في الخلفية",
+                        body: "الله أكبر، الله أكبر.. اختبار صوت الأذان والتنبيه الفعلي من شاشة القفل 🕋",
+                        schedule: { at: triggerTime, allowWhileIdle: true },
+                        sound: `adhan_${muazzin}.mp3`,
+                        channelId: `adhan_${muazzin}`,
+                        smallIcon: "res://ic_stat_icon",
+                        iconColor: "#d4af37",
+                        extra: { type: "adhan_call", prayerKey: "asr", muazzin: muazzin }
+                    }]
+                });
+                return {
+                    success: true,
+                    platform: "ios_local_notification",
+                    delaySeconds,
+                    triggerTime: timeStr,
+                    message: `تمت جدولة إشعار الأذان المسموع بنجاح بعد ${delaySeconds} ثانية (${timeStr}). اقفل شاشة هاتفك للتجربة 📱`
+                };
+            } catch(e) {
+                console.warn("LocalNotifications test failed:", e);
+            }
+        }
+
+        return {
+            success: true,
+            platform: "web_fallback",
+            delaySeconds,
+            triggerTime: timeStr,
+            message: `في بيئة المتصفح: سيتم تشغيل الصوت بعد ${delaySeconds} ثانية (${timeStr}). على الهاتف الحقيقي يتم تشغيل المنبه الأصلي من النظام مباشرة.`
+        };
     }
 };
 

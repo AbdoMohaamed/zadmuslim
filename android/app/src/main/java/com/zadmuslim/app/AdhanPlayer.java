@@ -44,10 +44,6 @@ public class AdhanPlayer {
             mediaPlayer.prepare();
             mediaPlayer.setOnCompletionListener(mp -> stop());
             mediaPlayer.start();
-
-            // الاستماع لزر قفل الهاتف لإيقاف الأذان فوراً
-            registerScreenOffReceiver();
-
             Log.d(TAG, "AdhanPlayer started successfully on STREAM_ALARM with resource: " + soundResId);
         } catch (Exception e) {
             Log.e(TAG, "Error starting AdhanPlayer", e);
@@ -66,8 +62,6 @@ public class AdhanPlayer {
             mediaPlayer = null;
         }
 
-        unregisterScreenOffReceiver();
-
         if (wakeLock != null && wakeLock.isHeld()) {
             try {
                 wakeLock.release();
@@ -80,34 +74,6 @@ public class AdhanPlayer {
 
     public static synchronized boolean isPlaying() {
         return mediaPlayer != null && mediaPlayer.isPlaying();
-    }
-
-    private static void registerScreenOffReceiver() {
-        if (appContext == null || screenOffReceiver != null) return;
-        try {
-            screenOffReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-                        Log.d(TAG, "Screen turned off / Lock button pressed by user - Stopping Adhan");
-                        stop();
-                    }
-                }
-            };
-            IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-            appContext.registerReceiver(screenOffReceiver, filter);
-        } catch (Exception e) {
-            Log.w(TAG, "Failed to register screen off receiver in AdhanPlayer", e);
-        }
-    }
-
-    private static void unregisterScreenOffReceiver() {
-        if (appContext != null && screenOffReceiver != null) {
-            try {
-                appContext.unregisterReceiver(screenOffReceiver);
-            } catch (Exception ignored) {}
-            screenOffReceiver = null;
-        }
     }
 
     private static int getSoundResourceId(Context context, String prayerKey, String muazzin) {

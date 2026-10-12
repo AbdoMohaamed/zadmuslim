@@ -440,4 +440,41 @@ public class AdhanNativePlugin extends Plugin {
             call.reject("Could not request exact alarm permission", e);
         }
     }
+
+    @PluginMethod
+    public void scheduleDiagnosticTestAlarm(PluginCall call) {
+        Context context = getContext();
+        int delaySeconds = call.getInt("delaySeconds", 120); // افتراضياً دقيقتين (120 ثانية)
+        String muazzin = call.getString("muazzin", "makkah");
+        String prayerName = call.getString("prayerName", "صلاة العصر (اختبار)");
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager == null) {
+            call.reject("AlarmManager not available");
+            return;
+        }
+
+        long triggerAtMillis = System.currentTimeMillis() + (delaySeconds * 1000L);
+
+        Intent adhanIntent = new Intent(context, AdhanAlarmReceiver.class);
+        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
+        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName);
+        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, "asr");
+        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+
+        int reqCode = 99995;
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, reqCode, adhanIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        scheduleExactAlarmStatic(context, alarmManager, triggerAtMillis, pendingIntent);
+
+        Log.d(TAG, "Scheduled diagnostic background adhan test in " + delaySeconds + " seconds (at " + triggerAtMillis + ")");
+        JSObject ret = new JSObject();
+        ret.put("success", true);
+        ret.put("triggerAtMillis", triggerAtMillis);
+        ret.put("delaySeconds", delaySeconds);
+        call.resolve(ret);
+    }
 }

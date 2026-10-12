@@ -37,19 +37,6 @@ public class AdhanService extends Service {
 
     private MediaPlayer mediaPlayer;
     private PowerManager.WakeLock wakeLock;
-    private boolean receiverRegistered = false;
-
-    // استقبال حدث الضغط على زر القفل / إطفاء الشاشة لإيقاف الأذان فوراً
-    private final BroadcastReceiver screenOffReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-                Log.d(TAG, "Screen off / Lock button pressed by user - Stopping Adhan");
-                stopSelf();
-            }
-        }
-    };
-
     private AudioManager audioManager;
     private Object audioFocusRequestObj; // Holds AudioFocusRequest on API 26+
 
@@ -80,20 +67,11 @@ public class AdhanService extends Service {
         createNotificationChannel();
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-        // إبقاء المعالج يعمل أثناء تشغيل الأذان
+        // إبقاء المعالج يعمل أثناء تشغيل الأذان كاملاً في الخلفية وشاشة القفل
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (pm != null) {
             wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zadmuslim:adhan_wakelock");
             wakeLock.acquire(5 * 60 * 1000L); // 5 دقائق كحد أقصى
-        }
-
-        // تسجيل مستمع الضغط على زر قفل الهاتف
-        try {
-            IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-            registerReceiver(screenOffReceiver, filter);
-            receiverRegistered = true;
-        } catch (Exception e) {
-            Log.w(TAG, "Failed to register screen off receiver", e);
         }
     }
 
@@ -302,13 +280,6 @@ public class AdhanService extends Service {
         super.onDestroy();
         stopMediaPlayer();
         releaseAudioFocus();
-
-        if (receiverRegistered) {
-            try {
-                unregisterReceiver(screenOffReceiver);
-                receiverRegistered = false;
-            } catch (Exception ignored) {}
-        }
 
         if (wakeLock != null && wakeLock.isHeld()) {
             try {
