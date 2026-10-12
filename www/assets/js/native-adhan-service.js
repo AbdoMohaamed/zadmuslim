@@ -148,6 +148,7 @@ const NativeAdhanService = {
             await this.createNotificationChannels();
 
             const selectedMuazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah";
+            const enabledPrayers = this.getEnabledPrayers();
             const now = new Date();
 
             const prayersList = [
@@ -156,7 +157,7 @@ const NativeAdhanService = {
                 { idBase: 300, name: "صلاة العصر", key: "asr", time: prayersTimings.Asr },
                 { idBase: 400, name: "صلاة المغرب", key: "maghrib", time: prayersTimings.Maghrib },
                 { idBase: 500, name: "صلاة العشاء", key: "isha", time: prayersTimings.Isha }
-            ];
+            ].filter(p => enabledPrayers[p.key] !== false);
 
             const notificationsToSchedule = [];
 
@@ -278,7 +279,8 @@ const NativeAdhanService = {
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
                         timings: prayersTimings,
                         muazzin: selectedMuazzin,
-                        preAlert: true
+                        preAlert: true,
+                        enabledPrayers: enabledPrayers
                     });
                     console.log("✅ Native Adhan Android Service: Exact alarms scheduled successfully:", nativeRes);
                 } catch(nativeErr) {
@@ -304,6 +306,153 @@ const NativeAdhanService = {
         }
     },
 
+    getEnabledPrayers() {
+        try {
+            const raw = localStorage.getItem("zad_enabled_prayers");
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+        return { fajr: true, dhuhr: true, asr: true, maghrib: true, isha: true };
+    },
+
+    setPrayerEnabled(prayerKey, isEnabled) {
+        const current = this.getEnabledPrayers();
+        current[prayerKey] = !!isEnabled;
+        localStorage.setItem("zad_enabled_prayers", JSON.stringify(current));
+        // إعادة الجدولة إن كانت المواقيت متوفرة
+        if (typeof window.lastFetchedPrayerTimings !== "undefined" && window.lastFetchedPrayerTimings) {
+            this.schedulePrayers(window.lastFetchedPrayerTimings);
+        }
+        return current;
+    },
+
+    /**
+     * تجربة صوت الأذان
+     */
+    async testAdhanAudio(muazzin) {
+        const m = muazzin || ((typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah");
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                return await window.Capacitor.Plugins.AdhanNative.testAdhanAudio({ muazzin: m });
+            } catch(e) {
+                console.warn("Native test adhan failed:", e);
+            }
+        }
+        // Fallback for Web
+        const previewAudio = document.getElementById("audio-adhan-preview") || document.getElementById("audio-adhan");
+        if (previewAudio) {
+            if (!previewAudio.paused) {
+                previewAudio.pause();
+                previewAudio.currentTime = 0;
+            } else {
+                previewAudio.src = `assets/audio/adhan/${m}.mp3`;
+                previewAudio.play().catch(e => console.warn("HTML5 adhan preview failed:", e));
+            }
+        }
+        return { success: true, muazzin: m, fallback: "web" };
+    },
+
+    /**
+     * اختبار إرسال إشعار الأذان الفوري
+     */
+    async testNotification(prayerKey = "asr", prayerName = "صلاة العصر") {
+        const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah";
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                await window.Capacitor.Plugins.AdhanNative.testAdhanNotification({
+                    prayerName: prayerName,
+                    prayerKey: prayerKey,
+                    muazzin: muazzin
+                });
+                return { success: true, native: true };
+            } catch(e) {
+                console.warn("Native test notification failed:", e);
+            }
+        }
+
+        // Fallback via LocalNotifications plugin
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+            try {
+                await window.Capacitor.Plugins.LocalNotifications.schedule({
+                    notifications: [{
+                        id: 99999,
+                        title: `🕌 تجربة إشعار الأذان • ${prayerName}`,
+                        body: "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋",
+                        schedule: { at: new Date(Date.now() + 1000), allowWhileIdle: true },
+                        sound: `adhan_${muazzin}.mp3`,
+                        channelId: `adhan_${muazzin}`,
+                        smallIcon: "res://ic_stat_icon",
+                        iconColor: "#d4af37"
+                    }]
+                });
+                return { success: true, plugin: "LocalNotifications" };
+            } catch(e) {
+                console.warn("LocalNotifications test failed:", e);
+            }
+        }
+
+        // Web Notification fallback
+        if (typeof Notification !== "undefined") {
+            if (Notification.permission === "granted") {
+                new Notification(`🕌 تجربة إشعار الأذان • ${prayerName}`, {
+                    body: "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋",
+                    icon: "assets/icons/icon-192.png"
+                });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(p => {
+                    if (p === "granted") {
+                        new Notification(`🕌 تجربة إشعار الأذان • ${prayerName}`, {
+                            body: "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋",
+                            icon: "assets/icons/icon-192.png"
+                        });
+                    }
+                });
+            }
+        }
+        return { success: true, fallback: "web" };
+    },
+
+    async openNotificationSettings() {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                await window.Capacitor.Plugins.AdhanNative.openNotificationSettings();
+            } catch(e) {
+                console.warn("Cannot open notification settings:", e);
+            }
+        }
+    },
+
+    async openBatterySettings() {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                await window.Capacitor.Plugins.AdhanNative.openBatteryOptimizationSettings();
+            } catch(e) {
+                console.warn("Cannot open battery settings:", e);
+            }
+        }
+    },
+
+    async checkExactAlarmPermission() {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                const res = await window.Capacitor.Plugins.AdhanNative.checkExactAlarmPermission();
+                return res && res.canSchedule;
+            } catch(e) {
+                return true;
+            }
+        }
+        return true;
+    },
+
+    async requestExactAlarmPermission() {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                await window.Capacitor.Plugins.AdhanNative.requestExactAlarmPermission();
+            } catch(e) {
+                console.warn("Cannot request exact alarm permission:", e);
+            }
+        }
+    },
+
     /**
      * إيقاف الأذان الجاري تشغيله في الخلفية فوراً
      */
@@ -316,6 +465,11 @@ const NativeAdhanService = {
             if (audioEl) {
                 audioEl.pause();
                 audioEl.currentTime = 0;
+            }
+            const previewEl = document.getElementById("audio-adhan-preview");
+            if (previewEl) {
+                previewEl.pause();
+                previewEl.currentTime = 0;
             }
         } catch(e) {
             console.warn("Error stopping native adhan:", e);

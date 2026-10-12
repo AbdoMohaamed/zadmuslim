@@ -851,6 +851,61 @@ function initSmartNotifications() {
         });
     }
 
+    // استعادة وضبط مفاتيح الصلوات الفردية وأزرار الاختبار وضبط النظام
+    const prayerSubToggles = document.querySelectorAll(".prayer-sub-toggle");
+    if (window.NativeAdhanService && typeof window.NativeAdhanService.getEnabledPrayers === "function") {
+        const enabledPrayers = window.NativeAdhanService.getEnabledPrayers();
+        prayerSubToggles.forEach(t => {
+            const pKey = t.getAttribute("data-prayer");
+            if (pKey && enabledPrayers[pKey] !== undefined) {
+                t.checked = enabledPrayers[pKey];
+            }
+            t.addEventListener("change", () => {
+                if (window.NativeAdhanService) {
+                    window.NativeAdhanService.setPrayerEnabled(pKey, t.checked);
+                }
+            });
+        });
+    }
+
+    const btnTestAdhanAudio = document.getElementById("btn-test-adhan-audio");
+    if (btnTestAdhanAudio) {
+        btnTestAdhanAudio.addEventListener("click", () => {
+            if (window.NativeAdhanService) {
+                window.NativeAdhanService.testAdhanAudio();
+                if (typeof showToast === "function") showToast("جاري تجربة صوت الأذان 🔊");
+            }
+        });
+    }
+
+    const btnTestAdhanNotif = document.getElementById("btn-test-adhan-notif");
+    if (btnTestAdhanNotif) {
+        btnTestAdhanNotif.addEventListener("click", () => {
+            if (window.NativeAdhanService) {
+                window.NativeAdhanService.testNotification();
+                if (typeof showToast === "function") showToast("تم إرسال إشعار تجريبي 🔔");
+            }
+        });
+    }
+
+    const btnOpenOsNotifSettings = document.getElementById("btn-open-os-notif-settings");
+    if (btnOpenOsNotifSettings) {
+        btnOpenOsNotifSettings.addEventListener("click", () => {
+            if (window.NativeAdhanService) {
+                window.NativeAdhanService.openNotificationSettings();
+            }
+        });
+    }
+
+    const btnOpenOsBatterySettings = document.getElementById("btn-open-os-battery-settings");
+    if (btnOpenOsBatterySettings) {
+        btnOpenOsBatterySettings.addEventListener("click", () => {
+            if (window.NativeAdhanService) {
+                window.NativeAdhanService.openBatterySettings();
+            }
+        });
+    }
+
     // الاستماع الدائم للبث السحابي لجميع الزوار لظهور الإشعار المنبثق والصوت
     listenToCloudBroadcastNotifications();
     registerPushSubscriberInFirebase();

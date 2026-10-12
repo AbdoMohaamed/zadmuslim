@@ -50,10 +50,35 @@ public class AdhanService extends Service {
         }
     };
 
+    private AudioManager audioManager;
+    private Object audioFocusRequestObj; // Holds AudioFocusRequest on API 26+
+
+    private final AudioManager.OnAudioFocusChangeListener audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            Log.d(TAG, "Audio focus changed: " + focusChange);
+            if (focusChange == AudioManager.AUDIOFOCUS_LOSS || focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                // فقدان التركيز الصوتي (مكالمة هاتفية واردة أو منبه آخر)
+                stopSelf();
+            } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                // خفض الصوت مؤقتاً
+                if (mediaPlayer != null && isPlaying) {
+                    try { mediaPlayer.setVolume(0.2f, 0.2f); } catch (Exception ignored) {}
+                }
+            } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                // استعادة الصوت بالكامل
+                if (mediaPlayer != null && isPlaying) {
+                    try { mediaPlayer.setVolume(1.0f, 1.0f); } catch (Exception ignored) {}
+                }
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         // إبقاء المعالج يعمل أثناء تشغيل الأذان
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -104,10 +129,62 @@ public class AdhanService extends Service {
             startForeground(NOTIFICATION_ID, notification);
         }
 
-        // تشغيل صوت الأذان
-        playAdhanAudio(prayerKey, muazzin);
+        // طلب التركيز الصوتي وتشغيل صوت الأذان
+        requestAudioFocusAndPlay(prayerKey, muazzin);
 
         return START_NOT_STICKY;
+    }
+
+    private void requestAudioFocusAndPlay(String prayerKey, String muazzin) {
+        // التحقق مما إذا كان المستخدم يجري مكالمة هاتفية حالياً
+        if (audioManager != null) {
+            int mode = audioManager.getMode();
+            if (mode == AudioManager.MODE_IN_CALL || mode == AudioManager.MODE_IN_COMMUNICATION) {
+                Log.w(TAG, "User currently in call - suppressing loud Adhan playback");
+                return;
+            }
+        }
+
+        // طلب AudioFocus
+        boolean focusGranted = false;
+        if (audioManager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                AudioAttributes playbackAttrs = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build();
+
+                android.media.AudioFocusRequest afr = new android.media.AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                        .setAudioAttributes(playbackAttrs)
+                        .setOnAudioFocusChangeListener(audioFocusChangeListener)
+                        .build();
+
+                audioFocusRequestObj = afr;
+                focusGranted = (audioManager.requestAudioFocus(afr) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+            } else {
+                focusGranted = (audioManager.requestAudioFocus(
+                        audioFocusChangeListener,
+                        AudioManager.STREAM_ALARM,
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+                ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+            }
+        }
+
+        Log.d(TAG, "Audio focus granted: " + focusGranted);
+        playAdhanAudio(prayerKey, muazzin);
+    }
+
+    private void releaseAudioFocus() {
+        if (audioManager != null) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && audioFocusRequestObj instanceof android.media.AudioFocusRequest) {
+                    audioManager.abandonAudioFocusRequest((android.media.AudioFocusRequest) audioFocusRequestObj);
+                } else {
+                    audioManager.abandonAudioFocus(audioFocusChangeListener);
+                }
+            } catch (Exception ignored) {}
+            audioFocusRequestObj = null;
+        }
     }
 
     private void playAdhanAudio(String prayerKey, String muazzin) {
@@ -224,6 +301,7 @@ public class AdhanService extends Service {
     public void onDestroy() {
         super.onDestroy();
         stopMediaPlayer();
+        releaseAudioFocus();
 
         if (receiverRegistered) {
             try {

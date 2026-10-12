@@ -48,6 +48,11 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
         if (ACTION_STOP_ADHAN.equals(action)) {
             Log.d(TAG, "User requested to stop Adhan");
+            Intent stopIntent = new Intent(context, AdhanService.class);
+            stopIntent.setAction(AdhanService.ACTION_STOP_ADHAN);
+            try {
+                context.startService(stopIntent);
+            } catch (Exception ignored) {}
             AdhanPlayer.stop();
             dismissAdhanNotification(context);
             return;
@@ -80,11 +85,25 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             AdhanPlayer.playPrePrayerVoice(context, prayerKey);
             showPrePrayerNotification(context, prayerName, prayerKey);
         } else {
-            // 1. تشغيل الأذان الصوتي فوراً عبر AdhanPlayer على تيار المنبه (STREAM_ALARM)
-            AdhanPlayer.play(context, prayerName, prayerKey, muazzin);
+            // تشغيل الأذان الصوتي عبر AdhanService كـ Foreground Service لضمان استمرار الصوت كاملاً حتى والتطبيق مغلق والشاشة مقفلة
+            Log.d(TAG, "Triggering Adhan Foreground Service for: " + prayerName + " with muazzin: " + muazzin);
+            Intent serviceIntent = new Intent(context, AdhanService.class);
+            serviceIntent.setAction(AdhanService.ACTION_START_ADHAN);
+            serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_NAME, prayerName);
+            serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_KEY, prayerKey);
+            serviceIntent.putExtra(AdhanService.EXTRA_MUAZZIN, muazzin);
 
-            // 2. إظهار إشعار الأذان المتكامل مع زر إيقاف الأذان وميزة الإيقاف عند المسح
-            showAdhanAlarmNotification(context, prayerName, prayerKey);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(serviceIntent);
+                } else {
+                    context.startService(serviceIntent);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to start AdhanService, falling back to AdhanPlayer & Notification", e);
+                AdhanPlayer.play(context, prayerName, prayerKey, muazzin);
+                showAdhanAlarmNotification(context, prayerName, prayerKey);
+            }
         }
     }
 

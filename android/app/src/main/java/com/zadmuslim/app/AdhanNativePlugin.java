@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.getcapacitor.JSObject;
@@ -13,6 +15,8 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+
+import org.json.JSONObject;
 
 import java.util.Calendar;
 
@@ -31,6 +35,7 @@ public class AdhanNativePlugin extends Plugin {
 
         String muazzin = call.getString("muazzin", "makkah");
         boolean preAlert = call.getBoolean("preAlert", true);
+        JSObject enabledPrayers = call.getObject("enabledPrayers");
 
         Context context = getContext();
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -41,10 +46,13 @@ public class AdhanNativePlugin extends Plugin {
 
         // حفظ الإعدادات في SharedPreferences للاسترجاع
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit()
+        SharedPreferences.Editor editor = prefs.edit()
                 .putString("last_timings_json", timingsObj.toString())
-                .putString("selected_muazzin", muazzin)
-                .apply();
+                .putString("selected_muazzin", muazzin);
+        if (enabledPrayers != null) {
+            editor.putString("enabled_prayers_json", enabledPrayers.toString());
+        }
+        editor.apply();
 
         // إلغاء الجدولة القديمة أولاً
         cancelExistingAlarms(context, alarmManager);
@@ -62,6 +70,10 @@ public class AdhanNativePlugin extends Plugin {
             calendar.add(Calendar.DAY_OF_YEAR, dayOffset);
 
             for (int i = 0; i < prayerKeys.length; i++) {
+                if (enabledPrayers != null && !enabledPrayers.optBoolean(prayerKeys[i], true)) {
+                    continue; // الصلاة تم إلغاء تفعيل تنبيهها برغبة المستخدم
+                }
+
                 String rawTime = timingsObj.getString(timingKeys[i]);
                 if (rawTime == null) continue;
 
@@ -149,6 +161,9 @@ public class AdhanNativePlugin extends Plugin {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (alarmManager == null) return;
 
+            String enabledPrayersJson = prefs.getString("enabled_prayers_json", null);
+            org.json.JSONObject enabledPrayers = (enabledPrayersJson != null && !enabledPrayersJson.isEmpty()) ? new org.json.JSONObject(enabledPrayersJson) : null;
+
             cancelExistingAlarmsStatic(context, alarmManager);
 
             String[] prayerKeys = {"fajr", "dhuhr", "asr", "maghrib", "isha"};
@@ -161,6 +176,10 @@ public class AdhanNativePlugin extends Plugin {
                 calendar.add(Calendar.DAY_OF_YEAR, dayOffset);
 
                 for (int i = 0; i < prayerKeys.length; i++) {
+                    if (enabledPrayers != null && !enabledPrayers.optBoolean(prayerKeys[i], true)) {
+                        continue; // تجاوز الصلاة غير المفعلة
+                    }
+
                     String rawTime = timingsObj.optString(timingKeys[i], null);
                     if (rawTime == null) continue;
 
@@ -306,5 +325,119 @@ public class AdhanNativePlugin extends Plugin {
             cancelExistingAlarms(context, alarmManager);
         }
         stopAdhan(call);
+    }
+
+    @PluginMethod
+    public void testAdhanAudio(PluginCall call) {
+        Context context = getContext();
+        String muazzin = call.getString("muazzin", "makkah");
+        if (AdhanPlayer.isPlaying() || AdhanService.isPlaying) {
+            stopAdhan(call);
+            return;
+        }
+        AdhanPlayer.play(context, "تجربة صوت الأذان", "dhuhr", muazzin);
+        JSObject ret = new JSObject();
+        ret.put("success", true);
+        ret.put("playing", true);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void testAdhanNotification(PluginCall call) {
+        Context context = getContext();
+        String prayerName = call.getString("prayerName", "صلاة العصر");
+        String prayerKey = call.getString("prayerKey", "asr");
+        String muazzin = call.getString("muazzin", "makkah");
+
+        Intent testIntent = new Intent(context, AdhanAlarmReceiver.class);
+        testIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
+        testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName + " (اختبار)");
+        testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKey);
+        testIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+        context.sendBroadcast(testIntent);
+
+        JSObject ret = new JSObject();
+        ret.put("success", true);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void openNotificationSettings(PluginCall call) {
+        Context context = getContext();
+        try {
+            Intent intent = new Intent();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+            } else {
+                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            JSObject ret = new JSObject();
+            ret.put("success", true);
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject("Could not open notification settings", e);
+        }
+    }
+
+    @PluginMethod
+    public void openBatteryOptimizationSettings(PluginCall call) {
+        Context context = getContext();
+        try {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            JSObject ret = new JSObject();
+            ret.put("success", true);
+            call.resolve(ret);
+        } catch (Exception e) {
+            try {
+                Intent fallback = new Intent(Settings.ACTION_SETTINGS);
+                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(fallback);
+                JSObject ret = new JSObject();
+                ret.put("success", true);
+                call.resolve(ret);
+            } catch (Exception ex) {
+                call.reject("Could not open battery settings", ex);
+            }
+        }
+    }
+
+    @PluginMethod
+    public void checkExactAlarmPermission(PluginCall call) {
+        Context context = getContext();
+        boolean canSchedule = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null) {
+                canSchedule = alarmManager.canScheduleExactAlarms();
+            }
+        }
+        JSObject ret = new JSObject();
+        ret.put("canSchedule", canSchedule);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void requestExactAlarmPermission(PluginCall call) {
+        Context context = getContext();
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
+            JSObject ret = new JSObject();
+            ret.put("success", true);
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject("Could not request exact alarm permission", e);
+        }
     }
 }

@@ -555,6 +555,14 @@
 
                 <!-- عناصر اختيار السورة -->
                 <div class="surahs-controls-container">
+                    <!-- حقل البحث السريع في السور -->
+                    <div class="surah-search-filter-wrapper" style="margin-bottom: 8px;">
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; color: var(--gold-400); pointer-events: none; font-size: 0.85rem;"></i>
+                            <input type="text" id="input-filter-surahs" class="form-control" placeholder="ابحث عن سورة بالاسم أو الرقم (مثال: الكهف، 18، الملك)..." style="padding-right: 36px; padding-left: 12px; height: 38px; font-size: 0.85rem; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); width: 100%;">
+                        </div>
+                    </div>
+
                     <!-- أزرار سريعة لأشهر السور الفاضلة -->
                     <div class="featured-surahs-pills" id="featured-surahs-pills">
                         <!-- تُنشأ برمجياً من js/quran.js -->
@@ -590,6 +598,25 @@
                         <div class="mushaf-reading-toolbar">
                             <!-- الأزرار الأساسية السريعة الأكثر استخداماً على الموبايل والكمبيوتر -->
                             <div class="mushaf-toolbar-primary-group">
+                                <!-- زر تبديل نمط القراءة (صفحات المصحف / قراءة مستمرة) -->
+                                <div class="mushaf-mode-switcher-pill" style="display: inline-flex; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 20px; padding: 2px;">
+                                    <button type="button" class="btn btn-mushaf-pill active" id="btn-mode-mushaf-page" style="border: none; margin: 0; padding: 5px 10px; font-size: 0.78rem;" title="عرض صفحات المصحف الشريف المصورة (604 صفحات)">
+                                        <i class="fa-solid fa-book-quran text-gold"></i>
+                                        <span>صفحات المصحف</span>
+                                    </button>
+                                    <button type="button" class="btn btn-mushaf-pill" id="btn-mode-continuous" style="border: none; margin: 0; padding: 5px 10px; font-size: 0.78rem;" title="وضع القراءة المستمرة بالآيات">
+                                        <i class="fa-solid fa-align-right text-gold"></i>
+                                        <span>قراءة مستمرة</span>
+                                    </button>
+                                </div>
+
+                                <!-- أدوات تكبير وتصغير الخط للقراءة المستمرة -->
+                                <div class="quran-font-scale-group" id="quran-font-scale-group" style="display: none; align-items: center; gap: 3px;">
+                                    <button type="button" class="btn btn-mushaf-pill" id="btn-quran-font-increase" style="padding: 5px 8px; font-size: 0.75rem;" title="تكبير خط الآيات">A+</button>
+                                    <button type="button" class="btn btn-mushaf-pill" id="btn-quran-font-decrease" style="padding: 5px 8px; font-size: 0.75rem;" title="تصغير خط الآيات">A-</button>
+                                    <button type="button" class="btn btn-mushaf-pill" id="btn-quran-font-reset" style="padding: 5px 8px; font-size: 0.75rem;" title="إعادة ضبط حجم الخط">A</button>
+                                </div>
+
                                 <button type="button" class="btn btn-mushaf-pill" id="btn-page-tafsir" title="تفسير الصفحة الحالية">
                                     <i class="fa-solid fa-book-open text-gold"></i>
                                     <span>تفسير</span>
@@ -602,13 +629,14 @@
                                     <i class="fa-solid fa-bookmark text-gold"></i>
                                     <span>حفظ علامة</span>
                                 </button>
-                                <button type="button" class="btn btn-mushaf-pill btn-bookmark-saved" id="btn-mushaf-goto-bookmark" style="display: none;" title="الانتقال إلى علامتك المحفوظة">
-                                    <i class="fa-solid fa-book-bookmark text-emerald"></i>
-                                    <span id="bookmark-label-text">العلامة</span>
+                                <button type="button" class="btn btn-mushaf-pill" id="btn-open-bookmarks-modal" title="عرض جميع علاماتك المرجعية المحفوظة">
+                                    <i class="fa-solid fa-book-bookmark text-gold"></i>
+                                    <span>العلامات 📑</span>
+                                    <span class="badge" id="bookmarks-count-badge" style="display: none; font-size: 10px; background: var(--gold-400); color: #000; border-radius: 10px; padding: 1px 5px; margin-inline-start: 4px;">0</span>
                                 </button>
                                 <button type="button" class="btn btn-mushaf-pill btn-more-tools-toggle" id="btn-mushaf-tools-toggle" title="المزيد من خيارات وأدوات القراءة">
                                     <i class="fa-solid fa-sliders text-gold"></i>
-                                    <span>خيارات القراءة ⚙️</span>
+                                    <span>خيارات ⚙️</span>
                                 </button>
                             </div>
 
@@ -2163,6 +2191,32 @@
     </div>
 
     <!-- ==========================================
+    نافذة العلامات المرجعية للمصحف الشريف (Quran Bookmarks Modal)
+    ========================================== -->
+    <div class="modal-overlay" id="quran-bookmarks-modal">
+        <div class="modal-card" style="max-width: 520px; width: 92%;">
+            <button class="modal-close-btn" id="btn-close-bookmarks-modal" aria-label="إغلاق">&times;</button>
+            <div class="modal-header-custom" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <i class="fa-solid fa-bookmark text-gold" style="font-size: 1.4rem;"></i>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-primary);">العلامات المرجعية</h3>
+                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">علامات وقوفك المحفوظة في كتاب الله 🌿</p>
+                </div>
+            </div>
+
+            <div id="quran-bookmarks-list" class="quran-bookmarks-list" style="max-height: 52vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-inline-end: 4px;">
+                <!-- تُملأ برمجياً عبر quran.js -->
+            </div>
+
+            <div style="margin-top: 1.2rem; display: flex; gap: 8px;">
+                <button type="button" class="btn btn-gold btn-block" id="btn-add-current-page-bookmark" style="flex: 1;">
+                    <i class="fa-solid fa-plus"></i> إضافة علامة جديدة للموضع الحالي 🔖
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
     نافذة تحميل وإدارة المصحف بدون إنترنت (Offline Quran Modal)
     ========================================== -->
     <div class="modal-overlay" id="mushaf-offline-modal">
@@ -2733,6 +2787,55 @@
                         <input type="checkbox" id="notify-adhan-calls" checked>
                         <span class="slider-round"></span>
                     </label>
+                </div>
+
+                <!-- تفعيل التنبيه لكل صلاة على حدة (Per-Prayer Controls) -->
+                <div class="prayer-individual-toggles-box" id="prayer-individual-toggles" style="margin-top: 10px; padding: 12px; background: rgba(var(--gold-rgb, 212, 175, 55), 0.05); border-radius: var(--radius-md, 12px); border: 1px solid rgba(var(--gold-rgb, 212, 175, 55), 0.15);">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--gold-400, #d4af37); margin-bottom: 8px;">
+                        <i class="fa-solid fa-sliders"></i> تخصيص تنبيه كل صلاة:
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: var(--bg-card, #163329); border-radius: 8px; border: 1px solid var(--border-color, #315346); cursor: pointer;">
+                            <span>الفجر</span>
+                            <input type="checkbox" id="prayer-toggle-fajr" checked class="prayer-sub-toggle" data-prayer="fajr">
+                        </label>
+                        <label style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: var(--bg-card, #163329); border-radius: 8px; border: 1px solid var(--border-color, #315346); cursor: pointer;">
+                            <span>الظهر</span>
+                            <input type="checkbox" id="prayer-toggle-dhuhr" checked class="prayer-sub-toggle" data-prayer="dhuhr">
+                        </label>
+                        <label style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: var(--bg-card, #163329); border-radius: 8px; border: 1px solid var(--border-color, #315346); cursor: pointer;">
+                            <span>العصر</span>
+                            <input type="checkbox" id="prayer-toggle-asr" checked class="prayer-sub-toggle" data-prayer="asr">
+                        </label>
+                        <label style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: var(--bg-card, #163329); border-radius: 8px; border: 1px solid var(--border-color, #315346); cursor: pointer;">
+                            <span>المغرب</span>
+                            <input type="checkbox" id="prayer-toggle-maghrib" checked class="prayer-sub-toggle" data-prayer="maghrib">
+                        </label>
+                        <label style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: var(--bg-card, #163329); border-radius: 8px; border: 1px solid var(--border-color, #315346); cursor: pointer;">
+                            <span>العشاء</span>
+                            <input type="checkbox" id="prayer-toggle-isha" checked class="prayer-sub-toggle" data-prayer="isha">
+                        </label>
+                    </div>
+
+                    <!-- أزرار الاختبار وضبط النظام -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(var(--gold-rgb, 212, 175, 55), 0.2);">
+                        <button type="button" class="btn btn-outline btn-sm" id="btn-test-adhan-audio" style="flex: 1; min-width: 130px; font-size: 0.8rem; padding: 6px 10px;">
+                            <i class="fa-solid fa-volume-high text-gold"></i>
+                            <span>تجربة صوت الأذان 🔊</span>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" id="btn-test-adhan-notif" style="flex: 1; min-width: 130px; font-size: 0.8rem; padding: 6px 10px;">
+                            <i class="fa-solid fa-bell text-gold"></i>
+                            <span>اختبار الإشعار 🔔</span>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" id="btn-open-os-notif-settings" style="flex: 1; min-width: 130px; font-size: 0.8rem; padding: 6px 10px;">
+                            <i class="fa-solid fa-gear text-gold"></i>
+                            <span>إعدادات النظام ⚙️</span>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" id="btn-open-os-battery-settings" style="flex: 1; min-width: 130px; font-size: 0.8rem; padding: 6px 10px;">
+                            <i class="fa-solid fa-battery-full text-gold"></i>
+                            <span>إعدادات البطارية 🔋</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 

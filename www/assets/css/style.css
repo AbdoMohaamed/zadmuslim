@@ -15599,4 +15599,186 @@ html {
     }
 }
 
+/* ==========================================================================
+   زاد المسلم V4 — القارئ القرآني المتقدم والعلامات المرجعية (Advanced Quran Reader)
+   ========================================================================== */
+.mushaf-mode-switcher-pill {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(14, 25, 43, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full, 9999px);
+    padding: 2px;
+    gap: 2px;
+}
+
+html[data-theme="light"] .mushaf-mode-switcher-pill,
+body.light-theme .mushaf-mode-switcher-pill {
+    background: #eef3f0 !important;
+    border-color: #dfe9e1 !important;
+}
+
+.btn-mushaf-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: var(--radius-full, 9999px);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-mushaf-mode.active {
+    background: var(--gold-gradient, linear-gradient(135deg, #d4af37, #aa820a)) !important;
+    color: #0b1a13 !important;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-mushaf-mode:hover:not(.active) {
+    color: var(--gold-300);
+}
+
+.quran-font-scale-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(14, 25, 43, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full, 9999px);
+    padding: 2px 4px;
+}
+
+html[data-theme="light"] .quran-font-scale-group,
+body.light-theme .quran-font-scale-group {
+    background: #eef3f0 !important;
+    border-color: #dfe9e1 !important;
+}
+
+.quran-font-scale-group .btn {
+    border: none !important;
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    font-weight: 700;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quran-font-scale-group .btn:hover {
+    background: rgba(212, 175, 55, 0.2) !important;
+    color: var(--gold-400) !important;
+}
+
+/* بطاقات العلامات المرجعية داخل المودال */
+.quran-bookmark-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md, 12px);
+    transition: all 0.2s ease;
+    gap: 10px;
+}
+
+.quran-bookmark-card:hover {
+    border-color: var(--gold-400);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.quran-bookmark-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.quran-bookmark-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.quran-bookmark-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quran-bookmark-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* وضع القراءة المستمرة للآيات */
+.continuous-reading-flow {
+    padding: 1.5rem 1rem;
+    direction: rtl;
+    line-height: 2.4;
+    text-align: justify;
+    font-family: var(--font-quran, "Amiri", "Uthmanic", serif);
+    font-size: var(--quran-verse-font-size, 24px);
+    color: var(--text-primary);
+}
+
+.continuous-surah-header {
+    text-align: center;
+    padding: 1.5rem 1rem 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(var(--gold-rgb, 212, 175, 55), 0.2);
+}
+
+.continuous-surah-title {
+    font-size: 2rem;
+    color: var(--gold-400);
+    margin: 0 0 0.5rem;
+}
+
+.continuous-basmala {
+    font-size: 1.6rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.continuous-ayah-word {
+    display: inline;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    padding: 2px 2px;
+    border-radius: 4px;
+}
+
+.continuous-ayah-word:hover {
+    background: rgba(212, 175, 55, 0.15);
+}
+
+.continuous-ayah-symbol {
+    display: inline-block;
+    color: var(--gold-400);
+    margin: 0 6px;
+    font-weight: bold;
+    user-select: none;
+}
+
+
 
