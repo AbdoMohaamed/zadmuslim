@@ -1197,7 +1197,7 @@ body.light-theme .select-reciter-dropdown {
   color: #193B34 !important;
 }
 html[data-theme="light"] .prayer-city-select, [data-theme="light"] .prayer-city-select, body.light-theme .prayer-city-select {
-    border-color: none !important;
+    border-color: transparent !important;
 }
     /* التجاوب وفقاً للنموذج المرجعي */
     @media(max-width: 850px) {
@@ -3101,12 +3101,11 @@ html[data-theme="light"] .nav-links a.active {
   #btn-mushaf-prev,
   #btn-mushaf-next {
     display: inline-flex !important;
-    padding: 0.42rem 0.85rem !important;
+    padding: 0.42rem 0.42rem !important;
     font-size: 0.8rem !important;
     border-radius: 30px !important;
-    background: rgba(13, 27, 42, 0.9) !important;
-    border: 1px solid var(--gold-400) !important;
-    color: #fff !important;
+    border: 1px solid var(--gold-500) !important;
+    color: var(--gold-500) !important;
   }
 
   #btn-mushaf-prev .nav-text,
@@ -3232,7 +3231,7 @@ html[data-theme="light"] .nav-links a.active {
    قسم المصحف الشريف وختمة القرآن الموحد (Unified Quran & Khatma Hub)
    ========================================================================== */
 .quran-khatma-section {
-  padding: 0px 0 50px;
+  padding: 0px 0 20px;
   position: relative;
   background: radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
 }
@@ -11988,7 +11987,7 @@ html[data-theme="light"] .form-textarea,
 body.light-theme .form-textarea {
   background: #ffffff !important;
   color: #193b34 !important;
-  border: 1.5px solid #dfe9e1 !important;
+  border: 1.5px solid #dfe9e1;
   box-shadow: 0 2px 8px rgba(7, 63, 53, 0.03) !important;
 }
 
@@ -12072,15 +12071,18 @@ body.light-theme .toggle-switch-desc {
 
 html[data-theme="light"] .slider-round,
 body.light-theme .slider-round {
-  background-color: #cbd5e1 !important;
+  background-color: gray !important;
 }
-
-/* Modals Content Specifics */
-html[data-theme="light"] #modal-asmaa-name,
-body.light-theme #modal-asmaa-name {
-  color: #073f35 !important;
-  text-shadow: none !important;
-}
+    html[data-theme="light"] input:checked + .slider-round,
+    body.light-theme input:checked + .slider-round{
+        background-color:green !important;
+    }
+    /* Modals Content Specifics */
+    html[data-theme="light"] #modal-asmaa-name,
+    body.light-theme #modal-asmaa-name {
+        color: #073f35 !important;
+        text-shadow: none !important;
+    }
 
 html[data-theme="light"] #modal-asmaa-meaning,
 body.light-theme #modal-asmaa-meaning,
@@ -16545,7 +16547,7 @@ html[data-theme="light"] textarea,
 body.light-theme textarea {
     background-color: #FFFFFF !important;
     color: #193B34 !important;
-    border-color: #DFE9E1 !important;
+    border-color: #DFE9E1;
 }
 
 html[data-theme="light"] select option,
@@ -16857,7 +16859,6 @@ body.light-theme .cemetery-list li strong {
   position: relative;
   width: 100%;
   max-width: 820px;
-  margin: 0 auto calc(100px + env(safe-area-inset-bottom, 0px));
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
@@ -17063,7 +17064,12 @@ body.light-theme .cemetery-list li strong {
   padding: 8px 20px 14px;
   border-top: 1px solid rgba(212, 175, 55, 0.15);
 }
+@media (max-width: 568px) {
+    .golden-mushaf-footer {
+        padding: 8px 8px 14px;
+    }
 
+}
 .theme-golden-night .golden-mushaf-footer {
   background: rgba(0, 0, 0, 0.85);
 }

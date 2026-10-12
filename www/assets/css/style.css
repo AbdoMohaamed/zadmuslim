@@ -12072,15 +12072,18 @@ body.light-theme .toggle-switch-desc {
 
 html[data-theme="light"] .slider-round,
 body.light-theme .slider-round {
-  background-color: #cbd5e1 !important;
+  background-color: gray !important;
 }
-
-/* Modals Content Specifics */
-html[data-theme="light"] #modal-asmaa-name,
-body.light-theme #modal-asmaa-name {
-  color: #073f35 !important;
-  text-shadow: none !important;
-}
+    html[data-theme="light"] input:checked + .slider-round,
+    body.light-theme input:checked + .slider-round{
+        background-color:green !important;
+    }
+    /* Modals Content Specifics */
+    html[data-theme="light"] #modal-asmaa-name,
+    body.light-theme #modal-asmaa-name {
+        color: #073f35 !important;
+        text-shadow: none !important;
+    }
 
 html[data-theme="light"] #modal-asmaa-meaning,
 body.light-theme #modal-asmaa-meaning,
