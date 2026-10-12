@@ -527,336 +527,98 @@
 
             <!-- الجزء الأول: مصحف الصدقة الجارية (تلاوة وتدبر) -->
             <div class="quran-subpart-block" id="subpart-mushaf">
-                <!-- ترويسة هاب المصحف الشريف الكبرى -->
-                <div class="quran-hub-header-hero">
-                    <span class="section-tag"><i class="fa-solid fa-book-quran"></i> كلام رب العالمين • هدى ونور</span>
-                    <h2 class="quran-hub-title">المصحف الشريف</h2>
-                    <p class="quran-hub-desc">طبعة مجمع الملك فهد بالمدينة المنورة برواية حفص عن عاصم، بتلاوة عذبة وتدبر مبارك.</p>
-                </div>
-
-                <!-- بطاقة أكمل من حيث توقفت البارزة (Resume Reading Card) -->
-                <div class="quran-hub-resume-card" id="quran-hub-resume-card">
-                    <!-- تُملأ وتُحدث برمجياً من quran.js -->
-                </div>
-
-                <!-- شريط التبويبات الثلاثة الرئيسية: [السور] • [الأجزاء] • [العلامات المرجعية] -->
-                <div class="quran-hub-tabs-nav">
-                    <button type="button" class="quran-hub-nav-tab active" data-tab="surahs">
-                        <i class="fa-solid fa-list-ol"></i>
-                        <span>السور (114)</span>
-                    </button>
-                    <button type="button" class="quran-hub-nav-tab" data-tab="juz">
-                        <i class="fa-solid fa-book-bookmark"></i>
-                        <span>الأجزاء (30)</span>
-                    </button>
-                    <button type="button" class="quran-hub-nav-tab" data-tab="bookmarks">
-                        <i class="fa-solid fa-bookmark"></i>
-                        <span>العلامات المرجعية</span>
-                    </button>
-                </div>
-
-                <!-- محتوى تبويب السور الـ 114 مع بحث سريع -->
-                <div class="quran-hub-tab-pane active-pane" id="quran-tab-pane-surahs">
-                    <div style="position: relative; margin-bottom: 12px;">
-                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 12px; color: var(--gold-400); pointer-events: none;"></i>
-                        <input type="text" id="input-quran-hub-surah-search" class="form-input" placeholder="ابحث عن أي سورة بالاسم أو الرقم (مثال: الكهف، يس، 67)..." style="padding-right: 40px; border-radius: 20px;">
-                    </div>
-                    <div class="quran-items-grid" id="quran-hub-surahs-list">
-                        <!-- يُملأ من quran.js -->
-                    </div>
-                </div>
-
-                <!-- محتوى تبويب الأجزاء الـ 30 -->
-                <div class="quran-hub-tab-pane" id="quran-tab-pane-juz">
-                    <div class="quran-items-grid" id="quran-hub-juz-list">
-                        <!-- يُملأ من quran.js -->
-                    </div>
-                </div>
-
-                <!-- محتوى تبويب العلامات المرجعية المحفوظة -->
-                <div class="quran-hub-tab-pane" id="quran-tab-pane-bookmarks">
-                    <div id="quran-hub-bookmarks-list">
-                        <!-- يُملأ من quran.js -->
-                    </div>
-                </div>
-
-                <div style="margin: 24px 0 16px; border-top: 1px dashed var(--border-color);"></div>
-
-                <!-- شريط فاصلة المصحف ومتابع القراءة والختمة -->
-                <div class="mushaf-reading-tracker-bar" id="mushaf-reading-tracker-bar">
-                    <div class="tracker-bookmark-col">
-                        <div class="tracker-badge-icon"><i class="fa-solid fa-bookmark text-gold"></i></div>
-                        <div class="tracker-bookmark-info">
-                            <span class="tracker-label">علامتك المرجعية وآخر وقوف:</span>
-                            <strong class="tracker-value" id="tracker-bookmark-text">سورة الملك • صفحة 562</strong>
-                        </div>
-                    </div>
-
-                    <div class="tracker-khatma-col">
-                        <div class="tracker-khatma-header">
-                            <span>ختمتك: <strong id="tracker-khatma-percent" class="text-gold">93%</strong> من المصحف</span>
-                            <span class="tracker-today-pages" id="tracker-today-pages-badge"><i class="fa-solid fa-leaf text-emerald-400"></i> <strong id="tracker-today-pages-count">0</strong> صفحة اليوم</span>
-                        </div>
-                        <div class="tracker-progress-track">
-                            <div class="tracker-progress-fill" id="tracker-progress-fill" style="width: 93%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="tracker-actions-col">
-                        <button type="button" class="btn btn-gold btn-sm" id="btn-tracker-resume-reading">
-                            <i class="fa-solid fa-book-open-reader"></i>
-                            <span>مواصلة القراءة 📖</span>
+                <!-- المصحف الذهبي الشريف المدمج بدون إنترنت (طبعة مجمع الملك فهد) -->
+                <div class="golden-quran-wrapper theme-golden-night" id="golden-quran-wrapper">
+                    <!-- الترويسة الذهبية العلوية -->
+                    <div class="golden-mushaf-header" id="golden-mushaf-header">
+                        <button type="button" class="golden-hdr-btn golden-hdr-surah" id="golden-btn-surah" title="اختيار السورة">
+                            <span id="golden-surah-title">سورة يس</span>
+                            <i class="fa-solid fa-chevron-left"></i>
                         </button>
-                    </div>
-                </div>
 
-                <!-- عناصر اختيار السورة -->
-                <div class="surahs-controls-container">
-                    <!-- حقل البحث السريع في السور -->
-                    <div class="surah-search-filter-wrapper" style="margin-bottom: 8px;">
-                        <div style="position: relative; display: flex; align-items: center;">
-                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; color: var(--gold-400); pointer-events: none; font-size: 0.85rem;"></i>
-                            <input type="text" id="input-filter-surahs" class="form-control" placeholder="ابحث عن سورة بالاسم أو الرقم (مثال: الكهف، 18، الملك)..." style="padding-right: 36px; padding-left: 12px; height: 38px; font-size: 0.85rem; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); width: 100%;">
-                        </div>
-                    </div>
-
-                    <!-- أزرار سريعة لأشهر السور الفاضلة -->
-                    <div class="featured-surahs-pills" id="featured-surahs-pills">
-                        <!-- تُنشأ برمجياً من js/quran.js -->
-                    </div>
-
-                    <!-- قائمة منسدلة لجميع سور القرآن الـ 114 سورة -->
-                    <div class="all-surahs-dropdown-wrapper">
-                        <select id="select-all-surahs" class="select-surah-dropdown">
-                            <!-- يُملأ من js/quran.js -->
-                        </select>
-                    </div>
-                </div>
-
-                <!-- بطاقة صفحة المصحف الشريف الحقيقية الكبرى -->
-                <div class="quran-mushaf-card real-mushaf-card" id="real-mushaf-card">
-                    <!-- إطار ترويسة السورة والجزء وأدوات القراءة والبحث -->
-                    <div class="mushaf-header-frame">
-                        <div class="mushaf-header-top-row">
-                            <div class="mushaf-surah-meta">
-                                <h3 class="mushaf-surah-title" id="quran-surah-title">سُورَةُ المُلْكِ</h3>
-                                <div class="mushaf-verses-count" id="quran-verses-count">الجزء ٢٩ • صفحة ٥٦٢ من ٦٠٤</div>
+                        <button type="button" class="golden-hdr-btn golden-hdr-grid" id="golden-btn-index" title="فهرس القرآن الكريم">
+                            <div class="golden-grid-icon">
+                                <div></div><div></div>
+                                <div></div><div></div>
                             </div>
-                            <!-- زر التلاوة السريع للسورة في الترويسة مباشرة -->
-                            <div class="mushaf-header-quick-audio">
-                                <button type="button" class="btn btn-audio-quick" id="btn-surah-audio" title="استماع لتلاوة السورة الحالية">
-                                    <i class="fa-solid fa-volume-high"></i>
-                                    <span class="btn-audio-text">استماع السورة</span>
-                                </button>
-                            </div>
-                        </div>
+                        </button>
 
-                        <!-- شريط الأدوات السريع والمصغر (Quick Action Bar) -->
-                        <div class="mushaf-reading-toolbar">
-                            <!-- الأزرار الأساسية السريعة الأكثر استخداماً على الموبايل والكمبيوتر -->
-                            <div class="mushaf-toolbar-primary-group">
-                                <!-- زر تبديل نمط القراءة (صفحات المصحف / قراءة مستمرة) -->
-                                <div class="mushaf-mode-switcher-pill" style="display: inline-flex; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 20px; padding: 2px;">
-                                    <button type="button" class="btn btn-mushaf-pill active" id="btn-mode-mushaf-page" style="border: none; margin: 0; padding: 5px 10px; font-size: 0.78rem;" title="عرض صفحات المصحف الشريف المصورة (604 صفحات)">
-                                        <i class="fa-solid fa-book-quran text-gold"></i>
-                                        <span>صفحات المصحف</span>
-                                    </button>
-                                    <button type="button" class="btn btn-mushaf-pill" id="btn-mode-continuous" style="border: none; margin: 0; padding: 5px 10px; font-size: 0.78rem;" title="وضع القراءة المستمرة بالآيات">
-                                        <i class="fa-solid fa-align-right text-gold"></i>
-                                        <span>قراءة مستمرة</span>
-                                    </button>
-                                </div>
-
-                                <!-- أدوات تكبير وتصغير الخط للقراءة المستمرة -->
-                                <div class="quran-font-scale-group" id="quran-font-scale-group" style="display: none; align-items: center; gap: 3px;">
-                                    <button type="button" class="btn btn-mushaf-pill" id="btn-quran-font-increase" style="padding: 5px 8px; font-size: 0.75rem;" title="تكبير خط الآيات">A+</button>
-                                    <button type="button" class="btn btn-mushaf-pill" id="btn-quran-font-decrease" style="padding: 5px 8px; font-size: 0.75rem;" title="تصغير خط الآيات">A-</button>
-                                    <button type="button" class="btn btn-mushaf-pill" id="btn-quran-font-reset" style="padding: 5px 8px; font-size: 0.75rem;" title="إعادة ضبط حجم الخط">A</button>
-                                </div>
-
-                                <button type="button" class="btn btn-mushaf-pill" id="btn-page-tafsir" title="تفسير الصفحة الحالية">
-                                    <i class="fa-solid fa-book-open text-gold"></i>
-                                    <span>تفسير</span>
-                                </button>
-                                <button type="button" class="btn btn-mushaf-pill" id="btn-open-quran-search" title="البحث السريع في آيات القرآن الكريم">
-                                    <i class="fa-solid fa-magnifying-glass text-gold"></i>
-                                    <span>بحث</span>
-                                </button>
-                                <button type="button" class="btn btn-mushaf-pill" id="btn-mushaf-bookmark" title="حفظ الصفحة الحالية كعلامة قراءة">
-                                    <i class="fa-solid fa-bookmark text-gold"></i>
-                                    <span>حفظ علامة</span>
-                                </button>
-                                <button type="button" class="btn btn-mushaf-pill" id="btn-open-bookmarks-modal" title="عرض جميع علاماتك المرجعية المحفوظة">
-                                    <i class="fa-solid fa-book-bookmark text-gold"></i>
-                                    <span>العلامات 📑</span>
-                                    <span class="badge" id="bookmarks-count-badge" style="display: none; font-size: 10px; background: var(--gold-400); color: #000; border-radius: 10px; padding: 1px 5px; margin-inline-start: 4px;">0</span>
-                                </button>
-                                <button type="button" class="btn btn-mushaf-pill btn-more-tools-toggle" id="btn-mushaf-tools-toggle" title="المزيد من خيارات وأدوات القراءة">
-                                    <i class="fa-solid fa-sliders text-gold"></i>
-                                    <span>خيارات ⚙️</span>
-                                </button>
-                            </div>
-
-                            <!-- درج الأدوات المتقدمة والإعدادات (يُفتح ويُغلق بنعومة عند النقر على "خيارات القراءة ⚙️") -->
-                            <div class="mushaf-drawer-tools" id="mushaf-drawer-tools" style="display: none;">
-                                <div class="mushaf-drawer-inner">
-                                    <div class="mushaf-drawer-row">
-                                        <!-- الوضع المريح -->
-                                        <button type="button" class="btn btn-drawer-item" id="btn-mushaf-theme" title="تبديل وضع القراءة المريح للعين (الورق القديم Sepia)">
-                                            <i class="fa-solid fa-eye text-gold"></i>
-                                            <span>الوضع المريح</span>
-                                        </button>
-                                        <!-- وضع التحفيظ -->
-                                        <button type="button" class="btn btn-drawer-item" id="btn-open-hifz-modal" title="وضع تكرار الآيات والتحفيظ والتثبيت">
-                                            <i class="fa-solid fa-repeat text-gold"></i>
-                                            <span>وضع التحفيظ</span>
-                                        </button>
-                                        <!-- بدون إنترنت -->
-                                        <button type="button" class="btn btn-drawer-item" id="btn-mushaf-offline" title="إدارة تحميل المصحف للعمل بدون إنترنت">
-                                            <i class="fa-solid fa-cloud-arrow-down text-gold"></i>
-                                            <span>بدون إنترنت</span>
-                                            <span class="badge-offline-indicator" id="mushaf-offline-indicator-badge" style="display: none;"><i class="fa-solid fa-check"></i></span>
-                                        </button>
-                                        <!-- ملء الشاشة -->
-                                        <button type="button" class="btn btn-drawer-item" id="btn-mushaf-fullscreen" title="وضع ملء الشاشة للتركيز في التلاوة">
-                                            <i class="fa-solid fa-expand text-gold"></i>
-                                            <span>ملء الشاشة</span>
-                                        </button>
-                                        <!-- متابعة آية بآية -->
-                                        <button type="button" class="btn btn-drawer-item" id="btn-toggle-ayah-sync" title="تشغيل وضع المتابعة آية بآية والتظليل التزامني">
-                                            <i class="fa-solid fa-headphones text-gold"></i>
-                                            <span>متابعة آية بآية</span>
-                                        </button>
-                                    </div>
-
-                                    <div class="mushaf-drawer-controls-row">
-                                        <!-- التكبير والتصغير -->
-                                        <div class="mushaf-zoom-inline">
-                                            <span class="zoom-label"><i class="fa-solid fa-magnifying-glass"></i> حجم الصفحة:</span>
-                                            <button type="button" class="btn btn-drawer-icon" id="btn-mushaf-zoom-in" title="تكبير الصفحة">
-                                                <i class="fa-solid fa-plus"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-drawer-icon" id="btn-mushaf-zoom-out" title="تصغير الصفحة">
-                                                <i class="fa-solid fa-minus"></i>
-                                            </button>
-                                        </div>
-
-                                        <!-- اختيار قارئ السورة -->
-                                        <div class="mushaf-reciter-control-group">
-                                            <label for="select-mushaf-reciter" class="reciter-label"><i class="fa-solid fa-microphone-lines text-gold"></i> القارئ:</label>
-                                            <select id="select-mushaf-reciter" class="select-reciter-dropdown" title="اختيار القارئ المفضل لسماع السورة">
-                                                <!-- يُملأ من js/quran.js -->
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- لوحة مشغل الآيات التزامني الذكي (Ayah Sync Player) - مخفي افتراضياً لتقليل الزحام -->
-                    <div id="ayah-sync-player-panel" class="ayah-sync-player-panel" style="display: none;">
-                        <div class="ayah-sync-controls-top">
-                            <div class="ayah-sync-info">
-                                <span class="ayah-sync-badge"><i class="fa-solid fa-circle-play text-gold"></i> متابعة تزامنية</span>
-                                <span class="ayah-sync-current-title" id="ayah-sync-current-title">سورة الملك • الآية 1</span>
-                            </div>
-                            <div class="ayah-sync-actions">
-                                <select id="select-ayah-reciter" class="select-reciter-dropdown" title="اختيار القارئ للمتابعة آية بآية">
-                                    <option value="Alafasy_128kbps">مشاري العفاسي</option>
-                                    <option value="Husary_Muallim_128kbps">محمود خليل الحصري (المصحف المعلم)</option>
-                                    <option value="Husary_128kbps">محمود خليل الحصري (مرتل)</option>
-                                    <option value="Minshawy_Murattal_128kbps">محمد صديق المنشاوي (مرتل)</option>
-                                    <option value="Minshawy_Mujawwad_192kbps">محمد صديق المنشاوي (مجود)</option>
-                                    <option value="Abdul_Basit_Murattal_192kbps">عبد الباسط عبد الصمد (مرتل)</option>
-                                    <option value="Abdul_Basit_Mujawwad_128kbps">عبد الباسط عبد الصمد (مجود)</option>
-                                    <option value="MaherAlMuaiqly128kbps">ماهر المعيقلي</option>
-                                    <option value="Yasser_Ad-Dussary_128kbps">ياسر الدوسري</option>
-                                    <option value="Abu_Bakr_Ash-Shaatree_128kbps">أبو بكر الشاطري</option>
-                                    <option value="Ghamadi_40kbps">سعد الغامدي</option>
-                                    <option value="Abdurrahmaan_As-Sudais_192kbps">عبد الرحمن السديس</option>
-                                </select>
-
-                                <button type="button" class="btn btn-outline btn-sm" id="btn-ayah-repeat-mode" title="تكرار الآية الحالية للحفظ والتثبيت">
-                                    <i class="fa-solid fa-repeat text-gold"></i>
-                                    <span id="ayah-repeat-label">تكرار: مرة</span>
-                                </button>
-
-                                <select id="select-ayah-playback-speed" class="select-speed-dropdown" title="سرعة التلاوة">
-                                    <option value="1">1.0x عادي</option>
-                                    <option value="0.75">0.75x بطيء للتعلم</option>
-                                    <option value="1.25">1.25x سريع</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="ayah-sync-player-buttons">
-                            <button type="button" class="btn btn-outline btn-sm btn-icon" id="btn-ayah-prev" title="الآية السابقة">
-                                <i class="fa-solid fa-forward-step"></i>
+                        <div class="golden-hdr-left">
+                            <span class="golden-juz-title" id="golden-juz-title">الجزء ٢٣</span>
+                            <button type="button" class="golden-hdr-btn golden-hdr-bookmark" id="golden-btn-bookmark" title="حفظ فاصلة القراءة">
+                                <i class="fa-regular fa-bookmark golden-bookmark-icon" id="golden-bookmark-icon"></i>
                             </button>
-                            <button type="button" class="btn btn-primary btn-sm" id="btn-ayah-play-toggle" title="تشغيل / إيقاف التلاوة التزامنية">
-                                <i class="fa-solid fa-play"></i>
-                                <span id="ayah-play-btn-text">بدء الاستماع آية بآية</span>
+                            <button type="button" class="golden-hdr-btn golden-hdr-theme" id="golden-btn-theme" title="تبديل وضع راحة العين (ليلي دافئ / ورقي هادئ)">
+                                <i class="fa-solid fa-circle-half-stroke"></i>
                             </button>
-                            <button type="button" class="btn btn-outline btn-sm btn-icon" id="btn-ayah-next" title="الآية التالية">
-                                <i class="fa-solid fa-backward-step"></i>
+                        </div>
+                    </div>
+
+                    <!-- مساحة عرض صفحة المصحف -->
+                    <div class="golden-mushaf-viewport" id="golden-mushaf-viewport">
+                        <!-- شريط موضع الوقوف المحفوظ -->
+                        <div class="golden-page-ribbon" id="golden-page-ribbon" style="display: none;">
+                            <i class="fa-solid fa-bookmark"></i>
+                            <span>موضع وقوفك المحفوظ</span>
+                        </div>
+
+                        <!-- صفحة المصحف الشريف المدمجة محلياً بدون إنترنت -->
+                        <img id="mushaf-real-page-img" class="golden-mushaf-img" src="assets/quran-pages/562.svg" alt="المصحف الشريف" draggable="false">
+
+                        <!-- مناطق التقليب السريع باللمس يميناً ويساراً -->
+                        <div class="golden-tap-zone golden-tap-prev" id="golden-tap-prev" title="الصفحة السابقة"></div>
+                        <div class="golden-tap-zone golden-tap-next" id="golden-tap-next" title="الصفحة التالية"></div>
+                    </div>
+
+                    <!-- التذييل السفلي الأنيق -->
+                    <div class="golden-mushaf-footer" id="golden-mushaf-footer">
+                        <div class="golden-page-pill" id="golden-page-pill" title="انقر للانتقال المباشر لأي صفحة">
+                            <span id="golden-page-num">٥٦٢</span>
+                            <span id="golden-hizb-num">الحزب ٥٧</span>
+                        </div>
+
+                        <div class="golden-footer-actions">
+                            <button type="button" class="golden-footer-action-btn" id="btn-mushaf-prev" title="الصفحة السابقة">
+                                <i class="fa-solid fa-chevron-right"></i>
+                                <span>السابق</span>
                             </button>
-                            <div class="ayah-sync-view-switch">
-                                <button type="button" class="btn-view-toggle active" id="btn-view-mushaf-img" title="عرض صفحة المصحف المصورة">
-                                    <i class="fa-solid fa-image"></i> المصحف المصور
-                                </button>
-                                <button type="button" class="btn-view-toggle" id="btn-view-mushaf-text" title="عرض الآيات التفاعلي المظلل">
-                                    <i class="fa-solid fa-align-right"></i> الآيات المظللة
-                                </button>
-                            </div>
+                            <button type="button" class="golden-footer-action-btn" id="btn-page-tafsir" title="تفسير الصفحة الحالية">
+                                <i class="fa-solid fa-book-open"></i>
+                                <span>تفسير</span>
+                            </button>
+                            <button type="button" class="golden-footer-action-btn" id="btn-surah-audio" title="استماع التلاوة">
+                                <i class="fa-solid fa-volume-high"></i>
+                                <span class="btn-audio-text">تلاوة</span>
+                            </button>
+                            <button type="button" class="golden-footer-action-btn" id="btn-mushaf-next" title="الصفحة التالية">
+                                <span>التالي</span>
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
                         </div>
-                    </div>
-
-                    <!-- حاوية النصوص القرآنية التفاعلية مع تظليل الآيات التزامني -->
-                    <div id="mushaf-interactive-verses-wrapper" class="mushaf-interactive-verses-wrapper" style="display: none;">
-                        <div id="mushaf-verses-container" class="mushaf-verses-container">
-                            <!-- تُملأ آيات الصفحة الحالية برسم عثماني وتظليل تزامني عبر js/quran.js -->
-                        </div>
-                    </div>
-
-                    <!-- حاوية صفحة المصحف الشريف الحقيقية -->
-                    <div class="mushaf-real-page-wrapper" id="mushaf-real-page-wrapper">
-                        <div id="mushaf-page-loader" class="mushaf-page-loader">
-                            <i class="fa-solid fa-spinner fa-spin"></i>
-                            <span>جاري فتح صفحة المصحف الشريف...</span>
-                        </div>
-                        <img id="mushaf-real-page-img" class="mushaf-real-page-img" src="https://cdn.quran.ws/svg/pages/v1.1.1/hafs-kfqc/562.svg" alt="صفحة المصحف الشريف" loading="eager">
-                    </div>
-
-                    <!-- أزرار تقليب الصفحات السفلية السريعة والسهلة للهاتف -->
-                    <div class="mushaf-bottom-page-controls">
-                        <button type="button" class="btn btn-page-nav" id="btn-mushaf-prev" title="الصفحة السابقة">
-                            <i class="fa-solid fa-angle-right"></i>
-                            <span class="nav-text">السابق</span>
-                        </button>
-                        <div class="page-jump-box">
-                            <label for="mushaf-page-input">صفحة:</label>
-                            <input type="number" id="mushaf-page-input" class="mushaf-page-input" min="1" max="604" value="562">
-                            <span>/ 604</span>
-                        </div>
-                        <button type="button" class="btn btn-page-nav" id="btn-mushaf-next" title="الصفحة التالية">
-                            <span class="nav-text">التالي</span>
-                            <i class="fa-solid fa-angle-left"></i>
-                        </button>
-                    </div>
-
-                    <div class="mushaf-hint-text" style="font-size: 0.8rem; color: var(--gold-300); opacity: 0.85; margin-top: 0.5rem; text-align: center;">
-                        <i class="fa-solid fa-hand-pointer text-gold"></i> انقر على جانبي الصفحة أو اسحب للتقليب السريع
-                    </div>
-
-                    <!-- زر إهداء ثواب القراءة لروح الجد -->
-                    <div class="mushaf-footer-actions">
-                        <button type="button" class="btn-gift-reward" id="btn-gift-quran-reward">
-                            <i class="fa-solid fa-gift"></i>
-                            <span>أهديت ثواب هذه القراءة لروحه</span>
-                        </button>
                     </div>
                 </div>
+
+                <!-- مودال الفهرس السريع المدمج (Index Modal) -->
+                <div class="golden-index-modal" id="golden-index-modal">
+                    <div class="golden-index-card">
+                        <div class="golden-index-hdr">
+                            <h3><i class="fa-solid fa-book-quran text-gold"></i> فهرس المصحف الشريف</h3>
+                            <button type="button" class="golden-index-close-btn" id="btn-close-golden-index">&times;</button>
+                        </div>
+                        <div class="golden-index-tabs">
+                            <button type="button" class="golden-index-tab-btn active" data-tab="surahs">السور (114)</button>
+                            <button type="button" class="golden-index-tab-btn" data-tab="juz">الأجزاء (30)</button>
+                            <button type="button" class="golden-index-tab-btn" data-tab="bookmarks">علاماتي المحفوظة</button>
+                        </div>
+                        <div class="golden-index-search">
+                            <input type="text" id="golden-index-search-input" placeholder="ابحث باسم السورة أو رقمها (مثال: الكهف، 18)...">
+                        </div>
+                        <div class="golden-index-list" id="golden-index-list">
+                            <!-- يُملأ ديناميكياً من quran.js -->
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- الجزء الثاني: ختمة القرآن الكريم الجماعية (30 جزء) -->
