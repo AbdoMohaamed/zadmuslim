@@ -46,7 +46,7 @@
     </script>
     
     <!-- تنسيقات الموقع والتطبيق الموحدة -->
-    <link rel="stylesheet" href="assets/css/style.css?v=90">
+    <link rel="stylesheet" href="assets/css/style.css?v=92">
     
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
@@ -277,6 +277,9 @@
             </div>
         </div>
         <div class="app-header-actions">
+            <button class="app-icon-btn btn-open-notifications" id="app-btn-notifications-nav" onclick="openNotificationsModal()" title="التنبيهات والإشعارات">
+                <i class="fa-solid fa-bell text-gold"></i>
+            </button>
             <button class="app-icon-btn btn-theme-toggle" id="app-btn-theme-toggle" title="تبديل المظهر">
                 <i class="fa-solid fa-moon" id="app-theme-icon"></i>
             </button>
@@ -458,8 +461,8 @@
             </div>
 
             <div style="text-align: center; padding: 20px 0; color: var(--muted); font-size: 12px;">
-                <p style="margin-bottom: 4px;">صدقة جارية على أرواح: عبدالمعبود أمين سعيد و حكم عبدالصمد</p>
-                <p style="margin: 0;">تطبيق زاد المسلم V3 • نسألكم الدعاء</p>
+                <p style="margin-bottom: 4px; line-height: 1.8;">صدقة جارية بإذن الله عن <strong style="color: var(--gold-500);">جدي الغالي عبدالمعبود أمين سعيد، وجدتي الغالية حكم عبدالصمد</strong>، رحمهما الله وأسكنهما فسيح جناته.</p>
+                <p style="margin: 4px 0 0;">زاد المسلم • <span style="color: var(--gold-500); cursor: pointer;">نسألكم الدعاء — عبدو محمد</span></p>
             </div>
         </div>
     </main>
@@ -1947,6 +1950,8 @@
             </div>
         </div>
     </section>
+        </div>
+    </div>
 
     <!-- ==========================================
     نافذة كتابة دعاء (Modal Form)
@@ -3343,11 +3348,11 @@
     <script src="assets/js/islamic-stories-data.js?v=2"></script>
     <script src="assets/js/media-data.js?v=2"></script>
     <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/native-adhan-service.js"></script>
+    <script src="assets/js/native-adhan-service.js?v=2"></script>
     <script src="assets/js/onesignal-service.js?v=1"></script>
-    <script src="assets/js/app.js?v=17"></script>
-    <script src="assets/js/quran.js?v=15"></script>
-    <script src="assets/js/extended-modules.js?v=21"></script>
+    <script src="assets/js/app.js?v=18"></script>
+    <script src="assets/js/quran.js?v=16"></script>
+    <script src="assets/js/extended-modules.js?v=22"></script>
 
     <!-- نافذة تحدي الـ 7 أيام الإيماني (7-Day Spiritual Challenge Modal) -->
     <div class="modal-overlay" id="challenge-modal">

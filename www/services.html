@@ -46,7 +46,7 @@
     
     <!-- تنسيقات الموقع المتطابقة مع النموذج المرجعي -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <link rel="stylesheet" href="assets/css/style.css?v=90">
+    <link rel="stylesheet" href="assets/css/style.css?v=92">
     
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
@@ -68,6 +68,9 @@
                 <a href="index.html#sadaqa">صدقة جارية</a>
             </nav>
             <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="btn outline btn-open-notifications" id="btn-open-notifications-nav" onclick="openNotificationsModal()" title="التنبيهات والإشعارات" style="padding: 10px 14px;">
+                    <i class="fa-solid fa-bell text-gold"></i>
+                </button>
                 <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-nav" title="المظهر النهاري / الليلي" style="padding: 10px 14px;">
                     <i class="fa-solid fa-moon" id="theme-toggle-icon"></i>
                 </button>
@@ -3196,11 +3199,11 @@
     <script src="assets/js/islamic-stories-data.js?v=2"></script>
     <script src="assets/js/media-data.js?v=2"></script>
     <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/native-adhan-service.js"></script>
+    <script src="assets/js/native-adhan-service.js?v=2"></script>
     <script src="assets/js/onesignal-service.js?v=1"></script>
-    <script src="assets/js/app.js?v=17"></script>
-    <script src="assets/js/quran.js?v=15"></script>
-    <script src="assets/js/extended-modules.js?v=21"></script>
+    <script src="assets/js/app.js?v=18"></script>
+    <script src="assets/js/quran.js?v=16"></script>
+    <script src="assets/js/extended-modules.js?v=22"></script>
 
     <!-- نافذة تحدي الـ 7 أيام الإيماني (7-Day Spiritual Challenge Modal) -->
     <div class="modal-overlay" id="challenge-modal">

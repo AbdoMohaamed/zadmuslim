@@ -1465,13 +1465,27 @@ let deferredPrompt = null;
 
 function initPWA() {
     if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-            navigator.serviceWorker.register("./sw.js").then(reg => {
-                console.log("PWA Service Worker registered successfully! Scope:", reg.scope);
-            }).catch(err => {
-                console.warn("PWA Service Worker registration failed:", err);
+        // إذا كنا داخل تطبيق أصلي (Capacitor على Android أو iOS)، نلغي أي Service Worker قديم لتفادي تجميد الكاش
+        const isNative = (window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform());
+        if (isNative) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                for (let reg of regs) reg.unregister();
             });
-        });
+            if (window.caches) {
+                caches.keys().then(keys => {
+                    for (let key of keys) caches.delete(key);
+                });
+            }
+        } else {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./sw.js").then(reg => {
+                    reg.update();
+                    console.log("PWA Service Worker registered successfully! Scope:", reg.scope);
+                }).catch(err => {
+                    console.warn("PWA Service Worker registration failed:", err);
+                });
+            });
+        }
     }
 
     const installBtn = document.getElementById("btn-install-app");

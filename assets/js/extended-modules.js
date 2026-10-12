@@ -778,12 +778,28 @@ function initIslamicGuideFaq() {
     });
 }
 
+window.openNotificationsModal = function() {
+    const modal = document.getElementById("notifications-modal");
+    if (modal) {
+        modal.classList.add("open");
+    } else {
+        console.warn("Notifications modal element not found in DOM");
+    }
+};
+
+window.closeNotificationsModal = function() {
+    const modal = document.getElementById("notifications-modal");
+    if (modal) {
+        modal.classList.remove("open");
+    }
+};
+
 /* ==========================================================================
    6. نظام التنبيهات والإشعارات الذكية للطاعات (Smart Notifications)
    ========================================================================== */
 function initSmartNotifications() {
     const modal = document.getElementById("notifications-modal");
-    const openBtns = document.querySelectorAll("#btn-open-notifications-nav, #btn-open-notifications-hero, .btn-open-notifications");
+    const openBtns = document.querySelectorAll("#btn-open-notifications-nav, #btn-open-notifications-hero, .btn-open-notifications, #app-btn-notifications-nav");
     const closeBtn = document.getElementById("btn-close-notifications-modal");
     const requestBtn = document.getElementById("btn-request-notification-perm");
     const selectAllBtn = document.getElementById("btn-select-all-notifs");
