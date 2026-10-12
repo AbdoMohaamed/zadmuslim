@@ -184,14 +184,18 @@ body.light-theme {
   background: var(--primary);
   color: var(--accent);
   border-radius: 16px;
-  width: 47px;
-  height: 47px;
+  width: 35px;
+  height: 35px;
   display: grid;
   place-items: center;
-  font-size: 28px;
   flex-shrink: 0;
 }
-
+    .logo-icon img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
 .links {
   display: flex;
   gap: 29px;
@@ -10564,8 +10568,6 @@ body.light-theme .stat-card .stat-title {
 }
 
 /* 6. Headings & Text High Contrast */
-html[data-theme="light"] h1,
-body.light-theme h1,
 html[data-theme="light"] h2,
 body.light-theme h2,
 html[data-theme="light"] h3,
@@ -10661,29 +10663,32 @@ html[data-theme="light"] .hadith-narrator,
 body.light-theme .hadith-narrator {
   color: #536A60 !important;
 }
-
-/* 7. Islamic texts & Arabic calligraphies */
-html[data-theme="light"] .quran-text,
-body.light-theme .quran-text,
-html[data-theme="light"] .hadith-matn,
-body.light-theme .hadith-matn,
-html[data-theme="light"] .hadith-text,
-body.light-theme .hadith-text,
-html[data-theme="light"] .cat-dua-body,
-body.light-theme .cat-dua-body,
-html[data-theme="light"] .azkar-text,
-body.light-theme .azkar-text,
-html[data-theme="light"] .story-full-text,
-body.light-theme .story-full-text,
-html[data-theme="light"] .prayer-body,
-body.light-theme .prayer-body,
-html[data-theme="light"] .verse-text,
-body.light-theme .verse-text,
-html[data-theme="light"] .quran-match-text,
-body.light-theme .quran-match-text {
-  color: #193B34 !important;
-  font-weight: 600 !important;
-}
+    html[data-theme="light"] h1,
+    body.light-theme h1{
+        color:#fff;
+    }
+    /* 7. Islamic texts & Arabic calligraphies */
+    html[data-theme="light"] .quran-text,
+    body.light-theme .quran-text,
+    html[data-theme="light"] .hadith-matn,
+    body.light-theme .hadith-matn,
+    html[data-theme="light"] .hadith-text,
+    body.light-theme .hadith-text,
+    html[data-theme="light"] .cat-dua-body,
+    body.light-theme .cat-dua-body,
+    html[data-theme="light"] .azkar-text,
+    body.light-theme .azkar-text,
+    html[data-theme="light"] .story-full-text,
+    body.light-theme .story-full-text,
+    html[data-theme="light"] .prayer-body,
+    body.light-theme .prayer-body,
+    html[data-theme="light"] .verse-text,
+    body.light-theme .verse-text,
+    html[data-theme="light"] .quran-match-text,
+    body.light-theme .quran-match-text {
+        color: #193B34 !important;
+        font-weight: 600 !important;
+    }
 
 html[data-theme="light"] .asmaa-name-calligraphy,
 body.light-theme .asmaa-name-calligraphy,
@@ -14922,7 +14927,7 @@ html[data-theme="light"] .btn-modern-outline {
   }
 
   .radio-panel {
-    bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(50px + env(safe-area-inset-bottom, 0px)) !important;
     left: 16px !important;
     max-width: calc(100vw - 32px) !important;
   }
@@ -16283,7 +16288,7 @@ body.light-theme .quran-font-scale-group {
     border-radius: 12px;
     padding: 12px 16px;
     margin: 16px auto;
-    max-width: 450px;
+    max-width: 550px;
     text-align: right;
 }
 
