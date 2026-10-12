@@ -10449,71 +10449,74 @@ html.light-theme .cemetery-guide-section {
 }
 
 /* 5. Universal Cards & Containers */
-html[data-theme="light"] .khatma-card,
-body.light-theme .khatma-card,
-html[data-theme="light"] .prayer-times-card,
-body.light-theme .prayer-times-card,
-html[data-theme="light"] .media-card,
-body.light-theme .media-card,
-html[data-theme="light"] .tasbeeh-card,
-body.light-theme .tasbeeh-card,
-html[data-theme="light"] .azkar-card,
-body.light-theme .azkar-card,
-html[data-theme="light"] .hadith-card,
-body.light-theme .hadith-card,
-html[data-theme="light"] .asmaa-card,
-body.light-theme .asmaa-card,
-html[data-theme="light"] .story-card,
-body.light-theme .story-card,
-html[data-theme="light"] .quiz-card,
-body.light-theme .quiz-card,
-html[data-theme="light"] .cat-dua-card,
-body.light-theme .cat-dua-card,
-html[data-theme="light"] .garden-interactive-card,
-body.light-theme .garden-interactive-card,
-html[data-theme="light"] .stat-card,
-body.light-theme .stat-card,
-html[data-theme="light"] .faq-item,
-body.light-theme .faq-item,
-html[data-theme="light"] .wird-group-card,
-body.light-theme .wird-group-card,
-html[data-theme="light"] .daily-wird-card,
-body.light-theme .daily-wird-card,
-html[data-theme="light"] .season-card,
-body.light-theme .season-card,
-html[data-theme="light"] .spiritual-message-card,
-body.light-theme .spiritual-message-card,
-html[data-theme="light"] .counter-box,
-body.light-theme .counter-box,
-html[data-theme="light"] .quran-search-item,
-body.light-theme .quran-search-item,
-html[data-theme="light"] .featured-prayer-card,
-body.light-theme .featured-prayer-card,
-html[data-theme="light"] .prayer-card,
-body.light-theme .prayer-card,
-html[data-theme="light"] .community-prayer-card,
-body.light-theme .community-prayer-card,
-html[data-theme="light"] .khatma-summary-card,
-body.light-theme .khatma-summary-card,
-html[data-theme="light"] .azkar-selector-box,
-body.light-theme .azkar-selector-box,
-html[data-theme="light"] .cemetery-dua-featured-card,
-body.light-theme .cemetery-dua-featured-card,
-html[data-theme="light"] .cemetery-card,
-body.light-theme .cemetery-card,
-html[data-theme="light"] .quiz-container-card,
-body.light-theme .quiz-container-card,
-html[data-theme="light"] .verse-card,
-body.light-theme .verse-card,
-html[data-theme="light"] .tasbeeh-device,
-body.light-theme .tasbeeh-device,
-html[data-theme="light"] .juz-card,
-body.light-theme .juz-card {
-  background: #FFFFFF !important;
-  border: 1px solid #DFE9E1 !important;
-  box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
-  color: #193B34 !important;
-}
+    html[data-theme="light"] .khatma-card,
+    body.light-theme .khatma-card,
+    html[data-theme="light"] .prayer-times-card,
+    body.light-theme .prayer-times-card,
+    html[data-theme="light"] .media-card,
+    body.light-theme .media-card,
+    html[data-theme="light"] .tasbeeh-card,
+    body.light-theme .tasbeeh-card,
+    html[data-theme="light"] .azkar-card,
+    body.light-theme .azkar-card,
+    html[data-theme="light"] .hadith-card,
+    body.light-theme .hadith-card,
+    html[data-theme="light"] .asmaa-card,
+    body.light-theme .asmaa-card,
+    html[data-theme="light"] .story-card,
+    body.light-theme .story-card,
+    html[data-theme="light"] .quiz-card,
+    body.light-theme .quiz-card,
+    html[data-theme="light"] .cat-dua-card,
+    body.light-theme .cat-dua-card,
+    html[data-theme="light"] .garden-interactive-card,
+    body.light-theme .garden-interactive-card,
+    html[data-theme="light"] .stat-card,
+    body.light-theme .stat-card,
+    html[data-theme="light"] .faq-item,
+    body.light-theme .faq-item,
+    html[data-theme="light"] .wird-group-card,
+    body.light-theme .wird-group-card,
+    html[data-theme="light"] .daily-wird-card,
+    body.light-theme .daily-wird-card,
+    html[data-theme="light"] .season-card,
+    body.light-theme .season-card,
+    html[data-theme="light"] .spiritual-message-card,
+    body.light-theme .spiritual-message-card,
+    html[data-theme="light"] .counter-box,
+    body.light-theme .counter-box,
+    html[data-theme="light"] .quran-search-item,
+    body.light-theme .quran-search-item,
+    html[data-theme="light"] .featured-prayer-card,
+    body.light-theme .featured-prayer-card,
+    html[data-theme="light"] .prayer-card,
+    body.light-theme .prayer-card,
+    html[data-theme="light"] .community-prayer-card,
+    body.light-theme .community-prayer-card,
+    html[data-theme="light"] .khatma-summary-card,
+    body.light-theme .khatma-summary-card,
+    html[data-theme="light"] .azkar-selector-box,
+    body.light-theme .azkar-selector-box,
+    html[data-theme="light"] .cemetery-dua-featured-card,
+    body.light-theme .cemetery-dua-featured-card,
+    html[data-theme="light"] .cemetery-card,
+    body.light-theme .cemetery-card,
+    html[data-theme="light"] .quiz-container-card,
+    body.light-theme .quiz-container-card,
+    html[data-theme="light"] .verse-card,
+    body.light-theme .verse-card,
+    html[data-theme="light"] .tasbeeh-device,
+    body.light-theme .tasbeeh-device,
+    html[data-theme="light"] .juz-card,
+    body.light-theme .juz-card,
+    html[data-theme="light"] .charity-memorial-text,
+    body.light-theme ..charity-memorial-text {
+        background: #FFFFFF !important;
+        border: 1px solid #DFE9E1 !important;
+        box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
+        color: #193B34 !important;
+    }
+
 
 html[data-theme="light"] .khatma-card:hover,
 body.light-theme .khatma-card:hover,
@@ -16619,3 +16622,225 @@ body.light-theme .zakat-settings-bar {
     background: var(--bg-elevated) !important;
     border-color: var(--border-color) !important;
 }
+
+/* ==========================================================================
+   7. التدقيق المتخصص للأقسام الستة (The 6 Target Sections Deep Light-Mode)
+   .seasons-section | .asmaa-section | .islamic-media-section |
+   .quran-section | .cemetery-guide-section | .faq-section
+   ========================================================================== */
+
+/* أ. مواسم الطاعات (.seasons-section) */
+html[data-theme="light"] .season-card,
+body.light-theme .season-card {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
+}
+html[data-theme="light"] .season-card-title,
+body.light-theme .season-card-title {
+    color: var(--text-primary) !important;
+}
+html[data-theme="light"] .season-card-virtue,
+body.light-theme .season-card-virtue {
+    color: var(--text-secondary) !important;
+}
+html[data-theme="light"] .season-countdown-box,
+body.light-theme .season-countdown-box {
+    background: var(--bg-elevated) !important;
+    border-color: rgba(168, 121, 39, 0.3) !important;
+}
+html[data-theme="light"] .countdown-val,
+body.light-theme .countdown-val {
+    color: var(--gold-500) !important;
+}
+html[data-theme="light"] .countdown-label,
+body.light-theme .countdown-label {
+    color: var(--text-muted) !important;
+}
+
+/* ب. فتاوى ودليل أحكام الجنائز (.faq-section) */
+html[data-theme="light"] .faq-item,
+body.light-theme .faq-item {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.04) !important;
+}
+html[data-theme="light"] .faq-item.active,
+body.light-theme .faq-item.active {
+    border-color: var(--gold-400) !important;
+    box-shadow: 0 6px 22px rgba(168, 121, 39, 0.12) !important;
+}
+html[data-theme="light"] .faq-question,
+body.light-theme .faq-question {
+    color: var(--text-primary) !important;
+}
+html[data-theme="light"] .faq-body,
+body.light-theme .faq-body {
+    color: var(--text-secondary) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+html[data-theme="light"] .faq-body strong,
+body.light-theme .faq-body strong {
+    color: var(--text-primary) !important;
+}
+html[data-theme="light"] .faq-body em,
+body.light-theme .faq-body em {
+    color: var(--gold-600) !important;
+}
+
+/* ج. أسماء الله الحسنى (.asmaa-section) */
+html[data-theme="light"] .asmaa-card,
+body.light-theme .asmaa-card {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
+}
+html[data-theme="light"] .asmaa-card:hover,
+body.light-theme .asmaa-card:hover {
+    border-color: var(--gold-400) !important;
+    box-shadow: 0 8px 24px rgba(7, 63, 53, 0.08) !important;
+}
+html[data-theme="light"] .asmaa-card-name,
+body.light-theme .asmaa-card-name,
+html[data-theme="light"] .asmaa-name-calligraphy,
+body.light-theme .asmaa-name-calligraphy {
+    color: var(--primary) !important;
+    text-shadow: none !important;
+}
+html[data-theme="light"] .asmaa-card-meaning,
+body.light-theme .asmaa-card-meaning {
+    color: var(--text-secondary) !important;
+}
+html[data-theme="light"] .asmaa-card-num,
+body.light-theme .asmaa-card-num {
+    background: var(--bg-elevated) !important;
+    color: var(--primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+html[data-theme="light"] .asmaa-card-cat,
+body.light-theme .asmaa-card-cat {
+    background: var(--accent-bg) !important;
+    color: var(--accent) !important;
+    border: 1px solid rgba(168, 121, 39, 0.25) !important;
+}
+
+/* د. المرئيات والصوتيات الإسلامية (.islamic-media-section) */
+html[data-theme="light"] .media-card,
+body.light-theme .media-card {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
+}
+html[data-theme="light"] .media-card-title,
+body.light-theme .media-card-title {
+    color: var(--text-primary) !important;
+}
+html[data-theme="light"] .media-card-desc,
+body.light-theme .media-card-desc {
+    color: var(--text-secondary) !important;
+}
+html[data-theme="light"] .media-card-speaker,
+body.light-theme .media-card-speaker {
+    color: var(--text-muted) !important;
+}
+html[data-theme="light"] .media-card-badge,
+body.light-theme .media-card-badge {
+    background: rgba(7, 63, 53, 0.85) !important;
+    color: #FFFFFF !important;
+}
+html[data-theme="light"] .media-player-title,
+body.light-theme .media-player-title {
+    color: var(--text-primary) !important;
+}
+html[data-theme="light"] .media-player-desc,
+body.light-theme .media-player-desc {
+    color: var(--text-secondary) !important;
+}
+html[data-theme="light"] .media-stats-pill,
+body.light-theme .media-stats-pill {
+    background: var(--bg-elevated) !important;
+    color: var(--text-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* هـ. قبسات من النور وقرآن المتوفى (.quran-section & .real-mushaf-toolbar) */
+html[data-theme="light"] .verse-card,
+body.light-theme .verse-card {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
+}
+html[data-theme="light"] .verse-text,
+body.light-theme .verse-text {
+    color: var(--primary) !important;
+}
+html[data-theme="light"] .verse-source,
+body.light-theme .verse-source {
+    color: var(--text-muted) !important;
+}
+html[data-theme="light"] .real-mushaf-toolbar,
+body.light-theme .real-mushaf-toolbar {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.04) !important;
+}
+html[data-theme="light"] .mushaf-page-input,
+body.light-theme .mushaf-page-input {
+    background: #FFFFFF !important;
+    border-color: var(--gold-400) !important;
+    color: var(--text-primary) !important;
+}
+html[data-theme="light"] .mushaf-verses-count,
+body.light-theme .mushaf-verses-count {
+    background: var(--bg-elevated) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* و. آداب زيارة القبور ودعاء المقابر (.cemetery-guide-section) */
+html[data-theme="light"] .cemetery-dua-featured-card,
+body.light-theme .cemetery-dua-featured-card {
+    background: #FFFFFF !important;
+    border: 2px solid var(--gold-400) !important;
+    box-shadow: 0 6px 25px rgba(168, 121, 39, 0.12) !important;
+}
+html[data-theme="light"] .cemetery-dua-tag,
+body.light-theme .cemetery-dua-tag {
+    color: var(--gold-600) !important;
+}
+html[data-theme="light"] .cemetery-dua-text,
+body.light-theme .cemetery-dua-text {
+    color: var(--primary) !important;
+}
+html[data-theme="light"] .cemetery-dua-narrator,
+body.light-theme .cemetery-dua-narrator {
+    color: var(--text-muted) !important;
+}
+html[data-theme="light"] .cemetery-dua-actions,
+body.light-theme .cemetery-dua-actions {
+    border-top: 1px solid var(--border-color) !important;
+}
+html[data-theme="light"] .cemetery-card,
+body.light-theme .cemetery-card {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 18px rgba(7, 63, 53, 0.05) !important;
+}
+html[data-theme="light"] .cemetery-card-title,
+body.light-theme .cemetery-card-title {
+    color: var(--text-primary) !important;
+}
+html[data-theme="light"] .cemetery-card-icon,
+body.light-theme .cemetery-card-icon {
+    background: var(--accent-bg) !important;
+    color: var(--accent) !important;
+    border: 1px solid rgba(168, 121, 39, 0.25) !important;
+}
+html[data-theme="light"] .cemetery-list,
+body.light-theme .cemetery-list {
+    color: var(--text-secondary) !important;
+}
+html[data-theme="light"] .cemetery-list li strong,
+body.light-theme .cemetery-list li strong {
+    color: var(--text-primary) !important;
+}
+
