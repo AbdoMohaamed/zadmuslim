@@ -565,6 +565,82 @@
         </div>
     </div>
 
+    <!-- ==========================================
+    ويدجت إذاعة القرآن الكريم المباشرة (24/7 Live Radio)
+    ========================================== -->
+    <div class="live-radio-widget" id="live-radio-widget">
+        <!-- الزر العائم المصغر -->
+        <button class="radio-fab-btn" id="radio-fab-btn" title="إذاعة القرآن الكريم">
+            <i class="fa-solid fa-radio radio-icon" id="radio-icon"></i>
+            <span class="radio-pulse"></span>
+            <div class="radio-waves" id="radio-waves">
+                <span></span><span></span><span></span><span></span>
+            </div>
+        </button>
+
+        <!-- لوحة التحكم المنبثقة -->
+        <div class="radio-panel" id="radio-panel">
+            <div class="radio-panel-header">
+                <div class="radio-header-title">
+                    <i class="fa-solid fa-tower-broadcast text-gold"></i>
+                    <span>بث إذاعي مباشر 24/7</span>
+                    <span class="radio-live-status-badge"><span class="live-dot"></span> مباشر</span>
+                </div>
+                <button class="btn-close-radio" id="btn-close-radio" aria-label="إغلاق">&times;</button>
+            </div>
+
+            <div class="radio-station-info">
+                <div class="radio-station-header-line">
+                    <span class="station-icon-badge" id="current-station-badge"><i class="fa-solid fa-tower-broadcast"></i></span>
+                    <div class="radio-station-name" id="current-station-name">إذاعة القرآن الكريم العامة</div>
+                </div>
+                <div class="radio-station-desc" id="current-station-desc">بث مباشر مستقر 24/7 لنخبة من مشاهير القراء</div>
+            </div>
+
+            <!-- اختيار الإذاعة -->
+            <div class="radio-station-select-group">
+                <label for="radio-station-select"><i class="fa-solid fa-list-ul"></i> اختر المحطة:</label>
+                <select id="radio-station-select" class="radio-station-select">
+                    <!-- يُملأ من RADIO_STATIONS_LIST -->
+                </select>
+            </div>
+
+            <!-- مؤقت النوم الذكي (Sleep Timer) -->
+            <div class="radio-sleep-timer-group">
+                <label for="radio-sleep-timer-select">
+                    <i class="fa-solid fa-moon text-gold"></i>
+                    <span>مؤقت إيقاف التلاوة (Sleep Timer):</span>
+                </label>
+                <select id="radio-sleep-timer-select" class="radio-station-select">
+                    <option value="0">إيقاف المؤقت (تشغيل مستمر)</option>
+                    <option value="15">إيقاف تلقائي بعد 15 دقيقة</option>
+                    <option value="30">إيقاف تلقائي بعد 30 دقيقة</option>
+                    <option value="45">إيقاف تلقائي بعد 45 دقيقة</option>
+                    <option value="60">إيقاف تلقائي بعد 60 دقيقة (ساعة)</option>
+                </select>
+                <div id="radio-timer-countdown" style="display: none;">
+                    <i class="fa-solid fa-clock"></i> سيتوقف البث بعد: <strong id="radio-timer-rem-time">00:00</strong>
+                </div>
+            </div>
+
+            <!-- شريط التحكم بالتشغيل والصوت -->
+            <div class="radio-controls-row">
+                <button type="button" class="btn-radio-play" id="btn-radio-play" title="تشغيل / إيقاف">
+                    <i class="fa-solid fa-play" id="radio-play-icon"></i>
+                </button>
+
+                <div class="radio-volume-group">
+                    <button type="button" class="btn-radio-mute" id="btn-radio-mute" title="كتم / تشغيل الصوت">
+                        <i class="fa-solid fa-volume-high" id="radio-volume-icon"></i>
+                    </button>
+                    <input type="range" id="radio-volume-slider" min="0" max="1" step="0.05" value="0.8" aria-label="مستوى الصوت">
+                </div>
+            </div>
+
+            <audio id="live-radio-audio" preload="none"></audio>
+        </div>
+    </div>
+
     <!-- شريط التنقل السفلي للهواتف (Mobile Bar) من النموذج المرجعي -->
     <nav class="mobilebar">
         <a href="#home"><span>⌂</span>الرئيسية</a>
