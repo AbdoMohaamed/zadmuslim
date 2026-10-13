@@ -3011,9 +3011,14 @@ function initSmartTimelyReminders() {
             desc: "خير يوم طلعت عليه الشمس؛ لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة والسلام على النبي ﷺ، والدعاء في ساعة الاستجابة.",
             actionText: "قراءة سورة الكهف 📖",
             actionCallback: () => {
-                if (typeof goToMushafPage === "function") goToMushafPage(293, 18);
                 const quranSec = document.getElementById("quran-khatma");
-                if (quranSec) quranSec.scrollIntoView({ behavior: "smooth" });
+                if (quranSec) {
+                    if (typeof goToMushafPage === "function") goToMushafPage(293, 18);
+                    quranSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    sessionStorage.setItem("target_mushaf_page", JSON.stringify({ page: 293, surah: 18 }));
+                    window.location.href = "services.html#quran-khatma";
+                }
             }
         };
     }
@@ -3028,7 +3033,11 @@ function initSmartTimelyReminders() {
             actionText: "تتبع صيام النوافل 🤲",
             actionCallback: () => {
                 const fastingSec = document.getElementById("fasting-tracker") || document.getElementById("hero-prayers-strip");
-                if (fastingSec) fastingSec.scrollIntoView({ behavior: "smooth" });
+                if (fastingSec) {
+                    fastingSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    window.location.href = "services.html#fasting-tracker";
+                }
             }
         };
     }
@@ -3043,7 +3052,11 @@ function initSmartTimelyReminders() {
             actionText: "أذكار وطاعات الصيام 🤲",
             actionCallback: () => {
                 const azkarSec = document.getElementById("azkar");
-                if (azkarSec) azkarSec.scrollIntoView({ behavior: "smooth" });
+                if (azkarSec) {
+                    azkarSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    window.location.href = "services.html#azkar";
+                }
             }
         };
     }
@@ -3057,7 +3070,11 @@ function initSmartTimelyReminders() {
             actionText: "أدعية قيام الليل والوتر 🤲",
             actionCallback: () => {
                 const duaaSec = document.getElementById("daily-duas") || document.getElementById("azkar");
-                if (duaaSec) duaaSec.scrollIntoView({ behavior: "smooth" });
+                if (duaaSec) {
+                    duaaSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    window.location.href = "services.html#daily-duas";
+                }
             }
         };
     }
@@ -3070,10 +3087,15 @@ function initSmartTimelyReminders() {
             desc: "ابدأ يومك بحفظ الله ورعايته؛ أذكار الصباح حصن منيع وانشراح للصدر وبركة في الرزق ليومك كله.",
             actionText: "أذكار الصباح 🛡️",
             actionCallback: () => {
-                const azkarTab = document.getElementById("tab-morning");
-                if (azkarTab) azkarTab.click();
                 const azkarSec = document.getElementById("azkar");
-                if (azkarSec) azkarSec.scrollIntoView({ behavior: "smooth" });
+                if (azkarSec) {
+                    const azkarTab = document.getElementById("tab-morning");
+                    if (azkarTab) azkarTab.click();
+                    azkarSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    sessionStorage.setItem("target_azkar_tab", "tab-morning");
+                    window.location.href = "services.html#azkar";
+                }
             }
         };
     }
@@ -3087,7 +3109,11 @@ function initSmartTimelyReminders() {
             actionText: "فضل صلاة الضحى 🕌",
             actionCallback: () => {
                 const prayersSec = document.getElementById("prayer-times") || document.getElementById("azkar");
-                if (prayersSec) prayersSec.scrollIntoView({ behavior: "smooth" });
+                if (prayersSec) {
+                    prayersSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    window.location.href = "services.html#prayer-times";
+                }
             }
         };
     }
@@ -3101,7 +3127,11 @@ function initSmartTimelyReminders() {
             actionText: "ورد القرآن اليومي 📖",
             actionCallback: () => {
                 const quranSec = document.getElementById("quran-khatma");
-                if (quranSec) quranSec.scrollIntoView({ behavior: "smooth" });
+                if (quranSec) {
+                    quranSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    window.location.href = "services.html#quran-khatma";
+                }
             }
         };
     }
@@ -3114,10 +3144,15 @@ function initSmartTimelyReminders() {
             desc: "أمسينا وأمسى الملك لله؛ حان وقت أذكار المساء لطمأنينة القلب والوقاية من كل سوء والتحصين الشامل حتى تصبح.",
             actionText: "أذكار المساء 🛡️",
             actionCallback: () => {
-                const azkarTab = document.getElementById("tab-evening");
-                if (azkarTab) azkarTab.click();
                 const azkarSec = document.getElementById("azkar");
-                if (azkarSec) azkarSec.scrollIntoView({ behavior: "smooth" });
+                if (azkarSec) {
+                    const azkarTab = document.getElementById("tab-evening");
+                    if (azkarTab) azkarTab.click();
+                    azkarSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    sessionStorage.setItem("target_azkar_tab", "tab-evening");
+                    window.location.href = "services.html#azkar";
+                }
             }
         };
     }
@@ -3131,7 +3166,11 @@ function initSmartTimelyReminders() {
             actionText: "السبحة والأذكار 📿",
             actionCallback: () => {
                 const sebhaSec = document.getElementById("sebha") || document.getElementById("azkar");
-                if (sebhaSec) sebhaSec.scrollIntoView({ behavior: "smooth" });
+                if (sebhaSec) {
+                    sebhaSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    window.location.href = "services.html#sebha";
+                }
             }
         };
     }
@@ -3144,9 +3183,14 @@ function initSmartTimelyReminders() {
             desc: "سورة الملك تنجي من عذاب القبر وتشفع لصاحبها، واختم ليلتك بركعة الوتر قبل النوم لتنام على طاعة.",
             actionText: "قراءة سورة الملك 📖",
             actionCallback: () => {
-                if (typeof goToMushafPage === "function") goToMushafPage(562, 67);
                 const quranSec = document.getElementById("quran-khatma");
-                if (quranSec) quranSec.scrollIntoView({ behavior: "smooth" });
+                if (quranSec) {
+                    if (typeof goToMushafPage === "function") goToMushafPage(562, 67);
+                    quranSec.scrollIntoView({ behavior: "smooth" });
+                } else {
+                    sessionStorage.setItem("target_mushaf_page", JSON.stringify({ page: 562, surah: 67 }));
+                    window.location.href = "services.html#quran-khatma";
+                }
             }
         };
     }

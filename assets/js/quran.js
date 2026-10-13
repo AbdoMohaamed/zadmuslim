@@ -226,20 +226,32 @@ function initGoldenQuran() {
     initTafsirModal();
     initKhatmaTabs();
 
-    // استعادة آخر موضع قراءة محفوظ
-    const savedLast = localStorage.getItem("zad_quran_last_read");
-    if (savedLast) {
+    // فحص ما إذا كان هناك طلب انتقال مسبق لصفحة معينة (مثل سورة الكهف أو سورة الملك)
+    const targetReq = sessionStorage.getItem("target_mushaf_page");
+    if (targetReq) {
         try {
-            const parsed = JSON.parse(savedLast);
-            if (parsed && parsed.pageNumber >= 1 && parsed.pageNumber <= TOTAL_MUSHAF_PAGES) {
-                currentPageNumber = parsed.pageNumber;
+            const parsedTarget = JSON.parse(targetReq);
+            if (parsedTarget && parsedTarget.page >= 1 && parsedTarget.page <= TOTAL_MUSHAF_PAGES) {
+                currentPageNumber = parsedTarget.page;
             }
+            sessionStorage.removeItem("target_mushaf_page");
         } catch (e) {}
     } else {
-        const legacyLast = localStorage.getItem("mushaf_last_page");
-        if (legacyLast) {
-            const p = parseInt(legacyLast, 10);
-            if (!isNaN(p) && p >= 1 && p <= TOTAL_MUSHAF_PAGES) currentPageNumber = p;
+        // استعادة آخر موضع قراءة محفوظ
+        const savedLast = localStorage.getItem("zad_quran_last_read");
+        if (savedLast) {
+            try {
+                const parsed = JSON.parse(savedLast);
+                if (parsed && parsed.pageNumber >= 1 && parsed.pageNumber <= TOTAL_MUSHAF_PAGES) {
+                    currentPageNumber = parsed.pageNumber;
+                }
+            } catch (e) {}
+        } else {
+            const legacyLast = localStorage.getItem("mushaf_last_page");
+            if (legacyLast) {
+                const p = parseInt(legacyLast, 10);
+                if (!isNaN(p) && p >= 1 && p <= TOTAL_MUSHAF_PAGES) currentPageNumber = p;
+            }
         }
     }
 

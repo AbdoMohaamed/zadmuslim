@@ -1229,30 +1229,30 @@ html[data-theme="light"] .prayer-city-select, [data-theme="light"] .prayer-city-
 
 @media(max-width: 520px) {
   .shell {
-    padding: 0 15px;
+    padding: 0 12px;
   }
   .nav {
-    height: 68px;
+    height: 52px;
   }
   .logo {
-    font-size: 19px;
+    font-size: 16.5px;
   }
   .logo-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 22px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
   }
   .nav .btn {
     font-size: 11px;
-    padding: 9px;
+    padding: 6px 9px;
   }
   .hero {
-    min-height: 270px;
-    margin-top: 15px;
-    padding: 25px;
+    min-height: auto;
+    margin-top: 10px;
+    padding: 20px 14px;
   }
   .hero h1 {
-    font-size: 25px;
+    font-size: 22px;
   }
   .hero p {
     font-size: 12px;
@@ -3288,15 +3288,185 @@ html[data-theme="light"] .nav-links a.active {
   color: var(--gold-300);
 }
 
-/* بطاقات أجزاء السكشن الفرعية */
+/* ==========================================================================
+   بطاقات أجزاء سكشن المصحف والختمة (.quran-subpart-block)
+   متجاوبة بالكامل لجميع الشاشات وأجهزة Android و iPhone
+   ========================================================================== */
 .quran-subpart-block {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
     transition: opacity 0.3s ease, transform 0.3s ease;
     display: flex;
-    justify-content: center;
+    position: relative;
 }
 
 .quran-subpart-block.is-hidden {
-  display: none !important;
+    display: none !important;
+}
+
+/* ضبط جزء مصحف الصدقة الجارية (عرض المصحف الذهبي الشريف) */
+#subpart-mushaf.quran-subpart-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* ضبط جزء ختمة القرآن الكريم الـ 30 جزء */
+#subpart-khatma.quran-subpart-block {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* تحسينات الشاشات الكبيرة وأجهزة الكمبيوتر (>= 992px) */
+@media (min-width: 992px) {
+    #subpart-mushaf.quran-subpart-block .golden-quran-wrapper {
+        max-width: 1360px !important;
+        width: 100%;
+        border-radius: 20px;
+        box-shadow: 0 14px 45px rgba(0, 0, 0, 0.55);
+    }
+}
+
+/* تحسينات أجهزة التابلت والشاشات المتوسطة (769px - 991px) */
+@media (min-width: 769px) and (max-width: 991px) {
+    #subpart-mushaf.quran-subpart-block .golden-quran-wrapper {
+        max-width: 780px !important;
+        width: 100%;
+        border-radius: 18px;
+    }
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-viewport {
+        padding: 8px 6px;
+    }
+}
+
+/* تحسينات الهواتف الذكية وأجهزة Android و iPhone (<= 768px) */
+@media (max-width: 768px) {
+    .quran-khatma-section {
+        padding: 0 0 16px !important;
+    }
+
+    .quran-khatma-section .container {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+        max-width: 100% !important;
+    }
+
+    .quran-subpart-block {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-quran-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 14px !important;
+        margin: 0 auto !important;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-viewport {
+        padding: 4px 2px !important;
+        min-height: auto !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-img {
+        width: 100% !important;
+        max-height: calc(100vh - 120px) !important;
+        object-fit: contain !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-header {
+        padding: 8px 10px !important;
+        gap: 6px !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-hdr-surah {
+        font-size: 1rem !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-juz-title {
+        font-size: 0.85rem !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-hdr-left {
+        gap: 6px !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-hdr-btn {
+        padding: 3px 5px !important;
+        font-size: 0.88rem !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-footer {
+        padding: 6px 8px 12px !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-page-pill {
+        padding: 5px 12px !important;
+        font-size: 0.82rem !important;
+        gap: 6px !important;
+    }
+
+    #subpart-khatma.quran-subpart-block {
+        padding: 0 4px !important;
+    }
+
+    #subpart-khatma.quran-subpart-block .khatma-summary-card {
+        padding: 1.2rem 1rem !important;
+        border-radius: 16px !important;
+    }
+}
+
+/* تحسينات الهواتف الصغيرة جداً و iPhone SE و Android الصغير (<= 480px) */
+@media (max-width: 480px) {
+    .quran-khatma-section .container {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-quran-wrapper {
+        border-radius: 10px !important;
+        border-width: 1px !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-viewport {
+        padding: 2px 0 !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-hdr-surah {
+        font-size: 0.92rem !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-juz-title {
+        font-size: 0.78rem !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-hdr-left {
+        gap: 4px !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-hdr-btn {
+        padding: 2px 4px !important;
+        font-size: 0.82rem !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-page-pill {
+        padding: 4px 10px !important;
+        font-size: 0.76rem !important;
+        gap: 4px !important;
+    }
+
+    #subpart-mushaf.quran-subpart-block .golden-pill-tag {
+        font-size: 0.72rem !important;
+    }
 }
 
 .subpart-header {
@@ -7407,7 +7577,7 @@ html[data-theme="light"] .nav-links a.active {
    قسم مواسم الطاعات والتقويم الهجري والإمساكية (Seasons of Worship)
    ========================================================================== */
 .seasons-section {
-    padding-bottom: 50px;
+    padding-bottom: 40px;
     background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
 }
 
@@ -7499,7 +7669,7 @@ html[data-theme="light"] .nav-links a.active {
    قسم فتاوى وأحكام الميت والصدقة الجارية (Islamic FAQ Accordion)
    ========================================================================== */
 .faq-section {
-    padding: 0 0 50px 0;
+    padding: 0 0 40px 0;
     background: radial-gradient(circle at 50% 0%, rgba(5, 150, 105, 0.08) 0%, rgba(7, 23, 12, 0.98) 75);
 }
 
@@ -10274,13 +10444,12 @@ body.light-theme .charity-memorial-banner {
   border: 1px solid rgba(184, 134, 11, 0.35) !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04) !important;
 }
-
-body.light-theme .charity-memorial-text {
-  color: #334155 !important;
-}
+    html[data-theme="light"] .charity-memorial-text, body.light-theme .charity-memorial-text {
+        color: #0E6654 !important;
+    }
 
 body.light-theme .charity-memorial-text strong {
-  color: #7d5a00 !important;
+  color: var(--primary) !important;
 }
 
 body.light-theme .charity-memorial-icon {
@@ -14861,17 +15030,17 @@ html[data-theme="light"] .btn-modern-outline {
 
 @media (max-width: 768px) {
   body {
-    padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
   }
   .modern-shell {
-    padding: 0 14px;
+    padding: 0 12px;
   }
   .modern-hero-card {
     min-height: auto;
-    padding: 1.6rem 1.2rem;
-    border-radius: 22px;
-    margin-top: 0.8rem;
-    margin-bottom: 1.1rem;
+    padding: 1.4rem 1.1rem;
+    border-radius: 20px;
+    margin-top: 0.4rem;
+    margin-bottom: 0.9rem;
     overflow: hidden;
   }
   .modern-hero-title {
@@ -14924,16 +15093,16 @@ html[data-theme="light"] .btn-modern-outline {
     grid-template-columns: 1fr;
   }
 
-  /* رفع زر راديو القرآن التفاعلي فوق شريط التنقل السفلي في الموبايل لمنع التداخل */
+  /* موضع زر راديو القرآن التفاعلي متناسق مع الشريط السفلي */
   .live-radio-widget {
-    bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
-    left: 16px !important;
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 12px !important;
   }
 
   .radio-panel {
-    bottom: calc(50px + env(safe-area-inset-bottom, 0px)) !important;
-    left: 16px !important;
-    max-width: calc(100vw - 32px) !important;
+    bottom: calc(54px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 12px !important;
+    max-width: calc(100vw - 24px) !important;
   }
 
   /* شريط التبويبات السفلي للآيفون والأندرويد (Mobile Floating Dock Bar) */
@@ -15424,31 +15593,32 @@ html {
 @media (max-width: 768px) {
     /* ضبط الهيدر وشريط العنوان وحماية من شريط الحالة */
     .nav {
-        height: 58px !important;
-        padding: 0 14px !important;
-        gap: 10px !important;
-    }
-
-    .logo {
-        font-size: 17.5px !important;
+        height: 52px !important;
+        padding: 0 12px !important;
         gap: 8px !important;
     }
 
+    .logo {
+        font-size: 16.5px !important;
+        gap: 7px !important;
+    }
+
     .logo-icon {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 20px !important;
-        border-radius: 10px !important;
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 18px !important;
+        border-radius: 9px !important;
     }
 
     .nav .btn {
-        padding: 7px 11px !important;
-        font-size: 11.5px !important;
+        padding: 6px 9px !important;
+        font-size: 11px !important;
         white-space: nowrap !important;
+        border-radius: 9px !important;
     }
 
     .btn-theme-toggle {
-        padding: 7px 10px !important;
+        padding: 6px 9px !important;
     }
 
     /* إلغاء الحشو المكرر لتمكين الكروت من استغلال العرض الطبيعي */
@@ -15571,42 +15741,48 @@ html {
 
     /* حماية نهاية الصفحة من التداخل مع شريط التنقل */
     body {
-        padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
+        padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
     }
 
-    /* ضبط موضع زر الراديو العائم وحجمه المتناسق */
+    /* ضبط موضع زر الراديو العائم وحجمه المتناسق لمنع حجب المحتوى */
     .live-radio-widget {
-        bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
-        left: 14px !important;
+        bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
+        left: 12px !important;
         z-index: 1500 !important;
     }
 
     .radio-fab-btn {
-        width: 48px !important;
-        height: 48px !important;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+        width: 42px !important;
+        height: 42px !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
     }
 
     .radio-fab-btn i {
-        font-size: 18px !important;
+        font-size: 16px !important;
     }
 
-    /* شريط التنقل السفلي */
+    /* شريط التنقل السفلي للهواتف المدمج والمتناسق مع الحافة السفلية الآمنة */
     .mobilebar {
-        padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
-        height: auto !important;
+        padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px)) !important;
+        height: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+        box-sizing: border-box !important;
     }
 
     .mobilebar a {
-        font-size: 10.5px !important;
-        padding: 4px 6px !important;
-        min-width: 48px !important;
+        font-size: 10px !important;
+        padding: 2px 4px !important;
+        min-width: 44px !important;
     }
 
     .mobilebar a span {
-        font-size: 16px !important;
+        font-size: 17px !important;
+        line-height: 1.1 !important;
         display: block !important;
-        margin-bottom: 2px !important;
+        margin-bottom: 1px !important;
+    }
+
+    .footer {
+        padding: 2rem 1rem 1.2rem !important;
     }
 }
 
@@ -16840,9 +17016,7 @@ body.light-theme .cemetery-card-title {
 }
 html[data-theme="light"] .cemetery-card-icon,
 body.light-theme .cemetery-card-icon {
-    background: var(--accent-bg) !important;
-    color: var(--accent) !important;
-    border: 1px solid rgba(168, 121, 39, 0.25) !important;
+    color: var(--emerald-400) !important;
 }
 html[data-theme="light"] .cemetery-list,
 body.light-theme .cemetery-list {
@@ -17515,6 +17689,14 @@ body.light-theme .cemetery-list li strong {
   z-index: 99999 !important;
   margin: 0 !important;
   border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  padding-left: env(safe-area-inset-left, 0px) !important;
+  padding-right: env(safe-area-inset-right, 0px) !important;
+  box-sizing: border-box !important;
 }
 
 .golden-quran-wrapper.is-fullscreen.theme-golden-night {
@@ -17526,12 +17708,14 @@ body.light-theme .cemetery-list li strong {
 }
 
 .golden-quran-wrapper.is-fullscreen .golden-mushaf-viewport {
-  min-height: calc(100vh - 110px) !important;
-  height: calc(100vh - 110px) !important;
+  flex: 1 1 auto !important;
+  min-height: auto !important;
+  height: auto !important;
+  max-height: calc(100vh - 105px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .golden-quran-wrapper.is-fullscreen .golden-mushaf-img {
-  max-height: calc(100vh - 110px) !important;
+  max-height: calc(100vh - 105px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* وضع القراءة الغامرة (إخفاء الترويسة والكبسولة بنقرة خفيفة) */
