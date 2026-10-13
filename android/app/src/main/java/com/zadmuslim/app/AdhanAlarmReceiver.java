@@ -41,25 +41,24 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent == null) return;
+        if (intent == null || context == null) return;
 
         String action = intent.getAction();
         Log.d(TAG, "onReceive triggered with action: " + action);
 
+        // إيقاف الأذان الفوري
         if (ACTION_STOP_ADHAN.equals(action)) {
-            Log.d(TAG, "User requested to stop Adhan");
-            Intent stopIntent = new Intent(context, AdhanService.class);
-            stopIntent.setAction(AdhanService.ACTION_STOP_ADHAN);
-            try {
-                context.startService(stopIntent);
-            } catch (Exception ignored) {}
+            Log.d(TAG, "User requested to stop Adhan via broadcast action");
             AdhanPlayer.stop();
             dismissAdhanNotification(context);
             return;
         }
 
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action) || "android.intent.action.QUICKBOOT_POWERON".equals(action) || "com.htc.intent.action.QUICKBOOT_POWERON".equals(action)) {
-            Log.d(TAG, "Device rebooted - Rescheduling prayer alarms and periodic broadcast check");
+        // إعادة جدولة المنبهات عند إعادة تشغيل الهاتف
+        if (Intent.ACTION_BOOT_COMPLETED.equals(action) ||
+            "android.intent.action.QUICKBOOT_POWERON".equals(action) ||
+            "com.htc.intent.action.QUICKBOOT_POWERON".equals(action)) {
+            Log.d(TAG, "Device rebooted - Rescheduling prayer alarms");
             AdhanNativePlugin.rescheduleAlarmsFromPrefs(context);
             checkCloudBroadcastsInBackground(context);
             scheduleNextBroadcastCheck(context);
@@ -67,7 +66,6 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         }
 
         if (ACTION_CHECK_CLOUD_BROADCASTS.equals(action)) {
-            Log.d(TAG, "Checking cloud broadcasts in background");
             checkCloudBroadcastsInBackground(context);
             scheduleNextBroadcastCheck(context);
             return;
@@ -78,31 +76,64 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         String prayerKey = intent.getStringExtra(EXTRA_PRAYER_KEY);
         String muazzin = intent.getStringExtra(EXTRA_MUAZZIN);
 
-        if (prayerName == null) prayerName = "الصلاة";
+        if (prayerName == null || prayerName.isEmpty()) prayerName = "الصلاة";
 
-        if (isPreAlert) {
-            // تنبيه اقتراب موعد الصلاة قبل 5 دقائق بصوت ناطق: "اقتربت صلاة..."
-            AdhanPlayer.playPrePrayerVoice(context, prayerKey);
-            showPrePrayerNotification(context, prayerName, prayerKey);
-        } else {
-            // تشغيل الأذان الصوتي عبر AdhanService كـ Foreground Service لضمان استمرار الصوت كاملاً حتى والتطبيق مغلق والشاشة مقفلة
-            Log.d(TAG, "Triggering Adhan Foreground Service for: " + prayerName + " with muazzin: " + muazzin);
-            Intent serviceIntent = new Intent(context, AdhanService.class);
-            serviceIntent.setAction(AdhanService.ACTION_START_ADHAN);
-            serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_NAME, prayerName);
-            serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_KEY, prayerKey);
-            serviceIntent.putExtra(AdhanService.EXTRA_MUAZZIN, muazzin);
+        // حجز WakeLock فوري
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock receiverWakeLock = null;
+        if (pm != null) {
+            receiverWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zadmuslim:alarm_receiver_wakelock");
+            receiverWakeLock.acquire(30 * 1000L); // 30 ثانية لتشغيل الصوت بأمان
+        }
 
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(serviceIntent);
-                } else {
-                    context.startService(serviceIntent);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to start AdhanService, falling back to AdhanPlayer & Notification", e);
+        try {
+            if (isPreAlert) {
+                // 1. تنبيه اقتراب موعد الصلاة قبل 5 دقائق
+                Log.d(TAG, "Pre-alert alarm triggered for: " + prayerName);
+                AdhanPlayer.playPrePrayerVoice(context, prayerKey);
+                showPrePrayerNotification(context, prayerName, prayerKey);
+            } else {
+                // 2. موعد الأذان الفعلي: تشغيل الصوت فوراً وبأعلى أولوية
+                Log.d(TAG, "Main Adhan alarm triggered for: " + prayerName + " with muazzin: " + muazzin);
+
+                // أ. تشغيل الصوت فوراً عبر AdhanPlayer (يعمل على STREAM_ALARM ويستمع لأزرار الصوت وزر القفل)
                 AdhanPlayer.play(context, prayerName, prayerKey, muazzin);
+
+                // ب. إظهار إشعار شاشة القفل التفاعلي مع FullScreenIntent
                 showAdhanAlarmNotification(context, prayerName, prayerKey);
+
+                // ج. محاولة تشغيل AdhanService كـ Foreground Service لضمان حماية المعالج في الخلفية
+                try {
+                    Intent serviceIntent = new Intent(context, AdhanService.class);
+                    serviceIntent.setAction(AdhanService.ACTION_START_ADHAN);
+                    serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_NAME, prayerName);
+                    serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_KEY, prayerKey);
+                    serviceIntent.putExtra(AdhanService.EXTRA_MUAZZIN, muazzin);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(serviceIntent);
+                    } else {
+                        context.startService(serviceIntent);
+                    }
+                } catch (Exception serviceErr) {
+                    Log.w(TAG, "Could not start AdhanService in foreground, AdhanPlayer is already playing", serviceErr);
+                }
+
+                // د. محاولة فتح شاشة الأذان الكاملة على شاشة القفل
+                try {
+                    Intent activityIntent = new Intent(context, AdhanActivity.class);
+                    activityIntent.putExtra(AdhanActivity.EXTRA_PRAYER_NAME, prayerName);
+                    activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    context.startActivity(activityIntent);
+                } catch (Exception actErr) {
+                    Log.w(TAG, "Could not launch AdhanActivity directly: " + actErr.getMessage());
+                }
+            }
+        } finally {
+            if (receiverWakeLock != null && receiverWakeLock.isHeld()) {
+                try {
+                    receiverWakeLock.release();
+                } catch (Exception ignored) {}
             }
         }
     }
@@ -133,6 +164,15 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
+        // نية فتح شاشة الأذان الكاملة على شاشة القفل (Full Screen Intent)
+        Intent fullScreenIntent = new Intent(context, AdhanActivity.class);
+        fullScreenIntent.putExtra(AdhanActivity.EXTRA_PRAYER_NAME, prayerName);
+        fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingFullScreen = PendingIntent.getActivity(
+                context, 9993, fullScreenIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
         // نية إيقاف الأذان عند النقر على زر الإيقاف أو مسح الإشعار
         Intent stopIntent = new Intent(context, AdhanAlarmReceiver.class);
         stopIntent.setAction(ACTION_STOP_ADHAN);
@@ -146,13 +186,15 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setContentTitle("🕌 حَانَ الآنَ مَوْعِدُ " + prayerName)
                 .setContentText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح")
                 .setContentIntent(pendingOpen)
+                .setFullScreenIntent(pendingFullScreen, true)
                 .setDeleteIntent(pendingStop) // عند مسح الإشعار يتم إيقاف الصوت
                 .addAction(R.drawable.ic_stat_icon, "إيقاف الأذان ⏹", pendingStop)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setColor(0xFFD4AF37)
-                .setAutoCancel(true);
+                .setOngoing(true)
+                .setAutoCancel(false);
 
         nm.notify(ADHAN_NOTIFICATION_ID, builder.build());
     }

@@ -15100,7 +15100,7 @@ html[data-theme="light"] .btn-modern-outline {
   }
 
   .radio-panel {
-    bottom: calc(54px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(45px + env(safe-area-inset-bottom, 0px)) !important;
     left: 12px !important;
     max-width: calc(100vw - 24px) !important;
   }

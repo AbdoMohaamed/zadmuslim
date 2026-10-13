@@ -274,6 +274,7 @@ const NativeAdhanService = {
             }
 
             // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي في الخلفية والمغلق والتحكم عبر زر القفل
+            let hasNativePlugin = false;
             if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
                 try {
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
@@ -282,13 +283,22 @@ const NativeAdhanService = {
                         preAlert: true,
                         enabledPrayers: enabledPrayers
                     });
+                    hasNativePlugin = true;
                     console.log("✅ Native Adhan Android Service: Exact alarms scheduled successfully:", nativeRes);
                 } catch(nativeErr) {
                     console.warn("Native Adhan Android plugin call failed, falling back to LocalNotifications:", nativeErr);
                 }
             }
 
-            if (notificationsToSchedule.length > 0) {
+            // في نظام أندرويد: بلجن AdhanNative يتكفل بجميع منبهات الأذان والتنبيه المسبق وتشغيل الصوت والتحكم بأزرار الصوت والقفل
+            // بينما نجدول عبر LocalNotifications تذكيرات الأذكار الصباحية والمسائية وسورة الكهف فقط لمنع ازدواجية الإشعارات
+            const isAndroid = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android';
+            let notificationsForLocal = notificationsToSchedule;
+            if (isAndroid && hasNativePlugin) {
+                notificationsForLocal = notificationsToSchedule.filter(n => n.id >= 70000);
+            }
+
+            if (notificationsForLocal.length > 0) {
                 // إلغاء الجدولة القديمة أولاً لعدم تكرار التنبيهات
                 try {
                     const pending = await LocalNotifications.getPending();
@@ -298,8 +308,8 @@ const NativeAdhanService = {
                 } catch(cancelErr) {}
 
                 // جدولة الإشعارات الكاملة في نظام التشغيل (يدعم نظام iOS وأندرويد)
-                await LocalNotifications.schedule({ notifications: notificationsToSchedule });
-                console.log(`✅ Native Adhan Service: Scheduled ${notificationsToSchedule.length} upcoming prayer alarms & pre-alerts directly into OS.`);
+                await LocalNotifications.schedule({ notifications: notificationsForLocal });
+                console.log(`✅ Native Adhan Service: Scheduled ${notificationsForLocal.length} notifications via LocalNotifications directly into OS.`);
             }
         } catch (e) {
             console.warn("Failed to schedule native prayer alarms:", e);

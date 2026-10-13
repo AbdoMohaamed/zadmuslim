@@ -16,8 +16,6 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-import org.json.JSONObject;
-
 import java.util.Calendar;
 
 @CapacitorPlugin(name = "AdhanNative")
@@ -177,7 +175,7 @@ public class AdhanNativePlugin extends Plugin {
 
                 for (int i = 0; i < prayerKeys.length; i++) {
                     if (enabledPrayers != null && !enabledPrayers.optBoolean(prayerKeys[i], true)) {
-                        continue; // تجاوز الصلاة غير المفعلة
+                        continue;
                     }
 
                     String rawTime = timingsObj.optString(timingKeys[i], null);
@@ -224,8 +222,8 @@ public class AdhanNativePlugin extends Plugin {
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
 
                         PendingIntent pendingAdhan = PendingIntent.getBroadcast(
-                                context, reqCode, adhanIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+                            context, reqCode, adhanIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
                         );
                         scheduleExactAlarmStatic(context, alarmManager, prayerMillis, pendingAdhan);
                     }
@@ -249,13 +247,43 @@ public class AdhanNativePlugin extends Plugin {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AlarmManager.AlarmClockInfo clockInfo = new AlarmManager.AlarmClockInfo(triggerAtMillis, pendingShow);
-            alarmManager.setAlarmClock(clockInfo, pendingIntent);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
-        } else {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        // محاولة استخدام AlarmClock أولاً (لأنه يوقظ الجهاز ويتجاوز Doze Mode تماماً)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                AlarmManager.AlarmClockInfo clockInfo = new AlarmManager.AlarmClockInfo(triggerAtMillis, pendingShow);
+                alarmManager.setAlarmClock(clockInfo, pendingIntent);
+                return;
+            }
+        } catch (SecurityException se) {
+            Log.w(TAG, "AlarmClock permission restricted, trying setExactAndAllowWhileIdle", se);
+        } catch (Exception e) {
+            Log.w(TAG, "AlarmClock failed, falling back", e);
+        }
+
+        // البديل الثاني: setExactAndAllowWhileIdle
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                return;
+            } else {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                return;
+            }
+        } catch (SecurityException se2) {
+            Log.w(TAG, "Exact alarm permission restricted, trying setAndAllowWhileIdle fallback", se2);
+        } catch (Exception e2) {
+            Log.w(TAG, "Exact alarm failed", e2);
+        }
+
+        // البديل الثالث الآمن غير المقيد: setAndAllowWhileIdle
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            }
+        } catch (Exception e3) {
+            Log.e(TAG, "All alarm scheduling methods failed", e3);
         }
     }
 
@@ -444,7 +472,7 @@ public class AdhanNativePlugin extends Plugin {
     @PluginMethod
     public void scheduleDiagnosticTestAlarm(PluginCall call) {
         Context context = getContext();
-        int delaySeconds = call.getInt("delaySeconds", 120); // افتراضياً دقيقتين (120 ثانية)
+        int delaySeconds = call.getInt("delaySeconds", 120);
         String muazzin = call.getString("muazzin", "makkah");
         String prayerName = call.getString("prayerName", "صلاة العصر (اختبار)");
 
