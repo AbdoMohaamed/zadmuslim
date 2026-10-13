@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v49";
+const CACHE_NAME = "zad-muslim-v50";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
@@ -144,8 +144,23 @@ self.addEventListener("fetch", (event) => {
   }
 
   // 2. المصحف الشريف والتفاسير: Cache-First للسرعة العالية وبدون نت
+  // إعادة توجيه أي طلب خارجي لصفحات المصحف (cdn.quran.ws) إلى ملفات الـ SVG المحلية بدون إنترنت وبدون أخطاء CORS
+  if (url.includes("cdn.quran.ws")) {
+    const pageMatch = url.match(/(\d+)\.svg/);
+    if (pageMatch) {
+      const paddedPage = pageMatch[1].padStart(3, "0");
+      const localSvgUrl = `./assets/quran-pages/${paddedPage}.svg`;
+      event.respondWith(
+        caches.match(localSvgUrl).then((cached) => {
+          if (cached) return cleanResponse(cached);
+          return fetch(localSvgUrl).then(resp => cleanResponse(resp)).catch(() => new Response("", { status: 404 }));
+        })
+      );
+      return;
+    }
+  }
+
   const isQuranAsset = 
-    url.includes("cdn.quran.ws") || 
     url.includes("quran.ksu.edu.sa") || 
     url.includes("raw.githubusercontent.com/quran") ||
     url.includes("api.alquran.cloud");

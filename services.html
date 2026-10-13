@@ -410,11 +410,17 @@
 
                         <div class="golden-hdr-left">
                             <span class="golden-juz-title" id="golden-juz-title">الجزء ٢٣</span>
+                            <button type="button" class="golden-hdr-btn golden-hdr-tafsir" id="golden-btn-tafsir-sheet" title="التفسير والتلاوة والمراجع">
+                                <i class="fa-solid fa-book-open"></i>
+                            </button>
                             <button type="button" class="golden-hdr-btn golden-hdr-bookmark" id="golden-btn-bookmark" title="حفظ فاصلة القراءة">
                                 <i class="fa-regular fa-bookmark golden-bookmark-icon" id="golden-bookmark-icon"></i>
                             </button>
                             <button type="button" class="golden-hdr-btn golden-hdr-theme" id="golden-btn-theme" title="تبديل وضع راحة العين (ليلي دافئ / ورقي هادئ)">
                                 <i class="fa-solid fa-circle-half-stroke"></i>
+                            </button>
+                            <button type="button" class="golden-hdr-btn golden-hdr-fullscreen" id="golden-btn-fullscreen" title="ملء الشاشة الكامل (Full Screen)">
+                                <i class="fa-solid fa-expand" id="golden-fullscreen-icon"></i>
                             </button>
                         </div>
                     </div>
@@ -427,38 +433,37 @@
                             <span>موضع وقوفك المحفوظ</span>
                         </div>
 
-                        <!-- صفحة المصحف الشريف المدمجة محلياً بدون إنترنت -->
-                        <img id="mushaf-real-page-img" class="golden-mushaf-img" src="assets/quran-pages/562.svg" alt="المصحف الشريف" draggable="false">
+                        <!-- حاوية الصفحتين المتقابلتين (Dual Page Spread للشاشات الكبيرة وصفحة واحدة للهاتف) -->
+                        <div class="golden-spread-container" id="golden-spread-container">
+                            <div class="golden-page-side golden-page-right" id="golden-page-right-wrap">
+                                <img id="mushaf-real-page-img-right" class="golden-mushaf-img" src="assets/quran-pages/561.svg" alt="الصفحة اليمنى" draggable="false">
+                            </div>
+                            <div class="golden-spread-spine" id="golden-spread-spine"></div>
+                            <div class="golden-page-side golden-page-left" id="golden-page-left-wrap">
+                                <img id="mushaf-real-page-img" class="golden-mushaf-img" src="assets/quran-pages/562.svg" alt="الصفحة اليسرى" draggable="false">
+                            </div>
+                        </div>
 
                         <!-- مناطق التقليب السريع باللمس يميناً ويساراً -->
                         <div class="golden-tap-zone golden-tap-prev" id="golden-tap-prev" title="الصفحة السابقة"></div>
                         <div class="golden-tap-zone golden-tap-next" id="golden-tap-next" title="الصفحة التالية"></div>
+
+                        <!-- أزرار الأسهم للشاشات الكبيرة فقط (< >) -->
+                        <button type="button" class="golden-desktop-nav-btn golden-nav-right" id="golden-desktop-btn-next" title="الصفحة التالية">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                        <button type="button" class="golden-desktop-nav-btn golden-nav-left" id="golden-desktop-btn-prev" title="الصفحة السابقة">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
                     </div>
 
-                    <!-- التذييل السفلي الأنيق -->
+                    <!-- التذييل السفلي الأنيق (كبسولة الصفحة والحزب فقط) -->
                     <div class="golden-mushaf-footer" id="golden-mushaf-footer">
-                        <div class="golden-page-pill" id="golden-page-pill" title="انقر للانتقال المباشر لأي صفحة">
+                        <div class="golden-page-pill" id="golden-page-pill" title="انقر لفتح التفسير، التلاوة، والمراجع">
                             <span id="golden-page-num">٥٦٢</span>
+                            <span class="golden-pill-divider">•</span>
                             <span id="golden-hizb-num">الحزب ٥٧</span>
-                        </div>
-
-                        <div class="golden-footer-actions">
-                            <button type="button" class="golden-footer-action-btn" id="btn-mushaf-prev" title="الصفحة السابقة">
-                                <i class="fa-solid fa-chevron-right"></i>
-                                <span>السابق</span>
-                            </button>
-                            <button type="button" class="golden-footer-action-btn" id="btn-page-tafsir" title="تفسير الصفحة الحالية">
-                                <i class="fa-solid fa-book-open"></i>
-                                <span>تفسير</span>
-                            </button>
-                            <button type="button" class="golden-footer-action-btn" id="btn-surah-audio" title="استماع التلاوة">
-                                <i class="fa-solid fa-volume-high"></i>
-                                <span class="btn-audio-text">تلاوة</span>
-                            </button>
-                            <button type="button" class="golden-footer-action-btn" id="btn-mushaf-next" title="الصفحة التالية">
-                                <span>التالي</span>
-                                <i class="fa-solid fa-chevron-left"></i>
-                            </button>
+                            <span class="golden-pill-tag"><i class="fa-solid fa-book-open"></i> التفسير والمراجع</span>
                         </div>
                     </div>
                 </div>
@@ -482,6 +487,158 @@
                             <!-- يُملأ ديناميكياً من quran.js -->
                         </div>
                     </div>
+                </div>
+
+                <!-- لوحة التفاعل مع الآية والمراجع والتلاوة (طبق الأصل من المصحف الذهبي) -->
+                <div class="golden-ayah-modal" id="golden-ayah-modal">
+                    <div class="golden-ayah-sheet">
+                        <div class="golden-sheet-handle"></div>
+                        <div class="golden-sheet-topbar">
+                            <button type="button" class="golden-sheet-close-btn" id="btn-close-ayah-sheet" title="إغلاق">&times;</button>
+                            <div class="golden-sheet-topbar-actions">
+                                <button type="button" class="golden-sheet-icon-btn" id="btn-ayah-share" title="مشاركة الآية">
+                                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                </button>
+                                <button type="button" class="golden-sheet-icon-btn" id="btn-ayah-copy" title="نسخ الآية">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- نص الآية الشريفة -->
+                        <div class="golden-ayah-display">
+                            <div class="golden-ayah-text" id="golden-ayah-text">سُبْحَانَ الَّذِي خَلَقَ الْأَزْوَاجَ كُلَّهَا مِمَّا تُنْبِتُ الْأَرْضُ وَمِنْ أَنفُسِهِمْ وَمِمَّا لَا يَعْلَمُونَ</div>
+                            <div class="golden-ayah-ref" id="golden-ayah-ref">يس ٣٦</div>
+                        </div>
+
+                        <!-- شريط الإجراءات السريعة الأربعة -->
+                        <div class="golden-quick-actions">
+                            <button type="button" class="golden-action-pill" id="btn-sheet-bookmark">
+                                <i class="fa-solid fa-bookmark text-gold"></i>
+                                <span>علامة</span>
+                            </button>
+                            <button type="button" class="golden-action-pill" id="btn-sheet-ribbon">
+                                <i class="fa-solid fa-book-open text-gold"></i>
+                                <span>فاصل</span>
+                            </button>
+                            <button type="button" class="golden-action-pill" id="btn-sheet-note">
+                                <i class="fa-solid fa-pen-to-square text-gold"></i>
+                                <span>ملاحظة</span>
+                            </button>
+                            <button type="button" class="golden-action-pill btn-action-play" id="btn-sheet-recite">
+                                <i class="fa-solid fa-play text-gold" id="sheet-recite-icon"></i>
+                                <span id="sheet-recite-text">تلاوة</span>
+                            </button>
+                        </div>
+
+                        <!-- عنوان قائمة المراجع -->
+                        <div class="golden-references-title">
+                            <span>كتبي ومراجعي المحملة</span>
+                        </div>
+
+                        <!-- قائمة كتب التفسير والمراجع -->
+                        <div class="golden-references-list">
+                            <!-- التفسير الميسر -->
+                            <div class="golden-ref-card">
+                                <div class="golden-ref-item" data-ref="tafsir">
+                                    <div class="golden-ref-meta">
+                                        <span class="golden-ref-bar bar-green"></span>
+                                        <i class="fa-solid fa-book-quran golden-ref-icon color-green"></i>
+                                        <span class="golden-ref-name">التفسير الميسر</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-left golden-ref-arrow"></i>
+                                </div>
+                                <div class="golden-ref-body" id="golden-ref-body-tafsir">
+                                    <!-- يُملأ برمجياً -->
+                                </div>
+                            </div>
+
+                            <!-- الترجمة الإنجليزية -->
+                            <div class="golden-ref-card">
+                                <div class="golden-ref-item" data-ref="english">
+                                    <div class="golden-ref-meta">
+                                        <span class="golden-ref-bar bar-blue"></span>
+                                        <i class="fa-solid fa-language golden-ref-icon color-blue"></i>
+                                        <span class="golden-ref-name">English Translation</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-left golden-ref-arrow"></i>
+                                </div>
+                                <div class="golden-ref-body" id="golden-ref-body-english">
+                                    <!-- يُملأ برمجياً -->
+                                </div>
+                            </div>
+
+                            <!-- معاني الكلمات -->
+                            <div class="golden-ref-card">
+                                <div class="golden-ref-item" data-ref="words">
+                                    <div class="golden-ref-meta">
+                                        <span class="golden-ref-bar bar-red"></span>
+                                        <i class="fa-solid fa-book-open golden-ref-icon color-red"></i>
+                                        <span class="golden-ref-name">معاني الكلمات والبيان</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-left golden-ref-arrow"></i>
+                                </div>
+                                <div class="golden-ref-body" id="golden-ref-body-words"></div>
+                            </div>
+
+                            <!-- أسباب النزول -->
+                            <div class="golden-ref-card">
+                                <div class="golden-ref-item" data-ref="asbab">
+                                    <div class="golden-ref-meta">
+                                        <span class="golden-ref-bar bar-cyan"></span>
+                                        <i class="fa-solid fa-book-bookmark golden-ref-icon color-cyan"></i>
+                                        <span class="golden-ref-name">أسباب النزول</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-left golden-ref-arrow"></i>
+                                </div>
+                                <div class="golden-ref-body" id="golden-ref-body-asbab"></div>
+                            </div>
+
+                            <!-- إعراب الآيات -->
+                            <div class="golden-ref-card">
+                                <div class="golden-ref-item" data-ref="irab">
+                                    <div class="golden-ref-meta">
+                                        <span class="golden-ref-bar bar-brown"></span>
+                                        <i class="fa-solid fa-feather-pointed golden-ref-icon color-brown"></i>
+                                        <span class="golden-ref-name">إعراب القرآن وبيانه</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-left golden-ref-arrow"></i>
+                                </div>
+                                <div class="golden-ref-body" id="golden-ref-body-irab"></div>
+                            </div>
+
+                            <!-- موضوع الآيات -->
+                            <div class="golden-ref-card">
+                                <div class="golden-ref-item" data-ref="topic">
+                                    <div class="golden-ref-meta">
+                                        <span class="golden-ref-bar bar-gold"></span>
+                                        <i class="fa-solid fa-lightbulb golden-ref-icon color-gold"></i>
+                                        <span class="golden-ref-name">موضوع الآيات والهدى</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-left golden-ref-arrow"></i>
+                                </div>
+                                <div class="golden-ref-body" id="golden-ref-body-topic"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المشغل الصوتي العائم المدمج للتلاوة -->
+                <div class="golden-mini-player" id="golden-mini-player" style="display: none;">
+                    <div class="golden-player-content">
+                        <button type="button" class="golden-player-btn-play" id="golden-player-btn-toggle" title="تشغيل / إيقاف">
+                            <i class="fa-solid fa-play" id="golden-player-icon"></i>
+                        </button>
+                        <div class="golden-player-info">
+                            <span class="golden-player-title" id="golden-player-title">تلاوة مباركة</span>
+                            <span class="golden-player-reciter">الشيخ مشاري راشد العفاسي</span>
+                        </div>
+                        <div class="golden-player-actions">
+                            <button type="button" class="golden-player-btn-close" id="golden-player-btn-close" title="إغلاق المشغل">&times;</button>
+                        </div>
+                    </div>
+                </div>
+
                 </div>
 
             </div>
@@ -3281,11 +3438,11 @@
     <script src="assets/js/native-adhan-service.js?v=2"></script>
     <script src="assets/js/onesignal-service.js?v=1"></script>
     <script src="assets/js/app.js?v=18"></script>
-    <script src="assets/js/quran.js?v=17"></script>
+    <script src="assets/js/quran.js?v=20"></script>
     <script src="assets/js/extended-modules.js?v=22"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="assets/js/zakat-calculator.js?v=1"></script>
-    <script src="assets/js/nearby-mosques.js?v=1"></script>
+    <script src="assets/js/nearby-mosques.js?v=2"></script>
 
     <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
     <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">

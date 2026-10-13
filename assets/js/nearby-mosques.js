@@ -91,7 +91,7 @@
     /**
      * طلب إذن الموقع فقط عند النقر
      */
-    function requestUserLocationAndFind() {
+    async function requestUserLocationAndFind() {
         const statusBox = document.getElementById('mosques-status-box');
         if (statusBox) {
             statusBox.style.display = 'flex';
@@ -103,6 +103,50 @@
             `;
         }
 
+        // 1. استخدام بلجن الموقع الأصلي للموبايل (Capacitor Geolocation) لمنع ظهور رسالة localhost في الآيفون
+        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            const Geolocation = window.Capacitor.Plugins ? window.Capacitor.Plugins.Geolocation : null;
+            if (Geolocation) {
+                try {
+                    const perm = await Geolocation.checkPermissions();
+                    if (perm.location !== "granted") {
+                        const req = await Geolocation.requestPermissions();
+                        if (req.location !== "granted") {
+                            handleLocationError("تم رفض إذن تحديد الموقع للتطبيق. يمكنك استخدام البحث بالمدينة أدناه.");
+                            return;
+                        }
+                    }
+                    const pos = await Geolocation.getCurrentPosition({
+                        enableHighAccuracy: true,
+                        timeout: 10000
+                    });
+                    if (pos && pos.coords) {
+                        currentLat = pos.coords.latitude;
+                        currentLon = pos.coords.longitude;
+                        fetchMosquesAround(currentLat, currentLon, 5000);
+                        return;
+                    }
+                } catch (nativeErr) {
+                    console.warn("Capacitor Geolocation error in nearby mosques:", nativeErr);
+                }
+            }
+        }
+
+        // 2. استخدام إحداثيات الصلاة المحفوظة مسبقاً كبديل فوري إذا توفرت
+        try {
+            const savedGps = localStorage.getItem("gps_prayer_coords");
+            if (savedGps) {
+                const parsed = JSON.parse(savedGps);
+                if (parsed && parsed.lat && parsed.lng) {
+                    currentLat = parsed.lat;
+                    currentLon = parsed.lng;
+                    fetchMosquesAround(currentLat, currentLon, 5000);
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        // 3. متصفح الويب العادي (Web / PWA)
         if (!navigator.geolocation) {
             handleLocationError('المتصفح لا يدعم تحديد الموقع الجغرافي. يرجى استخدام البحث بالمدينة.');
             return;

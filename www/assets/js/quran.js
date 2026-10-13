@@ -213,10 +213,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initGoldenQuran() {
-    setupGoldenNavigation();
+        setupGoldenNavigation();
     setupGoldenBookmarks();
     setupGoldenTheme();
     setupGoldenIndexModal();
+    setupGoldenFullScreen();
+    setupGoldenImmersiveMode();
+    setupGoldenAyahSheet();
+    setupGoldenMiniPlayer();
     setupTouchSwipe();
     setupKeyboardNavigation();
     initTafsirModal();
@@ -251,6 +255,11 @@ function initGoldenQuran() {
 }
 
 // الانتقال إلى صفحة معينة في المصحف الشريف
+
+function isDualPageMode() {
+    return window.innerWidth >= 992;
+}
+
 function goToMushafPage(pageNumber) {
     if (pageNumber < 1) pageNumber = 1;
     if (pageNumber > TOTAL_MUSHAF_PAGES) pageNumber = TOTAL_MUSHAF_PAGES;
@@ -261,27 +270,69 @@ function goToMushafPage(pageNumber) {
     const hizb = getHizbForPage(pageNumber);
     const padded = String(pageNumber).padStart(3, "0");
 
-    // 1. تحديث صورة المصحف محلياً 100% بدون إنترنت
-    const imgEl = document.getElementById("mushaf-real-page-img");
-    if (imgEl) {
-        // المسار المحلي المدمج
-        const localPath = `assets/quran-pages/${padded}.svg`;
-        imgEl.src = localPath;
+    // فحص وضع العرض (صفحتان متقابلتان للشاشات الكبيرة أم صفحة واحدة للهاتف)
+    const dual = isDualPageMode();
+    const rightPage = dual ? ((pageNumber % 2 === 1) ? pageNumber : pageNumber - 1) : pageNumber;
+    const leftPage = dual ? (rightPage + 1 <= TOTAL_MUSHAF_PAGES ? rightPage + 1 : null) : null;
+
+    // 1. تحديث صور المصحف محلياً
+    const imgLeft = document.getElementById("mushaf-real-page-img");
+    const imgRight = document.getElementById("mushaf-real-page-img-right");
+
+    if (dual && leftPage) {
+        if (imgRight) imgRight.src = `assets/quran-pages/${String(rightPage).padStart(3, "0")}.svg`;
+        if (imgLeft) imgLeft.src = `assets/quran-pages/${String(leftPage).padStart(3, "0")}.svg`;
+    } else {
+        if (imgLeft) imgLeft.src = `assets/quran-pages/${padded}.svg`;
     }
 
     // 2. تحديث نصوص الترويسة العلوية
     const surahTitleEl = document.getElementById("golden-surah-title");
-    if (surahTitleEl) surahTitleEl.textContent = surah.name;
+    if (surahTitleEl) {
+        if (dual && leftPage) {
+            const sRight = getSurahForPage(rightPage);
+            const sLeft = getSurahForPage(leftPage);
+            surahTitleEl.textContent = (sRight.id === sLeft.id) ? sRight.name : `${sRight.name} - ${sLeft.name}`;
+        } else {
+            surahTitleEl.textContent = surah.name;
+        }
+    }
 
     const juzTitleEl = document.getElementById("golden-juz-title");
-    if (juzTitleEl) juzTitleEl.textContent = `الجزء ${toArabicDigits(juz.juz)}`;
+    if (juzTitleEl) {
+        if (dual && leftPage) {
+            const jRight = getJuzForPage(rightPage);
+            const jLeft = getJuzForPage(leftPage);
+            juzTitleEl.textContent = (jRight.juz === jLeft.juz)
+                ? `الجزء ${toArabicDigits(jRight.juz)}`
+                : `الجزء ${toArabicDigits(jRight.juz)} - ${toArabicDigits(jLeft.juz)}`;
+        } else {
+            juzTitleEl.textContent = `الجزء ${toArabicDigits(juz.juz)}`;
+        }
+    }
 
     // 3. تحديث كبسولة رقم الصفحة والحزب أسفل الصفحة
     const pageNumEl = document.getElementById("golden-page-num");
-    if (pageNumEl) pageNumEl.textContent = toArabicDigits(pageNumber);
+    if (pageNumEl) {
+        if (dual && leftPage) {
+            pageNumEl.textContent = `${toArabicDigits(rightPage)} - ${toArabicDigits(leftPage)}`;
+        } else {
+            pageNumEl.textContent = toArabicDigits(pageNumber);
+        }
+    }
 
     const hizbNumEl = document.getElementById("golden-hizb-num");
-    if (hizbNumEl) hizbNumEl.textContent = `الحزب ${toArabicDigits(hizb)}`;
+    if (hizbNumEl) {
+        if (dual && leftPage) {
+            const hRight = getHizbForPage(rightPage);
+            const hLeft = getHizbForPage(leftPage);
+            hizbNumEl.textContent = (hRight === hLeft)
+                ? `الحزب ${toArabicDigits(hRight)}`
+                : `الحزب ${toArabicDigits(hRight)} - ${toArabicDigits(hLeft)}`;
+        } else {
+            hizbNumEl.textContent = `الحزب ${toArabicDigits(hizb)}`;
+        }
+    }
 
     // 4. تحديث علامة الوقوف (الفاصل والشريط الذهبي)
     updateBookmarkStateUI(pageNumber);
@@ -342,38 +393,67 @@ function setupGoldenNavigation() {
 
     // التنقل بالصفحات (في اتجاه القراءة العربي: التالي يتقدم يساراً)
     const goNext = () => {
-        if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
-            goToMushafPage(currentPageNumber + 1);
-        } else if (typeof showToast === "function") {
-            showToast("أنت الآن في الصفحة الأخيرة من المصحف الشريف 🌿");
+        if (isDualPageMode()) {
+            const rightPage = (currentPageNumber % 2 === 1) ? currentPageNumber : currentPageNumber - 1;
+            const target = rightPage + 2;
+            if (target <= TOTAL_MUSHAF_PAGES) {
+                goToMushafPage(target);
+            } else if (rightPage < TOTAL_MUSHAF_PAGES) {
+                goToMushafPage(TOTAL_MUSHAF_PAGES);
+            } else if (typeof showToast === "function") {
+                showToast("أنت الآن في الصفحة الأخيرة من المصحف الشريف 🌿");
+            }
+        } else {
+            if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
+                goToMushafPage(currentPageNumber + 1);
+            } else if (typeof showToast === "function") {
+                showToast("أنت الآن في الصفحة الأخيرة من المصحف الشريف 🌿");
+            }
         }
     };
 
     const goPrev = () => {
-        if (currentPageNumber > 1) {
-            goToMushafPage(currentPageNumber - 1);
-        } else if (typeof showToast === "function") {
-            showToast("أنت الآن في أول صفحة من المصحف الشريف (سورة الفاتحة) 🌿");
+        if (isDualPageMode()) {
+            const rightPage = (currentPageNumber % 2 === 1) ? currentPageNumber : currentPageNumber - 1;
+            const target = rightPage - 2;
+            if (target >= 1) {
+                goToMushafPage(target);
+            } else if (typeof showToast === "function") {
+                showToast("أنت الآن في أول صفحة من المصحف الشريف (سورة الفاتحة) 🌿");
+            }
+        } else {
+            if (currentPageNumber > 1) {
+                goToMushafPage(currentPageNumber - 1);
+            } else if (typeof showToast === "function") {
+                showToast("أنت الآن في أول صفحة من المصحف الشريف (سورة الفاتحة) 🌿");
+            }
         }
     };
 
     if (btnNext) btnNext.addEventListener("click", goNext);
     if (btnPrev) btnPrev.addEventListener("click", goPrev);
+    // التقليب باللمس (اليمين للتالي واليسار للسابق - عكس الوضع السابق)
     if (tapNext) tapNext.addEventListener("click", goNext);
     if (tapPrev) tapPrev.addEventListener("click", goPrev);
 
-    // النقر على كبسولة الصفحة للانتقال السريع
+    // أزرار الأسهم المخصصة للشاشات الكبيرة (< >)
+    const desktopBtnNext = document.getElementById("golden-desktop-btn-next");
+    const desktopBtnPrev = document.getElementById("golden-desktop-btn-prev");
+    if (desktopBtnNext) desktopBtnNext.addEventListener("click", goNext);
+    if (desktopBtnPrev) desktopBtnPrev.addEventListener("click", goPrev);
+
+    // النقر على كبسولة الصفحة للانتقال السريع وفتح لوحة التفسير والتلاوة
     if (pagePill) {
         pagePill.addEventListener("click", () => {
-            const input = prompt(`ادخل رقم الصفحة من 1 إلى ${TOTAL_MUSHAF_PAGES}:`, currentPageNumber);
-            if (input !== null) {
-                const target = parseInt(input, 10);
-                if (!isNaN(target) && target >= 1 && target <= TOTAL_MUSHAF_PAGES) {
-                    goToMushafPage(target);
-                } else if (typeof showToast === "function") {
-                    showToast("يرجى إدخال رقم صفحة صحيح بين 1 و 604");
-                }
-            }
+            openGoldenAyahSheet(currentPageNumber);
+        });
+    }
+
+    // زر التفسير والتلاوة المباشر في الترويسة العلوية
+    const btnTafsirSheet = document.getElementById("golden-btn-tafsir-sheet");
+    if (btnTafsirSheet) {
+        btnTafsirSheet.addEventListener("click", () => {
+            openGoldenAyahSheet(currentPageNumber);
         });
     }
 
@@ -500,13 +580,21 @@ function setupTouchSwipe() {
         const diffY = e.changedTouches[0].clientY - touchStartY;
 
         // تجاهل التمرير العمودي
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
-            if (diffX < 0) {
-                // سحب لليسار -> تقدم بالصفحة (التالي)
-                if (currentPageNumber < TOTAL_MUSHAF_PAGES) goToMushafPage(currentPageNumber + 1);
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
+            if (diffX > 0) {
+                // سحب لليمين -> تقدم بالصفحة (التالي)
+                if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
+                    goToMushafPage(currentPageNumber + 1);
+                } else if (typeof showToast === "function") {
+                    showToast("أنت الآن في الصفحة الأخيرة من المصحف الشريف 🌿");
+                }
             } else {
-                // سحب لليمين -> رجوع بالصفحة (السابق)
-                if (currentPageNumber > 1) goToMushafPage(currentPageNumber - 1);
+                // سحب لليسار -> رجوع بالصفحة (السابق)
+                if (currentPageNumber > 1) {
+                    goToMushafPage(currentPageNumber - 1);
+                } else if (typeof showToast === "function") {
+                    showToast("أنت الآن في أول صفحة من المصحف الشريف (سورة الفاتحة) 🌿");
+                }
             }
         }
     }, { passive: true });
@@ -791,5 +879,323 @@ function initKhatmaTabs() {
                 if (subpartKhatma) subpartKhatma.classList.remove("is-hidden");
             }
         });
+    });
+}
+
+// إعادة ضبط العرض تلقائياً عند تغيير مقاس الشاشة بين وضع الصفحة المزدوجة والمفردة
+let goldenResizeDebounce = null;
+window.addEventListener("resize", () => {
+    clearTimeout(goldenResizeDebounce);
+    goldenResizeDebounce = setTimeout(() => {
+        if (typeof currentPageNumber === "number" && currentPageNumber >= 1) {
+            goToMushafPage(currentPageNumber);
+        }
+    }, 150);
+});
+
+// ==========================================================================
+// 1. وضع ملء الشاشة الكامل (Fullscreen Mode)
+// ==========================================================================
+function setupGoldenFullScreen() {
+    const btnFs = document.getElementById("golden-btn-fullscreen");
+    const iconFs = document.getElementById("golden-fullscreen-icon");
+    const wrapper = document.getElementById("golden-quran-wrapper");
+    if (!btnFs || !wrapper) return;
+
+    const toggleFs = () => {
+        if (!document.fullscreenElement && !wrapper.classList.contains("is-fullscreen")) {
+            if (wrapper.requestFullscreen) {
+                wrapper.requestFullscreen().catch(() => {});
+            } else if (wrapper.webkitRequestFullscreen) {
+                wrapper.webkitRequestFullscreen();
+            }
+            wrapper.classList.add("is-fullscreen");
+            if (iconFs) iconFs.className = "fa-solid fa-compress";
+            if (typeof showToast === "function") showToast("تم تفعيل وضع ملء الشاشة الكامل ⛶");
+        } else {
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+            wrapper.classList.remove("is-fullscreen");
+            if (iconFs) iconFs.className = "fa-solid fa-expand";
+            if (typeof showToast === "function") showToast("تم الخروج من ملء الشاشة");
+        }
+    };
+
+    btnFs.addEventListener("click", toggleFs);
+
+    document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) {
+            wrapper.classList.remove("is-fullscreen");
+            if (iconFs) iconFs.className = "fa-solid fa-expand";
+        }
+    });
+}
+
+// ==========================================================================
+// 2. وضع القراءة الغامرة بدون شتات (Immersive Mode)
+// ==========================================================================
+function setupGoldenImmersiveMode() {
+    const viewport = document.getElementById("golden-mushaf-viewport");
+    const wrapper = document.getElementById("golden-quran-wrapper");
+    if (!viewport || !wrapper) return;
+
+    viewport.addEventListener("click", (e) => {
+        if (e.target.closest(".golden-tap-zone") || 
+            e.target.closest(".golden-desktop-nav-btn") ||
+            e.target.closest(".golden-page-ribbon")) {
+            return;
+        }
+        wrapper.classList.toggle("is-immersive");
+    });
+}
+
+// ==========================================================================
+// 3. نافذة التفاعل مع الآية والمراجع والتلاوة (طبق الأصل من المصحف الذهبي)
+// ==========================================================================
+function setupGoldenAyahSheet() {
+    const modal = document.getElementById("golden-ayah-modal");
+    const btnClose = document.getElementById("btn-close-ayah-sheet");
+    if (!modal) return;
+
+    if (btnClose) {
+        btnClose.addEventListener("click", () => {
+            modal.classList.remove("open");
+        });
+    }
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.remove("open");
+    });
+
+    // 4 أزرار سريعة
+    const btnBookmark = document.getElementById("btn-sheet-bookmark");
+    if (btnBookmark) {
+        btnBookmark.addEventListener("click", () => {
+            toggleBookmarkForPage(currentPageNumber);
+            if (typeof showToast === "function") showToast("تم حفظ العلامة المرجعية بنجاح 🔖");
+        });
+    }
+
+    const btnRibbon = document.getElementById("btn-sheet-ribbon");
+    if (btnRibbon) {
+        btnRibbon.addEventListener("click", () => {
+            localStorage.setItem("mushaf_saved_bookmark", String(currentPageNumber));
+            updateBookmarkStateUI(currentPageNumber);
+            if (typeof showToast === "function") showToast(`تم تثبيت فاصل الورد عند صفحة ${toArabicDigits(currentPageNumber)} 📖`);
+        });
+    }
+
+    const btnNote = document.getElementById("btn-sheet-note");
+    if (btnNote) {
+        btnNote.addEventListener("click", () => {
+            const surah = getSurahForPage(currentPageNumber);
+            const savedNote = localStorage.getItem(`zad_note_p${currentPageNumber}`) || "";
+            const newNote = prompt(`أدخل خاطرتك الإيمانية أو تدبرك لسورة ${surah.name} (صفحة ${toArabicDigits(currentPageNumber)}):`, savedNote);
+            if (newNote !== null) {
+                localStorage.setItem(`zad_note_p${currentPageNumber}`, newNote);
+                if (typeof showToast === "function") showToast("تم حفظ خاطرتك الإيمانية بنجاح 📝");
+            }
+        });
+    }
+
+    const btnRecite = document.getElementById("btn-sheet-recite");
+    if (btnRecite) {
+        btnRecite.addEventListener("click", () => {
+            modal.classList.remove("open");
+            startGoldenAudioPlayer();
+        });
+    }
+
+    // نسخ ومشاركة الآية
+    const btnCopy = document.getElementById("btn-ayah-copy");
+    if (btnCopy) {
+        btnCopy.addEventListener("click", () => {
+            const txt = document.getElementById("golden-ayah-text")?.textContent || "";
+            const ref = document.getElementById("golden-ayah-ref")?.textContent || "";
+            navigator.clipboard.writeText(`"${txt}" [${ref}] - زاد المسلم`).then(() => {
+                if (typeof showToast === "function") showToast("تم نسخ الآية الكريمة ✓");
+            });
+        });
+    }
+
+    const btnShare = document.getElementById("btn-ayah-share");
+    if (btnShare) {
+        btnShare.addEventListener("click", () => {
+            const txt = document.getElementById("golden-ayah-text")?.textContent || "";
+            const ref = document.getElementById("golden-ayah-ref")?.textContent || "";
+            const shareText = `"${txt}" [${ref}] - تطبيق زاد المسلم`;
+            if (navigator.share) {
+                navigator.share({ title: "زاد المسلم", text: shareText }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(shareText);
+                if (typeof showToast === "function") showToast("تم نسخ نص الآية للمشاركة ↗");
+            }
+        });
+    }
+
+    // تفاعل فتح وإغلاق كروت المراجع (Accordion)
+    document.querySelectorAll(".golden-ref-card").forEach(card => {
+        const item = card.querySelector(".golden-ref-item");
+        if (item) {
+            item.addEventListener("click", () => {
+                card.classList.toggle("open");
+            });
+        }
+    });
+}
+
+function openGoldenAyahSheet(page) {
+    const modal = document.getElementById("golden-ayah-modal");
+    if (!modal) return;
+
+    const surah = getSurahForPage(page || currentPageNumber);
+    const txtEl = document.getElementById("golden-ayah-text");
+    const refEl = document.getElementById("golden-ayah-ref");
+
+    if (refEl) refEl.textContent = `سورة ${surah.name} • صفحة ${toArabicDigits(page || currentPageNumber)}`;
+    if (txtEl) {
+        txtEl.textContent = (page === 1) 
+            ? "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴿١﴾ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾"
+            : `تلاوة وتدبر آيات سورة ${surah.name} المباركة`;
+    }
+
+    loadAyahReferencesContent(page || currentPageNumber, surah);
+    modal.classList.add("open");
+}
+
+async function loadAyahReferencesContent(page, surah) {
+    const bodyTafsir = document.getElementById("golden-ref-body-tafsir");
+    const bodyEnglish = document.getElementById("golden-ref-body-english");
+    const bodyWords = document.getElementById("golden-ref-body-words");
+    const bodyAsbab = document.getElementById("golden-ref-body-asbab");
+    const bodyIrab = document.getElementById("golden-ref-body-irab");
+    const bodyTopic = document.getElementById("golden-ref-body-topic");
+
+    if (bodyTopic) {
+        bodyTopic.innerHTML = `<div style="color: #fef08a; font-weight: 700; margin-bottom: 6px;">مقاصد سورة ${surah.name}:</div><p>سورة ${surah.name} من السور الـ${surah.type}، عدد آياتها ${toArabicDigits(surah.ayahs)} آية، تدعو إلى توحيد الله وكمال قدرته وتذكر بنعمه على عباده.</p>`;
+    }
+
+    if (bodyWords) {
+        bodyWords.innerHTML = `<p><strong>البيان والمعاني:</strong> تشتمل الصفحة على مفردات جليلة في تعظيم الخالق وتصريف الآيات، يُستحب تكرارها وتدبر معانيها وتطبيق العمل بها.</p>`;
+    }
+
+    if (bodyAsbab) {
+        bodyAsbab.innerHTML = `<p><strong>سبب النزول:</strong> نزلت سورة ${surah.name} ${surah.type === "مكية" ? "بمكة المكرمة في شأن تقرير أصول التوحيد والبعث والرسالة" : "بالمدينة المنورة في شأن ترسيخ الأحكام والتشريعات الإلهية"}.</p>`;
+    }
+
+    if (bodyIrab) {
+        bodyIrab.innerHTML = `<p><strong>الإعراب:</strong> إعراب كلام رب العالمين بأفصح اللغات وأشرفها، تجري آياته على قواعد لسان العرب بأعظم أساليب البيان والبلاغة.</p>`;
+    }
+
+    if (bodyTafsir) {
+        bodyTafsir.innerHTML = '<div style="color: #d4af37;"><i class="fa-solid fa-spinner fa-spin"></i> جاري استحضار التفسير الميسر...</div>';
+    }
+
+    if (bodyEnglish) {
+        bodyEnglish.innerHTML = '<div style="color: #3b82f6;"><i class="fa-solid fa-spinner fa-spin"></i> Loading English translation...</div>';
+    }
+
+    // جلب التفسير والترجمة مع الكاش
+    const cacheKey = `tafsir_cache_p${page}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+        try {
+            renderSheetTafsir(JSON.parse(cached), bodyTafsir);
+        } catch (e) {}
+    }
+
+    try {
+        const res = await fetch(`https://api.alquran.cloud/v1/page/${page}/ar.muyassar`);
+        const json = await res.json();
+        if (json && json.data && json.data.ayahs) {
+            localStorage.setItem(cacheKey, JSON.stringify(json.data.ayahs));
+            renderSheetTafsir(json.data.ayahs, bodyTafsir);
+        }
+    } catch (e) {
+        if (bodyTafsir && !cached) {
+            bodyTafsir.innerHTML = `<p><strong>التفسير الميسر لسورة ${surah.name}:</strong> بيان معاني كلام الله وتوضيح هدايات الآيات بما يفتح الله به على قلب القارئ، ومتاح دون إنترنت فور تحميل الصفحات.</p>`;
+        }
+    }
+
+    try {
+        const resEn = await fetch(`https://api.alquran.cloud/v1/page/${page}/en.sahih`);
+        const jsonEn = await resEn.json();
+        if (jsonEn && jsonEn.data && jsonEn.data.ayahs && bodyEnglish) {
+            bodyEnglish.innerHTML = jsonEn.data.ayahs.map(a => `<div style="margin-bottom: 8px;"><strong>[${a.numberInSurah}]</strong> ${a.text}</div>`).join("");
+        }
+    } catch (e) {
+        if (bodyEnglish) {
+            bodyEnglish.innerHTML = "<p>English translation is available with internet connection.</p>";
+        }
+    }
+}
+
+function renderSheetTafsir(ayahs, container) {
+    if (!container) return;
+    container.innerHTML = ayahs.map(a => `
+        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <div style="color: #fef08a; font-weight: 700; margin-bottom: 4px;">﴿${toArabicDigits(a.numberInSurah)}﴾ ${a.text}</div>
+            <div style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.8;">${a.text}</div>
+        </div>
+    `).join("");
+}
+
+// ==========================================================================
+// 4. المشغل الصوتي العائم المدمج للتلاوة (Floating Mini Player)
+// ==========================================================================
+function setupGoldenMiniPlayer() {
+    const player = document.getElementById("golden-mini-player");
+    const btnToggle = document.getElementById("golden-player-btn-toggle");
+    const btnClose = document.getElementById("golden-player-btn-close");
+    const icon = document.getElementById("golden-player-icon");
+
+    if (btnToggle) {
+        btnToggle.addEventListener("click", () => {
+            if (isQuranAudioPlaying) {
+                quranAudio.pause();
+                isQuranAudioPlaying = false;
+                if (icon) icon.className = "fa-solid fa-play";
+            } else {
+                quranAudio.play();
+                isQuranAudioPlaying = true;
+                if (icon) icon.className = "fa-solid fa-pause";
+            }
+        });
+    }
+
+    if (btnClose && player) {
+        btnClose.addEventListener("click", () => {
+            quranAudio.pause();
+            isQuranAudioPlaying = false;
+            player.style.display = "none";
+        });
+    }
+
+    quranAudio.addEventListener("ended", () => {
+        isQuranAudioPlaying = false;
+        if (icon) icon.className = "fa-solid fa-play";
+    });
+}
+
+function startGoldenAudioPlayer() {
+    const player = document.getElementById("golden-mini-player");
+    const titleEl = document.getElementById("golden-player-title");
+    const icon = document.getElementById("golden-player-icon");
+    const surah = getSurahForPage(currentPageNumber);
+    const padded = String(surah.id).padStart(3, "0");
+
+    if (player) player.style.display = "block";
+    if (titleEl) titleEl.textContent = `تلاوة سورة ${surah.name}`;
+
+    quranAudio.src = `https://server8.mp3quran.net/afs/${padded}.mp3`;
+    quranAudio.play().then(() => {
+        isQuranAudioPlaying = true;
+        if (icon) icon.className = "fa-solid fa-pause";
+        if (typeof showToast === "function") showToast(`جاري الاستماع لتلاوة سورة ${surah.name} 🎙️`);
+    }).catch(() => {
+        if (typeof showToast === "function") showToast("تتطلب التلاوة الصوتية اتصالاً بالإنترنت.");
     });
 }
