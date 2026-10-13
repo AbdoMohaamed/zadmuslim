@@ -914,34 +914,83 @@ function setupGoldenFullScreen() {
     const wrapper = document.getElementById("golden-quran-wrapper");
     if (!btnFs || !wrapper) return;
 
+    let toastTimer = null;
+
+    const showArabicFullscreenToast = () => {
+        let toast = document.getElementById("golden-fullscreen-arabic-toast");
+        if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "golden-fullscreen-arabic-toast";
+            toast.className = "golden-fullscreen-arabic-toast";
+            toast.innerHTML = `
+                <i class="fa-solid fa-expand text-gold"></i>
+                <span>وضع ملء الشاشة للمصحف الشريف ⛶</span>
+                <span class="fs-toast-action">اسحب لأسفل أو انقر هنا للخروج</span>
+            `;
+            toast.addEventListener("click", () => {
+                exitFs();
+            });
+            wrapper.appendChild(toast);
+        }
+
+        clearTimeout(toastTimer);
+        // إعادة تفعيل الأنيميشن
+        toast.classList.remove("is-visible");
+        void toast.offsetWidth;
+        toast.classList.add("is-visible");
+
+        toastTimer = setTimeout(() => {
+            if (toast) toast.classList.remove("is-visible");
+        }, 3800);
+    };
+
+    const enterFs = () => {
+        wrapper.classList.add("is-fullscreen");
+        if (iconFs) iconFs.className = "fa-solid fa-compress";
+        showArabicFullscreenToast();
+    };
+
+    const exitFs = () => {
+        wrapper.classList.remove("is-fullscreen");
+        if (iconFs) iconFs.className = "fa-solid fa-expand";
+        const toast = document.getElementById("golden-fullscreen-arabic-toast");
+        if (toast) toast.classList.remove("is-visible");
+        if (typeof showToast === "function") showToast("تم الخروج من ملء الشاشة");
+    };
+
     const toggleFs = () => {
-        if (!document.fullscreenElement && !wrapper.classList.contains("is-fullscreen")) {
-            if (wrapper.requestFullscreen) {
-                wrapper.requestFullscreen().catch(() => {});
-            } else if (wrapper.webkitRequestFullscreen) {
-                wrapper.webkitRequestFullscreen();
-            }
-            wrapper.classList.add("is-fullscreen");
-            if (iconFs) iconFs.className = "fa-solid fa-compress";
-            if (typeof showToast === "function") showToast("تم تفعيل وضع ملء الشاشة الكامل ⛶");
+        if (!wrapper.classList.contains("is-fullscreen")) {
+            enterFs();
         } else {
-            if (document.fullscreenElement && document.exitFullscreen) {
-                document.exitFullscreen().catch(() => {});
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-            wrapper.classList.remove("is-fullscreen");
-            if (iconFs) iconFs.className = "fa-solid fa-expand";
-            if (typeof showToast === "function") showToast("تم الخروج من ملء الشاشة");
+            exitFs();
         }
     };
 
     btnFs.addEventListener("click", toggleFs);
 
-    document.addEventListener("fullscreenchange", () => {
-        if (!document.fullscreenElement) {
-            wrapper.classList.remove("is-fullscreen");
-            if (iconFs) iconFs.className = "fa-solid fa-expand";
+    // دعم إيماءة السحب لأسفل من أعلى الشاشة للخروج من وضع ملء الشاشة (Swipe down to exit)
+    let touchStartY = 0;
+    wrapper.addEventListener("touchstart", (e) => {
+        if (wrapper.classList.contains("is-fullscreen") && e.touches.length === 1) {
+            touchStartY = e.touches[0].clientY;
+        }
+    }, { passive: true });
+
+    wrapper.addEventListener("touchend", (e) => {
+        if (wrapper.classList.contains("is-fullscreen") && touchStartY > 0 && touchStartY < 120) {
+            const touchEndY = e.changedTouches[0].clientY;
+            // سحب لأسفل بأكثر من 50 بكسل من أعلى الشاشة
+            if (touchEndY - touchStartY > 50) {
+                exitFs();
+            }
+        }
+        touchStartY = 0;
+    }, { passive: true });
+
+    // الخروج بالضغط على زر Escape في لوحة المفاتيح
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && wrapper.classList.contains("is-fullscreen")) {
+            exitFs();
         }
     });
 }

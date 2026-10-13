@@ -17718,6 +17718,56 @@ body.light-theme .cemetery-list li strong {
   max-height: calc(100vh - 105px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
 }
 
+/* شريط التنبيه العربي الأنيق لوضع ملء الشاشة بدون أي إشارة لـ localhost */
+.golden-fullscreen-arabic-toast {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-24px);
+  background: rgba(12, 20, 16, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+  border-radius: 30px;
+  padding: 8px 18px;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  direction: rtl;
+}
+
+.golden-fullscreen-arabic-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.golden-fullscreen-arabic-toast i {
+  color: var(--gold-400, #d4af37);
+  font-size: 0.95rem;
+}
+
+.golden-fullscreen-arabic-toast .fs-toast-action {
+  background: rgba(212, 175, 55, 0.18);
+  color: var(--gold-400, #d4af37);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+
 /* وضع القراءة الغامرة (إخفاء الترويسة والكبسولة بنقرة خفيفة) */
 .golden-quran-wrapper.is-immersive .golden-mushaf-header,
 .golden-quran-wrapper.is-immersive .golden-mushaf-footer,
