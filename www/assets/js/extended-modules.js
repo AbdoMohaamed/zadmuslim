@@ -3453,6 +3453,13 @@ function initIslamicMediaHub() {
 
     if (!grid || typeof ISLAMIC_MEDIA_DATA === "undefined") return;
 
+    if (grid.dataset.initialized === "true") {
+        if (typeof window.refreshIslamicMediaGrid === "function") {
+            window.refreshIslamicMediaGrid();
+        }
+        return;
+    }
+    grid.dataset.initialized = "true";
     const PAGE_SIZE = 9;
     let visibleCount = PAGE_SIZE;
     let currentCategory = "all";
@@ -3745,6 +3752,7 @@ function initIslamicMediaHub() {
     // Initial run
     updateCategoryCounts();
     renderMedia();
+    window.refreshIslamicMediaGrid = renderMedia;
 }
 
 /* ==========================================================================

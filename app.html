@@ -47,7 +47,7 @@
     
     <!-- تنسيقات الموقع والتطبيق الموحدة -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <link rel="stylesheet" href="assets/css/style.css?v=95">
+    <link rel="stylesheet" href="assets/css/style.css?v=96">
     
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
@@ -133,7 +133,7 @@
             border-color: var(--primary);
         }
 
-        /* شريط التنقل السفلي الاحترافي ذو التبويبات الخمس */
+        /* شريط التنقل السفلي الاحترافي ذو التبويبات الست (6-Tab Mobile Navigation) */
         .app-bottom-nav {
             position: fixed;
             bottom: 0;
@@ -142,7 +142,7 @@
             z-index: 2000;
             background: var(--nav-bg);
             border-top: 1px solid var(--border-color);
-            padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+            padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
             display: flex;
             justify-content: space-around;
             align-items: center;
@@ -154,22 +154,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 3px;
+            gap: 2px;
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 800;
-            padding: 6px 12px;
-            border-radius: 14px;
+            padding: 4px 2px;
+            border-radius: 12px;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             flex: 1;
             cursor: pointer;
             border: none;
             background: none;
+            min-width: 0;
+            white-space: nowrap;
         }
 
         .app-nav-tab i {
-            font-size: 19px;
+            font-size: 17px;
             transition: transform 0.2s ease;
         }
 
@@ -222,9 +224,9 @@
 
         .app-quick-tools-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            padding: 0 16px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            padding: 0 12px;
             margin-bottom: 22px;
         }
 
@@ -324,6 +326,10 @@
                 <div class="app-tool-icon-circle"><i class="fa-solid fa-mosque"></i></div>
                 <span>المواقيت</span>
             </button>
+            <button class="app-quick-tool-btn" onclick="switchAppTab('media')">
+                <div class="app-tool-icon-circle"><i class="fa-solid fa-circle-play text-gold"></i></div>
+                <span>مرئيات</span>
+            </button>
             <button class="app-quick-tool-btn" onclick="openServiceInApp('tasbeeh')">
                 <div class="app-tool-icon-circle"><i class="fa-solid fa-ring"></i></div>
                 <span>السبحة</span>
@@ -382,7 +388,14 @@
         </div>
     </main>
 
-    <!-- تبويب 4: الخدمات (Services Tab Pane) -->
+    <!-- تبويب 4: مرئيات وبودكاست إسلامي (Islamic Media & Podcast Tab Pane) -->
+    <main class="app-view-pane" id="pane-media">
+        <div class="app-container" style="padding-top: 14px;">
+            <div id="app-media-placeholder"></div>
+        </div>
+    </main>
+
+    <!-- تبويب 5: الخدمات (Services Tab Pane) -->
     <main class="app-view-pane" id="pane-services">
         <div class="app-container" style="padding-top: 14px;">
             <div class="section-head" style="margin-top: 8px; margin-bottom: 14px;">
@@ -417,8 +430,11 @@
                 <button class="feature" style="text-align: right; cursor: pointer;" onclick="openServiceInApp('nawawi')">
                     <div class="fi">📖</div><h3>الأربعون النووية</h3><p>أحاديث نبوية جامعة</p>
                 </button>
-                <button class="feature" style="text-align: right; cursor: pointer;" onclick="openServiceInApp('islamic-media')">
-                    <div class="fi">📻</div><h3>إذاعات القرآن</h3><p>بث مباشر على مدار الساعة</p>
+                <button class="feature" style="text-align: right; cursor: pointer;" onclick="switchAppTab('media')">
+                    <div class="fi">🎬</div><h3>مرئيات وبودكاست</h3><p>بودكاست ومواعظ مرئية</p>
+                </button>
+                <button class="feature" style="text-align: right; cursor: pointer;" onclick="if(window.toggleLiveRadioPanel){window.toggleLiveRadioPanel(true);}else{openServiceInApp('islamic-media');}">
+                    <div class="fi">📻</div><h3>إذاعة القرآن الكريم</h3><p>بث مباشر على مدار الساعة</p>
                 </button>
                 <button class="feature" style="text-align: right; cursor: pointer;" onclick="openServiceInApp('sadaqa')">
                     <div class="fi">🤍</div><h3>الصدقة الجارية</h3><p>بطاقات دعاء للمتوفى</p>
@@ -474,7 +490,7 @@
         </div>
     </main>
 
-    <!-- شريط التنقل السفلي المخصص للتطبيق ذو التبويبات الخمس (Dedicated 5-Tab Native Navigation) -->
+    <!-- شريط التنقل السفلي المخصص للتطبيق ذو التبويبات الست (Dedicated 6-Tab Native Navigation) -->
     <nav class="app-bottom-nav">
         <button class="app-nav-tab active" onclick="switchAppTab('home')" id="tab-btn-home" data-tab="home">
             <i class="fa-solid fa-house"></i>
@@ -487,6 +503,10 @@
         <button class="app-nav-tab" onclick="switchAppTab('daily')" id="tab-btn-daily" data-tab="daily">
             <i class="fa-solid fa-leaf"></i>
             <span>يومي</span>
+        </button>
+        <button class="app-nav-tab" onclick="switchAppTab('media')" id="tab-btn-media" data-tab="media">
+            <i class="fa-solid fa-circle-play"></i>
+            <span>مرئيات</span>
         </button>
         <button class="app-nav-tab" onclick="switchAppTab('services')" id="tab-btn-services" data-tab="services">
             <i class="fa-solid fa-layer-group"></i>
@@ -3648,12 +3668,27 @@
                     dp.appendChild(azkarSec);
                     if (wirdSec) dp.appendChild(wirdSec);
                 }
+            } else if (tabName === 'media') {
+                const mp = document.getElementById('app-media-placeholder');
+                const mediaSec = document.getElementById('islamic-media');
+                if (mp && mediaSec && !mp.contains(mediaSec)) {
+                    mp.appendChild(mediaSec);
+                }
+                if (typeof initIslamicMediaHub === 'function') {
+                    initIslamicMediaHub();
+                } else if (typeof window.refreshIslamicMediaGrid === 'function') {
+                    window.refreshIslamicMediaGrid();
+                }
             }
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openServiceInApp(serviceId) {
+            if (serviceId === 'islamic-media') {
+                switchAppTab('media');
+                return;
+            }
             switchAppTab('services');
             const target = document.getElementById(serviceId);
             const container = document.getElementById('app-services-active-view');
@@ -3692,7 +3727,7 @@
     <script src="assets/js/onesignal-service.js?v=1"></script>
     <script src="assets/js/app.js?v=18"></script>
     <script src="assets/js/quran.js?v=26"></script>
-    <script src="assets/js/extended-modules.js?v=27"></script>
+    <script src="assets/js/extended-modules.js?v=28"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="assets/js/zakat-calculator.js?v=1"></script>
     <script src="assets/js/nearby-mosques.js?v=7"></script>
