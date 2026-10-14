@@ -418,6 +418,9 @@
 
                             <div class="golden-hdr-left">
                                 <span class="golden-juz-title" id="golden-juz-title">الجزء ٢٣</span>
+                                <button type="button" class="golden-hdr-btn golden-hdr-memorize" id="golden-btn-memorize" title="تلاوة وتكرار الآيات لتسهيل الحفظ (مساعد الحفظ)">
+                                    <i class="fa-solid fa-repeat"></i>
+                                </button>
                                 <button type="button" class="golden-hdr-btn golden-hdr-tafsir" id="golden-btn-tafsir-sheet" title="التفسير والتلاوة والمراجع">
                                     <i class="fa-solid fa-book-open"></i>
                                 </button>
@@ -493,6 +496,64 @@
                             </div>
                             <div class="golden-index-list" id="golden-index-list">
                                 <!-- يُملأ ديناميكياً من quran.js -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- استوديو ومساعد الحفظ وتكرار الآيات الشريفة آية آية -->
+                    <div class="golden-memorize-modal" id="golden-memorize-modal">
+                        <div class="golden-memorize-card">
+                            <div class="golden-memorize-header">
+                                <div class="golden-memorize-title-wrap">
+                                    <i class="fa-solid fa-repeat text-gold"></i>
+                                    <div>
+                                        <h3>مساعد الحفظ وتكرار الآيات</h3>
+                                        <span id="memorize-page-ref" class="text-muted" style="font-size: 0.8rem; color: #94a3b8;">سورة يس • صفحة ٥٦٢</span>
+                                    </div>
+                                </div>
+                                <button type="button" class="golden-memorize-close" id="btn-close-memorize-modal">&times;</button>
+                            </div>
+
+                            <!-- شريط إعدادات الحفظ والتكرار والقارئ -->
+                            <div class="memorize-control-panel">
+                                <div class="memorize-row">
+                                    <div class="memorize-col">
+                                        <label for="memorize-reciter-select"><i class="fa-solid fa-microphone-lines text-gold"></i> القارئ للحفظ:</label>
+                                        <select id="memorize-reciter-select" class="memorize-select">
+                                            <option value="ar.alafasy">مشاري العفاسي (مرتل)</option>
+                                            <option value="ar.husary">محمود خليل الحصري (المعلم)</option>
+                                            <option value="ar.minshawi">محمد صديق المنشاوي (مرتل)</option>
+                                            <option value="ar.abdulbasitmurattal">عبد الباسط عبد الصمد (مرتل)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="memorize-col">
+                                        <label><i class="fa-solid fa-rotate text-gold"></i> تكرار كل آية:</label>
+                                        <div class="memorize-repeat-pills" id="memorize-repeat-pills">
+                                            <button type="button" class="repeat-pill" data-repeat="1">1×</button>
+                                            <button type="button" class="repeat-pill active" data-repeat="3">3×</button>
+                                            <button type="button" class="repeat-pill" data-repeat="5">5×</button>
+                                            <button type="button" class="repeat-pill" data-repeat="7">7×</button>
+                                            <button type="button" class="repeat-pill" data-repeat="10">10×</button>
+                                            <button type="button" class="repeat-pill" data-repeat="999">∞ مستمر</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="memorize-row-options">
+                                    <label class="memorize-toggle-label">
+                                        <input type="checkbox" id="memorize-auto-next" checked>
+                                        <span>الانتقال التلقائي للآية التالية بعد انتهاء التكرار</span>
+                                    </label>
+                                    <div class="memorize-current-counter" id="memorize-current-counter" style="display: none;">
+                                        <span class="counter-badge" id="memorize-counter-badge">التكرار: 1 من 3</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- قائمة آيات الصفحة المتاحة للتحديد -->
+                            <div class="memorize-ayahs-list" id="memorize-ayahs-list">
+                                <!-- تُملأ آية آية عبر JavaScript -->
                             </div>
                         </div>
                     </div>
@@ -1940,7 +2001,7 @@
             <div class="mosques-container-card">
                 <!-- شريط البحث والتحكم والتبديل بين القائمة والخريطة -->
                 <div class="mosques-top-bar">
-                    <button type="button" class="btn btn-gold" id="btn-find-nearby-mosques">
+                    <button type="button" class="btn btn-gold" id="btn-find-nearby-mosques" onclick="if(window.requestUserLocationAndFindMosques) window.requestUserLocationAndFindMosques();">
                         <i class="fa-solid fa-location-crosshairs"></i>
                         <span>تحديد موقعي والبحث عن المساجد 📍</span>
                     </button>
@@ -1955,6 +2016,15 @@
                             <span>الخريطة التفاعلية</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- شريط تحديد نطاق البحث بالكيلومتر -->
+                <div class="mosques-radius-bar" id="mosques-radius-bar" style="display: flex; gap: 8px; align-items: center; margin: 12px 0 16px; flex-wrap: wrap;">
+                    <span style="font-size: 0.88rem; font-weight: 700; color: var(--gold-400);"><i class="fa-solid fa-bullseye"></i> نطاق البحث:</span>
+                    <button type="button" class="mosques-radius-pill" data-radius="2000">2 كم</button>
+                    <button type="button" class="mosques-radius-pill active" data-radius="5000">5 كم</button>
+                    <button type="button" class="mosques-radius-pill" data-radius="10000">10 كم</button>
+                    <button type="button" class="mosques-radius-pill" data-radius="20000">20 كم</button>
                 </div>
 
                 <!-- صندوق حالة البحث والرسائل التفاعلية -->
@@ -2847,7 +2917,11 @@
                 <div class="toggle-switch-row">
                     <div class="toggle-switch-info">
                         <span class="toggle-switch-title">🌅 أذكار الصباح</span>
-                        <span class="toggle-switch-desc">تنبيه يومي مع شروق الشمس (6:30 ص)</span>
+                        <span class="toggle-switch-desc">تنبيه يومي بالموعد المبارك الذي تحدده</span>
+                        <div class="azkar-time-picker-wrapper">
+                            <label for="time-morning-azkar"><i class="fa-solid fa-clock"></i> وقت التنبيه:</label>
+                            <input type="time" id="time-morning-azkar" value="06:30" class="azkar-time-input">
+                        </div>
                     </div>
                     <label class="custom-switch">
                         <input type="checkbox" id="notify-morning-azkar">
@@ -2858,10 +2932,59 @@
                 <div class="toggle-switch-row">
                     <div class="toggle-switch-info">
                         <span class="toggle-switch-title">🌇 أذكار المساء</span>
-                        <span class="toggle-switch-desc">تنبيه يومي قبل غروب الشمس (5:00 م)</span>
+                        <span class="toggle-switch-desc">تنبيه يومي بالموعد المبارك الذي تحدده</span>
+                        <div class="azkar-time-picker-wrapper">
+                            <label for="time-evening-azkar"><i class="fa-solid fa-clock"></i> وقت التنبيه:</label>
+                            <input type="time" id="time-evening-azkar" value="17:00" class="azkar-time-input">
+                        </div>
                     </div>
                     <label class="custom-switch">
                         <input type="checkbox" id="notify-evening-azkar">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-switch-row">
+                    <div class="toggle-switch-info">
+                        <span class="toggle-switch-title">🌙 أذكار النوم والتحصين</span>
+                        <span class="toggle-switch-desc">تنبيه مسائي لقراءة أذكار النوم وآية الكرسي</span>
+                        <div class="azkar-time-picker-wrapper">
+                            <label for="time-sleep-azkar"><i class="fa-solid fa-clock"></i> وقت التنبيه:</label>
+                            <input type="time" id="time-sleep-azkar" value="22:30" class="azkar-time-input">
+                        </div>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-sleep-azkar">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-switch-row">
+                    <div class="toggle-switch-info">
+                        <span class="toggle-switch-title">ﷺ تذكير الصلاة على النبي</span>
+                        <span class="toggle-switch-desc">تنبيه صوتي مسموع بصوت (صلِّ على محمد) لتعطير لسانك بالصلاة على الحبيب ﷺ</span>
+                        <div class="azkar-time-picker-wrapper" style="margin-top: 6px;">
+                            <label for="select-salawat-interval"><i class="fa-solid fa-repeat text-gold"></i> التكرار كل:</label>
+                            <select id="select-salawat-interval" class="azkar-time-input" style="padding: 4px 8px; font-weight: 700; cursor: pointer;">
+                                <option value="15">كل 15 دقيقة</option>
+                                <option value="30">كل 30 دقيقة</option>
+                                <option value="45">كل 45 دقيقة</option>
+                                <option value="60" selected>كل ساعة (60 دقيقة)</option>
+                                <option value="120">كل ساعتين</option>
+                                <option value="180">كل 3 ساعات</option>
+                                <option value="240">كل 4 ساعات</option>
+                                <option value="360">كل 6 ساعات</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 6px;">
+                            <button type="button" class="btn btn-outline btn-sm" id="btn-test-salawat-sound" style="font-size: 11px; padding: 4px 10px;">
+                                <i class="fa-solid fa-volume-high text-gold"></i>
+                                <span>تجربة صوت الصلاة على النبي 🔊</span>
+                            </button>
+                        </div>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-hourly-salawat" checked>
                         <span class="slider-round"></span>
                     </label>
                 </div>
@@ -3466,14 +3589,14 @@
     <script src="assets/js/islamic-stories-data.js?v=3"></script>
     <script src="assets/js/media-data.js?v=2"></script>
     <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/native-adhan-service.js?v=2"></script>
+    <script src="assets/js/native-adhan-service.js?v=5"></script>
     <script src="assets/js/onesignal-service.js?v=1"></script>
     <script src="assets/js/app.js?v=18"></script>
-    <script src="assets/js/quran.js?v=25"></script>
-    <script src="assets/js/extended-modules.js?v=23"></script>
+    <script src="assets/js/quran.js?v=26"></script>
+    <script src="assets/js/extended-modules.js?v=27"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="assets/js/zakat-calculator.js?v=1"></script>
-    <script src="assets/js/nearby-mosques.js?v=4"></script>
+    <script src="assets/js/nearby-mosques.js?v=7"></script>
 
     <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
     <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">

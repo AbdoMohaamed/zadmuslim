@@ -24,7 +24,7 @@
 
         </activity>
 
-        <!-- شاشة الأذان الكاملة المنبثقة فوق شاشة القفل عند دخول الوقت -->
+        <!-- ???? ?????? ??????? ???????? ??? ???? ????? ??? ???? ????? -->
         <activity
             android:name=".AdhanActivity"
             android:showWhenLocked="true"
@@ -49,14 +49,14 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/gold_accent" />
 
-        <!-- خدمة تشغيل الأذان في الخلفية مع التحكم من شاشة القفل وزر الباور -->
+        <!-- ???? ????? ?????? ?? ??????? ?? ?????? ?? ???? ????? ??? ?????? -->
         <service
             android:name=".AdhanService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
-        <!-- مستقبل تنبيهات الأذان والتنبيه المسبق قبل الصلاة بـ 5 دقائق -->
+        <!-- ?????? ??????? ?????? ???????? ?????? ??? ?????? ?? 5 ????? -->
         <receiver
             android:name=".AdhanAlarmReceiver"
             android:enabled="true"
@@ -66,6 +66,21 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".PrayerWidgetProvider"
+            android:label="@string/widget_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.zadmuslim.app.ACTION_UPDATE_PRAYER_WIDGET" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/prayer_widget_info" />
         </receiver>
     </application>
 
@@ -84,3 +99,4 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>
+

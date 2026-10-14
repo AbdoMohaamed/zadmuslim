@@ -4,4 +4,6 @@
     <string name="title_activity_main">زاد المسلم</string>
     <string name="package_name">com.zadmuslim.app</string>
     <string name="custom_url_scheme">com.zadmuslim.app</string>
+    <string name="widget_name">مواقيت الصلاة - زاد المسلم</string>
+    <string name="widget_description">مواقيت الصلاة، العد التنازلي، والورد اليومي على شاشتك الرئيسية</string>
 </resources>

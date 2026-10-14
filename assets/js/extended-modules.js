@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initSeasonsOfWorship();
     initIslamicGuideFaq();
     initSmartNotifications();
+    initHourlySalawatReminder();
     initEnhancedCardGenerator();
     initEnhancedCategorizedDuas();
     initDailySpiritualMessage();
@@ -806,33 +807,50 @@ function initSmartNotifications() {
     const deselectAllBtn = document.getElementById("btn-deselect-all-notifs");
 
     const chkMorning = document.getElementById("notify-morning-azkar");
+    const timeMorning = document.getElementById("time-morning-azkar");
     const chkEvening = document.getElementById("notify-evening-azkar");
+    const timeEvening = document.getElementById("time-evening-azkar");
+    const chkSleep = document.getElementById("notify-sleep-azkar");
+    const timeSleep = document.getElementById("time-sleep-azkar");
     const chkFriday = document.getElementById("notify-friday-kahf");
     const chkFasting = document.getElementById("notify-fasting-days");
     const chkPrePrayer = document.getElementById("notify-pre-prayer");
     const chkAdhan = document.getElementById("notify-adhan-calls");
+    const chkHourlySalawat = document.getElementById("notify-hourly-salawat");
+    const selectSalawatInterval = document.getElementById("select-salawat-interval");
+    const btnTestSalawatSound = document.getElementById("btn-test-salawat-sound");
 
-    const allCheckboxes = [chkMorning, chkEvening, chkFriday, chkFasting, chkPrePrayer, chkAdhan].filter(Boolean);
+    const allCheckboxes = [chkMorning, chkEvening, chkSleep, chkFriday, chkFasting, chkPrePrayer, chkAdhan, chkHourlySalawat].filter(Boolean);
 
-    // استعادة الإعدادات المحفوظة مع تفعيل الأذان والتنبيه المسبق افتراضياً
+    // استعادة الإعدادات المحفوظة مع تفعيل الأذان والتنبيه المسبق والصلاة على النبي افتراضياً
     try {
         const rawSettings = localStorage.getItem("smart_notify_settings");
         const savedSettings = rawSettings ? JSON.parse(rawSettings) : null;
         if (savedSettings) {
             if (chkMorning) chkMorning.checked = savedSettings.morning === true;
+            if (timeMorning && savedSettings.morningTime) timeMorning.value = savedSettings.morningTime;
             if (chkEvening) chkEvening.checked = savedSettings.evening === true;
+            if (timeEvening && savedSettings.eveningTime) timeEvening.value = savedSettings.eveningTime;
+            if (chkSleep) chkSleep.checked = savedSettings.sleep === true;
+            if (timeSleep && savedSettings.sleepTime) timeSleep.value = savedSettings.sleepTime;
             if (chkFriday) chkFriday.checked = savedSettings.friday === true;
             if (chkFasting) chkFasting.checked = savedSettings.fasting === true;
             if (chkPrePrayer) chkPrePrayer.checked = savedSettings.prePrayer !== false;
             if (chkAdhan) chkAdhan.checked = savedSettings.adhan !== false;
+            if (chkHourlySalawat) chkHourlySalawat.checked = savedSettings.hourlySalawat !== false;
+            if (selectSalawatInterval && savedSettings.salawatInterval) selectSalawatInterval.value = String(savedSettings.salawatInterval);
         } else {
-            // الإعداد الافتراضي الذكي: الأذان والتنبيه المسبق مفعلان تلقائياً
+            // الإعداد الافتراضي الذكي: الأذان والتنبيه المسبق والصلاة على النبي مفعلة تلقائياً
             if (chkPrePrayer) chkPrePrayer.checked = true;
             if (chkAdhan) chkAdhan.checked = true;
+            if (chkHourlySalawat) chkHourlySalawat.checked = true;
+            if (selectSalawatInterval) selectSalawatInterval.value = "60";
         }
     } catch(e) {
         if (chkPrePrayer) chkPrePrayer.checked = true;
         if (chkAdhan) chkAdhan.checked = true;
+        if (chkHourlySalawat) chkHourlySalawat.checked = true;
+        if (selectSalawatInterval) selectSalawatInterval.value = "60";
     }
 
     // زر تحديد الكل
@@ -962,6 +980,14 @@ function initSmartNotifications() {
         });
     }
 
+    if (btnTestSalawatSound) {
+        btnTestSalawatSound.addEventListener("click", () => {
+            if (typeof window.playSalawatAudio === "function") {
+                window.playSalawatAudio(true);
+            }
+        });
+    }
+
     // الاستماع الدائم للبث السحابي لجميع الزوار لظهور الإشعار المنبثق والصوت
     listenToCloudBroadcastNotifications();
     registerPushSubscriberInFirebase();
@@ -971,14 +997,25 @@ function initSmartNotifications() {
         requestBtn.addEventListener("click", async () => {
             const settings = {
                 morning: chkMorning ? chkMorning.checked : false,
+                morningTime: (timeMorning && timeMorning.value) ? timeMorning.value : "06:30",
                 evening: chkEvening ? chkEvening.checked : false,
+                eveningTime: (timeEvening && timeEvening.value) ? timeEvening.value : "17:00",
+                sleep: chkSleep ? chkSleep.checked : false,
+                sleepTime: (timeSleep && timeSleep.value) ? timeSleep.value : "22:30",
                 friday: chkFriday ? chkFriday.checked : false,
                 fasting: chkFasting ? chkFasting.checked : false,
                 prePrayer: chkPrePrayer ? chkPrePrayer.checked : true,
-                adhan: chkAdhan ? chkAdhan.checked : true
+                adhan: chkAdhan ? chkAdhan.checked : true,
+                hourlySalawat: chkHourlySalawat ? chkHourlySalawat.checked : true,
+                salawatInterval: (selectSalawatInterval && selectSalawatInterval.value) ? parseInt(selectSalawatInterval.value, 10) : 60
             };
             localStorage.setItem("smart_notify_settings", JSON.stringify(settings));
             localStorage.setItem("smart_notify_configured", "true");
+
+            // إعادة ضبط مؤقت الصلاة على النبي بالفاصل الزمني الجديد فوراً
+            if (typeof window.restartSalawatReminder === "function") {
+                window.restartSalawatReminder();
+            }
 
             // مزامنة مواقيت الأذان والمنبهات مع نظام التشغيل فوراً
             if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function" && window.prayerTimings) {
@@ -1046,6 +1083,100 @@ function initSmartNotifications() {
             }
         }, 4000);
     }
+}
+
+/**
+ * تشغيل المقطع الصوتي النقي (صلى الله على محمد ﷺ)
+ */
+window.playSalawatAudio = function(isUserTest = false) {
+    try {
+        const audio = new Audio("assets/audio/salawat.mp3");
+        audio.volume = 1.0;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                if (isUserTest && typeof showToast === "function") {
+                    showToast("ﷺ تم تشغيل صوت الصلاة على النبي بنجاح");
+                }
+            }).catch(e => {
+                console.warn("Audio autoplay blocked or failed:", e);
+                if (isUserTest && typeof showToast === "function") {
+                    showToast("يرجى النقر على الشاشة للسماح بتشغيل الصوت 🔊");
+                }
+            });
+        }
+    } catch(err) {
+        console.warn("playSalawatAudio error:", err);
+    }
+};
+
+/**
+ * نظام التذكير الصوتي والتنبيه الدوري بالصلاة على النبي ﷺ حسب الفاصل الزمني المختار
+ */
+function initHourlySalawatReminder() {
+    let salawatTimer = null;
+    let salawatIntervalId = null;
+
+    function getSalawatConfig() {
+        let isEnabled = true;
+        let intervalMins = 60;
+        try {
+            const raw = localStorage.getItem("smart_notify_settings");
+            if (raw) {
+                const s = JSON.parse(raw);
+                if (s.hourlySalawat === false) isEnabled = false;
+                if (s.salawatInterval) {
+                    const parsed = parseInt(s.salawatInterval, 10);
+                    if (!isNaN(parsed) && parsed > 0) intervalMins = parsed;
+                }
+            }
+        } catch(e) {}
+        return { isEnabled, intervalMins };
+    }
+
+    function triggerSalawat() {
+        const { isEnabled } = getSalawatConfig();
+        if (!isEnabled) return;
+
+        // 1. تشغيل الصوت النقي
+        window.playSalawatAudio(false);
+
+        // 2. إظهار Toast داخل التطبيق
+        if (typeof showToast === "function") {
+            showToast("ﷺ صلِّ على النبي • اللهم صلِّ وسلِّم وبارك على نبينا محمد");
+        }
+
+        // 3. إشعار النظام المكتبي / إشعار المتصفح عند إتاحته
+        if (typeof triggerNativeNotification === "function") {
+            triggerNativeNotification("ﷺ صلِّ على النبي", "اللهم صلِّ وسلِّم وبارك على نبينا وحبيبنا محمد ﷺ", "./");
+        }
+    }
+
+    function scheduleSalawat() {
+        if (salawatTimer) clearTimeout(salawatTimer);
+        if (salawatIntervalId) clearInterval(salawatIntervalId);
+
+        const { isEnabled, intervalMins } = getSalawatConfig();
+        if (!isEnabled) return;
+
+        const intervalMs = intervalMins * 60 * 1000;
+
+        // إذا كان التكرار كل ساعة (60 دقيقة)، نضبطه مع رأس الساعة القادمة بدقة
+        if (intervalMins === 60) {
+            const now = new Date();
+            const msUntilNextHour = (60 - now.getMinutes()) * 60000 - (now.getSeconds() * 1000) - now.getMilliseconds();
+            salawatTimer = setTimeout(() => {
+                triggerSalawat();
+                salawatIntervalId = setInterval(triggerSalawat, 3600000);
+            }, Math.max(1000, msUntilNextHour));
+        } else {
+            // للتكرارات المخصصة (15، 30، 45 دقيقة وغيرها)
+            salawatIntervalId = setInterval(triggerSalawat, intervalMs);
+        }
+    }
+
+    window.restartSalawatReminder = scheduleSalawat;
+    scheduleSalawat();
 }
 
 /**
@@ -2532,6 +2663,28 @@ function initLiveRadioWidgetWithSleepTimer() {
         }
     };
 
+    let isLoadingStream = false;
+
+    const setLoadingState = (loading, message = "جاري الاتصال بالبث المباشر... ⏳") => {
+        isLoadingStream = loading;
+        if (loading) {
+            if (playIcon) playIcon.className = "fa-solid fa-spinner fa-spin";
+            if (playBtn) {
+                playBtn.classList.add("is-loading");
+                playBtn.setAttribute("title", message);
+            }
+            if (fabBtn) fabBtn.classList.add("is-loading");
+            if (descEl) descEl.innerHTML = `<span style="color: #ffd875; font-weight: 700;"><i class="fa-solid fa-spinner fa-spin"></i> ${message}</span>`;
+        } else {
+            if (playBtn) {
+                playBtn.classList.remove("is-loading");
+                playBtn.setAttribute("title", isPlaying ? "إيقاف مؤقت" : "تشغيل البث");
+            }
+            if (fabBtn) fabBtn.classList.remove("is-loading");
+            if (descEl && currentStation) descEl.textContent = currentStation.desc;
+        }
+    };
+
     const setStation = (st, autoPlay = false) => {
         if (!st) return;
         currentStation = st;
@@ -2541,8 +2694,10 @@ function initLiveRadioWidgetWithSleepTimer() {
         applyStationUI(st);
         radioAudio.src = st.url;
         if (autoPlay || isPlaying) {
+            setLoadingState(true, `جاري تشغيل «${st.name}»... ⏳`);
             radioAudio.play().then(() => {
                 fallbackAttempts = 0;
+                setLoadingState(false);
                 updatePlayState(true);
             }).catch(e => {
                 console.warn("Radio playback error, trying fallback:", e);
@@ -2564,9 +2719,14 @@ function initLiveRadioWidgetWithSleepTimer() {
 
     // التحويل التلقائي الذكي للبث البديل في حال تعثر أي إذاعة لضمان عدم انقطاع التلاوة
     const triggerStreamFallback = (failedStation) => {
+        setLoadingState(false);
         fallbackAttempts++;
         if (fallbackAttempts > 4) {
             fallbackAttempts = 0;
+            updatePlayState(false);
+            if (typeof showToast === "function") {
+                showToast("تعذر الاتصال بالبث حالياً، يرجى اختيار إذاعة أخرى من القائمة 📻");
+            }
             return;
         }
 
@@ -2575,7 +2735,11 @@ function initLiveRadioWidgetWithSleepTimer() {
             console.warn("Switching to backup stream URL:", failedStation.backupUrl);
             radioAudio.src = failedStation.backupUrl;
             if (isPlaying) {
-                radioAudio.play().then(() => updatePlayState(true)).catch(() => triggerStreamFallback(null));
+                setLoadingState(true, "جاري الانتقال للتردد الاحتياطي... ⏳");
+                radioAudio.play().then(() => {
+                    setLoadingState(false);
+                    updatePlayState(true);
+                }).catch(() => triggerStreamFallback(null));
             }
             return;
         }
@@ -2595,7 +2759,26 @@ function initLiveRadioWidgetWithSleepTimer() {
         }
     };
 
+    // مراقبة أحداث الصوت وإظهار اللودينج أثناء التحميل والبفرينج
+    radioAudio.addEventListener("loadstart", () => {
+        if (!radioAudio.paused) setLoadingState(true, "جاري تهيئة البث المباشر... ⏳");
+    });
+    radioAudio.addEventListener("waiting", () => {
+        setLoadingState(true, "جاري تحضير البث المباشر والاتصال بالسيرفر... ⏳");
+    });
+    radioAudio.addEventListener("canplay", () => {
+        setLoadingState(false);
+    });
+    radioAudio.addEventListener("playing", () => {
+        setLoadingState(false);
+        updatePlayState(true);
+    });
+    radioAudio.addEventListener("pause", () => {
+        setLoadingState(false);
+        updatePlayState(false);
+    });
     radioAudio.addEventListener("error", () => {
+        setLoadingState(false);
         console.warn("Radio stream error event fired, attempting fallback...");
         triggerStreamFallback(currentStation);
     });
@@ -2603,7 +2786,7 @@ function initLiveRadioWidgetWithSleepTimer() {
     // 2. تحديث حالة التشغيل والمظهر
     const updatePlayState = (playing) => {
         isPlaying = playing;
-        if (playIcon) {
+        if (!isLoadingStream && playIcon) {
             playIcon.className = playing ? "fa-solid fa-pause" : "fa-solid fa-play";
         }
         if (fabBtn) {
@@ -2634,6 +2817,7 @@ function initLiveRadioWidgetWithSleepTimer() {
 
     const toggleRadioPlayback = () => {
         if (isPlaying) {
+            setLoadingState(false);
             radioAudio.pause();
             updatePlayState(false);
             if (typeof showToast === "function") showToast("تم إيقاف إذاعة القرآن الكريم ⏸️");
@@ -2646,8 +2830,11 @@ function initLiveRadioWidgetWithSleepTimer() {
                 if (btnToggleAudio) btnToggleAudio.classList.remove("active");
             }
 
+            setLoadingState(true, "جاري الاتصال بالبث المباشر... ⏳");
+
             radioAudio.play().then(() => {
                 fallbackAttempts = 0;
+                setLoadingState(false);
                 updatePlayState(true);
                 if (typeof showToast === "function") showToast("جاري الاستماع لإذاعة القرآن الكريم 📻🌿");
             }).catch(e => {

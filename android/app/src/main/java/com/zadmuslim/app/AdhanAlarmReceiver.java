@@ -60,6 +60,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             "com.htc.intent.action.QUICKBOOT_POWERON".equals(action)) {
             Log.d(TAG, "Device rebooted - Rescheduling prayer alarms");
             AdhanNativePlugin.rescheduleAlarmsFromPrefs(context);
+            PrayerWidgetProvider.updateAllWidgets(context);
             checkCloudBroadcastsInBackground(context);
             scheduleNextBroadcastCheck(context);
             return;
@@ -101,6 +102,11 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
                 // ب. إظهار إشعار شاشة القفل التفاعلي مع FullScreenIntent
                 showAdhanAlarmNotification(context, prayerName, prayerKey);
+
+                // تحديث ويدجت الشاشة الرئيسية فوراً لينتقل للصلاة التالية
+                try {
+                    PrayerWidgetProvider.updateAllWidgets(context);
+                } catch (Exception ignored) {}
 
                 // ج. محاولة تشغيل AdhanService كـ Foreground Service لضمان حماية المعالج في الخلفية
                 try {

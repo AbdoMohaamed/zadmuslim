@@ -221,6 +221,7 @@ function initGoldenQuran() {
     setupGoldenImmersiveMode();
     setupGoldenAyahSheet();
     setupGoldenMiniPlayer();
+    setupGoldenMemorizeStudio();
     setupTouchSwipe();
     setupKeyboardNavigation();
     initTafsirModal();
@@ -1260,3 +1261,325 @@ function startGoldenAudioPlayer() {
         if (typeof showToast === "function") showToast("تتطلب التلاوة الصوتية اتصالاً بالإنترنت.");
     });
 }
+
+// ==========================================================================
+// 5. استوديو ومساعد الحفظ وتكرار الآيات الشريفة آية آية (Ayah Memorization & Repetition)
+// ==========================================================================
+let ayahMemorizeAudio = null;
+let currentMemorizeAyahs = [];
+let activeAyahIndex = -1;
+let currentRepeatTarget = 3;
+let currentRepeatCount = 1;
+let isMemorizePlaying = false;
+let selectedMemorizeReciter = "ar.alafasy";
+
+function setupGoldenMemorizeStudio() {
+    const btnOpen = document.getElementById("golden-btn-memorize");
+    const modal = document.getElementById("golden-memorize-modal");
+    const btnClose = document.getElementById("btn-close-memorize-modal");
+    const reciterSelect = document.getElementById("memorize-reciter-select");
+    const repeatPills = document.querySelectorAll("#memorize-repeat-pills .repeat-pill");
+
+    if (!modal) return;
+    if (!ayahMemorizeAudio) {
+        ayahMemorizeAudio = new Audio();
+    }
+
+    if (btnOpen) {
+        btnOpen.addEventListener("click", () => {
+            openGoldenMemorizeStudio();
+        });
+    }
+
+    if (btnClose) {
+        btnClose.addEventListener("click", () => {
+            closeGoldenMemorizeStudio();
+        });
+    }
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeGoldenMemorizeStudio();
+    });
+
+    if (reciterSelect) {
+        reciterSelect.addEventListener("change", () => {
+            selectedMemorizeReciter = reciterSelect.value;
+            if (isMemorizePlaying && activeAyahIndex >= 0) {
+                playCurrentAyahWithRepeat();
+            }
+        });
+    }
+
+    repeatPills.forEach(pill => {
+        pill.addEventListener("click", () => {
+            repeatPills.forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
+            currentRepeatTarget = parseInt(pill.getAttribute("data-repeat"), 10) || 3;
+            currentRepeatCount = 1;
+            updateMemorizeCounterUI();
+        });
+    });
+
+    ayahMemorizeAudio.addEventListener("ended", () => {
+        handleAyahRepetitionEnded();
+    });
+
+    ayahMemorizeAudio.addEventListener("error", () => {
+        console.warn("Ayah audio load error, trying fallback EveryAyah...");
+        handleAyahAudioFallback();
+    });
+}
+
+function closeGoldenMemorizeStudio() {
+    const modal = document.getElementById("golden-memorize-modal");
+    if (modal) modal.classList.remove("open");
+    stopMemorizeAudio();
+}
+
+function stopMemorizeAudio() {
+    if (ayahMemorizeAudio) {
+        ayahMemorizeAudio.pause();
+        ayahMemorizeAudio.currentTime = 0;
+    }
+    isMemorizePlaying = false;
+    updateActiveAyahCardUI(-1);
+    updateMemorizeCounterUI();
+}
+
+function updateMemorizeCounterUI() {
+    const counterBox = document.getElementById("memorize-current-counter");
+    const badge = document.getElementById("memorize-counter-badge");
+    if (!counterBox || !badge) return;
+
+    if (isMemorizePlaying && activeAyahIndex >= 0) {
+        counterBox.style.display = "block";
+        if (currentRepeatTarget >= 999) {
+            badge.textContent = `تكرار مستمر (المرة ${toArabicDigits(currentRepeatCount)}) 🔁`;
+        } else {
+            badge.textContent = `التكرار: ${toArabicDigits(currentRepeatCount)} من ${toArabicDigits(currentRepeatTarget)}`;
+        }
+    } else {
+        counterBox.style.display = "none";
+    }
+}
+
+async function openGoldenMemorizeStudio(pageNumber) {
+    const modal = document.getElementById("golden-memorize-modal");
+    const pageRefEl = document.getElementById("memorize-page-ref");
+    const listEl = document.getElementById("memorize-ayahs-list");
+    if (!modal) return;
+
+    const page = pageNumber || currentPageNumber;
+    const surah = getSurahForPage(page);
+
+    if (pageRefEl) {
+        pageRefEl.textContent = `سورة ${surah.name} • صفحة ${toArabicDigits(page)}`;
+    }
+
+    modal.classList.add("open");
+    stopMemorizeAudio();
+
+    if (listEl) {
+        listEl.innerHTML = `
+            <div style="text-align: center; padding: 30px; color: #ffd875;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.8rem; margin-bottom: 10px;"></i>
+                <div>جاري جلب آيات الصفحة وتجهيز التلاوة والتكرار... 📖</div>
+            </div>
+        `;
+    }
+
+    try {
+        currentMemorizeAyahs = await fetchPageAyahsForMemorization(page);
+        renderMemorizeAyahsList(currentMemorizeAyahs);
+    } catch (err) {
+        if (listEl) {
+            listEl.innerHTML = `
+                <div style="text-align: center; padding: 25px; color: #ef4444;">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size: 1.8rem; margin-bottom: 8px;"></i>
+                    <div>تعذر تحميل بيانات الآيات، يرجى التحقق من اتصال الإنترنت.</div>
+                </div>
+            `;
+        }
+    }
+}
+
+async function fetchPageAyahsForMemorization(page) {
+    const cacheKey = `ayahs_data_p${page}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+        try {
+            return JSON.parse(cached);
+        } catch(e) {}
+    }
+
+    const res = await fetch(`https://api.alquran.cloud/v1/page/${page}/quran-uthmani`);
+    if (!res.ok) throw new Error("API response error");
+    const json = await res.json();
+    if (json && json.data && json.data.ayahs) {
+        localStorage.setItem(cacheKey, JSON.stringify(json.data.ayahs));
+        return json.data.ayahs;
+    }
+    throw new Error("No ayahs data found");
+}
+
+function renderMemorizeAyahsList(ayahs) {
+    const listEl = document.getElementById("memorize-ayahs-list");
+    if (!listEl) return;
+
+    if (!ayahs || ayahs.length === 0) {
+        listEl.innerHTML = `<div style="text-align: center; padding: 20px; color: #94a3b8;">لا توجد آيات متاحة في هذه الصفحة.</div>`;
+        return;
+    }
+
+    listEl.innerHTML = ayahs.map((ayah, idx) => {
+        const isMemorized = localStorage.getItem(`zad_memorized_${ayah.number}`) === "true";
+        return `
+            <div class="memorize-ayah-card" id="memorize-card-${idx}" data-index="${idx}">
+                <div class="memorize-ayah-top">
+                    <span class="memorize-ayah-badge">الآية ${toArabicDigits(ayah.numberInSurah)}</span>
+                    <div class="memorize-ayah-actions">
+                        <button type="button" class="memorize-ayah-btn btn-play-single" data-index="${idx}">
+                            <i class="fa-solid fa-play"></i>
+                            <span>تكرار وحفظ</span>
+                        </button>
+                        <button type="button" class="memorize-ayah-btn btn-memorized-toggle ${isMemorized ? 'active' : ''}" data-ayah-num="${ayah.number}">
+                            <i class="${isMemorized ? 'fa-solid fa-check-double text-success' : 'fa-regular fa-circle-check'}"></i>
+                            <span>${isMemorized ? 'تم الحفظ' : 'حفظ'}</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="memorize-ayah-text">
+                    ${ayah.text} ﴿${toArabicDigits(ayah.numberInSurah)}﴾
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    // مستمعات النقر على كروت الآيات
+    const cards = listEl.querySelectorAll(".memorize-ayah-card");
+    cards.forEach((card, idx) => {
+        card.addEventListener("click", (e) => {
+            if (e.target.closest(".btn-memorized-toggle")) return;
+            selectAndPlayAyah(idx);
+        });
+    });
+
+    // مستمعات زر تم الحفظ
+    const memBtns = listEl.querySelectorAll(".btn-memorized-toggle");
+    memBtns.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const aNum = btn.getAttribute("data-ayah-num");
+            const current = localStorage.getItem(`zad_memorized_${aNum}`) === "true";
+            const newVal = !current;
+            localStorage.setItem(`zad_memorized_${aNum}`, newVal ? "true" : "false");
+            btn.classList.toggle("active", newVal);
+            btn.innerHTML = `<i class="${newVal ? 'fa-solid fa-check-double text-success' : 'fa-regular fa-circle-check'}"></i> <span>${newVal ? 'تم الحفظ' : 'حفظ'}</span>`;
+            if (typeof showToast === "function") {
+                showToast(newVal ? "ما شاء الله! مبارك حفظك لهذه الآية الكريمة 🌿✓" : "تم إلغاء علامة الحفظ.");
+            }
+        });
+    });
+}
+
+function selectAndPlayAyah(index) {
+    if (index < 0 || index >= currentMemorizeAyahs.length) return;
+    activeAyahIndex = index;
+    currentRepeatCount = 1;
+    playCurrentAyahWithRepeat();
+}
+
+function playCurrentAyahWithRepeat() {
+    if (activeAyahIndex < 0 || activeAyahIndex >= currentMemorizeAyahs.length) return;
+    const ayah = currentMemorizeAyahs[activeAyahIndex];
+    if (!ayah) return;
+
+    updateActiveAyahCardUI(activeAyahIndex);
+    isMemorizePlaying = true;
+    updateMemorizeCounterUI();
+
+    // 1. تجربة الرابط من Islamic Network CDN
+    const audioUrl = `https://cdn.islamic.network/quran/audio/128/${selectedMemorizeReciter}/${ayah.number}.mp3`;
+    ayahMemorizeAudio.src = audioUrl;
+
+    ayahMemorizeAudio.play().then(() => {
+        isMemorizePlaying = true;
+        updateMemorizeCounterUI();
+    }).catch(err => {
+        console.warn("Primary Ayah audio failed, trying fallback EveryAyah:", err);
+        handleAyahAudioFallback();
+    });
+}
+
+function handleAyahAudioFallback() {
+    if (activeAyahIndex < 0 || activeAyahIndex >= currentMemorizeAyahs.length) return;
+    const ayah = currentMemorizeAyahs[activeAyahIndex];
+    if (!ayah) return;
+
+    // حساب رقم السورة ورقم الآية بصيغة 001001
+    const surahId = (ayah.surah && ayah.surah.number) ? ayah.surah.number : getSurahForPage(currentPageNumber).id;
+    const paddedSurah = String(surahId).padStart(3, "0");
+    const paddedAyah = String(ayah.numberInSurah).padStart(3, "0");
+
+    let reciterFolder = "Alafasy_128kbps";
+    if (selectedMemorizeReciter.includes("husary")) reciterFolder = "Husary_128kbps";
+    else if (selectedMemorizeReciter.includes("minshawi")) reciterFolder = "Minshawy_Murattal_128kbps";
+    else if (selectedMemorizeReciter.includes("abdulbasit")) reciterFolder = "Abdul_Basit_Murattal_192kbps";
+
+    const fallbackUrl = `https://everyayah.com/data/${reciterFolder}/${paddedSurah}${paddedAyah}.mp3`;
+    ayahMemorizeAudio.src = fallbackUrl;
+    ayahMemorizeAudio.play().catch(e => {
+        console.error("All ayah audio sources failed:", e);
+        if (typeof showToast === "function") showToast("تعذر تحميل تلاوة هذه الآية، يرجى التأكد من الاتصال بالإنترنت.");
+    });
+}
+
+function handleAyahRepetitionEnded() {
+    if (!isMemorizePlaying || activeAyahIndex < 0) return;
+
+    if (currentRepeatCount < currentRepeatTarget) {
+        currentRepeatCount++;
+        updateMemorizeCounterUI();
+        if (ayahMemorizeAudio) {
+            ayahMemorizeAudio.currentTime = 0;
+            ayahMemorizeAudio.play().catch(() => {});
+        }
+    } else {
+        // انتهت تكرارات الآية الحالية
+        const autoNext = document.getElementById("memorize-auto-next")?.checked;
+        if (autoNext && activeAyahIndex < currentMemorizeAyahs.length - 1) {
+            // الانتقال للآية التالية
+            activeAyahIndex++;
+            currentRepeatCount = 1;
+            playCurrentAyahWithRepeat();
+        } else {
+            // التوقف
+            stopMemorizeAudio();
+            if (typeof showToast === "function") {
+                showToast("أحسنت! اكتمل تكرار الآية بنجاح، ثبّت الله القرآن في صدرك 🌿✨");
+            }
+        }
+    }
+}
+
+function updateActiveAyahCardUI(activeIndex) {
+    const cards = document.querySelectorAll(".memorize-ayah-card");
+    cards.forEach((card, idx) => {
+        const isCurrent = idx === activeIndex;
+        card.classList.toggle("is-active", isCurrent);
+        const playBtn = card.querySelector(".btn-play-single");
+        if (playBtn) {
+            playBtn.innerHTML = isCurrent
+                ? `<i class="fa-solid fa-volume-high"></i> <span>جاري التكرار</span>`
+                : `<i class="fa-solid fa-play"></i> <span>تكرار وحفظ</span>`;
+        }
+    });
+
+    if (activeIndex >= 0) {
+        const activeCard = document.getElementById(`memorize-card-${activeIndex}`);
+        if (activeCard) {
+            activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+    }
+}
+

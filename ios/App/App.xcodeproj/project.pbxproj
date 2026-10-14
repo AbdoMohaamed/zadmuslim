@@ -29,6 +29,7 @@
 		95PR00082DB07C7200EA8C01 /* pre_maghrib.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00072DB07C7200EA8C01 /* pre_maghrib.mp3 */; };
 		95PR000A2DB07C7200EA8C01 /* pre_isha.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */; };
 		95PR000C2DB07C7200EA8C01 /* pre_prayer.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */; };
+		95SW00022DB07C7200EA8C01 /* salawat.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95SW00012DB07C7200EA8C01 /* salawat.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 		95PR00072DB07C7200EA8C01 /* pre_maghrib.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_maghrib.mp3; sourceTree = "<group>"; };
 		95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_isha.mp3; sourceTree = "<group>"; };
 		95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_prayer.mp3; sourceTree = "<group>"; };
+		95SW00012DB07C7200EA8C01 /* salawat.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = salawat.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 				95PR00072DB07C7200EA8C01 /* pre_maghrib.mp3 */,
 				95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */,
 				95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */,
+				95SW00012DB07C7200EA8C01 /* salawat.mp3 */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -200,6 +203,7 @@
 				95PR00082DB07C7200EA8C01 /* pre_maghrib.mp3 in Resources */,
 				95PR000A2DB07C7200EA8C01 /* pre_isha.mp3 in Resources */,
 				95PR000C2DB07C7200EA8C01 /* pre_prayer.mp3 in Resources */,
+				95SW00022DB07C7200EA8C01 /* salawat.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

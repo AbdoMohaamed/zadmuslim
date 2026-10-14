@@ -43,10 +43,14 @@ public class AdhanNativePlugin extends Plugin {
         }
 
         // حفظ الإعدادات في SharedPreferences للاسترجاع
+        String hijriDate = call.getString("hijriDate", null);
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit()
                 .putString("last_timings_json", timingsObj.toString())
                 .putString("selected_muazzin", muazzin);
+        if (hijriDate != null && !hijriDate.isEmpty()) {
+            editor.putString("widget_hijri_date", hijriDate);
+        }
         if (enabledPrayers != null) {
             editor.putString("enabled_prayers_json", enabledPrayers.toString());
         }
@@ -133,10 +137,37 @@ public class AdhanNativePlugin extends Plugin {
         // جدولة فحص الإشعارات السحابية دورياً حتى والتطبيق مغلق
         schedulePeriodicBroadcastCheck(context, alarmManager);
 
+        // تحديث ويدجت الشاشة الرئيسية وشاشة القفل فوراً
+        try {
+            PrayerWidgetProvider.updateAllWidgets(context);
+        } catch (Exception e) {
+            Log.w(TAG, "Notice: could not update prayer widget immediately: ", e);
+        }
+
         Log.d(TAG, "Successfully scheduled " + scheduledCount + " exact alarms in native Android OS");
         JSObject ret = new JSObject();
         ret.put("success", true);
         ret.put("scheduledCount", scheduledCount);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void updatePrayerWidget(PluginCall call) {
+        JSObject timingsObj = call.getObject("timings");
+        String hijriDate = call.getString("hijriDate", null);
+        Context context = getContext();
+        if (timingsObj != null) {
+            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit()
+                    .putString("last_timings_json", timingsObj.toString());
+            if (hijriDate != null && !hijriDate.isEmpty()) {
+                editor.putString("widget_hijri_date", hijriDate);
+            }
+            editor.apply();
+        }
+        PrayerWidgetProvider.updateAllWidgets(context);
+        JSObject ret = new JSObject();
+        ret.put("success", true);
         call.resolve(ret);
     }
 

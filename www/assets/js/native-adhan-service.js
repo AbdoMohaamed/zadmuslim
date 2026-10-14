@@ -57,6 +57,7 @@ const NativeAdhanService = {
                 { id: "adhan_qatami", name: "أذان الشيخ ناصر القطامي", sound: "adhan_qatami", importance: 5 },
                 { id: "adhan_fajr", name: "أذان الفجر المخصوص", sound: "adhan_fajr", importance: 5 },
                 { id: "daily_adhkar", name: "أذكار الصباح والمساء وسورة الكهف", sound: null, importance: 4 },
+                { id: "hourly_salawat", name: "تذكير الصلاة على النبي ﷺ كل ساعة", sound: "salawat", importance: 4 },
                 { id: "zad_cloud_broadcast_channel", name: "إشعارات ورسائل زاد المسلم العامة", sound: "adhan_makkah", importance: 5 }
             ];
 
@@ -107,6 +108,10 @@ const NativeAdhanService = {
                         if (typeof playPrePrayerAudio === "function") {
                             playPrePrayerAudio(notif.extra.prayerKey);
                         }
+                    } else if (notif.extra.type === "hourly_salawat") {
+                        if (typeof window.playSalawatAudio === "function") {
+                            window.playSalawatAudio(false);
+                        }
                     }
                 }
             });
@@ -114,9 +119,15 @@ const NativeAdhanService = {
             // الاستماع أيضاً لاستلام الإشعار عند فتح التطبيق
             LocalNotifications.addListener("localNotificationReceived", (notif) => {
                 console.log("🕌 Native Notification received:", notif);
-                if (notif && notif.extra && notif.extra.type === "pre_prayer_alert" && notif.extra.prayerKey) {
-                    if (typeof playPrePrayerAudio === "function") {
-                        playPrePrayerAudio(notif.extra.prayerKey);
+                if (notif && notif.extra) {
+                    if (notif.extra.type === "pre_prayer_alert" && notif.extra.prayerKey) {
+                        if (typeof playPrePrayerAudio === "function") {
+                            playPrePrayerAudio(notif.extra.prayerKey);
+                        }
+                    } else if (notif.extra.type === "hourly_salawat") {
+                        if (typeof window.playSalawatAudio === "function") {
+                            window.playSalawatAudio(false);
+                        }
                     }
                 }
             });
@@ -160,6 +171,15 @@ const NativeAdhanService = {
             ].filter(p => enabledPrayers[p.key] !== false);
 
             const notificationsToSchedule = [];
+
+            let notifySettings = { morning: true, morningTime: "06:30", evening: true, eveningTime: "17:00", sleep: true, sleepTime: "22:30", friday: true, hourlySalawat: true };
+            try {
+                const rawSettings = localStorage.getItem("smart_notify_settings");
+                if (rawSettings) {
+                    const parsed = JSON.parse(rawSettings);
+                    notifySettings = { ...notifySettings, ...parsed };
+                }
+            } catch(e) {}
 
             // جدولة لليوم الحالي ولليومين القادمين (3 أيام = 36 إشعاراً) للبقاء بأمان تام تحت الحد الأقصى لنظام iOS (64 إشعاراً)
             for (let dayOffset = 0; dayOffset <= 2; dayOffset++) {
@@ -227,37 +247,66 @@ const NativeAdhanService = {
                     }
                 }
 
-                // 3. جدولة أذكار الصباح والمساء في نظام الهاتف الأصلي (Morning & Evening Azkar)
-                // أذكار الصباح: الساعة 06:30 صباحاً
-                const morningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 6, 30, 0);
-                if (morningMoment.getTime() > now.getTime() + 1000) {
-                    notificationsToSchedule.push({
-                        id: 70000 + (dayOffset * 10),
-                        title: "🌅 أذكار الصباح • حصن المسلم",
-                        body: "أصبحنا وأصبح الملك لله.. ابدأ يومك بذكر الله وحصّن نفسك وأهلك بنور الأذكار 🌿",
-                        schedule: { at: morningMoment, allowWhileIdle: true },
-                        smallIcon: "res://ic_stat_icon",
-                        iconColor: "#d4af37",
-                        extra: { type: "morning_azkar" }
-                    });
+                // 3. جدولة أذكار الصباح والمساء والنوم في نظام الهاتف الأصلي وفق التوقيت المخصص للمستخدم
+                // أذكار الصباح: بالوقت المخصص من المستخدم (افتراضياً 06:30)
+                if (notifySettings.morning !== false) {
+                    let [mH, mM] = (notifySettings.morningTime || "06:30").split(":").map(Number);
+                    if (isNaN(mH)) mH = 6;
+                    if (isNaN(mM)) mM = 30;
+                    const morningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), mH, mM, 0);
+                    if (morningMoment.getTime() > now.getTime() + 1000) {
+                        notificationsToSchedule.push({
+                            id: 70000 + (dayOffset * 10),
+                            title: "🌅 أذكار الصباح • حصن المسلم",
+                            body: "أصبحنا وأصبح الملك لله.. ابدأ يومك بذكر الله وحصّن نفسك وأهلك بنور الأذكار 🌿",
+                            schedule: { at: morningMoment, allowWhileIdle: true },
+                            smallIcon: "res://ic_stat_icon",
+                            iconColor: "#d4af37",
+                            extra: { type: "morning_azkar" }
+                        });
+                    }
                 }
 
-                // أذكار المساء: الساعة 17:00 (5:00 عصراً)
-                const eveningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 17, 0, 0);
-                if (eveningMoment.getTime() > now.getTime() + 1000) {
-                    notificationsToSchedule.push({
-                        id: 71000 + (dayOffset * 10),
-                        title: "🌇 أذكار المساء • طمأنينة القلب",
-                        body: "أمسينا وأمسى الملك لله.. حان وقت أذكار المساء لطمأنينة القلب وحفظ الرحمن 🤲",
-                        schedule: { at: eveningMoment, allowWhileIdle: true },
-                        smallIcon: "res://ic_stat_icon",
-                        iconColor: "#d4af37",
-                        extra: { type: "evening_azkar" }
-                    });
+                // أذكار المساء: بالوقت المخصص من المستخدم (افتراضياً 17:00)
+                if (notifySettings.evening !== false) {
+                    let [eH, eM] = (notifySettings.eveningTime || "17:00").split(":").map(Number);
+                    if (isNaN(eH)) eH = 17;
+                    if (isNaN(eM)) eM = 0;
+                    const eveningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), eH, eM, 0);
+                    if (eveningMoment.getTime() > now.getTime() + 1000) {
+                        notificationsToSchedule.push({
+                            id: 71000 + (dayOffset * 10),
+                            title: "🌇 أذكار المساء • طمأنينة القلب",
+                            body: "أمسينا وأمسى الملك لله.. حان وقت أذكار المساء لطمأنينة القلب وحفظ الرحمن 🤲",
+                            schedule: { at: eveningMoment, allowWhileIdle: true },
+                            smallIcon: "res://ic_stat_icon",
+                            iconColor: "#d4af37",
+                            extra: { type: "evening_azkar" }
+                        });
+                    }
+                }
+
+                // أذكار النوم: بالوقت المخصص من المستخدم (افتراضياً 22:30)
+                if (notifySettings.sleep === true) {
+                    let [sH, sM] = (notifySettings.sleepTime || "22:30").split(":").map(Number);
+                    if (isNaN(sH)) sH = 22;
+                    if (isNaN(sM)) sM = 30;
+                    const sleepMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), sH, sM, 0);
+                    if (sleepMoment.getTime() > now.getTime() + 1000) {
+                        notificationsToSchedule.push({
+                            id: 73000 + (dayOffset * 10),
+                            title: "🌙 أذكار النوم والتحصين • باسمك ربي",
+                            body: "باسمك ربي وضعت جنبي وبك أرفعه.. حصّن نفسك بآية الكرسي والمعوذات وخواتيم سورة البقرة 🕊️",
+                            schedule: { at: sleepMoment, allowWhileIdle: true },
+                            smallIcon: "res://ic_stat_icon",
+                            iconColor: "#d4af37",
+                            extra: { type: "sleep_azkar" }
+                        });
+                    }
                 }
 
                 // تذكير سورة الكهف والصلاة على النبي يوم الجمعة (الساعة 09:00 صباحاً)
-                if (targetDay.getDay() === 5) { // 5 = Friday
+                if (notifySettings.friday !== false && targetDay.getDay() === 5) { // 5 = Friday
                     const fridayMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 9, 0, 0);
                     if (fridayMoment.getTime() > now.getTime() + 1000) {
                         notificationsToSchedule.push({
@@ -273,18 +322,50 @@ const NativeAdhanService = {
                 }
             }
 
-            // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي في الخلفية والمغلق والتحكم عبر زر القفل
+            // 4. جدولة تذكير الصلاة على النبي ﷺ في نظام التشغيل حسب الفاصل الزمني المحدد (مع ملف الصوت المدمج salawat.mp3)
+            if (notifySettings.hourlySalawat !== false) {
+                const intervalMins = parseInt(notifySettings.salawatInterval, 10) || 60;
+                const intervalMs = intervalMins * 60 * 1000;
+
+                // عدد الإشعارات المتاحة بحيث لا نتجاوز حد نظام iOS البالغ 64 إشعاراً كلياً
+                const remainingSlots = Math.max(5, 60 - notificationsToSchedule.length);
+                const countToSchedule = Math.min(remainingSlots, Math.max(1, Math.floor((24 * 60) / intervalMins)));
+
+                for (let i = 1; i <= countToSchedule; i++) {
+                    const salawatMoment = new Date(now.getTime() + (i * intervalMs));
+                    notificationsToSchedule.push({
+                        id: 80000 + i,
+                        title: "ﷺ صلِّ على النبي",
+                        body: "اللهم صلِّ وسلِّم وبارك على نبينا وحبيبنا محمد ﷺ",
+                        schedule: { at: salawatMoment, allowWhileIdle: true },
+                        sound: "salawat.mp3",
+                        channelId: "hourly_salawat",
+                        smallIcon: "res://ic_stat_icon",
+                        iconColor: "#d4af37",
+                        extra: { type: "hourly_salawat" }
+                    });
+                }
+            }
+
+            // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي وتحديث ويدجت الشاشة
             let hasNativePlugin = false;
             if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
                 try {
+                    let hijriDateStr = "";
+                    try {
+                        const hEl = document.getElementById("daily-hijri-date") || document.getElementById("hijri-date-text") || document.getElementById("app-header-hijri-date");
+                        if (hEl && hEl.innerText) hijriDateStr = hEl.innerText.trim();
+                    } catch(e) {}
+
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
                         timings: prayersTimings,
                         muazzin: selectedMuazzin,
                         preAlert: true,
-                        enabledPrayers: enabledPrayers
+                        enabledPrayers: enabledPrayers,
+                        hijriDate: hijriDateStr
                     });
                     hasNativePlugin = true;
-                    console.log("✅ Native Adhan Android Service: Exact alarms scheduled successfully:", nativeRes);
+                    console.log("✅ Native Adhan Android Service: Alarms & Home Widget scheduled successfully:", nativeRes);
                 } catch(nativeErr) {
                     console.warn("Native Adhan Android plugin call failed, falling back to LocalNotifications:", nativeErr);
                 }
@@ -336,6 +417,31 @@ const NativeAdhanService = {
     },
 
     /**
+     * تحديث ويدجت الشاشة الرئيسية (Home Screen Widget) بمواقيت الصلاة والتاريخ الهجري
+     */
+    async updateWidget(timings, hijriDate) {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                let hDate = hijriDate || "";
+                if (!hDate) {
+                    try {
+                        const hEl = document.getElementById("daily-hijri-date") || document.getElementById("hijri-date-text") || document.getElementById("app-header-hijri-date");
+                        if (hEl && hEl.innerText) hDate = hEl.innerText.trim();
+                    } catch(e) {}
+                }
+
+                await window.Capacitor.Plugins.AdhanNative.updatePrayerWidget({
+                    timings: timings || window.lastFetchedPrayerTimings,
+                    hijriDate: hDate
+                });
+                console.log("✅ Home Screen Widget updated successfully via AdhanNative");
+            } catch(e) {
+                console.warn("Update prayer widget notice:", e);
+            }
+        }
+    },
+
+    /**
      * تجربة صوت الأذان
      */
     async testAdhanAudio(muazzin) {
@@ -359,6 +465,25 @@ const NativeAdhanService = {
             }
         }
         return { success: true, muazzin: m, fallback: "web" };
+    },
+
+    /**
+     * تجربة صوت الصلاة على النبي ﷺ
+     */
+    async testSalawatAudio() {
+        if (typeof window.playSalawatAudio === "function") {
+            window.playSalawatAudio(true);
+            return { success: true };
+        }
+        try {
+            const audio = new Audio("assets/audio/salawat.mp3");
+            audio.volume = 1.0;
+            await audio.play();
+            return { success: true };
+        } catch(e) {
+            console.warn("Error playing salawat audio:", e);
+            return { success: false, error: e };
+        }
     },
 
     /**
