@@ -41,8 +41,92 @@ function updateNavbarActualHeight() {
 window.addEventListener('resize', updateNavbarActualHeight);
 window.addEventListener('orientationchange', () => setTimeout(updateNavbarActualHeight, 250));
 
+/* ==========================================================================
+   Smart Scroll Header (إظهار الهيدر عند التمرير لأعلى وإخفاؤه عند التمرير لأسفل)
+   ========================================================================== */
+function initSmartHeaderScroll() {
+    if (window._smartHeaderScrollInitialized) return;
+    window._smartHeaderScrollInitialized = true;
+
+    let lastScrollY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop || 0);
+    let ticking = false;
+    const scrollThreshold = 8; // عتبة الحركة لتفادي الاهتزاز مع اللمس الدقيق
+    const minScrollToShowHide = 45; // لا يتم الإخفاء إذا كان المستخدم قريباً جداً من قمة الصفحة
+
+    function getHeaders() {
+        return document.querySelectorAll('.app-native-header, header.top');
+    }
+
+    function isAnyModalOpen() {
+        return Boolean(
+            document.body.classList.contains('modal-open') ||
+            document.body.classList.contains('no-scroll') ||
+            document.querySelector('.modal.active, .modal.show, .custom-modal.active, .native-overlay.active, .real-mushaf-card.mushaf-fullscreen-mode, .mushaf-fullscreen')
+        );
+    }
+
+    function updateHeader() {
+        const currentScrollY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop || 0);
+        const headers = getHeaders();
+        
+        if (!headers.length) {
+            ticking = false;
+            return;
+        }
+
+        // إذا كانت نافذة منبثقة أو وضع القراءة بملء الشاشة مفعلاً، نظهر الهيدر ونخرج
+        if (isAnyModalOpen()) {
+            headers.forEach(h => h.classList.remove('header-hidden'));
+            lastScrollY = currentScrollY;
+            ticking = false;
+            return;
+        }
+
+        // عند الوصول إلى أعلى الصفحة (أول 25px)، يظهر الهيدر دائماً
+        if (currentScrollY <= 25) {
+            headers.forEach(h => h.classList.remove('header-hidden'));
+        } 
+        // تمرير لأسفل وتجاوز العتبة: إخفاء الهيدر بسلاسة
+        else if (currentScrollY > lastScrollY + scrollThreshold && currentScrollY > minScrollToShowHide) {
+            headers.forEach(h => h.classList.add('header-hidden'));
+        } 
+        // تمرير لأعلى وتجاوز العتبة: إظهار الهيدر بسلاسة
+        else if (currentScrollY < lastScrollY - scrollThreshold) {
+            headers.forEach(h => h.classList.remove('header-hidden'));
+        }
+
+        lastScrollY = currentScrollY;
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(updateHeader);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    // إعادة إظهار الهيدر دائماً عند النقر على أيقونات التنقل أو الشعار أو أزرار التطبيق
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.app-nav-tab, .mobilebar-link, .app-icon-btn, .logo, .mobile-toggle')) {
+            getHeaders().forEach(h => h.classList.remove('header-hidden'));
+        }
+    }, { passive: true });
+
+    window.resetHeaderVisibility = function() {
+        getHeaders().forEach(h => h.classList.remove('header-hidden'));
+        lastScrollY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop || 0);
+    };
+}
+
+// تهيئة فورية للهيدر إذا تم تحميل المستند بالفعل
+if (document.readyState !== 'loading') {
+    initSmartHeaderScroll();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     updateNavbarActualHeight();
+    initSmartHeaderScroll();
     // 1. تهيئة اسم الجد والمعلومات الرئيسية والتقويم الهجري
     initDeceasedInfo();
     initHijriDate();

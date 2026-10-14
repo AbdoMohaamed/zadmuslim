@@ -62,6 +62,7 @@
             color: var(--text-primary);
             -webkit-user-select: none;
             user-select: none;
+            overflow-x: clip;
         }
 
         /* رأس التطبيق النيتيف */
@@ -76,6 +77,13 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 2px 12px var(--shadow-color);
+            transition: transform 0.32s cubic-bezier(0.33, 1, 0.68, 1), background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            will-change: transform;
+        }
+
+        .app-native-header.header-hidden {
+            transform: translateY(-100%) !important;
+            box-shadow: none !important;
         }
 
         .app-user-greeting {
@@ -3681,6 +3689,9 @@
                 }
             }
 
+            if (typeof window.resetHeaderVisibility === 'function') {
+                window.resetHeaderVisibility();
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 

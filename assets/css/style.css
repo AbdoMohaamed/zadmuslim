@@ -159,7 +159,15 @@ body.light-theme {
     position: sticky;
     top: 0;
     z-index: 1000;
-    transition: background-color 0.25s ease, border-color 0.25s ease;
+    transition: transform 0.32s cubic-bezier(0.33, 1, 0.68, 1), background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    will-change: transform;
+}
+
+/* نمط الإخفاء الذكي للهيدر عند التمرير لأسفل والإظهار عند العودة لأعلى */
+.top.header-hidden,
+.app-native-header.header-hidden {
+    transform: translateY(-100%) !important;
+    box-shadow: none !important;
 }
 
 .nav {
@@ -1358,6 +1366,7 @@ body {
   direction: rtl;
   text-align: right;
   overflow-x: hidden;
+  overflow-x: clip;
   position: relative;
 }
 
@@ -15545,6 +15554,7 @@ html[data-theme="light"] .btn-modern-outline {
 /* 1. حماية شريط التنقل العلوي وتوافق Safe Area ومنع التمرير الأفقي */
 html, body {
     overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
 }
 
