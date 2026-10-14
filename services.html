@@ -934,6 +934,82 @@
         </div>
     </section>
     <!-- ==========================================
+     زاد المسلم V4 — 2. مساجد قريبة منك (Nearby Mosques)
+     ========================================== -->
+    <section id="nearby-mosques-section" class="cemetery-guide-section" style="padding-bottom: 20px ; background: var(--bg-elevated);">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">
+                    <i class="fa-solid fa-mosque"></i>
+                    خُطاك إلى بيوت الله
+                </span>
+
+                <h2 class="section-title">أقرب المساجد إليك</h2>
+
+                <p class="section-desc">
+                    ﴿فِي بُيُوتٍ أَذِنَ اللَّهُ أَنْ تُرْفَعَ وَيُذْكَرَ فِيهَا اسْمُهُ﴾
+                </p>
+            </div>
+            <div class="mosques-container-card">
+                <!-- شريط البحث والتحكم والتبديل بين القائمة والخريطة -->
+                <div class="mosques-top-bar">
+                    <button type="button" class="btn btn-gold" id="btn-find-nearby-mosques" onclick="if(window.requestUserLocationAndFindMosques) window.requestUserLocationAndFindMosques();">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <span>تحديد موقعي والبحث عن المساجد 📍</span>
+                    </button>
+
+                    <div class="mosques-view-tabs">
+                        <button type="button" class="mosques-view-tab active" id="btn-mosques-view-list">
+                            <i class="fa-solid fa-list-ul"></i>
+                            <span>قائمة المساجد</span>
+                        </button>
+                        <button type="button" class="mosques-view-tab" id="btn-mosques-view-map">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <span>الخريطة التفاعلية</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- شريط تحديد نطاق البحث بالكيلومتر -->
+                <div class="mosques-radius-bar" id="mosques-radius-bar" style="display: flex; gap: 8px; align-items: center; margin: 12px 0 16px; flex-wrap: wrap;">
+                    <span style="font-size: 0.88rem; font-weight: 700; color: var(--gold-400);"><i class="fa-solid fa-bullseye"></i> نطاق البحث:</span>
+                    <button type="button" class="mosques-radius-pill" data-radius="2000">2 كم</button>
+                    <button type="button" class="mosques-radius-pill active" data-radius="5000">5 كم</button>
+                    <button type="button" class="mosques-radius-pill" data-radius="10000">10 كم</button>
+                    <button type="button" class="mosques-radius-pill" data-radius="20000">20 كم</button>
+                </div>
+
+                <!-- صندوق حالة البحث والرسائل التفاعلية -->
+                <div class="mosques-status-box" id="mosques-status-box" style="display: none;"></div>
+
+                <!-- البحث اليدوي البديل بالمدينة/الحي عند تعذر الـ GPS -->
+                <div id="mosques-manual-fallback" style="display: none; margin-bottom: 18px; background: var(--bg-card); padding: 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div style="font-size: 0.88rem; font-weight: 700; margin-bottom: 8px;"><i class="fa-solid fa-magnifying-glass text-gold"></i> أو ابحث باسم مدينتك أو حيك:</div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="input-mosques-city-search" class="form-input" placeholder="اكتب اسم المدينة أو الحي (مثال: القاهرة، مكة، الرياض، المنصورة)..." style="flex: 1;">
+                        <button type="button" class="btn btn-gold btn-sm" id="btn-mosques-city-search">بحث</button>
+                    </div>
+                </div>
+
+                <!-- عرض القائمة (List View) -->
+                <div id="mosques-list-container">
+                    <div id="mosques-results-list">
+                        <div class="mosques-empty-state" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                            <i class="fa-solid fa-mosque" style="font-size: 2.5rem; color: var(--gold-400); margin-bottom: 12px;"></i>
+                            <h4 style="font-size: 1.15rem; color: var(--text-primary); margin: 0 0 6px;">اضغط على "تحديد موقعي" لعرض أقرب المساجد إليك</h4>
+                            <p style="font-size: 0.88rem; margin: 0;">يتم جلب البيانات الحقيقية بأعلى دقة وخصوصية كاملة دون أي تتبع لموقعك.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عرض الخريطة (Map View) -->
+                <div id="mosques-map-container" style="display: none;">
+                    <div id="mosques-leaflet-map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ==========================================
          قسم السبحة الإلكترونية (Tasbeeh Section)
          ========================================== -->
     <section id="tasbeeh" class="tasbeeh-section">
@@ -1650,100 +1726,6 @@
         </div>
     </section>
 
-  
-    <!-- ==========================================
-    سلايدر أدعية الزوار (Swiper Slider Section)
-    ========================================== -->
-    <section id="prayers" class="prayers-section">
- 
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag"><i class="fa-solid fa-heart"></i> في ميزان حسناته</span>
-                <h2 class="section-title">أدعية المحبين والزوار</h2>
-                <p class="section-desc">
-                    كل دعوة تؤمّن عليها أو تكتبها ترفع درجته وتؤنس وحشته وتثقل ميزانك بالأجر إن شاء الله.
-                </p>
-            </div>
-            <!-- شريط الإهداء الوقفي النبيل لروح الجد -->
-            <div class="charity-memorial-banner">
-                <div class="charity-memorial-icon"><i class="fa-solid fa-hand-holding-heart text-gold"></i></div>
-                <div class="charity-memorial-text">
-                    تطبيق إسلامي متاح مجاناً لوجه الله تعالى •
-                    <strong>
-                        صدقة جارية على روح جدي الغالي (عبدالمعبود أمين سعيد) رحمه الله،
-                        وستي الغالية (حكم عبدالصمد) رحمها الله
-                    </strong>
-                    — نسألكم الفاتحة وصالح الدعاء لهما ولكل موتى المسلمين.
-                </div>
-                <button class="btn btn-gold btn-open-prayer-modal">
-                    <i class="fa-solid fa-hands-praying"></i>
-                    <span>ادعُ لهم</span>
-                </button>
-            </div>
-
-            <!-- بطاقة الدعاء الكبرى البارزة -->
-            <div class="featured-prayer-card">
-                <div class="prayer-ornament-top">
-                    <i class="fa-solid fa-star-and-crescent"></i> ✦ ✦ ✦
-                </div>
-                <div class="prayer-main-text">
-                    "اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ ، وَعَافِهِ وَاعْفُ عَنْهُ ، وَأَكْرِمْ نُزُلَهُ ، وَوَسِّعْ مُدْخَلَهُ ، وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الأَبْيَضُ مِنَ الدَّنَسِ"
-                </div>
-                <div class="prayer-ornament-bottom">
-                    ✦ ✦ ✦ <i class="fa-solid fa-star-and-crescent"></i>
-                </div>
-
-                <div class="prayer-action-row">
-                    <button class="btn btn-gold btn-open-prayer-modal">
-                        <i class="fa-solid fa-pen-fancy"></i>
-                        <span>اكتب دعاءً لروحه</span>
-                    </button>
-                    <button class="btn btn-gold" id="btn-open-custom-share-hero" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
-                        <i class="fa-solid fa-gift"></i>
-                        <span>إهداء صدقة لفقيدك 🌿</span>
-                    </button>
-                    <button class="btn btn-outline" id="btn-open-notifications-hero">
-                        <i class="fa-solid fa-bell text-gold"></i>
-                        <span>تنبيهات الطاعات 🔔</span>
-                    </button>
-                    <button class="btn btn-outline" id="btn-open-dua-card">
-                        <i class="fa-solid fa-image text-gold"></i>
-                        <span>تصميم بطاقة دعاء</span>
-                    </button>
-                    <button class="btn btn-outline btn-share-whatsapp">
-                        <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
-                        <span>واتساب</span>
-                    </button>
-                    <button class="btn btn-outline btn-copy-link">
-                        <i class="fa-solid fa-link"></i>
-                        <span>نسخ الرابط</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- حاوية Swiper -->
-            <div class="swiper-container-wrapper">
-                <div class="swiper swiper-prayers">
-                    <div class="swiper-wrapper" id="prayers-swiper-wrapper">
-                        <!-- تُنشأ شرائح الأدعية برمجياً من js/app.js -->
-                    </div>
-
-                    <!-- أزرار التنقل والترقيم -->
-                    <div class="swiper-pagination"></div>
-                    <div class="swiper-button-prev"></div>
-                    <div class="swiper-button-next"></div>
-                </div>
-            </div>
-
-            <div class="slider-bottom-actions">
-                <button class="btn btn-gold btn-open-prayer-modal">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>أضف دعاءك ليظهر في السلايدر</span>
-                </button>
-            </div>
-        </div>
-    </section>
-
     <!-- ==========================================
          قسم آيات وأحاديث عن الدعاء للميت
          ========================================== -->
@@ -1980,80 +1962,95 @@
             </div>
         </div>
     </section>
-
     <!-- ==========================================
-         زاد المسلم V4 — 2. مساجد قريبة منك (Nearby Mosques)
-         ========================================== -->
-    <section id="nearby-mosques-section" class="cemetery-guide-section" style="padding-bottom: 20px ; background: var(--bg-elevated);">
+    سلايدر أدعية الزوار (Swiper Slider Section)
+    ========================================== -->
+    <section id="prayers" class="prayers-section">
+
         <div class="container">
             <div class="section-header">
-                <span class="section-tag">
-                    <i class="fa-solid fa-mosque"></i>
-                    خُطاك إلى بيوت الله
-                </span>
-
-                <h2 class="section-title">أقرب المساجد إليك</h2>
-
+                <span class="section-tag"><i class="fa-solid fa-heart"></i> في ميزان حسناته</span>
+                <h2 class="section-title">أدعية المحبين والزوار</h2>
                 <p class="section-desc">
-                    ﴿فِي بُيُوتٍ أَذِنَ اللَّهُ أَنْ تُرْفَعَ وَيُذْكَرَ فِيهَا اسْمُهُ﴾
+                    كل دعوة تؤمّن عليها أو تكتبها ترفع درجته وتؤنس وحشته وتثقل ميزانك بالأجر إن شاء الله.
                 </p>
             </div>
-            <div class="mosques-container-card">
-                <!-- شريط البحث والتحكم والتبديل بين القائمة والخريطة -->
-                <div class="mosques-top-bar">
-                    <button type="button" class="btn btn-gold" id="btn-find-nearby-mosques" onclick="if(window.requestUserLocationAndFindMosques) window.requestUserLocationAndFindMosques();">
-                        <i class="fa-solid fa-location-crosshairs"></i>
-                        <span>تحديد موقعي والبحث عن المساجد 📍</span>
+            <!-- شريط الإهداء الوقفي النبيل لروح الجد -->
+            <div class="charity-memorial-banner">
+                <div class="charity-memorial-icon"><i class="fa-solid fa-hand-holding-heart text-gold"></i></div>
+                <div class="charity-memorial-text">
+                    تطبيق إسلامي متاح مجاناً لوجه الله تعالى •
+                    <strong>
+                        صدقة جارية على روح جدي الغالي (عبدالمعبود أمين سعيد) رحمه الله،
+                        وستي الغالية (حكم عبدالصمد) رحمها الله
+                    </strong>
+                    — نسألكم الفاتحة وصالح الدعاء لهما ولكل موتى المسلمين.
+                </div>
+                <button class="btn btn-gold btn-open-prayer-modal">
+                    <i class="fa-solid fa-hands-praying"></i>
+                    <span>ادعُ لهم</span>
+                </button>
+            </div>
+
+            <!-- بطاقة الدعاء الكبرى البارزة -->
+            <div class="featured-prayer-card">
+                <div class="prayer-ornament-top">
+                    <i class="fa-solid fa-star-and-crescent"></i> ✦ ✦ ✦
+                </div>
+                <div class="prayer-main-text">
+                    "اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ ، وَعَافِهِ وَاعْفُ عَنْهُ ، وَأَكْرِمْ نُزُلَهُ ، وَوَسِّعْ مُدْخَلَهُ ، وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الأَبْيَضُ مِنَ الدَّنَسِ"
+                </div>
+                <div class="prayer-ornament-bottom">
+                    ✦ ✦ ✦ <i class="fa-solid fa-star-and-crescent"></i>
+                </div>
+
+                <div class="prayer-action-row">
+                    <button class="btn btn-gold btn-open-prayer-modal">
+                        <i class="fa-solid fa-pen-fancy"></i>
+                        <span>اكتب دعاءً لروحه</span>
                     </button>
+                    <button class="btn btn-gold" id="btn-open-custom-share-hero" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
+                        <i class="fa-solid fa-gift"></i>
+                        <span>إهداء صدقة لفقيدك 🌿</span>
+                    </button>
+                    <button class="btn btn-outline" id="btn-open-notifications-hero">
+                        <i class="fa-solid fa-bell text-gold"></i>
+                        <span>تنبيهات الطاعات 🔔</span>
+                    </button>
+                    <button class="btn btn-outline" id="btn-open-dua-card">
+                        <i class="fa-solid fa-image text-gold"></i>
+                        <span>تصميم بطاقة دعاء</span>
+                    </button>
+                    <button class="btn btn-outline btn-share-whatsapp">
+                        <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
+                        <span>واتساب</span>
+                    </button>
+                    <button class="btn btn-outline btn-copy-link">
+                        <i class="fa-solid fa-link"></i>
+                        <span>نسخ الرابط</span>
+                    </button>
+                </div>
+            </div>
 
-                    <div class="mosques-view-tabs">
-                        <button type="button" class="mosques-view-tab active" id="btn-mosques-view-list">
-                            <i class="fa-solid fa-list-ul"></i>
-                            <span>قائمة المساجد</span>
-                        </button>
-                        <button type="button" class="mosques-view-tab" id="btn-mosques-view-map">
-                            <i class="fa-solid fa-map-location-dot"></i>
-                            <span>الخريطة التفاعلية</span>
-                        </button>
+            <!-- حاوية Swiper -->
+            <div class="swiper-container-wrapper">
+                <div class="swiper swiper-prayers">
+                    <div class="swiper-wrapper" id="prayers-swiper-wrapper">
+                        <!-- تُنشأ شرائح الأدعية برمجياً من js/app.js -->
                     </div>
-                </div>
 
-                <!-- شريط تحديد نطاق البحث بالكيلومتر -->
-                <div class="mosques-radius-bar" id="mosques-radius-bar" style="display: flex; gap: 8px; align-items: center; margin: 12px 0 16px; flex-wrap: wrap;">
-                    <span style="font-size: 0.88rem; font-weight: 700; color: var(--gold-400);"><i class="fa-solid fa-bullseye"></i> نطاق البحث:</span>
-                    <button type="button" class="mosques-radius-pill" data-radius="2000">2 كم</button>
-                    <button type="button" class="mosques-radius-pill active" data-radius="5000">5 كم</button>
-                    <button type="button" class="mosques-radius-pill" data-radius="10000">10 كم</button>
-                    <button type="button" class="mosques-radius-pill" data-radius="20000">20 كم</button>
+                    <!-- أزرار التنقل والترقيم -->
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
                 </div>
+            </div>
 
-                <!-- صندوق حالة البحث والرسائل التفاعلية -->
-                <div class="mosques-status-box" id="mosques-status-box" style="display: none;"></div>
-
-                <!-- البحث اليدوي البديل بالمدينة/الحي عند تعذر الـ GPS -->
-                <div id="mosques-manual-fallback" style="display: none; margin-bottom: 18px; background: var(--bg-card); padding: 14px; border-radius: 12px; border: 1px solid var(--border-color);">
-                    <div style="font-size: 0.88rem; font-weight: 700; margin-bottom: 8px;"><i class="fa-solid fa-magnifying-glass text-gold"></i> أو ابحث باسم مدينتك أو حيك:</div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="input-mosques-city-search" class="form-input" placeholder="اكتب اسم المدينة أو الحي (مثال: القاهرة، مكة، الرياض، المنصورة)..." style="flex: 1;">
-                        <button type="button" class="btn btn-gold btn-sm" id="btn-mosques-city-search">بحث</button>
-                    </div>
-                </div>
-
-                <!-- عرض القائمة (List View) -->
-                <div id="mosques-list-container">
-                    <div id="mosques-results-list">
-                        <div class="mosques-empty-state" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
-                            <i class="fa-solid fa-mosque" style="font-size: 2.5rem; color: var(--gold-400); margin-bottom: 12px;"></i>
-                            <h4 style="font-size: 1.15rem; color: var(--text-primary); margin: 0 0 6px;">اضغط على "تحديد موقعي" لعرض أقرب المساجد إليك</h4>
-                            <p style="font-size: 0.88rem; margin: 0;">يتم جلب البيانات الحقيقية بأعلى دقة وخصوصية كاملة دون أي تتبع لموقعك.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- عرض الخريطة (Map View) -->
-                <div id="mosques-map-container" style="display: none;">
-                    <div id="mosques-leaflet-map"></div>
-                </div>
+            <div class="slider-bottom-actions">
+                <button class="btn btn-gold btn-open-prayer-modal">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>أضف دعاءك ليظهر في السلايدر</span>
+                </button>
             </div>
         </div>
     </section>
@@ -3506,8 +3503,8 @@
         </div>
     </div>
 
-    
-        </div>
+
+    </div>
     </div>
 
     <!-- النافذة المنبثقة التفاعلية (Modal) من النموذج المرجعي -->
@@ -3730,7 +3727,7 @@
 
         // دعم النقر على بطاقات الخدمات للتمرير بسلاسة
         document.querySelectorAll('.service-card').forEach(card => {
-            card.addEventListener('click', function(e) {
+            card.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
                 if (href && href.startsWith('#')) {
                     e.preventDefault();
