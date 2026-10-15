@@ -1175,24 +1175,42 @@ html[data-theme="dark"] .select-reciter-dropdown,
 html[data-theme="dark"] .prayer-city-select, [data-theme="dark"] .prayer-city-select {
     background-color:transparent  !important;
 }
-    /* ضمان تناسق الوضع الفاتح التام للمصحف وبطاقات الختمة والمواقيت */
-    html[data-theme="light"] .quran-mushaf-card,
-    [data-theme="light"] .quran-mushaf-card,
-    body.light-theme .quran-mushaf-card,
-    html[data-theme="light"] .prayer-times-card,
-    [data-theme="light"] .prayer-times-card,
-    body.light-theme .prayer-times-card,
-    html[data-theme="light"] .khatma-summary-card,
-    [data-theme="light"] .khatma-summary-card,
-    body.light-theme .khatma-summary-card,
-    html[data-theme="light"] .mushaf-reading-tracker-bar,
-    [data-theme="light"] .mushaf-reading-tracker-bar,
-    body.light-theme .mushaf-reading-tracker-bar {
-        background: #FFFFFF !important;
-        border-color: #DFE9E1 !important;
-        color: #193B34 !important;
-        box-shadow: 0 4px 20px rgba(7, 63, 53, 0.06) !important;
+html[data-theme="light"] .daily-featured-media-card,
+[data-theme="light"] .daily-featured-media-card {
+    background: unset !important;
+}
+    html[data-theme="light"] .daily-featured-media-card .btn-audio-daily-clip,
+    [data-theme="light"] .daily-featured-media-card .btn-audio-daily-clip {
+        border-color: var(--gold-500) !important;
+        color: var(--gold-500) !important;
     }
+    html[data-theme="light"] .daily-featured-media-card .btn-bookmark-daily-clip,
+    [data-theme="light"] .daily-featured-media-card .btn-bookmark-daily-clip {
+        border-color: var(--gold-500) !important;
+    }
+html[data-theme="light"] .media-badge-tag,
+[data-theme="light"] .media-badge-tag {
+    color: #000;
+    background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%);
+}
+/* ضمان تناسق الوضع الفاتح التام للمصحف وبطاقات الختمة والمواقيت */
+html[data-theme="light"] .quran-mushaf-card,
+[data-theme="light"] .quran-mushaf-card,
+body.light-theme .quran-mushaf-card,
+html[data-theme="light"] .prayer-times-card,
+[data-theme="light"] .prayer-times-card,
+body.light-theme .prayer-times-card,
+html[data-theme="light"] .khatma-summary-card,
+[data-theme="light"] .khatma-summary-card,
+body.light-theme .khatma-summary-card,
+html[data-theme="light"] .mushaf-reading-tracker-bar,
+[data-theme="light"] .mushaf-reading-tracker-bar,
+body.light-theme .mushaf-reading-tracker-bar {
+    background: #FFFFFF !important;
+    border-color: #DFE9E1 !important;
+    color: #193B34 !important;
+    box-shadow: 0 4px 20px rgba(7, 63, 53, 0.06) !important;
+}
 
 html[data-theme="light"] .select-surah-dropdown,
 [data-theme="light"] .select-surah-dropdown,
@@ -4051,7 +4069,6 @@ html[data-theme="light"] .nav-links a.active {
 
 .azkar-mobile-nav-bar,
 .duas-mobile-nav-bar,
-.nawawi-mobile-nav-bar,
 .asmaa-mobile-nav-bar,
 .stories-mobile-nav-bar,
 .khatma-mobile-nav-bar {
@@ -7197,14 +7214,8 @@ html[data-theme="light"] .nav-links a.active {
 
 
 /* ==========================================================================
-   قسم الأربعين النووية الشاملة (42 Hadiths)
+   أشرطة التصنيفات والفلترة (Filter Bars & Pills)
    ========================================================================== */
-.nawawi-section {
-  padding: var(--section-spacing-y) 0;
-  background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, rgba(7, 13, 24, 0.95) 70%);
-  position: relative;
-  display:none;
-}
 
 .nawawi-filter-bar {
   display: flex;
@@ -7234,175 +7245,7 @@ html[data-theme="light"] .nav-links a.active {
   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
 
-.nawawi-search-box {
-  max-width: 550px;
-  margin: 0 auto 2rem auto;
-  position: relative;
-}
 
-.nawawi-search-input {
-  width: 100%;
-  padding: 0.85rem 3rem 0.85rem 1.25rem;
-  background: rgba(14, 26, 45, 0.8);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: var(--radius-full);
-  color: #fff;
-  font-size: 0.95rem;
-  outline: none;
-  transition: all var(--transition-fast);
-}
-
-.nawawi-search-input:focus {
-  border-color: var(--gold-400);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-}
-
-.nawawi-search-icon {
-  position: absolute;
-  right: 1.25rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--gold-400);
-}
-
-.nawawi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 1.5rem;
-}
-
-.hadith-card {
-  background: linear-gradient(145deg, rgba(14, 26, 45, 0.8), rgba(8, 16, 30, 0.95));
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-}
-
-.hadith-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--gold-400);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.2);
-}
-
-.hadith-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hadith-number-badge {
-  background: linear-gradient(135deg, var(--gold-300), var(--gold-300));
-  color: #070d18;
-  font-weight: 800;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
-}
-
-.hadith-category-tag {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--gold-500);
-  font-size: 0.8rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-}
-
-.hadith-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--gold-300);
-  margin-bottom: 0.5rem;
-}
-
-.hadith-narrator {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 1rem;
-}
-
-.hadith-text {
-  font-family: var(--font-quran, serif);
-  font-size: 1.15rem;
-  line-height: 2;
-  color: #f3f4f6;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 1.1rem;
-  border-radius: var(--radius-md);
-  border-right: 3px solid var(--gold-400);
-  margin-bottom: 1rem;
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.hadith-details-toggle {
-  background: transparent;
-  border: none;
-  color: var(--gold-400);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  margin-bottom: 0.75rem;
-}
-
-.hadith-details-body {
-  display: none;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: #d1d5db;
-  margin-bottom: 1rem;
-}
-
-.hadith-details-body.open {
-  display: block;
-}
-
-.hadith-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.btn-hadith-audio {
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid var(--gold-400);
-  color: var(--gold-300);
-  border-radius: var(--radius-full);
-  padding: 0.35rem 0.85rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all var(--transition-fast);
-}
-
-.btn-hadith-audio:hover {
-  background: var(--gold-400);
-  color: #070d18;
-}
-
-.hadith-card-btns {
-  display: flex;
-  gap: 0.5rem;
-}
 
 /* ==========================================================================
    قسم أسماء الله الحسنى الـ 99 (99 Names of Allah)
@@ -8057,24 +7900,50 @@ input:checked + .slider-round:before {
    سلايدر الشاشات الصغيرة للأدعية والأربعين النووية وأسماء الله الحسنى (كالسبحة والأذكار)
    ========================================================================== */
 @media (max-width: 991px) {
-  /* 1. موسوعة الأدعية النبوية المبوبة */
-  .duas-categories-tabs {
+  /* 1. أشرطة التصنيفات والتبويبات الأفقية (أذكار اليوم، أدعية، فلاتر، قصص الأنبياء، أسماء الله) */
+  .azkar-tab-controls,
+  .duas-categories-tabs,
+  .nawawi-filter-bar,
+  #stories-filter-bar,
+  #asmaa-filter-bar {
     display: flex !important;
-    padding-bottom: 0.5rem;
-    gap: 0.6rem;
-    scrollbar-width: none;
-    margin-bottom: 1.2rem;
-  }
-  .duas-categories-tabs::-webkit-scrollbar {
-    display: none;
-  }
-  .duas-tab-btn {
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
-    font-size: 0.88rem;
-    padding: 0.55rem 1rem;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding: 0.4rem 0.5rem 0.8rem !important;
+    gap: 0.6rem !important;
+    margin-bottom: 1.2rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
+  .azkar-tab-controls::-webkit-scrollbar,
+  .duas-categories-tabs::-webkit-scrollbar,
+  .nawawi-filter-bar::-webkit-scrollbar,
+  #stories-filter-bar::-webkit-scrollbar,
+  #asmaa-filter-bar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  .azkar-tab-btn,
+  .duas-tab-btn,
+  .nawawi-filter-pill {
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 0.88rem !important;
+    padding: 0.55rem 1.15rem !important;
+  }
+
+  /* 2. موسوعة الأدعية النبوية المبوبة */
   .categorized-duas-grid {
     display: flex !important;
     flex-direction: row !important;
@@ -8160,111 +8029,6 @@ input:checked + .slider-round:before {
   .btn-scroll-duas:active {
     background: var(--gold-500);
     color: var(--bg-dark);
-  }
-
-  /* 2. قسم الأربعين النووية */
-  .nawawi-mobile-nav-bar {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.2rem;
-    padding: 0 0.25rem;
-    gap: 0.8rem;
-  }
-
-  .nawawi-scroll-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--gold-300);
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px dashed rgba(212, 175, 55, 0.3);
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-full);
-  }
-
-  .nawawi-scroll-arrows {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .btn-scroll-nawawi {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
-    border: 1px solid var(--gold-500);
-    color: var(--gold-300);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: var(--transition-fast);
-  }
-
-  .btn-scroll-nawawi:hover,
-  .btn-scroll-nawawi:active {
-    background: var(--gold-500);
-    color: var(--bg-dark);
-  }
-
-  .nawawi-filter-bar {
-    display: flex !important;
-    justify-items:center;
-    padding-bottom: 0.5rem;
-    gap: 0.6rem;
-    scrollbar-width: none;
-    justify-content: center !important;
-    margin-bottom: 1.2rem;
-  }
-  .nawawi-filter-bar::-webkit-scrollbar {
-    display: none;
-  }
-  .nawawi-filter-pill {
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
-    font-size: 0.88rem;
-    padding: 0.5rem 1.1rem;
-  }
-
-  .nawawi-grid {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    gap: 1.2rem !important;
-    padding: 0.5rem 0.3rem 1.5rem !important;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gold-500) rgba(255, 255, 255, 0.08);
-  }
-
-  .nawawi-grid::-webkit-scrollbar {
-    height: 6px;
-  }
-  .nawawi-grid::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: var(--radius-full);
-  }
-  .nawawi-grid::-webkit-scrollbar-thumb {
-    background: var(--gold-500);
-    border-radius: var(--radius-full);
-  }
-
-  .hadith-card {
-    min-width: 84vw !important;
-    max-width: 420px !important;
-    flex: 0 0 84vw !important;
-    scroll-snap-align: center;
-    padding: 1.5rem 1.1rem !important;
-    display: flex !important;
-    flex-direction: column !important;
   }
 
   /* 3. مكتبة أسماء الله الحسنى الـ 99 */
@@ -10049,46 +9813,124 @@ input:checked + .slider-round:before {
 }
 
 /* ==========================================================================
-   مشغل المرئيات المتقدم (Media Player Modal)
+   مشغل المرئيات المتقدم البسيط والمضغوط (Compact & Sleek Media Player Modal)
    ========================================================================== */
 .modal-card-media-player {
   position: relative;
-  max-width: 840px;
+  max-width: 640px;
+  width: 94vw;
+  max-height: 92vh;
+  margin: auto;
   padding: 0;
+  border-radius: 18px;
   overflow: hidden;
-  background: var(--bg-card);
+  background: linear-gradient(180deg, #101c2d 0%, #09111c 100%);
   border: 1px solid var(--gold-500);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 25px rgba(212, 175, 55, 0.2);
+  display: flex;
+  flex-direction: column;
 }
 
-.modal-card-media-player .modal-close-btn {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 100;
-  background: rgba(15, 23, 42, 0.85);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  width: 38px;
-  height: 38px;
+/* شريط رأس المشغل البسيط والمباشر */
+.media-player-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(8, 15, 25, 0.95);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  gap: 8px;
+  user-select: none;
+}
+
+.media-player-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.media-player-badge {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--gold-300);
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.media-player-duration {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.media-player-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-popup-tool {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-popup-youtube {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ff6b6b;
+}
+
+.btn-popup-youtube:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.modal-close-btn-simple {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 1.2rem;
   cursor: pointer;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  line-height: 1;
   transition: all 0.2s ease;
 }
 
-.modal-card-media-player .modal-close-btn:hover {
-  background: var(--gold-500);
-  color: #000;
-  border-color: var(--gold-500);
+.modal-close-btn-simple:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
+  color: #ef4444;
   transform: scale(1.08);
 }
 
+/* مشغل الفيديو */
 .media-player-video-wrapper {
   position: relative;
   width: 100%;
@@ -10103,83 +9945,131 @@ input:checked + .slider-round:before {
   display: block;
 }
 
+/* تفاصيل المقطع المدمجة السفلية */
 .media-player-details {
-  padding: 1.5rem 1.75rem;
+  padding: 0.75rem 1rem 0.85rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.5rem;
+  background: rgba(8, 15, 25, 0.9);
 }
 
-.media-player-header-meta {
+.media-player-info-row {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.media-player-badge {
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  color: var(--gold-300);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.media-player-duration {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.media-reward-badge {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: var(--emerald-400);
-  padding: 0.25rem 0.7rem;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-right: auto;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .media-player-title {
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #fff;
-  line-height: 1.4;
+  line-height: 1.35;
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .media-player-speaker-line {
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   color: var(--gold-300);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-}
-
-.media-player-desc {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin: 0;
+  gap: 0.35rem;
 }
 
 .media-player-modal-actions {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding-top: 1rem;
+  gap: 6px;
+  padding-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+}
+
+.btn-compact-action {
+  padding: 0.42rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-wa-share {
+  background: rgba(37, 211, 102, 0.16);
+  border-color: rgba(37, 211, 102, 0.35);
+  color: #25d366;
+  flex: 1.3;
+}
+
+.btn-wa-share:hover {
+  background: #25d366;
+  color: #0b1320;
+}
+
+.btn-copy {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+  flex: 1;
+}
+
+.btn-copy:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold-400);
+  color: var(--gold-300);
+}
+
+.btn-bookmark {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.3);
+  color: var(--gold-400);
+  padding: 0.42rem 0.65rem;
+}
+
+.btn-bookmark:hover,
+.btn-bookmark.saved {
+  background: var(--gold-500);
+  color: #0b1320;
+  border-color: var(--gold-400);
+}
+
+.media-mode-toggle {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.media-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  padding: 0.28rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.media-mode-btn.active {
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
+  color: #0b1320;
 }
 
 /* ==========================================================================
@@ -10239,111 +10129,75 @@ input:checked + .slider-round:before {
   box-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
 }
 
-/* 3. شريط أدوات المشغل العلوي وزر التحويل (فيديو / صوت فقط + المفضلة) */
-.media-player-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.25rem 0.75rem 4rem;
-  background: rgba(10, 18, 30, 0.95);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-}
-
+/* 3. عناصر تحكم رأس المشغل (تبديل الفيديو/الصوت وحفظ المقطع) */
 .media-mode-toggle {
   display: inline-flex;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: var(--radius-full);
-  padding: 3px;
-  gap: 3px;
+  padding: 2px;
+  gap: 2px;
 }
 
 .media-mode-btn {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 0.35rem 0.9rem;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
   border-radius: var(--radius-full);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  transition: all 0.25s ease;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .media-mode-btn.active {
-  background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%);
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
   color: #0b1320;
-  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
 }
 
-.btn-modal-bookmark {
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  color: var(--gold-400);
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 0.4rem 0.9rem;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  transition: all 0.25s ease;
-}
-
-.btn-modal-bookmark:hover,
-.btn-modal-bookmark.saved {
-  background: var(--gold-500);
-  color: #0b1320;
-  border-color: var(--gold-400);
-  box-shadow: 0 0 14px rgba(212, 175, 55, 0.45);
-}
-
-/* 4. بنر استئناف المشاهدة من حيث توقفت (Resume Playback Banner) */
+/* 4. بنر استئناف المشاهدة المختصر (Compact Resume Playback Banner) */
 .media-resume-banner {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
-  padding: 0.75rem 1.25rem;
+  background: rgba(18, 32, 50, 0.95);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 0.4rem 0.9rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-size: 0.78rem;
   animation: mediaCardFadeIn 0.3s ease;
 }
 
 .media-resume-text {
-  font-size: 0.88rem;
   color: #fff;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .media-resume-text strong {
   color: var(--gold-300);
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
+  font-size: 0.85rem;
 }
 
 .media-resume-btns {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .btn-resume-action {
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
   transition: all 0.2s ease;
   border: 1px solid transparent;
 }
@@ -10351,12 +10205,6 @@ input:checked + .slider-round:before {
 .btn-resume-continue {
   background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
   color: #0b1320;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
-}
-
-.btn-resume-continue:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.5);
 }
 
 .btn-resume-restart {
@@ -10365,15 +10213,10 @@ input:checked + .slider-round:before {
   color: var(--text-secondary);
 }
 
-.btn-resume-restart:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  color: #fff;
-}
-
-/* 5. وضع الاستماع الصوتي فقط (Audio-Only Mode Styles) */
+/* 5. وضع الاستماع الصوتي فقط المضغوط (Compact Audio-Only Mode Styles) */
 .media-audio-player-wrapper {
   background: radial-gradient(circle at center, #132438 0%, #080f1a 100%);
-  padding: 2.2rem 1.5rem;
+  padding: 1.4rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10387,31 +10230,26 @@ input:checked + .slider-round:before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   position: relative;
 }
 
 .media-audio-disk {
-  width: 90px;
-  height: 90px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(16, 185, 129, 0.2));
   border: 2px solid var(--gold-400);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.45);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
   animation: pulseAudioGlow 3s ease-in-out infinite alternate;
-  margin-bottom: 1rem;
-}
-
-@keyframes pulseAudioGlow {
-  0% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); transform: scale(0.98); }
-  100% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.65); transform: scale(1.02); }
+  margin-bottom: 0.5rem;
 }
 
 .media-audio-avatar {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   color: var(--gold-300);
 }
 
@@ -10420,88 +10258,71 @@ input:checked + .slider-round:before {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 5px;
-  height: 36px;
-  margin-bottom: 0.4rem;
+  gap: 4px;
+  height: 24px;
+  margin-bottom: 0.2rem;
 }
 
 .media-audio-wave-bars .bar {
-  width: 4px;
+  width: 3px;
   background: linear-gradient(180deg, var(--gold-400) 0%, var(--emerald-400) 100%);
-  border-radius: 3px;
+  border-radius: 2px;
   animation: audioWaveBar 1.2s ease-in-out infinite alternate;
 }
 
-.media-audio-wave-bars .bar-1 { height: 12px; animation-delay: 0.1s; }
-.media-audio-wave-bars .bar-2 { height: 26px; animation-delay: 0.3s; }
-.media-audio-wave-bars .bar-3 { height: 35px; animation-delay: 0.5s; }
-.media-audio-wave-bars .bar-4 { height: 18px; animation-delay: 0.2s; }
-.media-audio-wave-bars .bar-5 { height: 32px; animation-delay: 0.4s; }
-.media-audio-wave-bars .bar-6 { height: 22px; animation-delay: 0.6s; }
-.media-audio-wave-bars .bar-7 { height: 36px; animation-delay: 0.15s; }
-.media-audio-wave-bars .bar-8 { height: 14px; animation-delay: 0.45s; }
-
-@keyframes audioWaveBar {
-  0% { transform: scaleY(0.3); opacity: 0.5; }
-  100% { transform: scaleY(1); opacity: 1; }
-}
+.media-audio-wave-bars .bar-1 { height: 8px; animation-delay: 0.1s; }
+.media-audio-wave-bars .bar-2 { height: 18px; animation-delay: 0.3s; }
+.media-audio-wave-bars .bar-3 { height: 24px; animation-delay: 0.5s; }
+.media-audio-wave-bars .bar-4 { height: 12px; animation-delay: 0.2s; }
+.media-audio-wave-bars .bar-5 { height: 20px; animation-delay: 0.4s; }
+.media-audio-wave-bars .bar-6 { height: 14px; animation-delay: 0.6s; }
 
 .media-audio-mode-info {
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.6rem;
 }
 
 .media-audio-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(16, 185, 129, 0.35);
   color: var(--emerald-400);
-  padding: 0.3rem 0.9rem;
+  padding: 0.2rem 0.65rem;
   border-radius: var(--radius-full);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  margin-bottom: 0.4rem;
-}
-
-.media-audio-subhint {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  max-width: 440px;
-  margin: 0 auto;
-  line-height: 1.5;
 }
 
 .media-audio-speed-bar {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 0.4rem 0.85rem;
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-full);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .media-audio-speed-bar .speed-label {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  margin-left: 0.3rem;
+  gap: 0.25rem;
 }
 
 .btn-audio-speed {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -10517,14 +10338,14 @@ input:checked + .slider-round:before {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--gold-300);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   transition: all 0.2s ease;
 }
 
@@ -10790,224 +10611,23 @@ html[data-theme="dark"] .daily-featured-media-card,
   color: #F3F8F4 !important;
 }
 
-html[data-theme="dark"] .media-player-toolbar,
-[data-theme="dark"] .media-player-toolbar {
-  background: #122820 !important;
+html[data-theme="dark"] .modal-card-media-player,
+[data-theme="dark"] .modal-card-media-player {
+  background: linear-gradient(180deg, #132a21 0%, #0c1a14 100%) !important;
   border-color: #315346 !important;
+}
+
+html[data-theme="dark"] .media-player-header-bar,
+[data-theme="dark"] .media-player-header-bar,
+html[data-theme="dark"] .media-player-details,
+[data-theme="dark"] .media-player-details {
+  background: #0d1e18 !important;
 }
 
 html[data-theme="dark"] .media-audio-player-wrapper,
 [data-theme="dark"] .media-audio-player-wrapper {
   background: radial-gradient(circle at center, #163329 0%, #0d1e18 100%) !important;
   border-color: #315346 !important;
-}
-
-/* ==========================================================================
-   الدرج السفلي المنبثق التفاعلي (Interactive Bottom Sheet / Half-Modal)
-   ========================================================================== */
-.bottom-sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1050;
-  background: rgba(4, 9, 15, 0.68);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1), visibility 0.35s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.bottom-sheet-backdrop.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.bottom-sheet-container {
-  position: relative;
-  width: 100%;
-  max-width: 680px;
-  margin: 0 auto;
-  height: 70vh;
-  max-height: 94vh;
-  min-height: 280px;
-  background: linear-gradient(180deg, rgba(16, 28, 45, 0.98) 0%, rgba(9, 17, 28, 0.99) 100%);
-  border-top: 2px solid var(--gold-400);
-  border-left: 1px solid rgba(212, 175, 55, 0.3);
-  border-right: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 28px 28px 0 0;
-  box-shadow: 0 -12px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(212, 175, 55, 0.2);
-  transform: translateY(100%);
-  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), height 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  will-change: transform, height;
-}
-
-.bottom-sheet-backdrop.active .bottom-sheet-container {
-  transform: translateY(0);
-}
-
-.bottom-sheet-container.expanded {
-  height: 94vh;
-}
-
-.bottom-sheet-container.dragging {
-  transition: none !important;
-}
-
-/* مقبض السحب باللمس (Drag Handle) */
-.bottom-sheet-drag-zone {
-  width: 100%;
-  padding: 12px 0 8px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  background: transparent;
-}
-
-.bottom-sheet-drag-zone:active {
-  cursor: grabbing;
-}
-
-.bottom-sheet-drag-pill {
-  width: 44px;
-  height: 5px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.3);
-  transition: all 0.25s ease;
-}
-
-.bottom-sheet-drag-zone:hover .bottom-sheet-drag-pill,
-.bottom-sheet-container.dragging .bottom-sheet-drag-pill {
-  background: var(--gold-400);
-  width: 54px;
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
-}
-
-/* شريط رأس الدرج */
-.bottom-sheet-header {
-  padding: 6px 18px 12px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  gap: 12px;
-  user-select: none;
-}
-
-.bottom-sheet-title-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
-}
-
-.bottom-sheet-icon {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 12px;
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  color: var(--gold-400);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-}
-
-.bottom-sheet-title {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #fff;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.bottom-sheet-subtitle {
-  font-size: 0.74rem;
-  color: var(--text-secondary);
-  display: block;
-}
-
-.bottom-sheet-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-sheet-action {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-sheet-action:hover {
-  background: rgba(212, 175, 55, 0.2);
-  border-color: var(--gold-400);
-  color: var(--gold-300);
-  transform: scale(1.08);
-}
-
-.btn-sheet-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-/* جسم المحتوى داخل الدرج */
-.bottom-sheet-body {
-  padding: 16px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  flex: 1;
-}
-
-/* تنسيق الأقسام المنقولة داخل الدرج */
-.bottom-sheet-body section {
-  padding: 0 !important;
-  margin: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
-.bottom-sheet-body .container {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  max-width: 100% !important;
-}
-
-.bottom-sheet-body .section-header {
-  margin-bottom: 16px !important;
-}
-
-/* سمة الدارك مود للدرج */
-html[data-theme="dark"] .bottom-sheet-container,
-[data-theme="dark"] .bottom-sheet-container {
-  background: linear-gradient(180deg, #132a21 0%, #0c1a14 100%) !important;
-  border-top-color: #73d3ab !important;
-  border-left-color: #315346 !important;
-  border-right-color: #315346 !important;
 }
 
 
@@ -11589,11 +11209,6 @@ html.light-theme .asmaa-section {
   background: #F7F9F6 !important;
 }
 
-html[data-theme="light"] .nawawi-section,
-body.light-theme .nawawi-section,
-html.light-theme .nawawi-section {
-  background: #FFFFFF !important;
-}
 
 html[data-theme="light"] .islamic-media-section,
 body.light-theme .islamic-media-section,
@@ -12571,7 +12186,6 @@ body.light-theme .btn-scroll-khatma,
 body.light-theme .btn-scroll-azkar,
 body.light-theme .btn-scroll-media,
 body.light-theme .btn-scroll-duas,
-body.light-theme .btn-scroll-nawawi,
 body.light-theme .btn-scroll-asmaa,
 body.light-theme .btn-scroll-stories {
   background: #ffffff !important;
@@ -12583,7 +12197,6 @@ body.light-theme .khatma-scroll-hint,
 body.light-theme .azkar-scroll-hint,
 body.light-theme .media-scroll-hint,
 body.light-theme .duas-scroll-hint,
-body.light-theme .nawawi-scroll-hint,
 body.light-theme .asmaa-scroll-hint,
 body.light-theme .stories-scroll-hint {
   background: rgba(184, 134, 11, 0.08) !important;
@@ -13170,8 +12783,6 @@ html[data-theme="light"] .quran-search-input,
 body.light-theme .quran-search-input,
 html[data-theme="light"] .asmaa-search-input,
 body.light-theme .asmaa-search-input,
-html[data-theme="light"] .nawawi-search-input,
-body.light-theme .nawawi-search-input,
 html[data-theme="light"] .admin-pin-input,
 body.light-theme .admin-pin-input,
 html[data-theme="light"] .form-input,
@@ -13224,6 +12835,33 @@ body.light-theme .modal-card-ios-install {
   border: 1px solid #dfe9e1 !important;
   color: #193b34 !important;
   box-shadow: 0 25px 60px rgba(7, 63, 53, 0.14) !important;
+}
+
+html[data-theme="light"] .media-player-header-bar,
+body.light-theme .media-player-header-bar,
+html[data-theme="light"] .media-player-details,
+body.light-theme .media-player-details {
+  background: #f8faf9 !important;
+  border-color: #dfe9e1 !important;
+}
+
+html[data-theme="light"] .media-player-title,
+body.light-theme .media-player-title {
+  color: #193b34 !important;
+}
+
+html[data-theme="light"] .modal-close-btn-simple,
+body.light-theme .modal-close-btn-simple {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #333 !important;
+}
+
+html[data-theme="light"] .btn-popup-tool,
+body.light-theme .btn-popup-tool {
+  background: #eef4f0 !important;
+  border-color: #dfe9e1 !important;
+  color: #193b34 !important;
 }
 
 html[data-theme="light"] .modal-header,

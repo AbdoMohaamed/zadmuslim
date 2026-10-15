@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>اكتشف خدمات زاد المسلم | دليلك الشامل لجميع الأقسام الإيمانية</title>
     <meta name="description" content="فهرس وخدمات منصة زاد المسلم: القرآن الكريم، مواقيت الصلاة، الأذكار والأدعية، الأربعون النووية، أسماء الله الحسنى، قصص الأنبياء، والمسابقات الإسلامية • صدقة جارية.">
     <meta name="theme-color" content="#073f35">
@@ -284,16 +285,6 @@
                     <span class="service-action-link">قراءة القصص ←</span>
                 </a>
 
-                <a class="service-card" href="#nawawi">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">📖</div>
-                        <div class="service-info">
-                            <h3>الأربعون النووية</h3>
-                            <p>الأحاديث النبوية الجامعة مع شرح مبسط وفوائد مستنبطة لكل حديث.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">مطالعة الأحاديث ←</span>
-                </a>
 
                 <a class="service-card" href="#islamic-quiz">
                     <div class="service-card-top">
@@ -1511,59 +1502,6 @@
                 <!-- شبكة الأسماء الحسنى الفخمة -->
                 <div class="asmaa-grid" id="asmaa-grid">
                     <!-- يُملأ برمجياً من asmaa-allah-data.js و extended-modules.js -->
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- ==========================================
-         قسم الأربعين النووية الشاملة (42 Hadiths)
-         ========================================== -->
-    <section id="nawawi" class="nawawi-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag"><i class="fa-solid fa-book-quran"></i> جوامع الكلم والسنّة النبوية</span>
-                <h2 class="section-title">الأربعون النووية للإمام النووي رحمه الله</h2>
-                <p class="section-desc">
-                    42 حديثاً نبوياً شريفاً تجمع أصول وقواعد الشريعة الإسلامية مع الشرح والفوائد التربوية والتلاوة الصوتية العذبة.
-                </p>
-            </div>
-
-            <!-- شريط البحث في الأحاديث -->
-            <div class="nawawi-search-box">
-                <i class="fa-solid fa-magnifying-glass nawawi-search-icon"></i>
-                <input type="text" id="nawawi-search-input" class="nawawi-search-input" placeholder="ابحث في الأحاديث النبوية (مثال: النيات، الحلال، الاستقامة، الجار)...">
-            </div>
-
-            <!-- تصنيفات الأحاديث -->
-            <div class="nawawi-filter-bar" id="nawawi-filter-bar">
-                <button type="button" class="nawawi-filter-pill active" data-cat="all">جميع الأحاديث (42)</button>
-                <button type="button" class="nawawi-filter-pill" data-cat="عقيدة وإخلاص">عقيدة وإخلاص</button>
-                <button type="button" class="nawawi-filter-pill" data-cat="عبادات">عبادات</button>
-                <button type="button" class="nawawi-filter-pill" data-cat="تزكية وأخلاق">تزكية وأخلاق</button>
-                <button type="button" class="nawawi-filter-pill" data-cat="معاملات ودعوة">معاملات ودعوة</button>
-                <button type="button" class="nawawi-filter-pill" data-cat="منهج واتباع">منهج واتباع</button>
-            </div>
-
-            <!-- حاوية بطاقات الأربعين النووية -->
-            <div class="nawawi-cards-wrapper">
-                <div class="nawawi-mobile-nav-bar">
-                    <div class="nawawi-scroll-hint">
-                        <i class="fa-solid fa-arrows-left-right"></i>
-                        <span>اسحب أفقياً لتصفح الأحاديث النبوية</span>
-                    </div>
-                    <div class="nawawi-scroll-arrows">
-                        <button type="button" class="btn-scroll-nawawi" onclick="scrollNawawiContainer('right')" title="الحديث السابق">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-                        <button type="button" class="btn-scroll-nawawi" onclick="scrollNawawiContainer('left')" title="الحديث التالي">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- شبكة الأحاديث النبوية -->
-                <div class="nawawi-grid" id="nawawi-grid">
-                    <!-- يُملأ برمجياً من nawawi-data.js و app.js -->
                 </div>
             </div>
         </div>
@@ -3299,33 +3237,30 @@
     <!-- نافذة مشغل المرئيات والبودكاست (Islamic Media Video Modal) -->
     <div class="modal-overlay" id="media-player-modal" role="dialog" aria-modal="true">
         <div class="modal-card modal-card-media-player">
-            <button class="modal-close-btn" id="btn-close-media-modal" aria-label="إغلاق">&times;</button>
-
-            <!-- شريط أدوات المشغل العلوي: فيديو / صوت فقط + زر المفضلة -->
-            <div class="media-player-toolbar">
-                <div class="media-mode-toggle" id="media-mode-toggle">
-                    <button type="button" class="media-mode-btn active" data-mode="video" id="btn-mode-video">
-                        <i class="fa-solid fa-video"></i> <span>فيديو 🎬</span>
-                    </button>
-                    <button type="button" class="media-mode-btn" data-mode="audio" id="btn-mode-audio">
-                        <i class="fa-solid fa-headphones"></i> <span>صوت فقط 🎧</span>
-                    </button>
+            <!-- شريط رأس المشغل البسيط والمباشر -->
+            <div class="media-player-header-bar">
+                <div class="media-player-header-meta">
+                    <span class="media-player-badge" id="media-player-badge">بودكاست</span>
+                    <span class="media-player-duration" id="media-player-duration"><i class="fa-regular fa-clock"></i> --:--</span>
                 </div>
-                <button type="button" class="btn-modal-bookmark" id="btn-modal-bookmark" title="حفظ في محفوظاتي">
-                    <i class="fa-regular fa-bookmark"></i>
-                    <span>حفظ المقطع</span>
-                </button>
+                <div class="media-player-header-tools">
+                    <a href="#" target="_blank" rel="noopener noreferrer" class="btn-popup-tool btn-popup-youtube" id="btn-modal-youtube" title="مشاهدة المقطع على YouTube">
+                        <i class="fa-brands fa-youtube"></i>
+                        <span>يوتيوب ↗</span>
+                    </a>
+                    <button class="modal-close-btn-simple" id="btn-close-media-modal" aria-label="إغلاق">&times;</button>
+                </div>
             </div>
 
             <!-- بنر استئناف المشاهدة من حيث توقفت -->
             <div class="media-resume-banner" id="media-resume-banner" style="display: none;">
                 <div class="media-resume-text">
                     <i class="fa-solid fa-clock-rotate-left text-gold"></i>
-                    <span>توقفت سابقاً عند الدقيقة <strong id="media-resume-time-label">00:00</strong></span>
+                    <span>توقفت عند <strong id="media-resume-time-label">00:00</strong></span>
                 </div>
                 <div class="media-resume-btns">
                     <button type="button" class="btn-resume-action btn-resume-continue" id="btn-resume-continue">
-                        <i class="fa-solid fa-play"></i> <span>متابعة من هنا</span>
+                        <i class="fa-solid fa-play"></i> <span>متابعة</span>
                     </button>
                     <button type="button" class="btn-resume-action btn-resume-restart" id="btn-resume-restart" title="البدء من البداية">
                         <i class="fa-solid fa-rotate-right"></i> <span>من البداية</span>
@@ -3335,7 +3270,7 @@
 
             <!-- مشغل الفيديو الأساسي -->
             <div class="media-player-video-wrapper" id="media-video-wrapper">
-                <iframe id="media-player-iframe" src="" title="مشغل المرئيات" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                <iframe id="media-player-iframe" src="" title="مشغل المرئيات" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
 
             <!-- واجهة الاستماع الصوتي فقط (Audio-Only Mode) -->
@@ -3353,16 +3288,13 @@
                         <span class="bar bar-4"></span>
                         <span class="bar bar-5"></span>
                         <span class="bar bar-6"></span>
-                        <span class="bar bar-7"></span>
-                        <span class="bar bar-8"></span>
                     </div>
                 </div>
                 <div class="media-audio-mode-info">
-                    <span class="media-audio-badge"><i class="fa-solid fa-bolt text-gold"></i> وضع الاستماع الصوتي مفعّل (توفير 80% من باقة الإنترنت)</span>
-                    <p class="media-audio-subhint">يستمر الصوت في العمل بسلاسة وبأعلى جودة دون تحميل الفيديو لتوفير باقة بيانات هاتفك.</p>
+                    <span class="media-audio-badge"><i class="fa-solid fa-bolt text-gold"></i> وضع الاستماع الصوتي (توفير باقة البيانات)</span>
                 </div>
                 <div class="media-audio-speed-bar">
-                    <span class="speed-label"><i class="fa-solid fa-gauge-high text-gold"></i> سرعة التشغيل:</span>
+                    <span class="speed-label"><i class="fa-solid fa-gauge-high text-gold"></i> السرعة:</span>
                     <button type="button" class="btn-audio-speed active" data-speed="1">1x</button>
                     <button type="button" class="btn-audio-speed" data-speed="1.25">1.25x</button>
                     <button type="button" class="btn-audio-speed" data-speed="1.5">1.5x</button>
@@ -3371,71 +3303,46 @@
                 </div>
             </div>
 
+            <!-- تفاصيل المقطع المختصرة والعملية -->
             <div class="media-player-details">
-                <div class="media-player-header-meta">
-                    <span class="media-player-badge" id="media-player-badge">بودكاست</span>
-                    <span class="media-player-duration" id="media-player-duration"><i class="fa-regular fa-clock"></i> --:--</span>
-                    <span class="media-reward-badge"><i class="fa-solid fa-seedling text-emerald-400"></i> +5 حسنات في حديقة الحسنات</span>
+                <div class="media-player-info-row">
+                    <h3 class="media-player-title" id="media-player-title">عنوان الفيديو</h3>
+                    <div class="media-player-speaker-line">
+                        <i class="fa-solid fa-microphone-lines text-gold"></i>
+                        <span id="media-player-speaker">اسم الشيخ / القناة</span>
+                    </div>
                 </div>
 
-                <h3 class="media-player-title" id="media-player-title">عنوان الفيديو</h3>
+                <!-- الوصف مخفي للحفاظ على بساطة الـ popup ومتاح برمجياً -->
+                <p class="media-player-desc" id="media-player-desc" style="display: none;"></p>
 
-                <div class="media-player-speaker-line">
-                    <i class="fa-solid fa-microphone-lines text-gold"></i>
-                    <span id="media-player-speaker">اسم الشيخ / القناة</span>
-                </div>
-
-                <p class="media-player-desc" id="media-player-desc">وصف المقطع ومحتواه الإيماني...</p>
-
+                <!-- أزرار الإجراءات السريعة والمباشرة -->
                 <div class="media-player-modal-actions">
-                    <button type="button" class="btn btn-whatsapp-share" id="btn-share-media-whatsapp">
+                    <button type="button" class="btn-compact-action btn-wa-share" id="btn-share-media-whatsapp">
                         <i class="fa-brands fa-whatsapp"></i>
-                        <span>مشاركة المقطع كصدقة جارية</span>
+                        <span>مشاركة كصدقة</span>
                     </button>
-                    <button type="button" class="btn btn-outline" id="btn-copy-media-link">
+                    <button type="button" class="btn-compact-action btn-copy" id="btn-copy-media-link">
                         <i class="fa-solid fa-link"></i>
                         <span>نسخ الرابط</span>
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================================
-         الدرج السفلي المنبثق التفاعلي (Interactive Bottom Sheet / Half-Modal)
-         ======================================================== -->
-    <div class="bottom-sheet-backdrop" id="bottom-sheet-backdrop" aria-hidden="true">
-        <div class="bottom-sheet-container" id="bottom-sheet-container" role="dialog" aria-modal="true">
-            <!-- مقبض السحب باللمس للأعلى والأسفل (Touch Drag Handle) -->
-            <div class="bottom-sheet-drag-zone" id="bottom-sheet-drag-zone">
-                <span class="bottom-sheet-drag-pill"></span>
-            </div>
-
-            <!-- شريط رأس الدرج المنبثق -->
-            <div class="bottom-sheet-header">
-                <div class="bottom-sheet-title-group">
-                    <span class="bottom-sheet-icon" id="bottom-sheet-icon"><i class="fa-solid fa-layer-group"></i></span>
-                    <div>
-                        <h3 class="bottom-sheet-title" id="bottom-sheet-title">عنوان القسم</h3>
-                        <span class="bottom-sheet-subtitle" id="bottom-sheet-subtitle">اسحب للأسفل للإغلاق ⇣</span>
+                    <button type="button" class="btn-compact-action btn-bookmark" id="btn-modal-bookmark" title="حفظ في محفوظاتي">
+                        <i class="fa-regular fa-bookmark"></i>
+                        <span class="bookmark-text-compact">حفظ</span>
+                    </button>
+                    <div class="media-mode-toggle" id="media-mode-toggle" title="التبديل بين الفيديو والصوت">
+                        <button type="button" class="media-mode-btn active" data-mode="video" id="btn-mode-video" title="فيديو">
+                            <i class="fa-solid fa-video"></i>
+                        </button>
+                        <button type="button" class="media-mode-btn" data-mode="audio" id="btn-mode-audio" title="صوت فقط">
+                            <i class="fa-solid fa-headphones"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="bottom-sheet-header-actions">
-                    <button type="button" class="btn-sheet-action btn-sheet-expand" id="btn-sheet-expand" title="تكبير / تصغير الشاشة" aria-label="تكبير">
-                        <i class="fa-solid fa-up-right-and-down-left-from-center" id="icon-sheet-expand"></i>
-                    </button>
-                    <button type="button" class="btn-sheet-action btn-sheet-close" id="btn-sheet-close" title="إغلاق الدرج" aria-label="إغلاق">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- مساحة المحتوى الداخلية التفاعلية -->
-            <div class="bottom-sheet-body" id="bottom-sheet-body">
-                <!-- يتم نقل وعرض القسم المختار هنا بسلاسة -->
             </div>
         </div>
     </div>
+
 
     <!-- نافذة تسجيل دخول لوحة الإحصائيات (Admin PIN Modal) -->
     <div class="modal-overlay" id="admin-login-modal" role="dialog" aria-modal="true">
@@ -3686,7 +3593,6 @@
     <script src="assets/js/data.js"></script>
     <script src="assets/js/azkar-data.js?v=10"></script>
     <script src="assets/js/asmaa-allah-data.js?v=1"></script>
-    <script src="assets/js/nawawi-data.js?v=1"></script>
     <script src="assets/js/islamic-guide-data.js?v=1"></script>
     <script src="assets/js/daily-message-data.js?v=2"></script>
     <script src="assets/js/radio-stations-data.js?v=4"></script>

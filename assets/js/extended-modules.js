@@ -1,8 +1,7 @@
 /**
  * الوحدات الإضافية الشاملة لتطبيق زاد المسلم
  * 1. روابط الصدقة الجارية المخصصة (Custom Memorial Links)
- * 2. الأربعون النووية كاملة (42 Hadiths)
- * 3. أسماء الله الحسنى الـ 99 (99 Names of Allah)
+ * 2. أسماء الله الحسنى الـ 99 (99 Names of Allah)
  * 4. مواسم الطاعات والتقويم الهجري والعد التنازلي (Seasons of Worship)
  * 5. دليل وفتاوى أحكام الجنائز والصدقة الجارية (Islamic FAQ)
  * 6. نظام التنبيهات والإشعارات الذكية (Smart Notifications)
@@ -12,9 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initThemeToggle();
     initMobileNavDrawer();
     initCustomShareLink();
-    initNawawiHadiths();
     initAsmaaAllah();
-    initSeasonsOfWorship();
     initIslamicGuideFaq();
     initSmartNotifications();
     initHourlySalawatReminder();
@@ -28,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initSpiritualGarden();
     initSmartTimelyReminders();
     initIslamicMediaHub();
-    initInteractiveBottomSheet();
     trackSiteTelemetry();
     initAdminDashboard();
     initModernZadDashboard();
@@ -125,232 +121,6 @@ function initCustomShareLink() {
     }
 }
 
-/* ==========================================================================
-   2. قسم الأربعين النووية الشاملة (42 Hadiths)
-   ========================================================================== */
-let currentNawawiAudio = null;
-let currentPlayingHadithId = null;
-
-function initNawawiHadiths() {
-    const grid = document.getElementById("nawawi-grid");
-    const searchInput = document.getElementById("nawawi-search-input");
-    const filterPills = document.querySelectorAll("#nawawi-filter-bar .nawawi-filter-pill");
-
-    if (!grid || typeof NAWAWI_HADITHS === "undefined") return;
-
-    let activeCat = "all";
-    let searchQuery = "";
-
-    function renderHadiths() {
-        grid.innerHTML = "";
-        const filtered = NAWAWI_HADITHS.filter(h => {
-            const matchCat = activeCat === "all" || h.category === activeCat;
-            const matchQuery = !searchQuery || 
-                h.title.includes(searchQuery) || 
-                h.text.includes(searchQuery) || 
-                h.narrator.includes(searchQuery) || 
-                h.explanation.includes(searchQuery);
-            return matchCat && matchQuery;
-        });
-
-        if (filtered.length === 0) {
-            grid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                    <i class="fa-solid fa-book-open" style="font-size: 2.5rem; color: var(--gold-400); margin-bottom: 1rem;"></i>
-                    <p style="font-size: 1.1rem;">لا توجد أحاديث تطابق بحثك، جرّب كلمة أخرى.</p>
-                </div>
-            `;
-            return;
-        }
-
-        filtered.forEach(h => {
-            const card = document.createElement("div");
-            card.className = "hadith-card";
-            const isPlaying = currentPlayingHadithId === h.id;
-
-            card.innerHTML = `
-                <div class="hadith-card-header">
-                    <span class="hadith-number-badge">الحديث ${h.id}</span>
-                    <span class="hadith-category-tag">${h.category}</span>
-                </div>
-                <h3 class="hadith-title">${h.title}</h3>
-                <div class="hadith-narrator"><i class="fa-solid fa-user-pen text-gold"></i> عن ${h.narrator}</div>
-                <div class="hadith-text">${h.text}</div>
-                
-                <button type="button" class="hadith-details-toggle">
-                    <i class="fa-solid fa-chevron-down text-gold"></i>
-                    <span>الشرح والفوائد التربوية</span>
-                </button>
-                
-                <div class="hadith-details-body">
-                    <div style="margin-bottom: 0.75rem;">
-                        <strong style="color: var(--gold-300);"><i class="fa-solid fa-lightbulb"></i> الشرح الميسر:</strong>
-                        <p style="margin: 0.3rem 0 0.6rem 0;">${h.explanation}</p>
-                    </div>
-                    <div>
-                        <strong style="color: var(--gold-300);"><i class="fa-solid fa-check-double"></i> من فوائد الحديث:</strong>
-                        <ul style="padding-right: 1.2rem; margin: 0.3rem 0 0 0;">
-                            ${h.benefits.map(b => `<li>${b}</li>`).join("")}
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="hadith-actions">
-                    <button type="button" class="btn-hadith-audio ${isPlaying ? 'playing' : ''}" data-id="${h.id}" data-audio="${h.audioUrl}">
-                        <i class="fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'}"></i>
-                        <span>${isPlaying ? 'إيقاف' : 'استماع صوتي'}</span>
-                    </button>
-
-                    <div class="hadith-card-btns">
-                        <button type="button" class="btn btn-outline btn-sm btn-copy-hadith" title="نسخ الحديث">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline btn-sm btn-share-hadith" title="مشاركة لواتساب">
-                            <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            const toggleBtn = card.querySelector(".hadith-details-toggle");
-            const detailsBody = card.querySelector(".hadith-details-body");
-            if (toggleBtn && detailsBody) {
-                toggleBtn.addEventListener("click", () => {
-                    const isOpen = detailsBody.classList.toggle("open");
-                    toggleBtn.querySelector("i").style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
-                });
-            }
-
-            const audioBtn = card.querySelector(".btn-hadith-audio");
-            if (audioBtn) {
-                audioBtn.addEventListener("click", () => {
-                    playHadithAudio(h.id, h.audioUrl, h.text);
-                });
-            }
-
-            const copyBtn = card.querySelector(".btn-copy-hadith");
-            if (copyBtn) {
-                copyBtn.addEventListener("click", () => {
-                    const textToCopy = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n💡 *الشرح:* ${h.explanation}\n\n🕊️ زاد المسلم: https://zadmuslim-zeta.vercel.app/`;
-                    copyTextToClipboard(textToCopy);
-                    showToast("تم نسخ الحديث بنجاح 📋");
-                });
-            }
-
-            const shareBtn = card.querySelector(".btn-share-hadith");
-            if (shareBtn) {
-                shareBtn.addEventListener("click", () => {
-                    const msg = `📖 *الحديث ${h.id} من الأربعين النووية:* [${h.title}]\n\nعن ${h.narrator}:\n${h.text}\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 للمزيد من الأحاديث والتلاوات: https://zadmuslim-zeta.vercel.app/`;
-                    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
-                    window.open(waUrl, "_blank");
-                });
-            }
-
-            grid.appendChild(card);
-        });
-    }
-
-    function updateAudioButtonsState() {
-        document.querySelectorAll(".btn-hadith-audio").forEach(btn => {
-            const btnId = parseInt(btn.getAttribute("data-id"), 10);
-            if (btnId === currentPlayingHadithId) {
-                btn.classList.add("playing");
-                btn.style.background = "var(--gold-400)";
-                btn.style.color = "#070d18";
-                btn.innerHTML = '<i class="fa-solid fa-pause"></i> <span>إيقاف التلاوة</span>';
-            } else {
-                btn.classList.remove("playing");
-                btn.style.background = "rgba(212, 175, 55, 0.15)";
-                btn.style.color = "var(--gold-300)";
-                btn.innerHTML = '<i class="fa-solid fa-play"></i> <span>استماع صوتي</span>';
-            }
-        });
-    }
-
-    function playHadithAudio(id, url, hadithText) {
-        if (currentPlayingHadithId === id && currentNawawiAudio && !currentNawawiAudio.paused) {
-            currentNawawiAudio.pause();
-            currentPlayingHadithId = null;
-            updateAudioButtonsState();
-            return;
-        }
-
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
-
-        if (currentNawawiAudio) {
-            currentNawawiAudio.pause();
-            currentNawawiAudio = null;
-        }
-
-        currentPlayingHadithId = id;
-        updateAudioButtonsState();
-
-        currentNawawiAudio = new Audio(url);
-        currentNawawiAudio.play().then(() => {
-            showToast("جاري الاستماع للحديث النبوي الشريف 🎧");
-        }).catch(e => {
-            console.warn("Audio play error, trying speech synthesis fallback:", e);
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(hadithText);
-                utterance.lang = 'ar-SA';
-                utterance.rate = 0.9;
-                utterance.onend = () => {
-                    currentPlayingHadithId = null;
-                    updateAudioButtonsState();
-                };
-                window.speechSynthesis.speak(utterance);
-                showToast("جاري تلاوة الحديث 🔊");
-            } else {
-                showToast("تعذر تشغيل التسجيل الصوتي.");
-                currentPlayingHadithId = null;
-                updateAudioButtonsState();
-            }
-        });
-
-        currentNawawiAudio.onended = () => {
-            currentPlayingHadithId = null;
-            updateAudioButtonsState();
-        };
-
-        currentNawawiAudio.onerror = () => {
-            console.warn("Audio file error, falling back to speech synthesis.");
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(hadithText);
-                utterance.lang = 'ar-SA';
-                utterance.rate = 0.9;
-                utterance.onend = () => {
-                    currentPlayingHadithId = null;
-                    updateAudioButtonsState();
-                };
-                window.speechSynthesis.speak(utterance);
-            } else {
-                showToast("تعذر تشغيل الصوت.");
-                currentPlayingHadithId = null;
-                updateAudioButtonsState();
-            }
-        };
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener("input", (e) => {
-            searchQuery = e.target.value.trim();
-            renderHadiths();
-        });
-    }
-
-    filterPills.forEach(pill => {
-        pill.addEventListener("click", () => {
-            filterPills.forEach(p => p.classList.remove("active"));
-            pill.classList.add("active");
-            activeCat = pill.getAttribute("data-cat");
-            renderHadiths();
-        });
-    });
-
-    renderHadiths();
-}
 
 /* ==========================================================================
    3. قسم ومكتبة أسماء الله الحسنى الـ 99 (Asmaa Allah)
@@ -2119,14 +1889,6 @@ function initEnhancedCategorizedDuas() {
         container.scrollBy({ left: delta, behavior: "smooth" });
     };
 
-    window.scrollNawawiContainer = function(direction) {
-        const container = document.getElementById("nawawi-grid");
-        if (!container) return;
-        const card = container.querySelector(".hadith-card");
-        const scrollAmount = card ? (card.offsetWidth + 20) : 320;
-        const delta = direction === "left" ? -scrollAmount : scrollAmount;
-        container.scrollBy({ left: delta, behavior: "smooth" });
-    };
 
     window.scrollAsmaaContainer = function(direction) {
         const container = document.getElementById("asmaa-grid");
@@ -3624,6 +3386,7 @@ function initIslamicMediaHub() {
     const btnModeVideo = document.getElementById("btn-mode-video");
     const btnModeAudio = document.getElementById("btn-mode-audio");
     const btnModalBookmark = document.getElementById("btn-modal-bookmark");
+    const btnModalYoutube = document.getElementById("btn-modal-youtube");
     const audioWrapper = document.getElementById("media-audio-wrapper");
     const audioAvatar = document.getElementById("media-audio-avatar");
     const speedBtns = document.querySelectorAll(".btn-audio-speed");
@@ -3883,9 +3646,14 @@ function initIslamicMediaHub() {
             btnModalBookmark.dataset.id = item.id;
             btnModalBookmark.classList.toggle("saved", isSaved);
             const icon = btnModalBookmark.querySelector("i");
-            const text = btnModalBookmark.querySelector("span");
+            const text = btnModalBookmark.querySelector(".bookmark-text-compact") || btnModalBookmark.querySelector("span");
             if (icon) icon.className = `fa-${isSaved ? 'solid' : 'regular'} fa-bookmark`;
-            if (text) text.textContent = isSaved ? "في محفوظاتك ⭐" : "حفظ المقطع 🔖";
+            if (text) text.textContent = isSaved ? "محفوظ ⭐" : "حفظ";
+        }
+
+        // ضبط رابط المشاهدة المباشرة على يوتيوب
+        if (btnModalYoutube) {
+            btnModalYoutube.href = `https://www.youtube.com/watch?v=${item.youtubeId}`;
         }
 
         // ضبط وضع الاستماع الصوتي
@@ -3907,7 +3675,7 @@ function initIslamicMediaHub() {
                     btnResumeContinue.onclick = () => {
                         currentPlaybackSeconds = progress.seconds;
                         if (iframe) {
-                            iframe.src = `https://www.youtube.com/embed/${item.youtubeId}?autoplay=1&rel=0&enablejsapi=1&start=${Math.floor(progress.seconds)}`;
+                            iframe.src = `https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&playsinline=1&rel=0&start=${Math.floor(progress.seconds)}`;
                         }
                         resumeBanner.style.display = "none";
                         if (typeof showToast === "function") {
@@ -3921,7 +3689,7 @@ function initIslamicMediaHub() {
                         currentPlaybackSeconds = 0;
                         clearMediaProgress(item.id);
                         if (iframe) {
-                            iframe.src = `https://www.youtube.com/embed/${item.youtubeId}?autoplay=1&rel=0&enablejsapi=1&start=0`;
+                            iframe.src = `https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&playsinline=1&rel=0&start=0`;
                         }
                         resumeBanner.style.display = "none";
                         if (typeof showToast === "function") {
@@ -3940,7 +3708,7 @@ function initIslamicMediaHub() {
 
         if (iframe) {
             const startParam = effectiveStart > 0 ? `&start=${effectiveStart}` : "";
-            iframe.src = `https://www.youtube.com/embed/${item.youtubeId}?autoplay=1&rel=0&enablejsapi=1${startParam}`;
+            iframe.src = `https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&playsinline=1&rel=0${startParam}`;
         }
 
         modal.classList.add("open");
@@ -4237,223 +4005,6 @@ function initDailyFeaturedMediaClip() {
     }
 }
 window.initDailyFeaturedMediaClip = initDailyFeaturedMediaClip;
-
-/* ==========================================================================
-   21.2 الدرج السفلي المنبثق التفاعلي (Interactive Bottom Sheet Controller)
-   ========================================================================== */
-const BOTTOM_SHEET_SERVICES_META = {
-    'prayer-times': { title: 'مواقيت الصلاة والأذان', icon: 'fa-solid fa-mosque' },
-    'azkar': { title: 'حصن المسلم والأذكار', icon: 'fa-solid fa-hands-praying' },
-    'tasbeeh': { title: 'السبحة الإلكترونية الذكية', icon: 'fa-solid fa-ring' },
-    'spiritual-garden': { title: 'حديقة الحسنات وشجرة الطاعات', icon: 'fa-solid fa-seedling' },
-    'asmaa-allah': { title: 'أسماء الله الحسنى ومعانيها', icon: 'fa-solid fa-sparkles' },
-    'islamic-stories': { title: 'قصص وعِبر الأنبياء', icon: 'fa-solid fa-book-open-reader' },
-    'islamic-quiz': { title: 'اختبر معلوماتك الدينية', icon: 'fa-solid fa-trophy' },
-    'nawawi': { title: 'الأربعون النووية وشروحها', icon: 'fa-solid fa-book-bookmark' },
-    'sadaqa': { title: 'بطاقات الصدقة الجارية والدعاء', icon: 'fa-solid fa-heart' },
-    'zakat-calculator-section': { title: 'حاسبة الزكاة الشرعية', icon: 'fa-solid fa-calculator' },
-    'nearby-mosques-section': { title: 'أقرب المساجد إليك', icon: 'fa-solid fa-location-dot' },
-    'quran-khatma': { title: 'ختمة القرآن الكريم المشتركة', icon: 'fa-solid fa-book-quran' }
-};
-
-let currentActiveSheetServiceId = null;
-let currentOriginalParent = null;
-let currentNextSibling = null;
-
-function restoreCurrentSheetContent() {
-    if (!currentActiveSheetServiceId) return;
-    const targetSection = document.getElementById(currentActiveSheetServiceId);
-    if (targetSection && currentOriginalParent) {
-        if (currentNextSibling && currentNextSibling.parentNode === currentOriginalParent) {
-            currentOriginalParent.insertBefore(targetSection, currentNextSibling);
-        } else {
-            currentOriginalParent.appendChild(targetSection);
-        }
-    }
-    currentActiveSheetServiceId = null;
-    currentOriginalParent = null;
-    currentNextSibling = null;
-}
-
-function openServiceBottomSheet(serviceId) {
-    const backdrop = document.getElementById('bottom-sheet-backdrop');
-    const container = document.getElementById('bottom-sheet-container');
-    const body = document.getElementById('bottom-sheet-body');
-    const titleEl = document.getElementById('bottom-sheet-title');
-    const iconEl = document.getElementById('bottom-sheet-icon');
-
-    if (!backdrop || !container || !body) return false;
-
-    const targetSection = document.getElementById(serviceId);
-    if (!targetSection) return false;
-
-    // إعادة أي قسم كان معروضاً سابقاً لمكانه الأصلي
-    if (currentActiveSheetServiceId && currentActiveSheetServiceId !== serviceId) {
-        restoreCurrentSheetContent();
-    }
-
-    // حفظ الموضع الأصلي للقسم لنتمكن من إرجاعه بأمان
-    currentActiveSheetServiceId = serviceId;
-    currentOriginalParent = targetSection.parentNode;
-    currentNextSibling = targetSection.nextSibling;
-
-    // نقل القسم داخل محتوى الدرج
-    body.innerHTML = '';
-    body.appendChild(targetSection);
-
-    // تحديث العنوان والأيقونة
-    const meta = BOTTOM_SHEET_SERVICES_META[serviceId] || { title: 'أقسام زاد المسلم', icon: 'fa-solid fa-layer-group' };
-    if (titleEl) titleEl.textContent = meta.title;
-    if (iconEl) iconEl.innerHTML = `<i class="${meta.icon}"></i>`;
-
-    // تصفير حالة التكبير والمسافات
-    container.classList.remove('expanded');
-    container.style.transform = '';
-    body.scrollTop = 0;
-
-    // فتح الدرج وتثبيت سكرول الخلفية
-    backdrop.classList.add('active');
-    document.body.style.overflow = 'hidden';
-
-    // إشعار النافذة بحدوث تحديث (لإعادة ضبط الخرائط أو الجداول)
-    setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-    }, 100);
-
-    return true;
-}
-
-function closeServiceBottomSheet() {
-    const backdrop = document.getElementById('bottom-sheet-backdrop');
-    const container = document.getElementById('bottom-sheet-container');
-    if (!backdrop) return;
-
-    backdrop.classList.remove('active');
-    document.body.style.overflow = '';
-
-    if (container) {
-        container.classList.remove('expanded');
-        container.style.transform = '';
-    }
-
-    setTimeout(() => {
-        restoreCurrentSheetContent();
-    }, 360);
-}
-
-function initInteractiveBottomSheet() {
-    const container = document.getElementById('bottom-sheet-container');
-    const backdrop = document.getElementById('bottom-sheet-backdrop');
-    const body = document.getElementById('bottom-sheet-body');
-    const btnClose = document.getElementById('btn-sheet-close');
-    const btnExpand = document.getElementById('btn-sheet-expand');
-    const iconExpand = document.getElementById('icon-sheet-expand');
-
-    if (!container || !backdrop) return;
-
-    // إيماءات السحب باللمس للأعلى والأسفل (Touch Gestures)
-    let startY = 0;
-    let currentY = 0;
-    let isDragging = false;
-
-    const onTouchStart = (e) => {
-        const isHeader = e.target.closest('.bottom-sheet-header') || e.target.closest('.bottom-sheet-drag-zone');
-        const isAtTop = body && body.scrollTop <= 0;
-
-        if (!isHeader && !isAtTop) return;
-
-        startY = e.touches[0].clientY;
-        currentY = startY;
-        isDragging = true;
-        container.classList.add('dragging');
-    };
-
-    const onTouchMove = (e) => {
-        if (!isDragging) return;
-        currentY = e.touches[0].clientY;
-        const deltaY = currentY - startY;
-
-        if (deltaY > 0) {
-            // سحب لأسفل (إغلاق)
-            container.style.transform = `translateY(${deltaY}px)`;
-            if (e.cancelable && (e.target.closest('.bottom-sheet-drag-zone') || e.target.closest('.bottom-sheet-header'))) {
-                e.preventDefault();
-            }
-        } else if (deltaY < -20 && !container.classList.contains('expanded')) {
-            // سحب خفيف لأعلى
-            const stretch = Math.max(-50, deltaY * 0.3);
-            container.style.transform = `translateY(${stretch}px)`;
-        }
-    };
-
-    const onTouchEnd = () => {
-        if (!isDragging) return;
-        isDragging = false;
-        container.classList.remove('dragging');
-        const deltaY = currentY - startY;
-
-        container.style.transform = '';
-
-        if (deltaY > 80) {
-            // تم السحب للأسفل بشكل كافٍ -> إغلاق فوري!
-            closeServiceBottomSheet();
-        } else if (deltaY < -60 && !container.classList.contains('expanded')) {
-            // تم السحب للأعلى -> تكبير الشاشة!
-            container.classList.add('expanded');
-            if (iconExpand) iconExpand.className = 'fa-solid fa-down-left-and-up-right-to-center';
-        }
-    };
-
-    container.addEventListener('touchstart', onTouchStart, { passive: true });
-    container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd, { passive: true });
-
-    // زر التكبير / التصغير
-    if (btnExpand) {
-        btnExpand.addEventListener('click', () => {
-            const isExp = container.classList.toggle('expanded');
-            if (iconExpand) {
-                iconExpand.className = isExp ? 
-                    'fa-solid fa-down-left-and-up-right-to-center' : 
-                    'fa-solid fa-up-right-and-down-left-from-center';
-            }
-        });
-    }
-
-    // زر الإغلاق
-    if (btnClose) {
-        btnClose.addEventListener('click', closeServiceBottomSheet);
-    }
-
-    // النقر خارج الدرج للإغلاق
-    backdrop.addEventListener('click', (e) => {
-        if (e.target === backdrop) {
-            closeServiceBottomSheet();
-        }
-    });
-
-    // زر الهروب Esc
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && backdrop.classList.contains('active')) {
-            closeServiceBottomSheet();
-        }
-    });
-
-    // اعتراض روابط الخدمات داخل services.html لفتح الدرج بسلاسة
-    document.querySelectorAll('.service-card[href^="#"]').forEach(card => {
-        card.addEventListener('click', (e) => {
-            const targetId = card.getAttribute('href').replace('#', '');
-            if (targetId && targetId !== 'islamic-media' && document.getElementById(targetId)) {
-                e.preventDefault();
-                openServiceBottomSheet(targetId);
-            }
-        });
-    });
-}
-
-window.openServiceBottomSheet = openServiceBottomSheet;
-window.closeServiceBottomSheet = closeServiceBottomSheet;
-window.initInteractiveBottomSheet = initInteractiveBottomSheet;
 
 /* ==========================================================================
    22. تتبع الإحصائيات الحية وسحابة Firebase (Site Telemetry)
