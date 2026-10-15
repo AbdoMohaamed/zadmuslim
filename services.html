@@ -3401,6 +3401,42 @@
         </div>
     </div>
 
+    <!-- ========================================================
+         الدرج السفلي المنبثق التفاعلي (Interactive Bottom Sheet / Half-Modal)
+         ======================================================== -->
+    <div class="bottom-sheet-backdrop" id="bottom-sheet-backdrop" aria-hidden="true">
+        <div class="bottom-sheet-container" id="bottom-sheet-container" role="dialog" aria-modal="true">
+            <!-- مقبض السحب باللمس للأعلى والأسفل (Touch Drag Handle) -->
+            <div class="bottom-sheet-drag-zone" id="bottom-sheet-drag-zone">
+                <span class="bottom-sheet-drag-pill"></span>
+            </div>
+
+            <!-- شريط رأس الدرج المنبثق -->
+            <div class="bottom-sheet-header">
+                <div class="bottom-sheet-title-group">
+                    <span class="bottom-sheet-icon" id="bottom-sheet-icon"><i class="fa-solid fa-layer-group"></i></span>
+                    <div>
+                        <h3 class="bottom-sheet-title" id="bottom-sheet-title">عنوان القسم</h3>
+                        <span class="bottom-sheet-subtitle" id="bottom-sheet-subtitle">اسحب للأسفل للإغلاق ⇣</span>
+                    </div>
+                </div>
+                <div class="bottom-sheet-header-actions">
+                    <button type="button" class="btn-sheet-action btn-sheet-expand" id="btn-sheet-expand" title="تكبير / تصغير الشاشة" aria-label="تكبير">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center" id="icon-sheet-expand"></i>
+                    </button>
+                    <button type="button" class="btn-sheet-action btn-sheet-close" id="btn-sheet-close" title="إغلاق الدرج" aria-label="إغلاق">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- مساحة المحتوى الداخلية التفاعلية -->
+            <div class="bottom-sheet-body" id="bottom-sheet-body">
+                <!-- يتم نقل وعرض القسم المختار هنا بسلاسة -->
+            </div>
+        </div>
+    </div>
+
     <!-- نافذة تسجيل دخول لوحة الإحصائيات (Admin PIN Modal) -->
     <div class="modal-overlay" id="admin-login-modal" role="dialog" aria-modal="true">
         <div class="modal-card modal-card-sm" style="max-width: 420px; text-align: center;">

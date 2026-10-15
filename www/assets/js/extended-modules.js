@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initSpiritualGarden();
     initSmartTimelyReminders();
     initIslamicMediaHub();
+    initInteractiveBottomSheet();
     trackSiteTelemetry();
     initAdminDashboard();
     initModernZadDashboard();
@@ -4236,6 +4237,223 @@ function initDailyFeaturedMediaClip() {
     }
 }
 window.initDailyFeaturedMediaClip = initDailyFeaturedMediaClip;
+
+/* ==========================================================================
+   21.2 الدرج السفلي المنبثق التفاعلي (Interactive Bottom Sheet Controller)
+   ========================================================================== */
+const BOTTOM_SHEET_SERVICES_META = {
+    'prayer-times': { title: 'مواقيت الصلاة والأذان', icon: 'fa-solid fa-mosque' },
+    'azkar': { title: 'حصن المسلم والأذكار', icon: 'fa-solid fa-hands-praying' },
+    'tasbeeh': { title: 'السبحة الإلكترونية الذكية', icon: 'fa-solid fa-ring' },
+    'spiritual-garden': { title: 'حديقة الحسنات وشجرة الطاعات', icon: 'fa-solid fa-seedling' },
+    'asmaa-allah': { title: 'أسماء الله الحسنى ومعانيها', icon: 'fa-solid fa-sparkles' },
+    'islamic-stories': { title: 'قصص وعِبر الأنبياء', icon: 'fa-solid fa-book-open-reader' },
+    'islamic-quiz': { title: 'اختبر معلوماتك الدينية', icon: 'fa-solid fa-trophy' },
+    'nawawi': { title: 'الأربعون النووية وشروحها', icon: 'fa-solid fa-book-bookmark' },
+    'sadaqa': { title: 'بطاقات الصدقة الجارية والدعاء', icon: 'fa-solid fa-heart' },
+    'zakat-calculator-section': { title: 'حاسبة الزكاة الشرعية', icon: 'fa-solid fa-calculator' },
+    'nearby-mosques-section': { title: 'أقرب المساجد إليك', icon: 'fa-solid fa-location-dot' },
+    'quran-khatma': { title: 'ختمة القرآن الكريم المشتركة', icon: 'fa-solid fa-book-quran' }
+};
+
+let currentActiveSheetServiceId = null;
+let currentOriginalParent = null;
+let currentNextSibling = null;
+
+function restoreCurrentSheetContent() {
+    if (!currentActiveSheetServiceId) return;
+    const targetSection = document.getElementById(currentActiveSheetServiceId);
+    if (targetSection && currentOriginalParent) {
+        if (currentNextSibling && currentNextSibling.parentNode === currentOriginalParent) {
+            currentOriginalParent.insertBefore(targetSection, currentNextSibling);
+        } else {
+            currentOriginalParent.appendChild(targetSection);
+        }
+    }
+    currentActiveSheetServiceId = null;
+    currentOriginalParent = null;
+    currentNextSibling = null;
+}
+
+function openServiceBottomSheet(serviceId) {
+    const backdrop = document.getElementById('bottom-sheet-backdrop');
+    const container = document.getElementById('bottom-sheet-container');
+    const body = document.getElementById('bottom-sheet-body');
+    const titleEl = document.getElementById('bottom-sheet-title');
+    const iconEl = document.getElementById('bottom-sheet-icon');
+
+    if (!backdrop || !container || !body) return false;
+
+    const targetSection = document.getElementById(serviceId);
+    if (!targetSection) return false;
+
+    // إعادة أي قسم كان معروضاً سابقاً لمكانه الأصلي
+    if (currentActiveSheetServiceId && currentActiveSheetServiceId !== serviceId) {
+        restoreCurrentSheetContent();
+    }
+
+    // حفظ الموضع الأصلي للقسم لنتمكن من إرجاعه بأمان
+    currentActiveSheetServiceId = serviceId;
+    currentOriginalParent = targetSection.parentNode;
+    currentNextSibling = targetSection.nextSibling;
+
+    // نقل القسم داخل محتوى الدرج
+    body.innerHTML = '';
+    body.appendChild(targetSection);
+
+    // تحديث العنوان والأيقونة
+    const meta = BOTTOM_SHEET_SERVICES_META[serviceId] || { title: 'أقسام زاد المسلم', icon: 'fa-solid fa-layer-group' };
+    if (titleEl) titleEl.textContent = meta.title;
+    if (iconEl) iconEl.innerHTML = `<i class="${meta.icon}"></i>`;
+
+    // تصفير حالة التكبير والمسافات
+    container.classList.remove('expanded');
+    container.style.transform = '';
+    body.scrollTop = 0;
+
+    // فتح الدرج وتثبيت سكرول الخلفية
+    backdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // إشعار النافذة بحدوث تحديث (لإعادة ضبط الخرائط أو الجداول)
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 100);
+
+    return true;
+}
+
+function closeServiceBottomSheet() {
+    const backdrop = document.getElementById('bottom-sheet-backdrop');
+    const container = document.getElementById('bottom-sheet-container');
+    if (!backdrop) return;
+
+    backdrop.classList.remove('active');
+    document.body.style.overflow = '';
+
+    if (container) {
+        container.classList.remove('expanded');
+        container.style.transform = '';
+    }
+
+    setTimeout(() => {
+        restoreCurrentSheetContent();
+    }, 360);
+}
+
+function initInteractiveBottomSheet() {
+    const container = document.getElementById('bottom-sheet-container');
+    const backdrop = document.getElementById('bottom-sheet-backdrop');
+    const body = document.getElementById('bottom-sheet-body');
+    const btnClose = document.getElementById('btn-sheet-close');
+    const btnExpand = document.getElementById('btn-sheet-expand');
+    const iconExpand = document.getElementById('icon-sheet-expand');
+
+    if (!container || !backdrop) return;
+
+    // إيماءات السحب باللمس للأعلى والأسفل (Touch Gestures)
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    const onTouchStart = (e) => {
+        const isHeader = e.target.closest('.bottom-sheet-header') || e.target.closest('.bottom-sheet-drag-zone');
+        const isAtTop = body && body.scrollTop <= 0;
+
+        if (!isHeader && !isAtTop) return;
+
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+        container.classList.add('dragging');
+    };
+
+    const onTouchMove = (e) => {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+
+        if (deltaY > 0) {
+            // سحب لأسفل (إغلاق)
+            container.style.transform = `translateY(${deltaY}px)`;
+            if (e.cancelable && (e.target.closest('.bottom-sheet-drag-zone') || e.target.closest('.bottom-sheet-header'))) {
+                e.preventDefault();
+            }
+        } else if (deltaY < -20 && !container.classList.contains('expanded')) {
+            // سحب خفيف لأعلى
+            const stretch = Math.max(-50, deltaY * 0.3);
+            container.style.transform = `translateY(${stretch}px)`;
+        }
+    };
+
+    const onTouchEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        container.classList.remove('dragging');
+        const deltaY = currentY - startY;
+
+        container.style.transform = '';
+
+        if (deltaY > 80) {
+            // تم السحب للأسفل بشكل كافٍ -> إغلاق فوري!
+            closeServiceBottomSheet();
+        } else if (deltaY < -60 && !container.classList.contains('expanded')) {
+            // تم السحب للأعلى -> تكبير الشاشة!
+            container.classList.add('expanded');
+            if (iconExpand) iconExpand.className = 'fa-solid fa-down-left-and-up-right-to-center';
+        }
+    };
+
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: false });
+    container.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    // زر التكبير / التصغير
+    if (btnExpand) {
+        btnExpand.addEventListener('click', () => {
+            const isExp = container.classList.toggle('expanded');
+            if (iconExpand) {
+                iconExpand.className = isExp ? 
+                    'fa-solid fa-down-left-and-up-right-to-center' : 
+                    'fa-solid fa-up-right-and-down-left-from-center';
+            }
+        });
+    }
+
+    // زر الإغلاق
+    if (btnClose) {
+        btnClose.addEventListener('click', closeServiceBottomSheet);
+    }
+
+    // النقر خارج الدرج للإغلاق
+    backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) {
+            closeServiceBottomSheet();
+        }
+    });
+
+    // زر الهروب Esc
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && backdrop.classList.contains('active')) {
+            closeServiceBottomSheet();
+        }
+    });
+
+    // اعتراض روابط الخدمات داخل services.html لفتح الدرج بسلاسة
+    document.querySelectorAll('.service-card[href^="#"]').forEach(card => {
+        card.addEventListener('click', (e) => {
+            const targetId = card.getAttribute('href').replace('#', '');
+            if (targetId && targetId !== 'islamic-media' && document.getElementById(targetId)) {
+                e.preventDefault();
+                openServiceBottomSheet(targetId);
+            }
+        });
+    });
+}
+
+window.openServiceBottomSheet = openServiceBottomSheet;
+window.closeServiceBottomSheet = closeServiceBottomSheet;
+window.initInteractiveBottomSheet = initInteractiveBottomSheet;
 
 /* ==========================================================================
    22. تتبع الإحصائيات الحية وسحابة Firebase (Site Telemetry)

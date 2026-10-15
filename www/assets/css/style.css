@@ -10802,6 +10802,215 @@ html[data-theme="dark"] .media-audio-player-wrapper,
   border-color: #315346 !important;
 }
 
+/* ==========================================================================
+   الدرج السفلي المنبثق التفاعلي (Interactive Bottom Sheet / Half-Modal)
+   ========================================================================== */
+.bottom-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(4, 9, 15, 0.68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1), visibility 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.bottom-sheet-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bottom-sheet-container {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  height: 70vh;
+  max-height: 94vh;
+  min-height: 280px;
+  background: linear-gradient(180deg, rgba(16, 28, 45, 0.98) 0%, rgba(9, 17, 28, 0.99) 100%);
+  border-top: 2px solid var(--gold-400);
+  border-left: 1px solid rgba(212, 175, 55, 0.3);
+  border-right: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -12px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(212, 175, 55, 0.2);
+  transform: translateY(100%);
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  will-change: transform, height;
+}
+
+.bottom-sheet-backdrop.active .bottom-sheet-container {
+  transform: translateY(0);
+}
+
+.bottom-sheet-container.expanded {
+  height: 94vh;
+}
+
+.bottom-sheet-container.dragging {
+  transition: none !important;
+}
+
+/* مقبض السحب باللمس (Drag Handle) */
+.bottom-sheet-drag-zone {
+  width: 100%;
+  padding: 12px 0 8px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  background: transparent;
+}
+
+.bottom-sheet-drag-zone:active {
+  cursor: grabbing;
+}
+
+.bottom-sheet-drag-pill {
+  width: 44px;
+  height: 5px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.25s ease;
+}
+
+.bottom-sheet-drag-zone:hover .bottom-sheet-drag-pill,
+.bottom-sheet-container.dragging .bottom-sheet-drag-pill {
+  background: var(--gold-400);
+  width: 54px;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+}
+
+/* شريط رأس الدرج */
+.bottom-sheet-header {
+  padding: 6px 18px 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+  user-select: none;
+}
+
+.bottom-sheet-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bottom-sheet-icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--gold-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.bottom-sheet-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bottom-sheet-subtitle {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.bottom-sheet-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-sheet-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sheet-action:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold-400);
+  color: var(--gold-300);
+  transform: scale(1.08);
+}
+
+.btn-sheet-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* جسم المحتوى داخل الدرج */
+.bottom-sheet-body {
+  padding: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+/* تنسيق الأقسام المنقولة داخل الدرج */
+.bottom-sheet-body section {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.bottom-sheet-body .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: 100% !important;
+}
+
+.bottom-sheet-body .section-header {
+  margin-bottom: 16px !important;
+}
+
+/* سمة الدارك مود للدرج */
+html[data-theme="dark"] .bottom-sheet-container,
+[data-theme="dark"] .bottom-sheet-container {
+  background: linear-gradient(180deg, #132a21 0%, #0c1a14 100%) !important;
+  border-top-color: #73d3ab !important;
+  border-left-color: #315346 !important;
+  border-right-color: #315346 !important;
+}
+
+
 
 /* ==========================================================================
    22. لوحة الإحصائيات الخاصة (Admin & Analytics Dashboard)
