@@ -200,4 +200,19 @@
         bindThemeButtons();
         enableTransitions();
     }
+
+    // حماية واجهة التطبيق من تشويش كونسول المتصفح بأخطاء إضافات المتصفح الخارجية (Chrome/Edge Extensions)
+    window.addEventListener('unhandledrejection', function(event) {
+        try {
+            const reason = event ? event.reason : null;
+            const msg = reason && (reason.message || String(reason));
+            const stack = reason && (reason.stack || '');
+            if (
+                (msg && (msg.includes('M_ID') || msg.includes("reading 'M_ID'"))) ||
+                (stack && (stack.includes('200.js') || stack.includes('chrome-extension://') || stack.includes('moz-extension://')))
+            ) {
+                event.preventDefault();
+            }
+        } catch (_) {}
+    });
 })();

@@ -10052,12 +10052,41 @@ input:checked + .slider-round:before {
    مشغل المرئيات المتقدم (Media Player Modal)
    ========================================================================== */
 .modal-card-media-player {
+  position: relative;
   max-width: 840px;
   padding: 0;
   overflow: hidden;
   background: var(--bg-card);
   border: 1px solid var(--gold-500);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.25);
+}
+
+.modal-card-media-player .modal-close-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+.modal-card-media-player .modal-close-btn:hover {
+  background: var(--gold-500);
+  color: #000;
+  border-color: var(--gold-500);
+  transform: scale(1.08);
 }
 
 .media-player-video-wrapper {
@@ -10152,6 +10181,627 @@ input:checked + .slider-round:before {
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+/* ==========================================================================
+   تطويرات المرئيات والبودكاست: المحفوظات، استئناف المشاهدة، وضع الصوت، مقطع اليوم
+   ========================================================================== */
+
+/* 1. زر المفضلة والمحفوظات على البطاقة (Media Card Bookmark Button) */
+.media-card-bookmark-btn {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 5;
+  background: rgba(14, 25, 43, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+}
+
+.media-card-bookmark-btn:hover {
+  transform: scale(1.12);
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+}
+
+.media-card-bookmark-btn.saved {
+  background: rgba(212, 175, 55, 0.25);
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+}
+
+/* 2. شريط تقدم المشاهدة على البطاقة (Media Progress Bar) */
+.media-card-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  z-index: 4;
+}
+
+.media-card-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-500), #ffda79);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
+}
+
+/* 3. شريط أدوات المشغل العلوي وزر التحويل (فيديو / صوت فقط + المفضلة) */
+.media-player-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem 0.75rem 4rem;
+  background: rgba(10, 18, 30, 0.95);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.media-mode-toggle {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  gap: 3px;
+}
+
+.media-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.25s ease;
+}
+
+.media-mode-btn.active {
+  background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%);
+  color: #0b1320;
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+}
+
+.btn-modal-bookmark {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--gold-400);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: all 0.25s ease;
+}
+
+.btn-modal-bookmark:hover,
+.btn-modal-bookmark.saved {
+  background: var(--gold-500);
+  color: #0b1320;
+  border-color: var(--gold-400);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.45);
+}
+
+/* 4. بنر استئناف المشاهدة من حيث توقفت (Resume Playback Banner) */
+.media-resume-banner {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  animation: mediaCardFadeIn 0.3s ease;
+}
+
+.media-resume-text {
+  font-size: 0.88rem;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.media-resume-text strong {
+  color: var(--gold-300);
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.media-resume-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-resume-action {
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-resume-continue {
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
+  color: #0b1320;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-resume-continue:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.5);
+}
+
+.btn-resume-restart {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+}
+
+.btn-resume-restart:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+/* 5. وضع الاستماع الصوتي فقط (Audio-Only Mode Styles) */
+.media-audio-player-wrapper {
+  background: radial-gradient(circle at center, #132438 0%, #080f1a 100%);
+  padding: 2.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.media-audio-cover-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.media-audio-disk {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(16, 185, 129, 0.2));
+  border: 2px solid var(--gold-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.45);
+  animation: pulseAudioGlow 3s ease-in-out infinite alternate;
+  margin-bottom: 1rem;
+}
+
+@keyframes pulseAudioGlow {
+  0% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); transform: scale(0.98); }
+  100% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.65); transform: scale(1.02); }
+}
+
+.media-audio-avatar {
+  font-size: 2.2rem;
+  color: var(--gold-300);
+}
+
+/* Animated sound wave bars */
+.media-audio-wave-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  height: 36px;
+  margin-bottom: 0.4rem;
+}
+
+.media-audio-wave-bars .bar {
+  width: 4px;
+  background: linear-gradient(180deg, var(--gold-400) 0%, var(--emerald-400) 100%);
+  border-radius: 3px;
+  animation: audioWaveBar 1.2s ease-in-out infinite alternate;
+}
+
+.media-audio-wave-bars .bar-1 { height: 12px; animation-delay: 0.1s; }
+.media-audio-wave-bars .bar-2 { height: 26px; animation-delay: 0.3s; }
+.media-audio-wave-bars .bar-3 { height: 35px; animation-delay: 0.5s; }
+.media-audio-wave-bars .bar-4 { height: 18px; animation-delay: 0.2s; }
+.media-audio-wave-bars .bar-5 { height: 32px; animation-delay: 0.4s; }
+.media-audio-wave-bars .bar-6 { height: 22px; animation-delay: 0.6s; }
+.media-audio-wave-bars .bar-7 { height: 36px; animation-delay: 0.15s; }
+.media-audio-wave-bars .bar-8 { height: 14px; animation-delay: 0.45s; }
+
+@keyframes audioWaveBar {
+  0% { transform: scaleY(0.3); opacity: 0.5; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+.media-audio-mode-info {
+  margin-bottom: 1.1rem;
+}
+
+.media-audio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: var(--emerald-400);
+  padding: 0.3rem 0.9rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.media-audio-subhint {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.media-audio-speed-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-full);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.media-audio-speed-bar .speed-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.3rem;
+}
+
+.btn-audio-speed {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-audio-speed.active,
+.btn-audio-speed:hover {
+  background: var(--gold-400);
+  color: #0b1320;
+  border-color: var(--gold-300);
+}
+
+.btn-audio-seek {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--gold-300);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.btn-audio-seek:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold-400);
+}
+
+/* Audio mode hiding video */
+.modal-card-media-player.audio-mode .media-player-video-wrapper {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0.01;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 6. كارت موعظة اليوم المرئية في الشاشة الرئيسية (Daily Featured Clip Hero Card) */
+.daily-featured-media-card {
+  background: linear-gradient(135deg, rgba(17, 30, 49, 0.95) 0%, rgba(10, 20, 32, 0.98) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 16px;
+  padding: 1.1rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.daily-featured-media-card:hover {
+  border-color: var(--gold-400);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.daily-featured-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  gap: 0.5rem;
+}
+
+.daily-featured-badge {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--gold-300);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.daily-featured-cat-tag {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--gold-400);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+}
+
+.daily-featured-body {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1.1rem;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .daily-featured-body {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+}
+
+.daily-featured-thumb-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+}
+
+.daily-clip-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.daily-featured-thumb-box:hover .daily-clip-img {
+  transform: scale(1.08);
+}
+
+.daily-clip-duration {
+  position: absolute;
+  bottom: 0.4rem;
+  left: 0.4rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.daily-clip-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s ease;
+}
+
+.daily-featured-thumb-box:hover .daily-clip-overlay {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.daily-clip-play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
+  color: #0b1320;
+  border: none;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.6);
+  transition: transform 0.25s ease;
+  padding-left: 2px;
+}
+
+.daily-featured-thumb-box:hover .daily-clip-play-btn {
+  transform: scale(1.15);
+}
+
+.daily-featured-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.daily-clip-speaker {
+  font-size: 0.78rem;
+  color: var(--gold-400);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.daily-clip-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.daily-clip-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.daily-clip-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.btn-watch-daily-clip {
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
+  color: #0b1320;
+  border: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.btn-watch-daily-clip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-audio-daily-clip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.btn-audio-daily-clip:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+}
+
+.btn-bookmark-daily-clip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-bookmark-daily-clip:hover,
+.btn-bookmark-daily-clip.saved {
+  background: rgba(212, 175, 55, 0.25);
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+}
+
+/* Dark mode theme overrides */
+html[data-theme="dark"] .daily-featured-media-card,
+[data-theme="dark"] .daily-featured-media-card {
+  background: #163329 !important;
+  border-color: #315346 !important;
+  color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .media-player-toolbar,
+[data-theme="dark"] .media-player-toolbar {
+  background: #122820 !important;
+  border-color: #315346 !important;
+}
+
+html[data-theme="dark"] .media-audio-player-wrapper,
+[data-theme="dark"] .media-audio-player-wrapper {
+  background: radial-gradient(circle at center, #163329 0%, #0d1e18 100%) !important;
+  border-color: #315346 !important;
+}
+
 
 /* ==========================================================================
    22. لوحة الإحصائيات الخاصة (Admin & Analytics Dashboard)
