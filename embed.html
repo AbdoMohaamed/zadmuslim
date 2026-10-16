@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>مشغل المرئيات | زاد المسلم</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #player-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        .fallback-bar {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            left: 12px;
+            display: none;
+            justify-content: center;
+            z-index: 10;
+        }
+        .fallback-btn {
+            background: rgba(185, 28, 28, 0.9);
+            color: #fff;
+            border: 1px solid #d4af37;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .fallback-btn:hover {
+            background: #b91c1c;
+            transform: scale(1.03);
+        }
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-top-color: #d4af37;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="player-container">
+        <div class="loading-spinner" id="spinner"></div>
+    </div>
+    
+    <div class="fallback-bar" id="fallback-bar">
+        <a href="#" target="_blank" rel="noopener noreferrer" class="fallback-btn" id="fallback-btn">
+            <span>إذا واجهت مشكلة، افتح في تطبيق YouTube ↗</span>
+        </a>
+    </div>
+
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const videoId = params.get('v') || '';
+            const start = parseInt(params.get('start') || '0', 10);
+            const container = document.getElementById('player-container');
+            const spinner = document.getElementById('spinner');
+            const fallbackBar = document.getElementById('fallback-bar');
+            const fallbackBtn = document.getElementById('fallback-btn');
+
+            if (!videoId) {
+                if (spinner) spinner.style.display = 'none';
+                container.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:14px;">لم يتم تحديد المقطع المطلوب</div>';
+                return;
+            }
+
+            if (fallbackBtn) {
+                fallbackBtn.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId);
+            }
+
+            const origin = window.location.origin || 'https://zadmuslim-zeta.vercel.app';
+            const startParam = start > 0 ? '&start=' + start : '';
+            
+            // استخدام نطاق youtube.com المباشر مع origin و enablejsapi لتجاوز أخطاء 150 و 153
+            const embedUrl = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) +
+                '?autoplay=1&playsinline=1&rel=0&enablejsapi=1&origin=' + encodeURIComponent(origin) +
+                '&widget_referrer=' + encodeURIComponent(origin) + startParam;
+
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.title = 'مشغل المرئيات';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+            iframe.allowFullscreen = true;
+
+            iframe.onload = function() {
+                if (spinner) spinner.style.display = 'none';
+            };
+
+            container.appendChild(iframe);
+
+            // إظهار زر الفتح المباشر كخيار احتياطي بعد ثانيتين إن رغب المستخدم
+            setTimeout(function() {
+                if (fallbackBar) fallbackBar.style.display = 'flex';
+            }, 2500);
+        })();
+    </script>
+</body>
+</html>

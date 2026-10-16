@@ -34,6 +34,20 @@ public class MainActivity extends BridgeActivity {
         // فحص البث السحابي فوراً عند فتح التطبيق وتفعيل الجدولة الدورية
         AdhanAlarmReceiver.triggerImmediateBroadcastCheck(this);
         AdhanAlarmReceiver.scheduleNextBroadcastCheck(this);
+
+        // تهيئة إعدادات الـ WebView لتشغيل مرئيات YouTube والوسائط المتعددة بسلاسة ودون حظر
+        try {
+            if (this.bridge != null && this.bridge.getWebView() != null) {
+                android.webkit.WebView webView = this.bridge.getWebView();
+                android.webkit.WebSettings settings = webView.getSettings();
+                settings.setJavaScriptEnabled(true);
+                settings.setDomStorageEnabled(true);
+                settings.setMediaPlaybackRequiresUserGesture(false);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
     /**

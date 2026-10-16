@@ -10,7 +10,7 @@ if (!fs.existsSync(targetDir)) {
 }
 
 // Copy files
-const filesToCopy = ['index.html', 'services.html', 'app.html', 'admin.html', 'privacy.html', 'manifest.json', 'sw.js', 'radios.json'];
+const filesToCopy = ['index.html', 'services.html', 'app.html', 'admin.html', 'privacy.html', 'manifest.json', 'sw.js', 'radios.json', 'embed.html'];
 filesToCopy.forEach(file => {
     const srcFile = path.join(srcDir, file);
     const destFile = path.join(targetDir, file);

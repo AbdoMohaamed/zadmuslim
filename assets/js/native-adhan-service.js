@@ -58,7 +58,7 @@ const NativeAdhanService = {
                 { id: "adhan_fajr", name: "أذان الفجر المخصوص", sound: "adhan_fajr", importance: 5 },
                 { id: "daily_adhkar", name: "أذكار الصباح والمساء وسورة الكهف", sound: null, importance: 4 },
                 { id: "hourly_salawat", name: "تذكير الصلاة على النبي ﷺ كل ساعة", sound: "salawat", importance: 4 },
-                { id: "zad_cloud_broadcast_channel", name: "إشعارات ورسائل زاد المسلم العامة", sound: "adhan_makkah", importance: 5 }
+                { id: "zad_cloud_broadcast_channel", name: "إشعارات ورسائل زاد المسلم العامة", sound: null, importance: 4 }
             ];
 
             for (const ch of channels) {
@@ -92,44 +92,27 @@ const NativeAdhanService = {
             const LocalNotifications = window.Capacitor.Plugins.LocalNotifications;
             if (!LocalNotifications) return;
 
-            // عند النقر على إشعار الأذان من شاشة القفل أو الستارة في نظام iOS و Android
+            // عند النقر على إشعار من شاشة القفل أو الستارة في نظام iOS و Android
             LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
                 console.log("🕌 Native Notification Action performed:", action);
                 const notif = action.notification;
                 if (notif && notif.extra) {
-                    if (notif.extra.type === "adhan_call" && notif.extra.prayerKey) {
+                    // تشغيل صوت الأذان داخل التطبيق فقط إذا ضغط المستخدم عمداً وبشكل صريح على زر "سماع الأذان" (actionId === 'play_adhan')
+                    // أما إذا نقر على الإشعار لفتح التطبيق، فلن يتم تشغيل الصوت مجدداً لأن الأذان أذّن في وقته بالفعل
+                    if (notif.extra.type === "adhan_call" && notif.extra.prayerKey && action.actionId === "play_adhan") {
                         const pKey = notif.extra.prayerKey;
                         const pName = notif.extra.prayerName || "الصلاة";
                         const muazzin = notif.extra.muazzin;
                         if (typeof playAdhanAudio === "function") {
                             playAdhanAudio(pKey, muazzin, pName);
                         }
-                    } else if (notif.extra.type === "pre_prayer_alert" && notif.extra.prayerKey) {
-                        if (typeof playPrePrayerAudio === "function") {
-                            playPrePrayerAudio(notif.extra.prayerKey);
-                        }
-                    } else if (notif.extra.type === "hourly_salawat") {
-                        if (typeof window.playSalawatAudio === "function") {
-                            window.playSalawatAudio(false);
-                        }
                     }
                 }
             });
 
-            // الاستماع أيضاً لاستلام الإشعار عند فتح التطبيق
+            // الاستماع أيضاً لاستلام الإشعار أثناء فتح التطبيق (دون إعادة تشغيل أصوات قديمة)
             LocalNotifications.addListener("localNotificationReceived", (notif) => {
                 console.log("🕌 Native Notification received:", notif);
-                if (notif && notif.extra) {
-                    if (notif.extra.type === "pre_prayer_alert" && notif.extra.prayerKey) {
-                        if (typeof playPrePrayerAudio === "function") {
-                            playPrePrayerAudio(notif.extra.prayerKey);
-                        }
-                    } else if (notif.extra.type === "hourly_salawat") {
-                        if (typeof window.playSalawatAudio === "function") {
-                            window.playSalawatAudio(false);
-                        }
-                    }
-                }
             });
         } catch (e) {
             console.warn("Error setting up native notification listeners:", e);

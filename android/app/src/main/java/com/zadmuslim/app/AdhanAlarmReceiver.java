@@ -29,6 +29,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
     public static final String ACTION_CHECK_CLOUD_BROADCASTS = "com.zadmuslim.app.ACTION_CHECK_CLOUD_BROADCASTS";
     public static final String ACTION_STOP_ADHAN = "com.zadmuslim.app.ACTION_STOP_ADHAN";
+    public static final String ACTION_PRAYER_ALARM = "com.zadmuslim.app.ACTION_PRAYER_ALARM";
 
     public static final String EXTRA_IS_PRE_ALERT = "is_pre_alert";
     public static final String EXTRA_PRAYER_NAME = "prayer_name";
@@ -76,6 +77,23 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         String prayerName = intent.getStringExtra(EXTRA_PRAYER_NAME);
         String prayerKey = intent.getStringExtra(EXTRA_PRAYER_KEY);
         String muazzin = intent.getStringExtra(EXTRA_MUAZZIN);
+
+        // صمام أمان حاسم: منع أي تشغيل عشوائي للأذان إذا لم تكن النية مخصصة للأذان أو لم يكن هناك مفتاح صلاة صالح
+        if (!ACTION_PRAYER_ALARM.equals(action) && !intent.hasExtra(EXTRA_PRAYER_KEY)) {
+            Log.d(TAG, "Ignoring unrelated broadcast without prayer alarm intent: " + action);
+            return;
+        }
+
+        if (prayerKey == null || prayerKey.trim().isEmpty()) {
+            Log.w(TAG, "Rejected adhan trigger with null or empty prayerKey");
+            return;
+        }
+
+        if (!prayerKey.equals("fajr") && !prayerKey.equals("dhuhr") && !prayerKey.equals("asr") && 
+            !prayerKey.equals("maghrib") && !prayerKey.equals("isha")) {
+            Log.w(TAG, "Rejected unrecognized prayerKey: " + prayerKey);
+            return;
+        }
 
         if (prayerName == null || prayerName.isEmpty()) prayerName = "الصلاة";
 

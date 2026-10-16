@@ -3624,6 +3624,24 @@ function initIslamicMediaHub() {
         }
     }
 
+    function getYoutubeEmbedUrl(youtubeId, startSeconds = 0) {
+        const isNative = typeof window !== "undefined" && window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform();
+        const start = Math.floor(startSeconds || 0);
+        const startParam = start > 0 ? `&start=${start}` : "";
+
+        // في تطبيقات الموبايل (Capacitor WebView)، نطاق localhost و capacitor:// محظور بواسطة يوتيوب (Error 153)
+        // لذا نوجه الـ iframe إلى صفحة الترحيل embed.html على الدومين العام لتقديم Referer موثوق ومعتمد ليوتيوب
+        if (isNative) {
+            return `https://zadmuslim-zeta.vercel.app/embed.html?v=${encodeURIComponent(youtubeId)}${startParam}`;
+        }
+
+        // في متصفح الويب (Web / PWA)
+        const origin = (window.location && window.location.origin && !window.location.origin.includes("localhost"))
+            ? window.location.origin
+            : "https://zadmuslim-zeta.vercel.app";
+        return `https://www.youtube.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(origin)}&widget_referrer=${encodeURIComponent(origin)}${startParam}`;
+    }
+
     function openMediaPlayer(item, startAt = null, initialAudioMode = false) {
         currentActiveMedia = item;
         if (!modal) return;
@@ -3675,7 +3693,7 @@ function initIslamicMediaHub() {
                     btnResumeContinue.onclick = () => {
                         currentPlaybackSeconds = progress.seconds;
                         if (iframe) {
-                            iframe.src = `https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&playsinline=1&rel=0&start=${Math.floor(progress.seconds)}`;
+                            iframe.src = getYoutubeEmbedUrl(item.youtubeId, progress.seconds);
                         }
                         resumeBanner.style.display = "none";
                         if (typeof showToast === "function") {
@@ -3689,7 +3707,7 @@ function initIslamicMediaHub() {
                         currentPlaybackSeconds = 0;
                         clearMediaProgress(item.id);
                         if (iframe) {
-                            iframe.src = `https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&playsinline=1&rel=0&start=0`;
+                            iframe.src = getYoutubeEmbedUrl(item.youtubeId, 0);
                         }
                         resumeBanner.style.display = "none";
                         if (typeof showToast === "function") {
@@ -3707,8 +3725,7 @@ function initIslamicMediaHub() {
         currentPlaybackSeconds = effectiveStart;
 
         if (iframe) {
-            const startParam = effectiveStart > 0 ? `&start=${effectiveStart}` : "";
-            iframe.src = `https://www.youtube-nocookie.com/embed/${item.youtubeId}?autoplay=1&playsinline=1&rel=0${startParam}`;
+            iframe.src = getYoutubeEmbedUrl(item.youtubeId, effectiveStart);
         }
 
         modal.classList.add("open");

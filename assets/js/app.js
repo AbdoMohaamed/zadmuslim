@@ -1727,26 +1727,28 @@ function detectInitialDefaultCity() {
     try {
         const tz = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
         if (tz) {
-            if (tz.includes("Riyadh")) return "Riyadh";
-            if (tz.includes("Dubai")) return "Dubai";
-            if (tz.includes("Kuwait")) return "Kuwait";
-            if (tz.includes("Qatar")) return "Doha";
-            if (tz.includes("Amman")) return "Amman";
-            if (tz.includes("Jerusalem") || tz.includes("Gaza") || tz.includes("Hebron")) return "Jerusalem";
-            if (tz.includes("Cairo")) return "Cairo";
+            const tzLower = tz.toLowerCase();
+            if (tzLower.includes("cairo") || tzLower.includes("egypt")) return "Cairo";
+            if (tzLower.includes("riyadh") || tzLower.includes("saudi")) return "Riyadh";
+            if (tzLower.includes("dubai") || tzLower.includes("uae") || tzLower.includes("muscat")) return "Dubai";
+            if (tzLower.includes("kuwait")) return "Kuwait";
+            if (tzLower.includes("qatar") || tzLower.includes("doha")) return "Doha";
+            if (tzLower.includes("amman") || tzLower.includes("jordan")) return "Amman";
+            if (tzLower.includes("jerusalem") || tzLower.includes("gaza") || tzLower.includes("hebron")) return "Jerusalem";
         }
     } catch(e) {}
-    return "Riyadh";
+    // الافتراضي يتطابق تماماً مع المدينة الافتراضية المختارة في واجهة HTML (القاهرة)
+    return "Cairo";
 }
 
-// مواقيت افتراضية احتياطية (في حال انقطاع الإنترنت التام)
+// مواقيت افتراضية احتياطية واقعية للعرض المؤقت فقط (في حال انقطاع الإنترنت التام)
 const FALLBACK_PRAYER_TIMES = {
-    Fajr: "04:30",
-    Sunrise: "05:52",
-    Dhuhr: "11:46",
-    Asr: "15:10",
-    Maghrib: "17:40",
-    Isha: "18:58"
+    Fajr: "05:30",
+    Sunrise: "06:55",
+    Dhuhr: "12:40",
+    Asr: "15:55",
+    Maghrib: "18:20",
+    Isha: "19:40"
 };
 
 function initPrayerTimes() {
@@ -1759,7 +1761,7 @@ function initPrayerTimes() {
         localStorage.setItem("selected_prayer_city", savedCity);
     }
 
-    // جدولة فورية سريعة للمواقيت لتشغيل إشعارات الأذان والمنبه فور فتح التطبيق دون انتظار حوار الـ GPS
+    // جدولة فورية سريعة للمواقيت لتشغيل إشعارات الأذان والمنبه فور فتح التطبيق
     if (!prayerTimings) {
         const lastCached = localStorage.getItem("last_active_prayer_timings");
         if (lastCached) {
@@ -1768,7 +1770,9 @@ function initPrayerTimes() {
         if (!prayerTimings) prayerTimings = FALLBACK_PRAYER_TIMES;
         renderPrayerTimesUI(prayerTimings);
         startPrayerCountdown();
-        if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
+        // صمام أمان: لا نجدول FALLBACK_PRAYER_TIMES المؤقتة في نظام الهاتف الأصلي لمنع الأذان في أوقات خاطئة
+        // نجدول فقط إذا كان هناك كاش موثوق به محفوظ سابقاً، وإلا ننتظر وصول المواقيت الحقيقية للمدينة
+        if (lastCached && window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
             window.NativeAdhanService.schedulePrayers(prayerTimings);
         }
     }
@@ -1836,6 +1840,11 @@ function fetchPrayerTimes(cityKey) {
     let url;
     let cacheKey;
 
+    const now = new Date();
+    const localDateStr = `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}_${String(now.getDate()).padStart(2, '0')}`;
+    const userTz = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
+    const tzParam = userTz ? `&timezonestring=${encodeURIComponent(userTz)}` : "";
+
     if (cityKey === "gps") {
         const savedGps = localStorage.getItem("gps_prayer_coords");
         if (savedGps) {
@@ -1849,17 +1858,17 @@ function fetchPrayerTimes(cityKey) {
                     if (latNum >= 21.5 && latNum <= 31.8 && lngNum >= 24.5 && lngNum <= 37) {
                         method = 5; // جمهورية مصر العربية
                     }
-                    cacheKey = `prayer_times_gps_${latNum.toFixed(2)}_${lngNum.toFixed(2)}_${new Date().toISOString().slice(0, 10)}`;
-                    url = `https://api.aladhan.com/v1/timings?latitude=${latNum}&longitude=${lngNum}&method=${method}`;
+                    cacheKey = `prayer_times_gps_${latNum.toFixed(2)}_${lngNum.toFixed(2)}_${localDateStr}`;
+                    url = `https://api.aladhan.com/v1/timings?latitude=${latNum}&longitude=${lngNum}&method=${method}${tzParam}`;
                 }
             } catch(e) {}
         }
     }
 
     if (!url) {
-        const config = CITY_CONFIGS[cityKey] || CITY_CONFIGS["Riyadh"] || CITY_CONFIGS["Cairo"];
-        cacheKey = `prayer_times_${cityKey}_${new Date().toISOString().slice(0, 10)}`;
-        url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(config.city)}&country=${encodeURIComponent(config.country)}&method=${config.method}`;
+        const config = CITY_CONFIGS[cityKey] || CITY_CONFIGS["Cairo"] || CITY_CONFIGS["Riyadh"];
+        cacheKey = `prayer_times_${cityKey}_${localDateStr}`;
+        url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(config.city)}&country=${encodeURIComponent(config.country)}&method=${config.method}${tzParam}`;
     }
 
     const cached = localStorage.getItem(cacheKey);
@@ -3775,13 +3784,15 @@ function initAdhanAudioUnlock() {
 function triggerPrayerAdhanNotification(prayerName, prayerKey) {
     if (prayerKey === "sunrise") return;
 
-    // 1. تشغيل صوت الأذان إذا كان مفعلاً
-    if (isAdhanAudioEnabled) {
+    const isNative = typeof window !== "undefined" && window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform();
+
+    // 1. تشغيل صوت الأذان في المتصفح / PWA فقط (في تطبيق الموبايل الأصلي تتولى خدمة النظام AdhanNative تشغيل الصوت بدقة)
+    if (isAdhanAudioEnabled && !isNative) {
         playAdhanAudio(prayerKey, null, prayerName);
     }
 
-    // 2. إرسال إشعار المتصفح والنظام
-    if ("Notification" in window && Notification.permission === "granted") {
+    // 2. إرسال إشعار المتصفح والنظام (في وضع الويب فقط لتجنب ازدواجية الإشعارات مع منبه الهاتف)
+    if (!isNative && "Notification" in window && Notification.permission === "granted") {
         const notifTitle = `🕌 حان الآن موعد ${prayerName}`;
         const notifBody = `الله أكبر، الله أكبر.. حان الآن موعد ${prayerName} حسب التوقيت المحلي. حيّ على الصلاة، حيّ على الفلاح 🌿`;
         const currentMuazzin = getSelectedMuazzinId();
@@ -3923,29 +3934,41 @@ function checkUrlForAdhanAutoPlay() {
     const currentSearch = window.location.search || "";
     const fullQuery = currentSearch + (currentHash.includes("?") ? ("?" + currentHash.split("?")[1]) : "");
 
-    if (fullQuery.includes("playAdhan=1")) {
-        const urlParams = new URLSearchParams(fullQuery.replace(/^\?/, ""));
-        const prayerKey = urlParams.get("prayer") || "";
-        const muazzinKey = urlParams.get("muazzin") || getSelectedMuazzinId();
+    if (!fullQuery.includes("playAdhan=1")) return;
 
-        // تنظيف عنوان الـ URL لمنع تكرار التشغيل عند التحديث أو استعادة الجلسة
-        try {
-            const cleanHash = currentHash.split("?")[0] || "#prayer-times";
-            window.history.replaceState(null, "", window.location.pathname + cleanHash);
-        } catch(e) {}
+    // تنظيف عنوان الـ URL فوراً لمنع تكرار التشغيل عند التحديث أو استعادة الجلسة
+    try {
+        const cleanHash = currentHash.split("?")[0] || "#prayer-times";
+        window.history.replaceState(null, "", window.location.pathname + cleanHash);
+    } catch(e) {}
 
-        // التحقق من أن النقر على الإشعار حدث الآن (خلال آخر 60 ثانية) وليس رابطاً قديماً مستعاداً
-        const notifTimestamp = parseInt(urlParams.get("t") || "0", 10);
-        if (notifTimestamp > 0 && (Date.now() - notifTimestamp) > 60 * 1000) {
-            return;
-        }
+    const urlParams = new URLSearchParams(fullQuery.replace(/^\?/, ""));
+    const prayerKey = urlParams.get("prayer") || "";
+    const muazzinKey = urlParams.get("muazzin") || getSelectedMuazzinId();
+    const notifTimestamp = parseInt(urlParams.get("t") || "0", 10);
 
-        // تشغيل صوت الأذان
-        setTimeout(() => {
-            playAdhanAudio(prayerKey, muazzinKey, "الصلاة");
-            showToast("🕌 الله أكبر، الله أكبر.. بدأ تشغيل نداء الأذان المبارك");
-        }, 300);
+    // صمام أمان صارم: إذا لم يكن هناك timestamp صالح أو مر أكثر من 30 ثانية على النقر، لا تشغل الأذان
+    if (!notifTimestamp || Math.abs(Date.now() - notifTimestamp) > 30 * 1000) {
+        return;
     }
+
+    // صمام أمان إضافي: التحقق من عدم تشغيل هذا التنبيه مسبقاً في هذه الجلسة
+    const sessionTokenKey = `adhan_played_token_${notifTimestamp}`;
+    if (sessionStorage.getItem(sessionTokenKey)) {
+        return;
+    }
+    sessionStorage.setItem(sessionTokenKey, "1");
+
+    // لا تشغل في الويب إذا كان تطبيق أصلي (لأن نظام أندرويد/iOS يتولى صوت الأذان)
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+        return;
+    }
+
+    // تشغيل صوت الأذان
+    setTimeout(() => {
+        playAdhanAudio(prayerKey, muazzinKey, "الصلاة");
+        showToast("🕌 الله أكبر، الله أكبر.. نداء الأذان المبارك");
+    }, 300);
 }
 
 // الاستماع لتغيرات الهاش عند النقر على إشعار والتطبيق كان مفتوحاً مسبقاً

@@ -100,6 +100,7 @@ public class AdhanNativePlugin extends Plugin {
                     if (preAlertMillis > now + 2000L) {
                         int reqCode = 50000 + (dayOffset * 100) + (i * 2);
                         Intent preIntent = new Intent(context, AdhanAlarmReceiver.class);
+                        preIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, true);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
@@ -118,6 +119,7 @@ public class AdhanNativePlugin extends Plugin {
                 if (prayerMillis > now + 2000L) {
                     int reqCode = 50000 + (dayOffset * 100) + (i * 2) + 1;
                     Intent adhanIntent = new Intent(context, AdhanAlarmReceiver.class);
+                    adhanIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
@@ -232,6 +234,7 @@ public class AdhanNativePlugin extends Plugin {
                     if (preAlertMillis > now + 2000L) {
                         int reqCode = 50000 + (dayOffset * 100) + (i * 2);
                         Intent preIntent = new Intent(context, AdhanAlarmReceiver.class);
+                        preIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, true);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
@@ -247,6 +250,7 @@ public class AdhanNativePlugin extends Plugin {
                     if (prayerMillis > now + 2000L) {
                         int reqCode = 50000 + (dayOffset * 100) + (i * 2) + 1;
                         Intent adhanIntent = new Intent(context, AdhanAlarmReceiver.class);
+                        adhanIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
@@ -328,6 +332,7 @@ public class AdhanNativePlugin extends Plugin {
                 // إلغاء Pre-alert
                 int preCode = 50000 + (dayOffset * 100) + (i * 2);
                 Intent preIntent = new Intent(context, AdhanAlarmReceiver.class);
+                preIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
                 PendingIntent pendingPre = PendingIntent.getBroadcast(
                         context, preCode, preIntent,
                         PendingIntent.FLAG_NO_CREATE | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
@@ -340,6 +345,7 @@ public class AdhanNativePlugin extends Plugin {
                 // إلغاء Adhan
                 int adhanCode = 50000 + (dayOffset * 100) + (i * 2) + 1;
                 Intent adhanIntent = new Intent(context, AdhanAlarmReceiver.class);
+                adhanIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
                 PendingIntent pendingAdhan = PendingIntent.getBroadcast(
                         context, adhanCode, adhanIntent,
                         PendingIntent.FLAG_NO_CREATE | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
