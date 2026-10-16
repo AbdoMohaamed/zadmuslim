@@ -50,14 +50,15 @@ jobs:
         with:
           name: ZadMuslim-Android-AAB
           path: ZadMuslim-Android.aab
-          retention-days: 14
-
+          retention-days: 1
+          compression-level: 0
       - name: Upload Android APK to GitHub Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ZadMuslim-Android-APK
           path: ZadMuslim-Android.apk
-          retention-days: 14
+          retention-days: 1
+          compression-level: 0
 
   build-ios:
     name: Build iOS IPA
@@ -130,7 +131,8 @@ jobs:
         with:
           name: ZadMuslim-iOS-IPA
           path: ZadMuslim-iOS.ipa
-          retention-days: 14
+          retention-days: 1
+          compression-level: 0
 
   publish-release:
     name: Publish to GitHub Releases
