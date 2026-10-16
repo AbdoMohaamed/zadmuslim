@@ -424,6 +424,26 @@ const NativeAdhanService = {
         }
     },
 
+    async toggleStickyNotification(enable) {
+        localStorage.setItem("zad_sticky_prayer_notification", enable ? "true" : "false");
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                await window.Capacitor.Plugins.AdhanNative.toggleStickyNotification({ enabled: enable });
+                console.log("🕌 Sticky Notification toggled:", enable);
+            } catch (e) {
+                console.warn("Failed to toggle native sticky notification:", e);
+            }
+        }
+    },
+
+    async updateStickyNotification() {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+            try {
+                await window.Capacitor.Plugins.AdhanNative.updateStickyNotification();
+            } catch (e) {}
+        }
+    },
+
     /**
      * تجربة صوت الأذان
      */

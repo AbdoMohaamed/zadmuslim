@@ -3749,6 +3749,38 @@ function initAdhanNotifications() {
         });
     }
 
+    // زر تفعيل إشعار شريط الحالة الدائم (Sticky Notification)
+    const stickyBtn = document.getElementById("btn-toggle-sticky-notification");
+    const stickyLabel = document.getElementById("sticky-notif-label");
+
+    let isStickyEnabled = localStorage.getItem("zad_sticky_prayer_notification") === "true";
+
+    function updateStickyUI() {
+        if (!stickyBtn) return;
+        stickyBtn.classList.toggle("active", isStickyEnabled);
+        if (stickyLabel) {
+            stickyLabel.textContent = isStickyEnabled ? "شريط الحالة: مفعّل ✓" : "شريط الحالة: معطّل";
+        }
+    }
+    updateStickyUI();
+
+    if (stickyBtn) {
+        stickyBtn.addEventListener("click", () => {
+            isStickyEnabled = !isStickyEnabled;
+            localStorage.setItem("zad_sticky_prayer_notification", isStickyEnabled ? "true" : "false");
+            updateStickyUI();
+
+            if (window.NativeAdhanService && typeof window.NativeAdhanService.toggleStickyNotification === "function") {
+                window.NativeAdhanService.toggleStickyNotification(isStickyEnabled);
+            }
+            if (isStickyEnabled) {
+                showToast("تم تفعيل إشعار الصلاة والذكر الدائم في شريط الحالة 🌿");
+            } else {
+                showToast("تم إيقاف إشعار شريط الحالة");
+            }
+        });
+    }
+
     const btnTestPre = document.getElementById("btn-test-pre-prayer-sound");
     if (btnTestPre) {
         btnTestPre.addEventListener("click", () => {
@@ -3762,6 +3794,42 @@ function initAdhanNotifications() {
     updateMuazzinButtonUI();
     initAdhanAudioUnlock();
 }
+
+window.showWidgetInfoModal = function() {
+    let existing = document.getElementById("zad-widget-guide-modal");
+    if (existing) existing.remove();
+
+    const modalHtml = `
+        <div class="modal-overlay active" id="zad-widget-guide-modal" onclick="if(event.target===this)this.remove();" style="z-index: 100000;">
+            <div class="modal-card modal-box widget-guide-modal-box">
+                <div class="modal-head">
+                    <div class="modal-head-title">
+                        <i class="fa-solid fa-mobile-screen text-gold"></i>
+                        <span>ويدجت زاد المسلم لشاشة هاتفك 📱</span>
+                    </div>
+                    <button type="button" class="btn-close-modal" aria-label="إغلاق" onclick="document.getElementById('zad-widget-guide-modal').remove();">&times;</button>
+                </div>
+                <div class="modal-body-content">
+                    <p class="widget-guide-lead">يمكنك وضع مواقيت الصلاة، العد التنازلي، والذكر اليومي مباشرة على شاشة هاتفك الرئيسية كـ <strong>ودجت (Widget)</strong> دون الحاجة لفتح التطبيق!</p>
+                    <ol class="widget-guide-steps">
+                        <li>اخرج للشاشة الرئيسية لهاتفك واضغط مطولاً على أي مساحة فارغة.</li>
+                        <li>اختر <strong>التطبيقات المصغرة (Widgets)</strong>.</li>
+                        <li>ابحث عن <strong>زاد المسلم</strong> ثم اسحب الويدجت وضعه في شاشتك المفضلة.</li>
+                    </ol>
+                    <div class="widget-guide-actions">
+                        <button type="button" class="btn btn-gold" onclick="if(window.NativeAdhanService) window.NativeAdhanService.updatePrayerWidget(); if(typeof window.showToast==='function') window.showToast('تم تحديث بيانات الويدجت بنجاح 🔄'); document.getElementById('zad-widget-guide-modal').remove();">
+                            تحديث الويدجت الآن 🔄
+                        </button>
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('zad-widget-guide-modal').remove();">
+                            حسناً فهمت
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+};
 
 function initAdhanAudioUnlock() {
     const unlock = () => {

@@ -19143,3 +19143,2994 @@ body.light-theme .cemetery-list li strong {
 .memorize-ayah-card.is-active .memorize-ayah-text {
   color: #fef08a;
 }
+
+/* ==========================================================================
+   نظام الختمة الذكية والـ Streak والأوسمة وبطاقات شارك الأجر للستوري
+   ========================================================================== */
+
+/* كارت الختمة الذكية في لوحة التحكم */
+.smart-khatma-card {
+  background: var(--bg-surface, #0c201a);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 18px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.smart-khatma-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #d4af37, #10b981, #d4af37);
+}
+
+.khatma-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.khatma-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.khatma-icon-tag {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+}
+
+.khatma-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+}
+
+.khatma-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.khatma-streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(212, 175, 55, 0.22));
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  padding: 6px 14px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.khatma-streak-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+}
+
+.streak-fire {
+  font-size: 1.25rem;
+  animation: pulseFire 1.5s infinite;
+}
+
+@keyframes pulseFire {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+
+.streak-num {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+.streak-txt {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.khatma-progress-section {
+  margin-bottom: 1.25rem;
+}
+
+.khatma-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-muted, #cbd5e1);
+  margin-bottom: 6px;
+}
+
+.khatma-pct-gold {
+  color: #fbbf24;
+  font-weight: 800;
+}
+
+.khatma-bar-wrap {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.khatma-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #d4af37);
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+.today-wird-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 1.15rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.today-wird-box.completed {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.wird-box-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wird-eyebrow {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.wird-pages-range {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main, #fff);
+}
+
+.wird-prayer-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.wird-box-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.btn-read-wird {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-complete-wird {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-complete-wird:hover {
+  background: #059669;
+}
+
+.badge-done {
+  color: #10b981;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.khatma-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.btn-link-action {
+  background: none;
+  border: none;
+  color: var(--text-muted, #cbd5e1);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.btn-link-action:hover {
+  color: #fbbf24;
+}
+
+/* ==========================================================================
+   نظام النوافذ المنبثقة التفاعلية الحديثة (Interactive Modals System)
+   ========================================================================== */
+.modal-box {
+  background: #163329;
+  border: 1px solid #315346;
+  border-radius: 22px;
+  width: 92%;
+  max-width: 580px;
+  max-height: calc(100vh - 4.5rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  padding: 1.6rem 1.8rem;
+  position: relative;
+  margin: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  animation: modalBoxPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalBoxPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-head-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #f8fafc;
+  font-family: var(--font-arabic-heading, inherit);
+  margin: 0;
+}
+
+.modal-head-title i {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.btn-close-modal {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.btn-close-modal:hover {
+  background: #e11d48;
+  border-color: #e11d48;
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* نافذة إرشادات الويدجت */
+.widget-guide-modal-box {
+  max-width: 500px !important;
+}
+
+.widget-guide-lead {
+  font-size: 0.95rem;
+  color: var(--text-muted, #cbd5e1);
+  line-height: 1.7;
+  margin-bottom: 1.15rem;
+}
+
+.widget-guide-steps {
+  padding-right: 1.4rem;
+  margin-bottom: 1.4rem;
+  color: var(--text-muted, #cbd5e1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+
+.widget-guide-steps li strong {
+  color: #fbbf24;
+}
+
+.widget-guide-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* نافذة تخطيط الختمة */
+.khatma-planner-modal {
+  max-width: 540px !important;
+}
+
+.planner-lead {
+  font-size: 0.95rem;
+  color: var(--text-muted, #cbd5e1);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.khatma-plans-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.plan-option {
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.plan-option:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.06);
+}
+
+.plan-option.active {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.12);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.15);
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.plan-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.plan-badge.popular {
+  color: #10b981;
+}
+
+.plan-days {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main, #fff);
+}
+
+.plan-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.custom-plan-input-row {
+  margin-bottom: 1.5rem;
+}
+
+.custom-plan-input-row label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted, #cbd5e1);
+  margin-bottom: 8px;
+}
+
+.input-with-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-with-action input {
+  width: 140px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.planner-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+/* نافذة الأوسمة */
+.badges-modal-box {
+  max-width: 620px !important;
+}
+
+.badges-stats-header {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-bubble {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.9rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-bubble.highlight {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.stat-bubble strong {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-main, #fff);
+}
+
+.stat-bubble.highlight strong {
+  color: #fbbf24;
+}
+
+.stat-bubble span {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.badges-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.85rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-left: 4px;
+}
+
+.badge-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  transition: all 0.2s;
+}
+
+.badge-item.unlocked {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.badge-item.locked {
+  opacity: 0.6;
+}
+
+.badge-item-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.badge-item-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main, #fff);
+  margin-bottom: 2px;
+}
+
+.badge-item-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
+}
+
+/* توست وسام جديد مكتسب */
+.zad-badge-unlocked-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid #fbbf24;
+  border-radius: 16px;
+  padding: 1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(251, 191, 36, 0.3);
+  z-index: 100002;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 90vw;
+  width: 400px;
+  backdrop-filter: blur(10px);
+}
+
+.zad-badge-unlocked-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.badge-toast-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.badge-toast-eyebrow {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.badge-toast-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.badge-toast-desc {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+/* احتفال إتمام الختمة */
+.zad-khatma-celebration-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100005;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.zad-khatma-celebration-box {
+  background: linear-gradient(135deg, #071f18, #0e372b);
+  border: 2px solid #d4af37;
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(212, 175, 55, 0.25);
+  animation: zoomPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes zoomPopIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.celebration-confetti-badge {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.celebration-stat-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.celebration-stat-pills .stat-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 12px;
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.celebration-stat-pills .stat-pill span {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.celebration-stat-pills .stat-pill strong {
+  font-size: 1.05rem;
+  color: #fbbf24;
+}
+
+.celebration-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   محرك بطاقات الستوري (Share Card Generator)
+   ========================================================================== */
+
+.share-card-modal-box {
+  max-width: 780px !important;
+}
+
+.share-modal-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .share-modal-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.share-card-preview-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.canvas-aspect-wrapper {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 9 / 16;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.canvas-aspect-wrapper canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.share-card-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.control-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted, #cbd5e1);
+}
+
+.theme-selection-row {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.theme-pill-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-main, #f8fafc);
+  padding: 8px 14px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.theme-pill-btn:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #d4af37;
+}
+
+.theme-pill-btn.active {
+  background: #d4af37;
+  color: #0b1f17;
+  border-color: #d4af37;
+  font-weight: 800;
+}
+
+.share-primary-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-share-story {
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.btn-share-story:hover {
+  background: linear-gradient(135deg, #1ebe5d, #0d7367);
+}
+
+.btn-download-story {
+  padding: 10px 16px;
+  font-weight: 700;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #fbbf24;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-download-story:hover {
+  background: #d4af37;
+  color: #0c201a;
+  border-color: #d4af37;
+}
+
+.btn-copy-story-text {
+  padding: 10px 16px;
+  font-weight: 700;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-story-text:hover {
+  border-color: #d4af37;
+  color: #fbbf24;
+}
+
+.share-hint-txt {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* زر شارك الأجر كستوري العائم والسريع */
+.btn-share-as-card {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #fbbf24;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-share-as-card:hover {
+  background: #d4af37;
+  color: #0c201a;
+  border-color: #d4af37;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   التوافق التام مع الوضع الفاتح والوضع الليلي (Light & Dark Theme Optimization)
+   لإضافات: الختمة الذكية، عداد الـ Streak، الأوسمة، بطاقات الستوري، ودليل الويدجت
+   ========================================================================== */
+
+/* 1. الوضع الفاتح (Light / White Mode) */
+html[data-theme="light"] .smart-khatma-card,
+[data-theme="light"] .smart-khatma-card,
+body.light-theme .smart-khatma-card {
+    background: #FFFFFF !important;
+    border: 1px solid #DFE9E1 !important;
+    box-shadow: 0 6px 24px rgba(7, 63, 53, 0.06) !important;
+}
+
+html[data-theme="light"] .khatma-title,
+[data-theme="light"] .khatma-title,
+body.light-theme .khatma-title {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .khatma-subtitle,
+[data-theme="light"] .khatma-subtitle,
+body.light-theme .khatma-subtitle {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .khatma-icon-tag,
+[data-theme="light"] .khatma-icon-tag,
+body.light-theme .khatma-icon-tag {
+    background: #FFF5E3 !important;
+    color: #A87927 !important;
+}
+
+html[data-theme="light"] .khatma-streak-badge,
+[data-theme="light"] .khatma-streak-badge,
+body.light-theme .khatma-streak-badge {
+    background: #FFF5E3 !important;
+    border-color: #E6BD70 !important;
+}
+
+html[data-theme="light"] .khatma-streak-badge .streak-num,
+[data-theme="light"] .khatma-streak-badge .streak-num,
+body.light-theme .khatma-streak-badge .streak-num {
+    color: #A87927 !important;
+}
+
+html[data-theme="light"] .khatma-streak-badge .streak-txt,
+[data-theme="light"] .khatma-streak-badge .streak-txt,
+body.light-theme .khatma-streak-badge .streak-txt {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .khatma-progress-meta,
+[data-theme="light"] .khatma-progress-meta,
+body.light-theme .khatma-progress-meta {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .khatma-pct-gold,
+[data-theme="light"] .khatma-pct-gold,
+body.light-theme .khatma-pct-gold {
+    color: #A87927 !important;
+}
+
+html[data-theme="light"] .khatma-bar-wrap,
+[data-theme="light"] .khatma-bar-wrap,
+body.light-theme .khatma-bar-wrap {
+    background: #E8F4EF !important;
+}
+
+html[data-theme="light"] .today-wird-box,
+[data-theme="light"] .today-wird-box,
+body.light-theme .today-wird-box {
+    background: #F7F9F6 !important;
+    border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .today-wird-box.completed,
+[data-theme="light"] .today-wird-box.completed,
+body.light-theme .today-wird-box.completed {
+    background: #E8F4EF !important;
+    border-color: #73D3AB !important;
+}
+
+html[data-theme="light"] .wird-pages-range,
+[data-theme="light"] .wird-pages-range,
+body.light-theme .wird-pages-range {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .wird-eyebrow,
+[data-theme="light"] .wird-eyebrow,
+body.light-theme .wird-eyebrow {
+    color: #A87927 !important;
+}
+
+html[data-theme="light"] .wird-prayer-hint,
+[data-theme="light"] .wird-prayer-hint,
+body.light-theme .wird-prayer-hint {
+    color: #64786D !important;
+}
+
+html[data-theme="light"] .khatma-card-footer,
+[data-theme="light"] .khatma-card-footer,
+body.light-theme .khatma-card-footer {
+    border-top: 1px dashed #DFE9E1 !important;
+}
+
+html[data-theme="light"] .btn-link-action,
+[data-theme="light"] .btn-link-action,
+body.light-theme .btn-link-action {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .btn-link-action:hover,
+[data-theme="light"] .btn-link-action:hover,
+body.light-theme .btn-link-action:hover {
+    color: #A87927 !important;
+}
+
+/* نوافذ الختمة والأوسمة والستوري والودجت في الوضع الفاتح (Light Mode) */
+html[data-theme="light"] .modal-box,
+[data-theme="light"] .modal-box,
+body.light-theme .modal-box,
+html[data-theme="light"] .khatma-planner-modal,
+[data-theme="light"] .khatma-planner-modal,
+body.light-theme .khatma-planner-modal,
+html[data-theme="light"] .badges-modal-box,
+[data-theme="light"] .badges-modal-box,
+body.light-theme .badges-modal-box,
+html[data-theme="light"] .share-card-modal-box,
+[data-theme="light"] .share-card-modal-box,
+body.light-theme .share-card-modal-box,
+html[data-theme="light"] .widget-guide-modal-box,
+[data-theme="light"] .widget-guide-modal-box,
+body.light-theme .widget-guide-modal-box {
+    background: #FFFFFF !important;
+    border: 1px solid #DFE9E1 !important;
+    color: #193B34 !important;
+    box-shadow: 0 20px 50px rgba(7, 63, 53, 0.16) !important;
+}
+
+html[data-theme="light"] .modal-head,
+[data-theme="light"] .modal-head,
+body.light-theme .modal-head {
+    border-bottom: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .modal-head-title,
+[data-theme="light"] .modal-head-title,
+body.light-theme .modal-head-title {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .btn-close-modal,
+[data-theme="light"] .btn-close-modal,
+body.light-theme .btn-close-modal {
+    background: #F0F5F1 !important;
+    border: 1px solid #DFE9E1 !important;
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .btn-close-modal:hover,
+[data-theme="light"] .btn-close-modal:hover,
+body.light-theme .btn-close-modal:hover {
+    background: #E11D48 !important;
+    border-color: #E11D48 !important;
+    color: #FFFFFF !important;
+}
+
+html[data-theme="light"] .planner-lead,
+[data-theme="light"] .planner-lead,
+body.light-theme .planner-lead {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .plan-option,
+[data-theme="light"] .plan-option,
+body.light-theme .plan-option {
+    background: #F7F9F6 !important;
+    border: 2px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .plan-option:hover,
+[data-theme="light"] .plan-option:hover,
+body.light-theme .plan-option:hover {
+    border-color: #A87927 !important;
+    background: #FFF5E3 !important;
+}
+
+html[data-theme="light"] .plan-option.active,
+[data-theme="light"] .plan-option.active,
+body.light-theme .plan-option.active {
+    border-color: #A87927 !important;
+    background: #FFF5E3 !important;
+    box-shadow: 0 4px 16px rgba(168, 121, 39, 0.15) !important;
+}
+
+html[data-theme="light"] .plan-days,
+[data-theme="light"] .plan-days,
+body.light-theme .plan-days {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .plan-desc,
+[data-theme="light"] .plan-desc,
+body.light-theme .plan-desc {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .custom-plan-input-row label,
+[data-theme="light"] .custom-plan-input-row label,
+body.light-theme .custom-plan-input-row label {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .input-with-action input,
+[data-theme="light"] .input-with-action input,
+body.light-theme .input-with-action input {
+    background: #FFFFFF !important;
+    border: 1px solid #DFE9E1 !important;
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .input-with-action span,
+[data-theme="light"] .input-with-action span,
+body.light-theme .input-with-action span {
+    color: #536A60 !important;
+}
+
+/* الأوسمة في الوضع الفاتح */
+html[data-theme="light"] .stat-bubble,
+[data-theme="light"] .stat-bubble,
+body.light-theme .stat-bubble {
+    background: #F7F9F6 !important;
+    border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .stat-bubble strong,
+[data-theme="light"] .stat-bubble strong,
+body.light-theme .stat-bubble strong {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .stat-bubble span,
+[data-theme="light"] .stat-bubble span,
+body.light-theme .stat-bubble span {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .stat-bubble.highlight,
+[data-theme="light"] .stat-bubble.highlight,
+body.light-theme .stat-bubble.highlight {
+    background: #FFF5E3 !important;
+    border-color: #E6BD70 !important;
+}
+
+html[data-theme="light"] .stat-bubble.highlight strong,
+[data-theme="light"] .stat-bubble.highlight strong,
+body.light-theme .stat-bubble.highlight strong {
+    color: #A87927 !important;
+}
+
+html[data-theme="light"] .badge-item,
+[data-theme="light"] .badge-item,
+body.light-theme .badge-item {
+    background: #F7F9F6 !important;
+    border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .badge-item.unlocked,
+[data-theme="light"] .badge-item.unlocked,
+body.light-theme .badge-item.unlocked {
+    background: #FFF5E3 !important;
+    border-color: #E6BD70 !important;
+}
+
+html[data-theme="light"] .badge-item-title,
+[data-theme="light"] .badge-item-title,
+body.light-theme .badge-item-title {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .badge-item-desc,
+[data-theme="light"] .badge-item-desc,
+body.light-theme .badge-item-desc {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .badge-item-icon,
+[data-theme="light"] .badge-item-icon,
+body.light-theme .badge-item-icon {
+    background: #FFFFFF !important;
+    border: 1px solid #DFE9E1 !important;
+}
+
+/* بطاقة الستوري والتحكم في الوضع الفاتح */
+html[data-theme="light"] .share-card-preview-area,
+[data-theme="light"] .share-card-preview-area,
+body.light-theme .share-card-preview-area {
+    background: #F0F5F1 !important;
+    border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .control-label,
+[data-theme="light"] .control-label,
+body.light-theme .control-label {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .theme-pill-btn,
+[data-theme="light"] .theme-pill-btn,
+body.light-theme .theme-pill-btn {
+    background: #F7F9F6 !important;
+    border: 1px solid #DFE9E1 !important;
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .theme-pill-btn:hover,
+[data-theme="light"] .theme-pill-btn:hover,
+body.light-theme .theme-pill-btn:hover {
+    border-color: #A87927 !important;
+    background: #FFF5E3 !important;
+}
+
+html[data-theme="light"] .theme-pill-btn.active,
+[data-theme="light"] .theme-pill-btn.active,
+body.light-theme .theme-pill-btn.active {
+    background: #A87927 !important;
+    color: #FFFFFF !important;
+    border-color: #A87927 !important;
+}
+
+html[data-theme="light"] .btn-download-story,
+[data-theme="light"] .btn-download-story,
+body.light-theme .btn-download-story {
+    background: #FFF5E3 !important;
+    border: 1px solid #E6BD70 !important;
+    color: #8E651E !important;
+}
+
+html[data-theme="light"] .btn-download-story:hover,
+[data-theme="light"] .btn-download-story:hover,
+body.light-theme .btn-download-story:hover {
+    background: #A87927 !important;
+    color: #FFFFFF !important;
+    border-color: #A87927 !important;
+}
+
+html[data-theme="light"] .btn-copy-story-text,
+[data-theme="light"] .btn-copy-story-text,
+body.light-theme .btn-copy-story-text {
+    background: transparent !important;
+    border: 1px solid #DFE9E1 !important;
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .btn-copy-story-text:hover,
+[data-theme="light"] .btn-copy-story-text:hover,
+body.light-theme .btn-copy-story-text:hover {
+    border-color: #A87927 !important;
+    color: #A87927 !important;
+}
+
+html[data-theme="light"] .share-hint-txt,
+[data-theme="light"] .share-hint-txt,
+body.light-theme .share-hint-txt {
+    color: #536A60 !important;
+}
+
+/* نافذة إرشادات الويدجت في الوضع الفاتح */
+html[data-theme="light"] .widget-guide-lead,
+[data-theme="light"] .widget-guide-lead,
+body.light-theme .widget-guide-lead {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .widget-guide-steps,
+[data-theme="light"] .widget-guide-steps,
+body.light-theme .widget-guide-steps {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .widget-guide-steps li,
+[data-theme="light"] .widget-guide-steps li,
+body.light-theme .widget-guide-steps li {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .widget-guide-steps li strong,
+[data-theme="light"] .widget-guide-steps li strong,
+body.light-theme .widget-guide-steps li strong {
+    color: #A87927 !important;
+}
+
+/* أزرار شارك كستوري وإشعارات الحالة */
+html[data-theme="light"] .btn-share-as-card,
+[data-theme="light"] .btn-share-as-card,
+body.light-theme .btn-share-as-card {
+    background: #FFF5E3 !important;
+    border: 1px solid #E6BD70 !important;
+    color: #8E651E !important;
+}
+
+html[data-theme="light"] .btn-share-as-card:hover,
+[data-theme="light"] .btn-share-as-card:hover,
+body.light-theme .btn-share-as-card:hover {
+    background: #A87927 !important;
+    color: #FFFFFF !important;
+    border-color: #A87927 !important;
+}
+
+/* نافذة توست الأوسمة في الوضع الفاتح */
+html[data-theme="light"] .zad-badge-unlocked-toast,
+[data-theme="light"] .zad-badge-unlocked-toast,
+body.light-theme .zad-badge-unlocked-toast {
+    background: #FFFFFF !important;
+    border-color: #A87927 !important;
+    box-shadow: 0 15px 40px rgba(7, 63, 53, 0.15) !important;
+}
+
+html[data-theme="light"] .badge-toast-title,
+[data-theme="light"] .badge-toast-title,
+body.light-theme .badge-toast-title {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .badge-toast-desc,
+[data-theme="light"] .badge-toast-desc,
+body.light-theme .badge-toast-desc {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .badge-toast-eyebrow,
+[data-theme="light"] .badge-toast-eyebrow,
+body.light-theme .badge-toast-eyebrow {
+    color: #A87927 !important;
+}
+
+/* نافذة احتفال إتمام الختمة الكاملة في الوضع الفاتح */
+html[data-theme="light"] .zad-khatma-celebration-box,
+[data-theme="light"] .zad-khatma-celebration-box,
+body.light-theme .zad-khatma-celebration-box {
+    background: linear-gradient(135deg, #FFFFFF, #F7F9F6) !important;
+    border: 2px solid #A87927 !important;
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .zad-khatma-celebration-box h2,
+[data-theme="light"] .zad-khatma-celebration-box h2,
+body.light-theme .zad-khatma-celebration-box h2 {
+    color: #193B34 !important;
+}
+
+html[data-theme="light"] .celebration-subtitle,
+[data-theme="light"] .celebration-subtitle,
+body.light-theme .celebration-subtitle {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .celebration-stat-pills .stat-pill,
+[data-theme="light"] .celebration-stat-pills .stat-pill,
+body.light-theme .celebration-stat-pills .stat-pill {
+    background: #F0F5F1 !important;
+    border-color: #DFE9E1 !important;
+}
+
+html[data-theme="light"] .celebration-stat-pills .stat-pill span,
+[data-theme="light"] .celebration-stat-pills .stat-pill span,
+body.light-theme .celebration-stat-pills .stat-pill span {
+    color: #536A60 !important;
+}
+
+html[data-theme="light"] .celebration-stat-pills .stat-pill strong,
+[data-theme="light"] .celebration-stat-pills .stat-pill strong,
+body.light-theme .celebration-stat-pills .stat-pill strong {
+    color: #A87927 !important;
+}
+
+/* ==========================================================================
+   2. تحسينات الوضع الليلي (Dark Mode)
+   ========================================================================== */
+html[data-theme="dark"] .smart-khatma-card,
+[data-theme="dark"] .smart-khatma-card {
+    background: #163329 !important;
+    border-color: rgba(212, 175, 55, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-theme="dark"] .khatma-title,
+[data-theme="dark"] .khatma-title {
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .khatma-subtitle,
+[data-theme="dark"] .khatma-subtitle {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .today-wird-box,
+[data-theme="dark"] .today-wird-box {
+    background: #102820 !important;
+    border-color: #315346 !important;
+}
+
+html[data-theme="dark"] .wird-pages-range,
+[data-theme="dark"] .wird-pages-range {
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .wird-prayer-hint,
+[data-theme="dark"] .wird-prayer-hint {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .khatma-card-footer,
+[data-theme="dark"] .khatma-card-footer {
+    border-top: 1px dashed #315346 !important;
+}
+
+html[data-theme="dark"] .btn-link-action,
+[data-theme="dark"] .btn-link-action {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .btn-link-action:hover,
+[data-theme="dark"] .btn-link-action:hover {
+    color: #D4AF37 !important;
+}
+
+/* نوافذ المودال في الوضع الداكن */
+html[data-theme="dark"] .modal-box,
+[data-theme="dark"] .modal-box,
+html[data-theme="dark"] .khatma-planner-modal,
+[data-theme="dark"] .khatma-planner-modal,
+html[data-theme="dark"] .badges-modal-box,
+[data-theme="dark"] .badges-modal-box,
+html[data-theme="dark"] .share-card-modal-box,
+[data-theme="dark"] .share-card-modal-box,
+html[data-theme="dark"] .widget-guide-modal-box,
+[data-theme="dark"] .widget-guide-modal-box {
+    background: #163329 !important;
+    border-color: #315346 !important;
+    color: #F3F8F4 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"] .modal-head,
+[data-theme="dark"] .modal-head {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .modal-head-title,
+[data-theme="dark"] .modal-head-title {
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .btn-close-modal,
+[data-theme="dark"] .btn-close-modal {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #CBD5E1 !important;
+}
+
+html[data-theme="dark"] .btn-close-modal:hover,
+[data-theme="dark"] .btn-close-modal:hover {
+    background: #EF4444 !important;
+    border-color: #EF4444 !important;
+    color: #FFFFFF !important;
+}
+
+html[data-theme="dark"] .planner-lead,
+[data-theme="dark"] .planner-lead {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .plan-option,
+[data-theme="dark"] .plan-option {
+    background: #102820 !important;
+    border-color: #315346 !important;
+}
+
+html[data-theme="dark"] .plan-option:hover,
+[data-theme="dark"] .plan-option:hover {
+    border-color: #D4AF37 !important;
+    background: rgba(212, 175, 55, 0.08) !important;
+}
+
+html[data-theme="dark"] .plan-option.active,
+[data-theme="dark"] .plan-option.active {
+    border-color: #D4AF37 !important;
+    background: rgba(212, 175, 55, 0.15) !important;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2) !important;
+}
+
+html[data-theme="dark"] .plan-days,
+[data-theme="dark"] .plan-days {
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .plan-desc,
+[data-theme="dark"] .plan-desc {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .custom-plan-input-row label,
+[data-theme="dark"] .custom-plan-input-row label {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .input-with-action input,
+[data-theme="dark"] .input-with-action input {
+    background: #102820 !important;
+    border: 1px solid #315346 !important;
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .input-with-action span,
+[data-theme="dark"] .input-with-action span {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .stat-bubble,
+[data-theme="dark"] .stat-bubble {
+    background: #102820 !important;
+    border-color: #315346 !important;
+}
+
+html[data-theme="dark"] .stat-bubble strong,
+[data-theme="dark"] .stat-bubble strong {
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .stat-bubble span,
+[data-theme="dark"] .stat-bubble span {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .stat-bubble.highlight,
+[data-theme="dark"] .stat-bubble.highlight {
+    background: rgba(212, 175, 55, 0.12) !important;
+    border-color: rgba(212, 175, 55, 0.35) !important;
+}
+
+html[data-theme="dark"] .stat-bubble.highlight strong,
+[data-theme="dark"] .stat-bubble.highlight strong {
+    color: #FBBF24 !important;
+}
+
+html[data-theme="dark"] .badge-item,
+[data-theme="dark"] .badge-item {
+    background: #102820 !important;
+    border-color: #315346 !important;
+}
+
+html[data-theme="dark"] .badge-item.unlocked,
+[data-theme="dark"] .badge-item.unlocked {
+    background: rgba(212, 175, 55, 0.08) !important;
+    border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+html[data-theme="dark"] .badge-item-title,
+[data-theme="dark"] .badge-item-title {
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .badge-item-desc,
+[data-theme="dark"] .badge-item-desc {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .badge-item-icon,
+[data-theme="dark"] .badge-item-icon {
+    background: #163329 !important;
+    border-color: #315346 !important;
+}
+
+html[data-theme="dark"] .share-card-preview-area,
+[data-theme="dark"] .share-card-preview-area {
+    background: #102820 !important;
+    border: 1px solid #315346 !important;
+}
+
+html[data-theme="dark"] .control-label,
+[data-theme="dark"] .control-label {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .theme-pill-btn,
+[data-theme="dark"] .theme-pill-btn {
+    background: #102820 !important;
+    border-color: #315346 !important;
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .theme-pill-btn:hover,
+[data-theme="dark"] .theme-pill-btn:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    border-color: #D4AF37 !important;
+}
+
+html[data-theme="dark"] .theme-pill-btn.active,
+[data-theme="dark"] .theme-pill-btn.active {
+    background: #D4AF37 !important;
+    color: #102820 !important;
+    border-color: #D4AF37 !important;
+    font-weight: 800 !important;
+}
+
+html[data-theme="dark"] .btn-download-story,
+[data-theme="dark"] .btn-download-story {
+    background: rgba(212, 175, 55, 0.15) !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    color: #FBBF24 !important;
+}
+
+html[data-theme="dark"] .btn-download-story:hover,
+[data-theme="dark"] .btn-download-story:hover {
+    background: #D4AF37 !important;
+    color: #102820 !important;
+}
+
+html[data-theme="dark"] .btn-copy-story-text,
+[data-theme="dark"] .btn-copy-story-text {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #CBD5E1 !important;
+}
+
+html[data-theme="dark"] .btn-copy-story-text:hover,
+[data-theme="dark"] .btn-copy-story-text:hover {
+    border-color: #D4AF37 !important;
+    color: #FBBF24 !important;
+}
+
+html[data-theme="dark"] .share-hint-txt,
+[data-theme="dark"] .share-hint-txt {
+    color: #A7BFB0 !important;
+}
+
+/* نافذة إرشادات الويدجت في الوضع الداكن */
+html[data-theme="dark"] .widget-guide-lead,
+[data-theme="dark"] .widget-guide-lead {
+    color: #F3F8F4 !important;
+}
+
+html[data-theme="dark"] .widget-guide-steps,
+[data-theme="dark"] .widget-guide-steps {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .widget-guide-steps li,
+[data-theme="dark"] .widget-guide-steps li {
+    color: #A7BFB0 !important;
+}
+
+html[data-theme="dark"] .widget-guide-steps li strong,
+[data-theme="dark"] .widget-guide-steps li strong {
+    color: #FBBF24 !important;
+}
+
+/* ==========================================================================
+   1. بوصلة القلوب والسكينة الإيمانية (Mood Compass Styles)
+   ========================================================================== */
+.mood-compass-card {
+  background: linear-gradient(135deg, rgba(7, 40, 32, 0.95), rgba(4, 25, 20, 0.98));
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 20px;
+  padding: 1.6rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.mood-compass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #d4af37, #10b981, transparent);
+}
+
+.mood-compass-header {
+  margin-bottom: 1.25rem;
+}
+
+.mood-compass-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mood-icon-tag {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.mood-compass-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0 0 4px 0;
+  font-family: var(--font-arabic-heading, inherit);
+}
+
+.mood-compass-subtitle {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.mood-pills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.mood-pill-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  color: #f8fafc;
+  text-align: right;
+  font-family: inherit;
+}
+
+.mood-pill-btn:hover {
+  background: rgba(212, 175, 55, 0.14);
+  border-color: #d4af37;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.mood-pill-emoji {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.mood-pill-txt {
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* نافذة بوصلة القلوب المنبثقة */
+.mood-compass-modal-box {
+  max-width: 620px !important;
+}
+
+.mood-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.mood-section-box {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.2rem;
+}
+
+.box-tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #fbbf24;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.box-tag .box-meta {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.mood-ayah-quote {
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: 1.35rem;
+  line-height: 1.9;
+  color: #fff;
+  text-align: center;
+  padding: 0.5rem 0.25rem 1rem;
+}
+
+.mood-ayah-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-audio-play {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.btn-audio-play:hover {
+  background: linear-gradient(135deg, #10b981, #059669);
+  transform: translateY(-1px);
+}
+
+.btn-audio-play.playing {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  animation: pulseAudio 1.5s infinite;
+}
+
+@keyframes pulseAudio {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(217, 119, 6, 0); }
+}
+
+.mood-dua-text {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: #f1f5f9;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.mood-dua-note {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.mood-dhikr-txt {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+
+.mood-dhikr-virtue {
+  font-size: 0.84rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.mood-counter-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.btn-mood-counter {
+  background: linear-gradient(135deg, #d4af37, #b89025);
+  color: #081a14;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 22px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
+  flex-shrink: 0;
+}
+
+.btn-mood-counter:active {
+  transform: scale(0.94);
+}
+
+.count-digit {
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.count-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.counter-progress-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #d4af37);
+  border-radius: 10px;
+  transition: width 0.2s ease;
+}
+
+.counter-status {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.mood-reflection-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  color: #a7f3d0;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   2. السبحة الإلكترونية المتطورة (Smart Haptic Tasbih)
+   ========================================================================== */
+.smart-tasbih-modal-box {
+  max-width: 520px !important;
+  text-align: center;
+}
+
+.btn-icon-setting {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-setting.active {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #fbbf24;
+}
+
+.tasbih-athkar-carousel {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 1.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tasbih-zkr-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.tasbih-zkr-pill.active {
+  background: #d4af37;
+  color: #0b1f17;
+  border-color: #d4af37;
+  font-weight: 800;
+}
+
+.tasbih-active-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.tasbih-active-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fbbf24;
+  margin-bottom: 4px;
+}
+
+.tasbih-active-virtue {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* القرص الدائري التفاعلي للسبحة */
+.tasbih-disk-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+.tasbih-disk-ring {
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  background: radial-gradient(circle, #0e372b 0%, #061e17 100%);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(212, 175, 55, 0.15);
+  transition: transform 0.12s ease;
+  overflow: hidden;
+}
+
+.tasbih-disk-ring:active {
+  transform: scale(0.96);
+}
+
+.tasbih-svg-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.tasbih-svg-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 8;
+}
+
+.tasbih-svg-bar {
+  fill: none;
+  stroke: #d4af37;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s ease;
+}
+
+.tasbih-disk-core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+}
+
+.tasbih-count-digit {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  font-family: var(--font-arabic-heading, inherit);
+  transition: transform 0.1s ease;
+}
+
+.tasbih-count-digit.bump {
+  animation: bumpCount 0.15s ease;
+}
+
+@keyframes bumpCount {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); color: #fbbf24; }
+  100% { transform: scale(1); }
+}
+
+.tasbih-target-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fbbf24;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.tasbih-tap-hint {
+  position: absolute;
+  bottom: 18px;
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* تأثير التموج في القرص */
+.tasbih-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.35);
+  transform: scale(0);
+  animation: rippleAnim 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleAnim {
+  to {
+    transform: scale(3.5);
+    opacity: 0;
+  }
+}
+
+.tasbih-control-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.target-picker-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.picker-label {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.target-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.target-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.target-pill.active {
+  background: #d4af37;
+  color: #0b1f17;
+  border-color: #d4af37;
+  font-weight: 800;
+}
+
+.btn-reset-disk {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+.tasbih-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.tasbih-stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.65rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tasbih-stat-card.highlight {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.tasbih-stat-card .stat-num {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.tasbih-stat-card.highlight .stat-num {
+  color: #34d399;
+}
+
+.tasbih-stat-card .stat-lbl {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   3. توافق بوصلة القلوب والسبحة مع الوضع الفاتح (Light Mode)
+   ========================================================================== */
+html[data-theme="light"] .mood-compass-card,
+[data-theme="light"] .mood-compass-card,
+body.light-theme .mood-compass-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DFE9E1 !important;
+  box-shadow: 0 8px 25px rgba(7, 63, 53, 0.06) !important;
+}
+
+html[data-theme="light"] .mood-compass-title,
+[data-theme="light"] .mood-compass-title,
+body.light-theme .mood-compass-title {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .mood-compass-subtitle,
+[data-theme="light"] .mood-compass-subtitle,
+body.light-theme .mood-compass-subtitle {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .mood-icon-tag,
+[data-theme="light"] .mood-icon-tag,
+body.light-theme .mood-icon-tag {
+  background: #FFF5E3 !important;
+  border-color: #E6BD70 !important;
+}
+
+html[data-theme="light"] .mood-pill-btn,
+[data-theme="light"] .mood-pill-btn,
+body.light-theme .mood-pill-btn {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .mood-pill-btn:hover,
+[data-theme="light"] .mood-pill-btn:hover,
+body.light-theme .mood-pill-btn:hover {
+  background: #FFF5E3 !important;
+  border-color: #A87927 !important;
+  box-shadow: 0 4px 14px rgba(168, 121, 39, 0.12) !important;
+}
+
+html[data-theme="light"] .mood-section-box,
+[data-theme="light"] .mood-section-box,
+body.light-theme .mood-section-box {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .box-tag,
+[data-theme="light"] .box-tag,
+body.light-theme .box-tag {
+  color: #A87927 !important;
+  border-bottom-color: #DFE9E1 !important;
+}
+
+html[data-theme="light"] .box-tag .box-meta,
+[data-theme="light"] .box-tag .box-meta,
+body.light-theme .box-tag .box-meta {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .mood-ayah-quote,
+[data-theme="light"] .mood-ayah-quote,
+body.light-theme .mood-ayah-quote {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .mood-dua-text,
+[data-theme="light"] .mood-dua-text,
+body.light-theme .mood-dua-text {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .mood-dua-note,
+[data-theme="light"] .mood-dua-note,
+body.light-theme .mood-dua-note {
+  background: #FFFFFF !important;
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .mood-dhikr-txt,
+[data-theme="light"] .mood-dhikr-txt,
+body.light-theme .mood-dhikr-txt {
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .mood-dhikr-virtue,
+[data-theme="light"] .mood-dhikr-virtue,
+body.light-theme .mood-dhikr-virtue {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .btn-mood-counter,
+[data-theme="light"] .btn-mood-counter,
+body.light-theme .btn-mood-counter {
+  background: linear-gradient(135deg, #A87927, #8E651E) !important;
+  color: #FFFFFF !important;
+}
+
+html[data-theme="light"] .progress-bar-bg,
+[data-theme="light"] .progress-bar-bg,
+body.light-theme .progress-bar-bg {
+  background: #E8F4EF !important;
+}
+
+html[data-theme="light"] .counter-status,
+[data-theme="light"] .counter-status,
+body.light-theme .counter-status {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .mood-reflection-footer,
+[data-theme="light"] .mood-reflection-footer,
+body.light-theme .mood-reflection-footer {
+  background: #E8F4EF !important;
+  border-color: #73D3AB !important;
+  color: #193B34 !important;
+}
+
+/* سبحة الوضع الفاتح */
+html[data-theme="light"] .smart-tasbih-modal-box,
+[data-theme="light"] .smart-tasbih-modal-box,
+body.light-theme .smart-tasbih-modal-box {
+  background: #FFFFFF !important;
+  border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .btn-icon-setting,
+[data-theme="light"] .btn-icon-setting,
+body.light-theme .btn-icon-setting {
+  background: #F0F5F1 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .btn-icon-setting.active,
+[data-theme="light"] .btn-icon-setting.active,
+body.light-theme .btn-icon-setting.active {
+  background: #FFF5E3 !important;
+  border-color: #A87927 !important;
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .tasbih-zkr-pill,
+[data-theme="light"] .tasbih-zkr-pill,
+body.light-theme .tasbih-zkr-pill {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .tasbih-zkr-pill.active,
+[data-theme="light"] .tasbih-zkr-pill.active,
+body.light-theme .tasbih-zkr-pill.active {
+  background: #A87927 !important;
+  color: #FFFFFF !important;
+  border-color: #A87927 !important;
+}
+
+html[data-theme="light"] .tasbih-active-card,
+[data-theme="light"] .tasbih-active-card,
+body.light-theme .tasbih-active-card {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .tasbih-active-name,
+[data-theme="light"] .tasbih-active-name,
+body.light-theme .tasbih-active-name {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .tasbih-active-virtue,
+[data-theme="light"] .tasbih-active-virtue,
+body.light-theme .tasbih-active-virtue {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .tasbih-disk-ring,
+[data-theme="light"] .tasbih-disk-ring,
+body.light-theme .tasbih-disk-ring {
+  background: radial-gradient(circle, #E8F4EF 0%, #D4EBE1 100%) !important;
+  box-shadow: 0 15px 35px rgba(7, 63, 53, 0.12), inset 0 0 20px rgba(168, 121, 39, 0.1) !important;
+}
+
+html[data-theme="light"] .tasbih-svg-bg,
+[data-theme="light"] .tasbih-svg-bg,
+body.light-theme .tasbih-svg-bg {
+  stroke: #DFE9E1 !important;
+}
+
+html[data-theme="light"] .tasbih-svg-bar,
+[data-theme="light"] .tasbih-svg-bar,
+body.light-theme .tasbih-svg-bar {
+  stroke: #A87927 !important;
+}
+
+html[data-theme="light"] .tasbih-count-digit,
+[data-theme="light"] .tasbih-count-digit,
+body.light-theme .tasbih-count-digit {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .tasbih-target-badge,
+[data-theme="light"] .tasbih-target-badge,
+body.light-theme .tasbih-target-badge {
+  background: #FFF5E3 !important;
+  border-color: #E6BD70 !important;
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .tasbih-control-strip,
+[data-theme="light"] .tasbih-control-strip,
+body.light-theme .tasbih-control-strip {
+  border-bottom-color: #DFE9E1 !important;
+}
+
+html[data-theme="light"] .picker-label,
+[data-theme="light"] .picker-label,
+body.light-theme .picker-label {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .target-pill,
+[data-theme="light"] .target-pill,
+body.light-theme .target-pill {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .target-pill.active,
+[data-theme="light"] .target-pill.active,
+body.light-theme .target-pill.active {
+  background: #A87927 !important;
+  color: #FFFFFF !important;
+  border-color: #A87927 !important;
+}
+
+html[data-theme="light"] .tasbih-stat-card,
+[data-theme="light"] .tasbih-stat-card,
+body.light-theme .tasbih-stat-card {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .tasbih-stat-card.highlight,
+[data-theme="light"] .tasbih-stat-card.highlight,
+body.light-theme .tasbih-stat-card.highlight {
+  background: #E8F4EF !important;
+  border-color: #73D3AB !important;
+}
+
+html[data-theme="light"] .tasbih-stat-card .stat-num,
+[data-theme="light"] .tasbih-stat-card .stat-num,
+body.light-theme .tasbih-stat-card .stat-num {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .tasbih-stat-card.highlight .stat-num,
+[data-theme="light"] .tasbih-stat-card.highlight .stat-num,
+body.light-theme .tasbih-stat-card.highlight .stat-num {
+  color: #10B981 !important;
+}
+
+html[data-theme="light"] .tasbih-stat-card .stat-lbl,
+[data-theme="light"] .tasbih-stat-card .stat-lbl,
+body.light-theme .tasbih-stat-card .stat-lbl {
+  color: #536A60 !important;
+}
+
+/* ==========================================================================
+   لوحة الذكر والسبحة الإلكترونية التفاعلية المدمجة (Smart In-Panel Tasbih)
+   ========================================================================== */
+.smart-dhikr-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem 1.25rem;
+  background: linear-gradient(145deg, rgba(7, 40, 32, 0.88) 0%, rgba(4, 24, 19, 0.96) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 0 25px rgba(212, 175, 55, 0.04);
+  backdrop-filter: blur(12px);
+  transition: all var(--transition-normal, 0.3s ease);
+}
+
+.smart-dhikr-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold-500, #d4af37), transparent);
+}
+
+.dhikr-panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.dhikr-panel-top .small {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #a4c2b7;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dhikr-streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.75rem;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: var(--radius-full, 999px);
+  color: #fbbf24;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.dhikr-streak-chip:hover {
+  background: rgba(212, 175, 55, 0.22);
+  border-color: #d4af37;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+/* شريط تبديل الأذكار السريع (Horizontal Chips Strip) */
+.dhikr-chips-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.3rem 0.2rem 0.65rem;
+  margin-bottom: 0.4rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dhikr-chips-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.dhikr-chip {
+  padding: 0.32rem 0.75rem;
+  border-radius: var(--radius-full, 999px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.dhikr-chip:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.35);
+  color: #ffffff;
+}
+
+.dhikr-chip.active {
+  background: linear-gradient(135deg, #d4af37, #b8972e);
+  color: #0b1523;
+  font-weight: 700;
+  border-color: #ffd875;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+}
+
+/* صندوق عرض الذكر وفضله مع أسهم التنقل */
+.dhikr-card-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0.4rem 0 0.8rem;
+}
+
+.btn-dhikr-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-dhikr-arrow:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  transform: scale(1.08);
+}
+
+.btn-dhikr-arrow:active {
+  transform: scale(0.95);
+}
+
+.dhikr-text-wrapper {
+  flex: 1;
+  text-align: center;
+  min-height: 4.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 0.4rem;
+}
+
+.dhikr-quote-text {
+  font-family: var(--font-quran, serif);
+  font-size: 1.15rem;
+  line-height: 1.8;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 0.25rem 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.15s ease;
+}
+
+.dhikr-virtue-subtext {
+  font-size: 0.78rem;
+  color: #a4c2b7;
+  line-height: 1.45;
+  max-width: 95%;
+  margin: 0 auto;
+}
+
+/* مساحة زر التسبيح التفاعلي الكبير النابض */
+.quick-tasbih-action-zone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem 0 0.9rem;
+}
+
+.btn-quick-bead {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #0e4435 0%, #06221a 70%, #03140f 100%);
+  border: 3px solid #d4af37;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.25), inset 0 0 15px rgba(212, 175, 55, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-quick-bead:hover {
+  transform: scale(1.04);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(212, 175, 55, 0.4);
+}
+
+.btn-quick-bead:active {
+  transform: scale(0.94);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 35px rgba(212, 175, 55, 0.6);
+}
+
+.quick-bead-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.35);
+  transform: scale(0);
+  animation: beadRipple 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes beadRipple {
+  to {
+    transform: scale(3.5);
+    opacity: 0;
+  }
+}
+
+.quick-bead-number {
+  font-family: var(--font-arabic-heading, system-ui);
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #ffd875;
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+  transition: transform 0.15s ease;
+}
+
+.quick-bead-number.bump {
+  animation: beadDigitBump 0.18s ease;
+}
+
+@keyframes beadDigitBump {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+
+.quick-bead-target {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a4c2b7;
+  margin-top: 0.18rem;
+}
+
+.quick-bead-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fbbf24;
+  opacity: 0.85;
+  letter-spacing: 0.3px;
+  margin-top: 0.1rem;
+}
+
+/* شريط أدوات التحكم والهدف مدمج داخل اللوحة */
+.dhikr-panel-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.dhikr-targets-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.dhikr-target-label-txt {
+  font-size: 0.78rem;
+  color: #a4c2b7;
+  font-weight: 600;
+}
+
+.dhikr-target-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dhikr-target-pill {
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full, 999px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.dhikr-target-pill:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.3);
+  color: #fff;
+}
+
+.dhikr-target-pill.active {
+  background: rgba(212, 175, 55, 0.25);
+  border-color: #d4af37;
+  color: #ffd875;
+  font-weight: 700;
+}
+
+.dhikr-quick-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-compact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.82rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full, 999px);
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-compact-chip:hover {
+  background: rgba(212, 175, 55, 0.14);
+  border-color: rgba(212, 175, 55, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-compact-chip:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   التوافق التام مع الوضع الفاتح (Light Theme Overrides)
+   ========================================================================== */
+html[data-theme="light"] .smart-dhikr-panel,
+[data-theme="light"] .smart-dhikr-panel,
+body.light-theme .smart-dhikr-panel {
+  background: #FFFFFF !important;
+  border: 1px solid #DFE9E1 !important;
+  box-shadow: 0 8px 25px rgba(7, 63, 53, 0.06) !important;
+}
+
+html[data-theme="light"] .dhikr-panel-top,
+[data-theme="light"] .dhikr-panel-top,
+body.light-theme .dhikr-panel-top {
+  border-bottom-color: #DFE9E1 !important;
+}
+
+html[data-theme="light"] .dhikr-panel-top .small,
+[data-theme="light"] .dhikr-panel-top .small,
+body.light-theme .dhikr-panel-top .small {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .dhikr-streak-chip,
+[data-theme="light"] .dhikr-streak-chip,
+body.light-theme .dhikr-streak-chip {
+  background: #FFF5E3 !important;
+  border: 1px solid #E6BD70 !important;
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .dhikr-chip,
+[data-theme="light"] .dhikr-chip,
+body.light-theme .dhikr-chip {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .dhikr-chip.active,
+[data-theme="light"] .dhikr-chip.active,
+body.light-theme .dhikr-chip.active {
+  background: #A87927 !important;
+  border-color: #A87927 !important;
+  color: #FFFFFF !important;
+}
+
+html[data-theme="light"] .btn-dhikr-arrow,
+[data-theme="light"] .btn-dhikr-arrow,
+body.light-theme .btn-dhikr-arrow {
+  background: #F0F5F1 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .dhikr-quote-text,
+[data-theme="light"] .dhikr-quote-text,
+body.light-theme .dhikr-quote-text {
+  color: #193B34 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="light"] .dhikr-virtue-subtext,
+[data-theme="light"] .dhikr-virtue-subtext,
+body.light-theme .dhikr-virtue-subtext {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .btn-quick-bead,
+[data-theme="light"] .btn-quick-bead,
+body.light-theme .btn-quick-bead {
+  background: radial-gradient(circle at 35% 35%, #E8F4EF 0%, #D4EBE1 70%, #C2E2D3 100%) !important;
+  border-color: #A87927 !important;
+  box-shadow: 0 10px 25px rgba(7, 63, 53, 0.12), 0 0 15px rgba(168, 121, 39, 0.2), inset 0 0 15px rgba(168, 121, 39, 0.15) !important;
+}
+
+html[data-theme="light"] .quick-bead-number,
+[data-theme="light"] .quick-bead-number,
+body.light-theme .quick-bead-number {
+  color: #193B34 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="light"] .quick-bead-target,
+[data-theme="light"] .quick-bead-target,
+body.light-theme .quick-bead-target {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .quick-bead-label,
+[data-theme="light"] .quick-bead-label,
+body.light-theme .quick-bead-label {
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .dhikr-panel-controls,
+[data-theme="light"] .dhikr-panel-controls,
+body.light-theme .dhikr-panel-controls {
+  border-top-color: #DFE9E1 !important;
+}
+
+html[data-theme="light"] .dhikr-target-label-txt,
+[data-theme="light"] .dhikr-target-label-txt,
+body.light-theme .dhikr-target-label-txt {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .dhikr-target-pill,
+[data-theme="light"] .dhikr-target-pill,
+body.light-theme .dhikr-target-pill {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .dhikr-target-pill.active,
+[data-theme="light"] .dhikr-target-pill.active,
+body.light-theme .dhikr-target-pill.active {
+  background: #A87927 !important;
+  border-color: #A87927 !important;
+  color: #FFFFFF !important;
+}
+
+html[data-theme="light"] .btn-compact-chip,
+[data-theme="light"] .btn-compact-chip,
+body.light-theme .btn-compact-chip {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .btn-compact-chip:hover,
+[data-theme="light"] .btn-compact-chip:hover,
+body.light-theme .btn-compact-chip:hover {
+  background: #FFF5E3 !important;
+  border-color: #A87927 !important;
+  color: #A87927 !important;
+}

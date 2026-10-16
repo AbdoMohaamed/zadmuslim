@@ -1,6 +1,8 @@
 package com.zadmuslim.app;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
+import androidx.core.app.NotificationCompat;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -16,12 +19,16 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import org.json.JSONObject;
+
 import java.util.Calendar;
 
 @CapacitorPlugin(name = "AdhanNative")
 public class AdhanNativePlugin extends Plugin {
     private static final String TAG = "AdhanNativePlugin";
     private static final String PREFS_NAME = "zad_adhan_native_prefs";
+    public static final String STICKY_CHANNEL_ID = "zad_sticky_prayer_channel";
+    public static final int STICKY_NOTIF_ID = 10099;
 
     @PluginMethod
     public void schedulePrayerAlarms(PluginCall call) {
@@ -142,6 +149,7 @@ public class AdhanNativePlugin extends Plugin {
         // تحديث ويدجت الشاشة الرئيسية وشاشة القفل فوراً
         try {
             PrayerWidgetProvider.updateAllWidgets(context);
+            updateStickyNotificationInternal(context);
         } catch (Exception e) {
             Log.w(TAG, "Notice: could not update prayer widget immediately: ", e);
         }
@@ -168,9 +176,115 @@ public class AdhanNativePlugin extends Plugin {
             editor.apply();
         }
         PrayerWidgetProvider.updateAllWidgets(context);
+        updateStickyNotificationInternal(context);
         JSObject ret = new JSObject();
         ret.put("success", true);
         call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void toggleStickyNotification(PluginCall call) {
+        boolean enabled = call.getBoolean("enabled", true);
+        Context context = getContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean("is_sticky_notification_enabled", enabled).apply();
+
+        if (enabled) {
+            updateStickyNotificationInternal(context);
+        } else {
+            cancelStickyNotificationInternal(context);
+        }
+        JSObject ret = new JSObject();
+        ret.put("success", true);
+        ret.put("enabled", enabled);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void updateStickyNotification(PluginCall call) {
+        Context context = getContext();
+        updateStickyNotificationInternal(context);
+        JSObject ret = new JSObject();
+        ret.put("success", true);
+        call.resolve(ret);
+    }
+
+    public static void updateStickyNotificationInternal(Context context) {
+        try {
+            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            boolean isEnabled = prefs.getBoolean("is_sticky_notification_enabled", false);
+            if (!isEnabled) return;
+
+            String jsonStr = prefs.getString("last_timings_json", null);
+            if (jsonStr == null || jsonStr.isEmpty()) return;
+
+            JSONObject json = new JSONObject(jsonStr);
+            PrayerWidgetProvider.PrayerCalculation calc = PrayerWidgetProvider.calculateNextPrayer(json);
+
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager == null) return;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(
+                        STICKY_CHANNEL_ID,
+                        "إشعار الصلاة والذكر الدائم",
+                        NotificationManager.IMPORTANCE_LOW
+                );
+                channel.setDescription("عرض الصلاة القادمة والوقت المتبقي والذكر في شريط الإشعارات");
+                channel.setShowBadge(false);
+                channel.enableLights(false);
+                channel.enableVibration(false);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            Intent appIntent = new Intent(context, MainActivity.class);
+            appIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                flags |= PendingIntent.FLAG_IMMUTABLE;
+            }
+            PendingIntent pendingApp = PendingIntent.getActivity(context, 10099, appIntent, flags);
+
+            Calendar nowCal = Calendar.getInstance();
+            String[] reminders = {
+                "«أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🌿",
+                "«وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ» 🕋",
+                "اللهم صلِّ وسلِّم وبارك على نبينا محمد ﷺ",
+                "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ 🕊️",
+                "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ ✨",
+                "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ 🤍"
+            };
+            int dhikrIndex = nowCal.get(Calendar.HOUR_OF_DAY) % reminders.length;
+
+            String title = "الصلاة القادمة: " + calc.prayerName + " (" + calc.prayerTime12H + ")";
+            String content = calc.countdownText + " • " + reminders[dhikrIndex];
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, STICKY_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_stat_icon)
+                    .setContentTitle(title)
+                    .setContentText(content)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(content))
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setOngoing(true)
+                    .setAutoCancel(false)
+                    .setContentIntent(pendingApp);
+
+            notificationManager.notify(STICKY_NOTIF_ID, builder.build());
+            Log.d(TAG, "Sticky notification updated: " + title);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to update sticky notification: ", e);
+        }
+    }
+
+    public static void cancelStickyNotificationInternal(Context context) {
+        try {
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                notificationManager.cancel(STICKY_NOTIF_ID);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to cancel sticky notification: ", e);
+        }
     }
 
     private void schedulePeriodicBroadcastCheck(Context context, AlarmManager alarmManager) {

@@ -220,18 +220,72 @@
                 </div>
             </article>
 
-            <article class="panel dhikr">
-                <div class="small">✦ ذكر يطمئن قلبك</div>
-                <div class="quote" id="quick-dhikr-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
-                <div class="count">عداد التسبيح</div>
-                <div class="counter" id="counter">0</div>
-                <div class="counter-controls">
-                    <button class="btn solid" onclick="increment()">سبّح +1</button>
-                    <button class="btn outline" onclick="resetCount()">إعادة ↺</button>
+            <article class="panel dhikr smart-dhikr-panel" id="smart-dhikr-panel">
+                <div class="dhikr-panel-top">
+                    <div class="small"><i class="fa-solid fa-hand-dots text-gold"></i> السبحة الإلكترونية التفاعلية</div>
+                    <div class="dhikr-streak-chip" id="dhikr-panel-streak" onclick="if(window.SmartKhatmaService) SmartKhatmaService.openBadgesModal()" title="سجل استمراريتك وأوسمتك الإيمانية">
+                        <span>🔥</span> <strong id="dhikr-streak-num">1</strong> <span>يوم استمرار</span>
+                    </div>
                 </div>
-                <p class="small">اضغط على زر التسبيح، وسيُحفظ العدد على جهازك</p>
+
+                <!-- شريط التبديل السريع بين الأذكار -->
+                <div class="dhikr-chips-strip" id="dhikr-chips-strip"></div>
+
+                <!-- مساحة عرض الذكر وفضله مع أسهم التنقل -->
+                <div class="dhikr-card-display">
+                    <button type="button" class="btn-dhikr-arrow prev" onclick="if(window.SmartTasbih) SmartTasbih.prevZkr();" title="الذكر السابق" aria-label="الذكر السابق">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <div class="dhikr-text-wrapper">
+                        <div class="quote dhikr-quote-text" id="quick-dhikr-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+                        <div class="dhikr-virtue-subtext" id="quick-dhikr-virtue">حبيبتان إلى الرحمن، خفيفتان على اللسان، ثقيلتان في الميزان.</div>
+                    </div>
+                    <button type="button" class="btn-dhikr-arrow next" onclick="if(window.SmartTasbih) SmartTasbih.nextZkr();" title="الذكر التالي" aria-label="الذكر التالي">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- مساحة زر التسبيح التفاعلي الكبير النابض مع مؤشر الهدف -->
+                <div class="quick-tasbih-action-zone">
+                    <button type="button" class="btn-quick-bead" id="btn-quick-bead-tap" onclick="if(window.SmartTasbih){ SmartTasbih.tapBead(event); } else { increment(); }" title="انقر هنا للتسبيح">
+                        <span class="quick-bead-number" id="counter">0</span>
+                        <span class="quick-bead-target" id="quick-bead-target">الهدف: 33</span>
+                        <span class="quick-bead-label">سبّح الآن ✦</span>
+                    </button>
+                </div>
+
+                <!-- أدوات التحكم والهدف ومشاركة الأجر مدمجة بالكامل في اللوحة -->
+                <div class="dhikr-panel-controls">
+                    <div class="dhikr-targets-selector">
+                        <span class="dhikr-target-label-txt">دورة الهدف:</span>
+                        <div class="dhikr-target-pills" id="dhikr-target-pills">
+                            <button type="button" class="dhikr-target-pill active" data-target="33" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(33, this);">33</button>
+                            <button type="button" class="dhikr-target-pill" data-target="100" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(100, this);">100</button>
+                            <button type="button" class="dhikr-target-pill" data-target="0" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(0, this);">مفتوح ∞</button>
+                        </div>
+                    </div>
+
+                    <div class="dhikr-quick-action-buttons">
+                        <button type="button" class="btn-compact-chip" id="dhikr-sound-toggle-btn" onclick="if(window.SmartTasbih) SmartTasbih.toggleSound();" title="تشغيل / كتم صوت الخرزات">
+                            <i class="fa-solid fa-volume-high text-gold" id="dhikr-sound-icon"></i>
+                            <span id="dhikr-sound-text">صوت</span>
+                        </button>
+                        <button type="button" class="btn-compact-chip" id="btn-share-dhikr-story" onclick="if(window.SmartTasbih) SmartTasbih.shareCurrentZkr();" title="مشاركة هذا الذكر كستوري">
+                            <i class="fa-solid fa-camera-retro text-gold"></i> <span>شارك كستوري 📷</span>
+                        </button>
+                        <button type="button" class="btn-compact-chip" onclick="if(window.SmartTasbih) SmartTasbih.resetCurrentRound(); resetCount();" title="تصفير العداد">
+                            <i class="fa-solid fa-rotate-right"></i> <span>تصفير</span>
+                        </button>
+                    </div>
+                </div>
             </article>
         </section>
+
+        <!-- كارت الختمة الذكية والورد اليومي (Personal Smart Khatma Planner & Tracker) -->
+        <div id="smart-khatma-dashboard-slot" style="margin-top: 1.5rem;"></div>
+
+        <!-- كارت بوصلة القلوب والسكينة (Spiritual First-Aid / Emotional Mood Compass) -->
+        <div id="mood-compass-slot"></div>
 
         <!-- كارت موعظة اليوم المرئية (Daily Featured Clip) -->
         <article class="daily-featured-media-card" id="daily-featured-media-card" style="margin-top: 1.5rem; margin-bottom: 2rem;">
@@ -430,6 +484,10 @@
     <script src="assets/js/app.js?v=18"></script>
     <script src="assets/js/quran.js?v=26"></script>
     <script src="assets/js/extended-modules.js?v=28"></script>
+    <script src="assets/js/smart-khatma.js?v=1"></script>
+    <script src="assets/js/share-card-generator.js?v=1"></script>
+    <script src="assets/js/mood-compass.js?v=1"></script>
+    <script src="assets/js/smart-tasbih.js?v=1"></script>
 
     <!-- ==========================================
     نافذة التنبيهات والإشعارات الذكية (Smart Push Notifications Modal)

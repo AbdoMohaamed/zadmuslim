@@ -1098,6 +1098,30 @@ function setupGoldenAyahSheet() {
         });
     }
 
+    // زر مشاركة الآية كبطاقة ستوري مصممة
+    const btnStoryCard = document.getElementById("btn-ayah-story-card");
+    if (btnStoryCard) {
+        btnStoryCard.addEventListener("click", () => {
+            const txt = document.getElementById("golden-ayah-text")?.textContent || "";
+            const ref = document.getElementById("golden-ayah-ref")?.textContent || "";
+            if (window.ShareCardGenerator) {
+                modal.classList.remove("open");
+                window.ShareCardGenerator.openModal({ text: txt, title: "آية من كتاب الله", ref: ref });
+            }
+        });
+    }
+
+    window.handleSheetShareAsStoryCard = function() {
+        const title = document.getElementById("ayah-sheet-title")?.innerText || document.getElementById("golden-ayah-ref")?.textContent || "آية كريمة";
+        const text = document.getElementById("ayah-sheet-text")?.innerText || document.getElementById("golden-ayah-text")?.textContent || "";
+        if (window.ShareCardGenerator) {
+            if (typeof window.closeAyahActionSheet === "function") window.closeAyahActionSheet();
+            const gModal = document.getElementById("golden-ayah-modal");
+            if (gModal) gModal.classList.remove("open");
+            window.ShareCardGenerator.openModal({ text: text, title: "آية من كتاب الله", ref: title });
+        }
+    };
+
     // تفاعل فتح وإغلاق كروت المراجع (Accordion)
     document.querySelectorAll(".golden-ref-card").forEach(card => {
         const item = card.querySelector(".golden-ref-item");
