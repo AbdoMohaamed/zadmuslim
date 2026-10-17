@@ -354,11 +354,22 @@
                     <span class="service-action-link">إنشاء بطاقة الآن ←</span>
                 </a>
 
-                <a class="service-card" href="#prayers">
+                <a class="service-card" href="#wall-of-duas">
                     <div class="service-card-top">
                         <div class="service-icon-box">🤲</div>
                         <div class="service-info">
-                            <h3>أدعية الزوار وسجل المواساة</h3>
+                            <h3>حائط الدعاء بظهر الغيب 🌟</h3>
+                            <p>أعظم الترابط الأخوي الإيماني؛ اطلب دعاءً بظهر الغيب وأمّن على دعوات إخوانك لتنال بشارة: «ولكَ بمثل».</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">زيارة حائط الدعاء ←</span>
+                </a>
+
+                <a class="service-card" href="#prayers">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🤍</div>
+                        <div class="service-info">
+                            <h3>أدعية الزوار وسجل الوفاء</h3>
                             <p>اكتب دعاءً أو رسالة مواساة وتشارك الأجر فوراً مع زوار الموقع عبر السحابة.</p>
                         </div>
                     </div>
@@ -1897,6 +1908,111 @@
             </div>
         </div>
     </section>
+
+    <!-- ==============================================================================
+    حائط الدعاء بظهر الغيب (Wall of Duas — Mutual Brotherhood Prayers)
+    ============================================================================== -->
+    <section class="wall-of-duas-section" id="wall-of-duas">
+        <div class="container">
+            <div class="wall-header-wrapper">
+                <div class="wall-header-info">
+                    <span class="wall-badge"><i class="fa-solid fa-hands-praying text-gold"></i> الترابط الأخوي الإيماني</span>
+                    <h2 class="wall-main-title">حائط الدعاء بظهر الغيب</h2>
+                    <p class="wall-main-desc">
+                        «مَا مِنْ عَبْدٍ مُسْلِمٍ يَدْعُو لأَخِيهِ بِظَهْرِ الْغَيْبِ، إِلَّا قَالَ الْمَلَكُ: وَلَكَ بِمِثْلٍ» <small>[صحيح مسلم]</small>
+                    </p>
+                </div>
+                <div class="wall-header-cta">
+                    <button type="button" class="btn btn-gold btn-open-request-dua" id="btn-hero-open-request-dua">
+                        <i class="fa-solid fa-hands-praying"></i>
+                        <span>اطلب دعاءً بظهر الغيب 🤲</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- شريط بشارة الإشعارات الخاصة بصاحب الدعاء عند العودة -->
+            <div class="wall-my-duas-banner" id="wall-my-duas-banner" style="display: none;">
+                <div class="banner-icon-bubble">✨</div>
+                <div class="banner-content">
+                    <strong>بشارة قلبية:</strong>
+                    <span>أمّن <strong class="banner-amen-count">0</strong> مسلماً على دعائك بظهر الغيب ورفعوا أيديهم لك.. تقبل الله منهم وفرج همك 🤲</span>
+                </div>
+                <button type="button" class="btn-banner-view-mine wall-filter-pill" data-cat="mine">
+                    <span>عرض دعواتي 💌</span>
+                </button>
+            </div>
+
+            <!-- شريط الإحصائيات الحية -->
+            <div class="wall-stats-strip">
+                <div class="wall-stat-item">
+                    <div class="stat-icon-wrapper"><i class="fa-solid fa-hands-holding-circle text-gold"></i></div>
+                    <div class="stat-meta">
+                        <strong class="stat-number" id="wall-stat-total-duas">0</strong>
+                        <span class="stat-label">دعاءً بظهر الغيب</span>
+                    </div>
+                </div>
+                <div class="wall-stat-item highlight-stat">
+                    <div class="stat-icon-wrapper"><i class="fa-solid fa-heart text-gold"></i></div>
+                    <div class="stat-meta">
+                        <strong class="stat-number" id="wall-stat-total-amens">0</strong>
+                        <span class="stat-label">تأمينة ودعوة مستجابة</span>
+                    </div>
+                </div>
+                <div class="wall-stat-item">
+                    <div class="stat-icon-wrapper"><i class="fa-solid fa-envelope-open-text text-gold"></i></div>
+                    <div class="stat-meta">
+                        <strong class="stat-number" id="wall-stat-my-duas">0</strong>
+                        <span class="stat-label">دعواتي المنشورة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شريط أزرار تصفية التصنيفات -->
+            <div class="wall-filters-wrapper">
+                <div class="wall-filters-scroll" id="wall-filter-pills">
+                    <button type="button" class="wall-filter-pill active" data-cat="all">
+                        <span class="pill-icon">🌟</span>
+                        <span class="pill-text">الكل</span>
+                    </button>
+                    <button type="button" class="wall-filter-pill" data-cat="shifa">
+                        <span class="pill-icon">🩺</span>
+                        <span class="pill-text">شفاء مريض</span>
+                    </button>
+                    <button type="button" class="wall-filter-pill" data-cat="faraj">
+                        <span class="pill-icon">🕊️</span>
+                        <span class="pill-text">تفريج كرب</span>
+                    </button>
+                    <button type="button" class="wall-filter-pill" data-cat="rizq">
+                        <span class="pill-icon">🤲</span>
+                        <span class="pill-text">تيسير ورزق</span>
+                    </button>
+                    <button type="button" class="wall-filter-pill" data-cat="tawfeeq">
+                        <span class="pill-icon">🎓</span>
+                        <span class="pill-text">نجاح وتوفيق</span>
+                    </button>
+                    <button type="button" class="wall-filter-pill" data-cat="hidaya">
+                        <span class="pill-icon">🤍</span>
+                        <span class="pill-text">هداية وصلاح</span>
+                    </button>
+                    <button type="button" class="wall-filter-pill" data-cat="rahma">
+                        <span class="pill-icon">🌿</span>
+                        <span class="pill-text">رحمة لميت</span>
+                    </button>
+                    <button type="button" class="wall-filter-pill pill-mine" data-cat="mine">
+                        <span class="pill-icon">💌</span>
+                        <span class="pill-text">دعواتي الخاصة</span>
+                        <span class="mine-pill-badge" id="mine-pill-badge">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- شبكة بطاقات الأدعية التفاعلية -->
+            <div class="wall-duas-grid" id="wall-duas-grid">
+                <!-- تُبنى البطاقات ديناميكياً عبر wall-of-duas.js -->
+            </div>
+        </div>
+    </section>
+
     <!-- ==========================================
     سلايدر أدعية الزوار (Swiper Slider Section)
     ========================================== -->
@@ -3650,6 +3766,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="assets/js/zakat-calculator.js?v=1"></script>
     <script src="assets/js/nearby-mosques.js?v=7"></script>
+    <script src="assets/js/wall-of-duas.js?v=1"></script>
 
     <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
     <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">
@@ -3711,6 +3828,111 @@
                     <span>إعادة ضبط التحدي من اليوم الأول</span>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- ==============================================================================
+    نافذة اطلب دعاءً بظهر الغيب (Request Dua Modal) — تصميم فخم ومطور
+    ============================================================================== -->
+    <div class="modal-overlay modal-wall-dua-overlay" id="modal-request-dua" role="dialog" aria-modal="true">
+        <div class="modal-card modal-card-wall-dua">
+            <div class="modal-header-row">
+                <div class="modal-header-info-box">
+                    <div class="modal-header-icon-bubble">
+                        <i class="fa-solid fa-hands-praying"></i>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">اطلب دعاءً بظهر الغيب</h3>
+                        <p class="modal-subtitle">اكتب حاجتك بصدق، وإخوانك في الله سيؤمّنون لك دون كشف هويتك 🌿</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-circle-btn" id="btn-close-request-dua-modal" aria-label="إغلاق">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="form-request-dua" class="request-dua-form">
+                <!-- اختيار الباب أو التصنيف -->
+                <div class="dua-form-group">
+                    <label for="request-dua-category" class="dua-form-label">
+                        <span class="label-icon"><i class="fa-solid fa-layer-group"></i></span>
+                        <span>باب الدعاء:</span>
+                    </label>
+                    <div class="dua-select-wrapper">
+                        <select id="request-dua-category" class="dua-form-select">
+                            <option value="faraj" selected>🕊️ تفريج هم وكرب وقضاء دين</option>
+                            <option value="shifa">🩺 شفاء مريض ومعافاة عاجلة</option>
+                            <option value="rizq">🤲 تيسير رزق وعمل وبركة</option>
+                            <option value="tawfeeq">🎓 نجاح وتوفيق وسداد</option>
+                            <option value="hidaya">🤍 هداية وثبات على الطاعة</option>
+                            <option value="rahma">🌿 رحمة ومغفرة لمتوفى</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down dua-select-arrow"></i>
+                    </div>
+                </div>
+
+                <!-- نماذج مقترحة سريعة -->
+                <div class="dua-form-group">
+                    <div class="templates-header-row">
+                        <label class="dua-form-label-subtle">
+                            <i class="fa-solid fa-wand-magic-sparkles text-gold"></i> نماذج مقترحة (اضغط للاختيار):
+                        </label>
+                        <span class="templates-hint">تمرير أفقي ⟵</span>
+                    </div>
+                    <div class="quick-templates-chips" id="request-dua-templates">
+                        <!-- يُملأ ديناميكياً عبر wall-of-duas.js -->
+                    </div>
+                </div>
+
+                <!-- نص الدعاء -->
+                <div class="dua-form-group">
+                    <div class="dua-label-counter-row">
+                        <label for="request-dua-text" class="dua-form-label">
+                            <span class="label-icon"><i class="fa-solid fa-pen-nib"></i></span>
+                            <span>نص دعائك:</span>
+                        </label>
+                        <span class="dua-char-counter" id="request-dua-char-count">0 / 280</span>
+                    </div>
+                    <textarea id="request-dua-text" 
+                              class="dua-form-textarea" 
+                              rows="3" 
+                              maxlength="280" 
+                              placeholder="اكتب ما في قلبك بكل صدق (مثال: ادعوا لأمي بالشفاء العاجل، أو ادعوا لي بتفريج همي وقضاء ديني)..." 
+                              required></textarea>
+                </div>
+
+                <!-- اللقب أو الاسم المستعار -->
+                <div class="dua-form-group">
+                    <label for="request-dua-author" class="dua-form-label">
+                        <span class="label-icon"><i class="fa-solid fa-shield-halved"></i></span>
+                        <span>الصفة أو اللقب المستعار:</span>
+                    </label>
+                    <input type="text" 
+                           id="request-dua-author" 
+                           class="dua-form-input" 
+                           maxlength="40" 
+                           placeholder="مثال: أختكم في الله، سائل رحمة ربه، طالب علم..." 
+                           value="أخوكم في الله">
+                    <span class="dua-field-note"><i class="fa-solid fa-lock text-gold"></i> خصوصيتك محفوظة 100% ولا نطلب أي بيانات شخصية.</span>
+                </div>
+
+                <!-- بشارة الحديث النبوي -->
+                <div class="dua-prophetic-banner">
+                    <div class="prophetic-icon">✨</div>
+                    <div class="prophetic-text">
+                        <strong>بشارة نبوية شريفة:</strong>
+                        <span>«دَعْوَةُ الْمَرْءِ الْمُسْلِمِ لأَخِيهِ بِظَهْرِ الْغَيْبِ مُسْتَجَابَةٌ.. وَالْمَلَكُ يَقُولُ: آمِينَ وَلَكَ بِمِثْلٍ»</span>
+                    </div>
+                </div>
+
+                <!-- زر النشر -->
+                <div class="dua-modal-actions">
+                    <button type="submit" class="btn-submit-dua">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>انشر الدعاء على الحائط بظهر الغيب 🤲</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
