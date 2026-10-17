@@ -479,7 +479,7 @@ const NativeAdhanService = {
             return { success: true };
         }
         try {
-            const audio = new Audio("assets/audio/salawat.mp3");
+            const audio = new Audio("assets/audio/salawat.mp3?v=" + Date.now());
             audio.volume = 1.0;
             await audio.play();
             return { success: true };

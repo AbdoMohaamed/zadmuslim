@@ -3935,7 +3935,7 @@ function playPrePrayerAudio(prayerKey) {
         document.body.appendChild(audioEl);
     }
     const key = (prayerKey || "prayer").toLowerCase();
-    const sourceFile = `assets/audio/pre/pre_${key}.mp3`;
+    const sourceFile = `assets/audio/pre/pre_${key}.mp3?v=${Date.now()}`;
     audioEl.src = sourceFile;
     audioEl.currentTime = 0;
     const playPromise = audioEl.play();

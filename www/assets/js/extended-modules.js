@@ -866,7 +866,7 @@ function initSmartNotifications() {
  */
 window.playSalawatAudio = function(isUserTest = false) {
     try {
-        const audio = new Audio("assets/audio/salawat.mp3");
+        const audio = new Audio("assets/audio/salawat.mp3?v=" + Date.now());
         audio.volume = 1.0;
         const playPromise = audio.play();
         if (playPromise !== undefined) {
