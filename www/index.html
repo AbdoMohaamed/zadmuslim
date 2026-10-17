@@ -223,9 +223,6 @@
             <article class="panel dhikr smart-dhikr-panel" id="smart-dhikr-panel">
                 <div class="dhikr-panel-top">
                     <div class="small"><i class="fa-solid fa-hand-dots text-gold"></i> السبحة الإلكترونية التفاعلية</div>
-                    <div class="dhikr-streak-chip" id="dhikr-panel-streak" onclick="if(window.SmartKhatmaService) SmartKhatmaService.openBadgesModal()" title="سجل استمراريتك وأوسمتك الإيمانية">
-                        <span>🔥</span> <strong id="dhikr-streak-num">1</strong> <span>يوم استمرار</span>
-                    </div>
                 </div>
 
                 <!-- شريط التبديل السريع بين الأذكار -->
@@ -247,7 +244,7 @@
 
                 <!-- مساحة زر التسبيح التفاعلي الكبير النابض مع مؤشر الهدف -->
                 <div class="quick-tasbih-action-zone">
-                    <button type="button" class="btn-quick-bead" id="btn-quick-bead-tap" onclick="if(window.SmartTasbih){ SmartTasbih.tapBead(event); } else { increment(); }" title="انقر هنا للتسبيح">
+                    <button type="button" class="btn-quick-bead" id="btn-quick-bead-tap" onclick="if(window.SmartTasbih){ SmartTasbih.tapBead(event); } else { increment(); }" oncontextmenu="return false;" title="انقر هنا للتسبيح">
                         <span class="quick-bead-number" id="counter">0</span>
                         <span class="quick-bead-target" id="quick-bead-target">الهدف: 33</span>
                         <span class="quick-bead-label">سبّح الآن ✦</span>

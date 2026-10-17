@@ -232,27 +232,43 @@
 
             // تأثير التموج الضوئي في موضع النقر (Ripple Effect)
             const bead = document.getElementById("btn-quick-bead-tap");
-            if (bead && e) {
-                const rect = bead.getBoundingClientRect();
-                const ripple = document.createElement("span");
-                ripple.className = "quick-bead-ripple";
-                const size = Math.max(rect.width, rect.height);
-                ripple.style.width = ripple.style.height = `${size}px`;
-                const clientX = e.clientX || (rect.left + rect.width / 2);
-                const clientY = e.clientY || (rect.top + rect.height / 2);
-                ripple.style.left = `${clientX - rect.left - size / 2}px`;
-                ripple.style.top = `${clientY - rect.top - size / 2}px`;
-                bead.appendChild(ripple);
-                setTimeout(() => ripple.remove(), 600);
+            if (bead) {
+                if (typeof bead.blur === "function") {
+                    bead.blur();
+                }
+                if (e) {
+                    const rect = bead.getBoundingClientRect();
+                    const ripple = document.createElement("span");
+                    ripple.className = "quick-bead-ripple";
+                    const size = Math.max(rect.width, rect.height);
+                    ripple.style.width = ripple.style.height = `${size}px`;
+                    const clientX = e.clientX || (rect.left + rect.width / 2);
+                    const clientY = e.clientY || (rect.top + rect.height / 2);
+                    ripple.style.left = `${clientX - rect.left - size / 2}px`;
+                    ripple.style.top = `${clientY - rect.top - size / 2}px`;
+                    bead.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                }
             }
 
-            // تحديث شاشة العداد
+            // تحديث شاشة العداد بسلاسة تامة دون تحريك الصفحة
             const counterEl = document.getElementById("counter");
             if (counterEl) {
                 counterEl.textContent = currentRoundCount;
-                counterEl.classList.remove("bump");
-                void counterEl.offsetWidth;
-                counterEl.classList.add("bump");
+                if (typeof counterEl.animate === "function") {
+                    counterEl.animate([
+                        { transform: "scale(1)" },
+                        { transform: "scale(1.18)" },
+                        { transform: "scale(1)" }
+                    ], {
+                        duration: 150,
+                        easing: "ease-out"
+                    });
+                } else {
+                    counterEl.classList.remove("bump");
+                    void counterEl.offsetWidth;
+                    counterEl.classList.add("bump");
+                }
             }
 
             const targetEl = document.getElementById("quick-bead-target");
