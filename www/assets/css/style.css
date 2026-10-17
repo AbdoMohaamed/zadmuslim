@@ -11,7 +11,7 @@ body.light-theme {
     --bg-primary: #F7F9F6;
     --bg-secondary: #FFFFFF;
     --bg-card: #FFFFFF;
-    --bg-elevated: #F0F5F1;
+    --bg-elevated: #F0F5F1; 
     --text-primary: #193B34;
     --text-secondary: #536A60;
     --text-muted: #64786D; 
@@ -7456,6 +7456,309 @@ html[data-theme="light"] .nav-links a.active {
 .seasons-section {
     padding-bottom: 40px;
     background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+}
+
+/* ==========================================================================
+   لوحة التقويم الهجري التفاعلية (Hijri Calendar Dashboard Card)
+   ========================================================================== */
+.hijri-calendar-card {
+  background: linear-gradient(135deg, rgba(8, 38, 29, 0.95) 0%, rgba(4, 22, 17, 0.98) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: var(--radius-lg, 18px);
+  padding: 1.6rem 1.4rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35), inset 0 0 30px rgba(212, 175, 55, 0.05);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+}
+
+.hijri-calendar-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold-400, #d4af37), transparent);
+}
+
+.hijri-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hijri-badge-tag {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #a4c2b7;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.hijri-offset-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full, 999px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  font-size: 0.8rem;
+}
+
+.offset-title {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.offset-current-val {
+  font-weight: 800;
+  color: #ffd875;
+  min-width: 18px;
+  text-align: center;
+}
+
+.btn-offset-adjust {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.15);
+  color: #ffd875;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-offset-adjust:hover {
+  background: #d4af37;
+  color: #061e16;
+}
+
+.btn-offset-reset {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0 4px;
+  transition: color 0.2s ease;
+}
+
+.btn-offset-reset:hover {
+  color: #ffd875;
+}
+
+.hijri-card-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .hijri-card-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1.2rem;
+  }
+}
+
+.hijri-main-date-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.hijri-weekday-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.85rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.08));
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #fbbf24;
+  padding: 0.25rem 0.8rem;
+  border-radius: var(--radius-full, 999px);
+}
+
+@media (max-width: 768px) {
+  .hijri-weekday-badge {
+    align-self: center;
+  }
+}
+
+.hijri-prominent-date {
+  font-family: var(--font-quran, serif);
+  font-size: 1.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0.2rem 0;
+  line-height: 1.3;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.hijri-h-letter {
+  color: var(--gold-400, #d4af37);
+  font-size: 1.4rem;
+}
+
+.gregorian-sub-date {
+  font-size: 0.9rem;
+  color: #a4c2b7;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@media (max-width: 768px) {
+  .gregorian-sub-date {
+    justify-content: center;
+  }
+}
+
+.hijri-month-progress-box {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 12px);
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.progress-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.hijri-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.hijri-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #d4af37);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.progress-sub-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.progress-sub-info strong {
+  color: #e2e8f0;
+}
+
+.hijri-fasting-alerts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fasting-alert-pill {
+  flex: 1;
+  min-width: 240px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: var(--radius-md, 10px);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+}
+
+.fasting-alert-pill strong {
+  color: #ffd875;
+}
+
+/* دعم الثيم الفاتح (Light Theme) */
+html[data-theme="light"] .hijri-calendar-card,
+body.light-theme .hijri-calendar-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #e2f5eb 100%) !important;
+  border-color: rgba(168, 121, 39, 0.35) !important;
+  box-shadow: 0 10px 25px rgba(7, 63, 53, 0.1) !important;
+}
+
+html[data-theme="light"] .hijri-prominent-date,
+body.light-theme .hijri-prominent-date {
+  color: #0d281e !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="light"] .gregorian-sub-date,
+body.light-theme .gregorian-sub-date {
+  color: #4b6358 !important;
+}
+
+html[data-theme="light"] .hijri-badge-tag,
+body.light-theme .hijri-badge-tag {
+  color: #3b5347 !important;
+}
+
+html[data-theme="light"] .hijri-month-progress-box,
+body.light-theme .hijri-month-progress-box {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border-color: rgba(7, 63, 53, 0.12) !important;
+}
+
+html[data-theme="light"] .progress-title-row,
+body.light-theme .progress-title-row {
+  color: #1e3a2f !important;
+}
+
+html[data-theme="light"] .fasting-alert-pill,
+body.light-theme .fasting-alert-pill {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border-color: rgba(168, 121, 39, 0.25) !important;
+  color: #1e3a2f !important;
+}
+
+html[data-theme="light"] .fasting-alert-pill strong,
+body.light-theme .fasting-alert-pill strong {
+  color: #926615 !important;
+}
+
+html[data-theme="light"] .hijri-offset-controls,
+body.light-theme .hijri-offset-controls {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(168, 121, 39, 0.3) !important;
+}
+
+html[data-theme="light"] .offset-current-val,
+body.light-theme .offset-current-val {
+  color: #926615 !important;
 }
 
 .seasons-grid {

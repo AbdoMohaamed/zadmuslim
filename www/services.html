@@ -147,15 +147,15 @@
                     <span class="service-action-link">تصفح الأذكار ←</span>
                 </a>
 
-                <a class="service-card" href="#tasbeeh">
+                <a class="service-card" href="index.html#smart-dhikr-panel">
                     <div class="service-card-top">
                         <div class="service-icon-box">📿</div>
                         <div class="service-info">
                             <h3>السبحة الإلكترونية التفاعلية</h3>
-                            <p>عداد تسبيح ذكي مع اهتزاز لمسي (Haptic) وصوت نقر الخرزات وتتبع الإنجاز.</p>
+                            <p>سبحة ذكية مدمجة بالصفحة الرئيسية مع صوت نقر الخرزات وتتبع الإنجاز.</p>
                         </div>
                     </div>
-                    <span class="service-action-link">بدء التسبيح 📿 ←</span>
+                    <span class="service-action-link">الذهاب للسبحة التفاعلية 📿 ←</span>
                 </a>
 
                 <a class="service-card" href="javascript:void(0)" onclick="if(window.MoodCompass) MoodCompass.openMoodModal('sadness');">
@@ -1038,84 +1038,7 @@
                 </div>
             </div>
         </div>
-    </section>
-    <!-- ==========================================
-         قسم السبحة الإلكترونية (Tasbeeh Section)
-         ========================================== -->
-    <section id="tasbeeh" class="tasbeeh-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-tag">
-                    <i class="fa-solid fa-circle-dot"></i>
-                    تسبيح • استغفار • ذكر الله
-                </span>
 
-                <h2 class="section-title">السبحة الإلكترونية</h2>
-
-                <p class="section-desc">
-                    اجعل لسانك رطبًا بذكر الله، واملأ يومك بالتسبيح والاستغفار،
-                    واغتنم كل لحظة لتطمئن روحك ويزداد قلبك قربًا من الله.
-                </p>
-            </div>
-            <div class="tasbeeh-grid">
-                <!-- اختيار الذكر -->
-                <div class="azkar-selector-box">
-                    <div class="azkar-selector-title">
-                        <i class="fa-solid fa-list-check text-gold"></i>
-                        <span>اختر الذكر المفضل:</span>
-                    </div>
-                    <div class="azkar-list" id="azkar-list">
-                        <!-- يُملأ من قائمة TASBEEH_ITEMS -->
-                    </div>
-                </div>
-
-                <!-- جهاز السبحة التفاعلي -->
-                <div class="tasbeeh-device">
-                    <div class="current-zkr-display">
-                        <div class="active-zkr-name" id="active-zkr-name">سُبْحَانَ اللَّهِ</div>
-                        <div class="active-zkr-virtue" id="active-zkr-virtue">حبيبتان إلى الرحمن، خفيفتان على اللسان</div>
-                    </div>
-
-                    <!-- القرص الدائري للنقر -->
-                    <div class="tasbeeh-click-area" id="tasbeeh-click-area" title="انقر هنا للتسبيح">
-                        <svg class="progress-ring" viewBox="0 0 236 236">
-                            <circle class="progress-ring__circle" stroke-width="8" fill="transparent" r="110" cx="118" cy="118" />
-                        </svg>
-
-                        <div class="counter-content">
-                            <div class="counter-number" id="counter-number">0</div>
-                            <span class="counter-label">الهدف: <span id="zkr-target-display">33</span></span>
-                        </div>
-                    </div>
-
-                    <!-- أزرار التحكم بالسبحة -->
-                    <div class="tasbeeh-controls" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-                        <button class="btn btn-outline" id="btn-reset-tasbeeh" title="تصفير عداد الذكر">
-                            <i class="fa-solid fa-rotate-right"></i>
-                            <span>تصفير العداد</span>
-                        </button>
-                        <button class="btn btn-outline" id="btn-tasbeeh-sound-toggle" onclick="if(window.SmartTasbih) SmartTasbih.toggleSound();" title="تشغيل / كتم الصوت">
-                            <i class="fa-solid fa-volume-high text-gold" id="dhikr-sound-icon-svc"></i>
-                            <span>صوت الخرزات</span>
-                        </button>
-                    </div>
-
-                    <!-- إحصائيات التسبيح -->
-                    <div class="tasbeeh-stats-bar">
-                        <div class="stat-item">
-                            <span>تسبيحاتك بالجلسة:</span>
-                            <span class="stat-val" id="total-tasbeeh-count">0</span>
-                        </div>
-                        <div class="stat-separator">•</div>
-                        <div class="stat-item">
-                            <span>إجمالي الزوار عالمياً:</span>
-                            <span class="stat-val text-gold" id="total-global-tasbeeh-count">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- ==========================================
          قسم بوصلة القلوب والسكينة (Spiritual First-Aid)
@@ -1423,12 +1346,15 @@
                 <span class="section-tag"><i class="fa-solid fa-calendar-days"></i> مواسم الخير ومضاعفة الأجور</span>
                 <h2 class="section-title">مواسم الطاعات والتقويم الهجري</h2>
                 <p class="section-desc">
-                    تعرّف على مواعيد أعظم المناسبات الإسلامية وأيام الصيام المستحبة مع عد تنازلي حيّ لكل موسم مبارك.
+                    تعرّف على تاريخ اليوم الهجري والميلادي ومواعيد أعظم المناسبات الإسلامية وأيام الصيام المستحبة مع عد تنازلي حيّ لكل موسم مبارك.
                 </p>
             </div>
 
+            <!-- لوحة التقويم الهجري التفاعلية -->
+            <div class="hijri-calendar-card" id="hijri-calendar-card"></div>
+
             <div class="seasons-grid" id="seasons-grid">
-                <!-- يُملأ برمجياً من app.js -->
+                <!-- يُملأ برمجياً عبر extended-modules.js -->
             </div>
         </div>
     </section>

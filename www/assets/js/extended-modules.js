@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     trackSiteTelemetry();
     initAdminDashboard();
     initModernZadDashboard();
+    initSeasonsOfWorship();
 });
 
 /* ==========================================================================
@@ -339,25 +340,44 @@ function initAsmaaAllah() {
    ========================================================================== */
 function initSeasonsOfWorship() {
     const grid = document.getElementById("seasons-grid");
-    if (!grid) return;
+    const calendarCard = document.getElementById("hijri-calendar-card");
+    if (!grid && !calendarCard) return;
 
-    function getHijriDateDetails(date) {
+    let hijriOffset = parseInt(localStorage.getItem("zad_hijri_offset") || "0", 10);
+
+    const HIJRI_MONTH_NAMES = [
+        "محرّم", "صفر", "ربيع الأول", "ربيع الآخر",
+        "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
+        "رمضان", "شوّال", "ذو القعدة", "ذو الحجة"
+    ];
+
+    const WEEKDAY_NAMES = [
+        "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+    ];
+
+    const GREGORIAN_MONTH_NAMES = [
+        "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+    ];
+
+    function getHijriDateDetails(date, offsetDays = hijriOffset) {
+        const adjusted = new Date(date.getTime() + (offsetDays * 86400000));
         try {
             const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
                 day: 'numeric',
                 month: 'numeric',
                 year: 'numeric'
             });
-            const parts = formatter.formatToParts(date);
+            const parts = formatter.formatToParts(adjusted);
             let day = 1, month = 1, year = 1448;
             for (const p of parts) {
                 if (p.type === 'day') day = parseInt(p.value, 10);
                 if (p.type === 'month') month = parseInt(p.value, 10);
                 if (p.type === 'year') year = parseInt(p.value, 10);
             }
-            return { day, month, year };
+            return { day, month, year, adjustedDate: adjusted };
         } catch (e) {
-            const jd = Math.floor(date.getTime() / 86400000) + 2440587.5;
+            const jd = Math.floor(adjusted.getTime() / 86400000) + 2440587.5;
             const l = Math.floor(jd - 1948440 + 10632);
             const n = Math.floor((l - 1) / 10631);
             const l2 = l - 10631 * n + 354;
@@ -366,15 +386,128 @@ function initSeasonsOfWorship() {
             const m = Math.floor((24 * l3) / 709);
             const d = l3 - Math.floor((709 * m) / 24);
             const y = 30 * n + j - 30;
-            return { day: d, month: m, year: y };
+            return { day: d, month: m, year: y, adjustedDate: adjusted };
         }
+    }
+
+    window.adjustHijriOffset = function(delta) {
+        if (delta === 0) {
+            hijriOffset = 0;
+        } else {
+            hijriOffset = Math.max(-2, Math.min(2, hijriOffset + delta));
+        }
+        localStorage.setItem("zad_hijri_offset", hijriOffset.toString());
+        renderHijriCalendar();
+        renderSeasons();
+        if (typeof window.showToast === "function") {
+            const msg = hijriOffset === 0 
+                ? "تمت استعادة تقويم أم القرى الافتراضي 🌙" 
+                : `تم ضبط التقويم الهجري: (${hijriOffset > 0 ? '+' : ''}${hijriOffset} يوم) حسب رؤية الهلال`;
+            window.showToast(msg);
+        }
+    };
+
+    function renderHijriCalendar() {
+        if (!calendarCard) return;
+        const now = new Date();
+        const hijri = getHijriDateDetails(now, hijriOffset);
+        const dayName = WEEKDAY_NAMES[now.getDay()];
+        const hijriMonthName = HIJRI_MONTH_NAMES[(hijri.month - 1) % 12] || "الشهر الهجري";
+        const gregMonthName = GREGORIAN_MONTH_NAMES[now.getMonth()];
+        const gregDateStr = `${dayName} ${now.getDate()} ${gregMonthName} ${now.getFullYear()} م`;
+        const hijriDateStr = `${dayName} ${hijri.day} ${hijriMonthName} ${hijri.year} هـ`;
+
+        // حساب نسبة انقضاء الشهر الهجري (افتراض 30 يوم للشهر)
+        const daysInMonth = 30;
+        const daysPassed = Math.min(daysInMonth, hijri.day);
+        const monthPct = Math.round((daysPassed / daysInMonth) * 100);
+        const daysLeftInMonth = Math.max(0, daysInMonth - daysPassed);
+
+        // حساب موعد الأيام البيض القادمة
+        let whiteDaysInfo = "";
+        if (hijri.day < 13) {
+            const diff = 13 - hijri.day;
+            whiteDaysInfo = `متبقي <strong>${diff}</strong> ${diff === 1 ? 'يوم' : 'أيام'} على صيام الأيام البيض (13، 14، 15)`;
+        } else if (hijri.day >= 13 && hijri.day <= 15) {
+            whiteDaysInfo = `✨ <strong>اليوم من الأيام البيض المباركة (${hijri.day} ${hijriMonthName})!</strong> تقبل الله صيامكم`;
+        } else {
+            const diff = (daysInMonth - hijri.day) + 13;
+            whiteDaysInfo = `متبقي <strong>${diff}</strong> يوماً على الأيام البيض للشهر القادم`;
+        }
+
+        // حساب موعد الإثنين أو الخميس القادم
+        const dayOfWeek = now.getDay(); // 0: Sun, 1: Mon, 2: Tue, 3: Wed, 4: Thu, 5: Fri, 6: Sat
+        let nextFastingDayName = "";
+        let daysToNextFasting = 0;
+        if (dayOfWeek === 1) {
+            nextFastingDayName = "اليوم الإثنين (سنة الصيام) 🌿";
+            daysToNextFasting = 0;
+        } else if (dayOfWeek === 4) {
+            nextFastingDayName = "اليوم الخميس (سنة الصيام) 🌿";
+            daysToNextFasting = 0;
+        } else if (dayOfWeek < 1) {
+            daysToNextFasting = 1;
+            nextFastingDayName = "صيام الإثنين غداً 🌿";
+        } else if (dayOfWeek < 4) {
+            daysToNextFasting = 4 - dayOfWeek;
+            nextFastingDayName = `صيام الخميس القادم (بعد ${daysToNextFasting} أيام) 🌿`;
+        } else {
+            daysToNextFasting = (7 - dayOfWeek) + 1;
+            nextFastingDayName = `صيام الإثنين القادم (بعد ${daysToNextFasting} أيام) 🌿`;
+        }
+
+        calendarCard.innerHTML = `
+            <div class="hijri-card-header">
+                <div class="hijri-badge-tag"><i class="fa-solid fa-moon text-gold"></i> التقويم الهجري الرسمي • تقويم أم القرى</div>
+                <div class="hijri-offset-controls" title="تعديل تاريخ الهلال حسب بلدك">
+                    <span class="offset-title">تعديل الهلال:</span>
+                    <button type="button" class="btn-offset-adjust" onclick="window.adjustHijriOffset(-1)" title="تأخير يوم">-1</button>
+                    <span class="offset-current-val">${hijriOffset > 0 ? '+' : ''}${hijriOffset}</span>
+                    <button type="button" class="btn-offset-adjust" onclick="window.adjustHijriOffset(1)" title="تقديم يوم">+1</button>
+                    ${hijriOffset !== 0 ? `<button type="button" class="btn-offset-reset" onclick="window.adjustHijriOffset(0)" title="إعادة ضبط">↺</button>` : ''}
+                </div>
+            </div>
+
+            <div class="hijri-card-hero">
+                <div class="hijri-main-date-box">
+                    <span class="hijri-weekday-badge">${dayName}</span>
+                    <h2 class="hijri-prominent-date">${hijri.day} ${hijriMonthName} ${hijri.year} <span class="hijri-h-letter">هـ</span></h2>
+                    <div class="gregorian-sub-date"><i class="fa-regular fa-calendar-check text-gold"></i> ${gregDateStr}</div>
+                </div>
+
+                <div class="hijri-month-progress-box">
+                    <div class="progress-title-row">
+                        <span>انقضاء شهر ${hijriMonthName}:</span>
+                        <strong class="text-gold">${monthPct}%</strong>
+                    </div>
+                    <div class="hijri-progress-track">
+                        <div class="hijri-progress-fill" style="width: ${monthPct}%;"></div>
+                    </div>
+                    <div class="progress-sub-info">
+                        <span>مضى: <strong>${daysPassed}</strong> يوم</span>
+                        <span>متبقي: <strong>${daysLeftInMonth}</strong> يوم</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hijri-fasting-alerts-row">
+                <div class="fasting-alert-pill">
+                    <i class="fa-solid fa-circle-dot text-gold"></i>
+                    <span>${whiteDaysInfo}</span>
+                </div>
+                <div class="fasting-alert-pill">
+                    <i class="fa-solid fa-seedling text-emerald-400"></i>
+                    <span>${nextFastingDayName}</span>
+                </div>
+            </div>
+        `;
     }
 
     function findNextHijriEventDate(targetMonth, targetDay) {
         const now = new Date();
         const testDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
         for (let i = 0; i <= 400; i++) {
-            const h = getHijriDateDetails(testDate);
+            const h = getHijriDateDetails(testDate, hijriOffset);
             if (h.month === targetMonth && h.day === targetDay) {
                 return testDate;
             }
@@ -387,7 +520,7 @@ function initSeasonsOfWorship() {
         const now = new Date();
         const testDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
         for (let i = 0; i <= 35; i++) {
-            const h = getHijriDateDetails(testDate);
+            const h = getHijriDateDetails(testDate, hijriOffset);
             if (h.day === 13) {
                 return testDate;
             }
@@ -427,32 +560,95 @@ function initSeasonsOfWorship() {
                 virtue: "صيام ثلاثة أيام من كل شهر تعدل صيام الدهر كله كما جاء في الحديث الصحيح."
             },
             {
-                title: "شهر رمضان المبارك 🌙",
+                title: "شهر رجب المبارك 🌙",
                 icon: "fa-moon",
-                dateStr: "1 رمضان المبارك",
-                targetDate: findNextHijriEventDate(9, 1),
-                virtue: "شهر الصيام والقرآن، فيه ليلة القدر خير من ألف شهر، وتفتح فيه أبواب الجنان."
+                dateStr: "1 رجب (من الأشهر الحُرُم)",
+                targetDate: findNextHijriEventDate(7, 1),
+                virtue: "من الأشهر الحُرُم التي عظّمها الله تعالى، وتستحب فيها الطاعات والاستغفار والتمهيد لرمضان."
             },
             {
-                title: "وقفة عرفات المباركة 🕋",
+                title: "ليلة الإسراء والمعراج 🌌",
+                icon: "fa-star-and-crescent",
+                dateStr: "27 رجب المبارك",
+                targetDate: findNextHijriEventDate(7, 27),
+                virtue: "معجزة النبي ﷺ الكبرى وفرض الصلوات الخمس رحمةً بأمته وتثبيتاً لقلوب المؤمنين."
+            },
+            {
+                title: "ليلة النصف من شعبان 🌟",
+                icon: "fa-sparkles",
+                dateStr: "15 شعبان المبارك",
+                targetDate: findNextHijriEventDate(8, 15),
+                virtue: "ليلة مباركة يطّلع الله فيها إلى خلقه فيغفر لعباده إلا لمشرك أو مشاحن."
+            },
+            {
+                title: "شهر رمضان المبارك 🌙",
+                icon: "fa-book-quran",
+                dateStr: "1 رمضان المبارك",
+                targetDate: findNextHijriEventDate(9, 1),
+                virtue: "شهر الصيام والقرآن، فيه ليلة القدر خير من ألف شهر، وتفتح فيه أبواب الجنان وتغلق أبواب النيران."
+            },
+            {
+                title: "ليلة القدر والعشر الأواخر ✨",
+                icon: "fa-feather-pointed",
+                dateStr: "21 رمضان المبارك",
+                targetDate: findNextHijriEventDate(9, 21),
+                virtue: "ليلة القدر خير من ألف شهر، العبادة فيها تعدل عبادة أكثر من 83 عاماً."
+            },
+            {
+                title: "عيد الفطر المبارك 🎈",
+                icon: "fa-gift",
+                dateStr: "1 شوّال المبارك",
+                targetDate: findNextHijriEventDate(10, 1),
+                virtue: "يوم الجائزة والفرح بطاعة الله وإتمام فريضة الصيام وصلة الأرحام وإخراج زكاة الفطر."
+            },
+            {
+                title: "صيام الست من شوّال 🌸",
+                icon: "fa-heart",
+                dateStr: "2 إلى 30 شوّال",
+                targetDate: findNextHijriEventDate(10, 2),
+                virtue: "من صام رمضان ثم أتبعه ستاً من شوال كان كصيام الدهر كله كما صح عن النبي ﷺ."
+            },
+            {
+                title: "عشر ذي الحجة المباركة 🕋",
                 icon: "fa-kaaba",
+                dateStr: "1 ذو الحجة",
+                targetDate: findNextHijriEventDate(12, 1),
+                virtue: "ما من أيام العمل الصالح فيها أحب إلى الله من هذه الأيام العشر، فأكثروا فيها من التهليل والتكبير."
+            },
+            {
+                title: "وقفة عرفات المباركة 🤲",
+                icon: "fa-hands-holding",
                 dateStr: "9 ذو الحجة",
                 targetDate: findNextHijriEventDate(12, 9),
-                virtue: "أعظم أيام الدهر، وصيامه لغير الحاج يكفر ذنوب سنة ماضية وسنة باقية."
+                virtue: "أعظم أيام الدهر، وخير الدعاء دعاء يوم عرفة، وصيامه لغير الحاج يكفر ذنوب سنتين."
             },
             {
                 title: "عيد الأضحى المبارك 🐑",
-                icon: "fa-heart",
+                icon: "fa-cow",
                 dateStr: "10 ذو الحجة",
                 targetDate: findNextHijriEventDate(12, 10),
-                virtue: "يوم النحر، أعظم الأيام عند الله، يوم فرح وشكر وإطعام الطعام وصلة الأرحام."
+                virtue: "يوم النحر الأكبر، أعظم الأيام عند الله، يوم تقرب بالأضاحي وفرح وإطعام الطعام."
             },
             {
-                title: "يوم عاشوراء المبارك 🌊",
+                title: "رأس السنة الهجرية الجديدة 📅",
+                icon: "fa-calendar-day",
+                dateStr: "1 محرّم المبارك",
+                targetDate: findNextHijriEventDate(1, 1),
+                virtue: "ذكرى الهجرة النبوية المباركة وبداية عام هجري جديد ملؤه الخير والبركات."
+            },
+            {
+                title: "يوم عاشوراء وتاسوعاء 🌊",
                 icon: "fa-water",
-                dateStr: "10 محرم",
+                dateStr: "9 و 10 محرّم",
                 targetDate: findNextHijriEventDate(1, 10),
-                virtue: "اليوم الذي نجى الله فيه موسى عليه السلام، وصيامه يكفر ذنوب السنة الماضية."
+                virtue: "اليوم الذي نجّى الله فيه موسى وقومه، وصيام عاشوراء يكفر ذنوب السنة الماضية."
+            },
+            {
+                title: "المولد النبوي الشريف 🌺",
+                icon: "fa-certificate",
+                dateStr: "12 ربيع الأول",
+                targetDate: findNextHijriEventDate(3, 12),
+                virtue: "ذكرى مولد الرحمة المهداة نبينا محمد ﷺ، واستحضار سنته الشريفة ومحبته وإكثار الصلاة عليه."
             }
         ];
 
@@ -462,6 +658,7 @@ function initSeasonsOfWorship() {
     }
 
     function renderSeasons() {
+        if (!grid) return;
         grid.innerHTML = "";
         const now = new Date().getTime();
         const seasons = getSeasonsList();
@@ -485,7 +682,7 @@ function initSeasonsOfWorship() {
                 <div class="season-countdown-box">
                     ${isToday ? `
                         <div style="width: 100%; color: var(--emerald-400); font-weight: 700; font-size: 1.05rem; text-align: center; padding: 0.3rem;">
-                            <i class="fa-solid fa-star"></i> اليوم هو الموعد المبارك! تقبل الله طاعتكم
+                            <i class="fa-solid fa-star"></i> اليوم هو الموعد المبارك! تقبل الله طاعتكم ✨
                         </div>
                     ` : `
                         <div class="countdown-unit">
@@ -511,9 +708,15 @@ function initSeasonsOfWorship() {
         });
     }
 
+    renderHijriCalendar();
     renderSeasons();
-    setInterval(renderSeasons, 60000);
+    setInterval(() => {
+        renderHijriCalendar();
+        renderSeasons();
+    }, 60000);
 }
+
+window.initSeasonsOfWorship = initSeasonsOfWorship;
 
 /* ==========================================================================
    5. دليل وفتاوى أحكام الجنائز والصدقة الجارية (Islamic FAQ)
