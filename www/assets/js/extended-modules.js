@@ -3560,6 +3560,45 @@ function parseMediaDurationToSeconds(durationStr) {
     return 0;
 }
 
+// دالة جلب قائمة المرئيات المحدثة مع دمج الإضافات والتعديلات السحابية واستبعاد المحذوفات
+function getActiveIslamicMediaList() {
+    let list = (typeof ISLAMIC_MEDIA_DATA !== "undefined" && Array.isArray(ISLAMIC_MEDIA_DATA))
+        ? ISLAMIC_MEDIA_DATA.map(item => ({ ...item }))
+        : [];
+
+    let deletedIds = new Set();
+    let customMedia = {};
+
+    try {
+        const storedDeleted = JSON.parse(localStorage.getItem("zad_deleted_media_ids") || "[]");
+        if (Array.isArray(storedDeleted)) {
+            storedDeleted.forEach(id => deletedIds.add(id));
+        }
+        const storedCustom = JSON.parse(localStorage.getItem("zad_custom_media") || "{}");
+        if (storedCustom && typeof storedCustom === "object") {
+            customMedia = storedCustom;
+        }
+    } catch(e) {}
+
+    // استبعاد المقاطع المحذوفة
+    list = list.filter(item => !deletedIds.has(item.id));
+
+    // دمج المقاطع المعدلة أو الجديدة المرفوعة
+    const customItems = Object.values(customMedia);
+    customItems.forEach(customItem => {
+        if (!customItem || !customItem.id || deletedIds.has(customItem.id)) return;
+        const idx = list.findIndex(m => m.id === customItem.id);
+        if (idx !== -1) {
+            list[idx] = { ...list[idx], ...customItem };
+        } else {
+            list.unshift(customItem);
+        }
+    });
+
+    return list;
+}
+window.getActiveIslamicMediaList = getActiveIslamicMediaList;
+
 function initIslamicMediaHub() {
     const grid = document.getElementById("islamic-media-grid");
     const filterTabs = document.querySelectorAll("#media-filter-tabs .media-filter-btn");
@@ -3634,12 +3673,13 @@ function initIslamicMediaHub() {
 
     // تحديث أعداد المقاطع في التبويبات
     function updateCategoryCounts() {
+        const mediaList = getActiveIslamicMediaList();
         const bookmarks = getMediaBookmarks();
         const counts = {
-            all: ISLAMIC_MEDIA_DATA.length,
+            all: mediaList.length,
             saved: bookmarks.length
         };
-        ISLAMIC_MEDIA_DATA.forEach(item => {
+        mediaList.forEach(item => {
             counts[item.category] = (counts[item.category] || 0) + 1;
         });
         document.querySelectorAll("[id^='count-cat-']").forEach(el => {
@@ -3651,8 +3691,9 @@ function initIslamicMediaHub() {
     function renderMedia() {
         if (!grid) return;
         const bookmarks = getMediaBookmarks();
+        const mediaList = getActiveIslamicMediaList();
 
-        const filtered = ISLAMIC_MEDIA_DATA.filter(item => {
+        const filtered = mediaList.filter(item => {
             let matchesCat = false;
             if (currentCategory === "all") {
                 matchesCat = true;
@@ -3790,7 +3831,7 @@ function initIslamicMediaHub() {
         // ربط الأحداث ببطاقات المرئيات
         grid.querySelectorAll(".media-card").forEach(card => {
             const id = card.dataset.id;
-            const item = ISLAMIC_MEDIA_DATA.find(x => x.id === id);
+            const item = getActiveIslamicMediaList().find(x => x.id === id);
             if (!item) return;
 
             card.querySelectorAll('[data-action="play"]').forEach(el => {
@@ -4137,6 +4178,48 @@ function initIslamicMediaHub() {
     window.openIslamicMediaPlayer = openMediaPlayer;
     window.refreshIslamicMediaGrid = renderMedia;
 
+    // مزامنة فورية سحابية لمكتبة المرئيات من Firebase Realtime Database
+    try {
+        if (typeof firebase !== "undefined" && typeof isFirebaseConfigured === "function" && isFirebaseConfigured()) {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+            const db = firebase.database();
+            db.ref("media_library").on("value", snapshot => {
+                const val = snapshot.val() || {};
+                localStorage.setItem("zad_custom_media", JSON.stringify(val));
+                updateCategoryCounts();
+                renderMedia();
+                initDailyFeaturedMediaClip();
+            });
+            db.ref("deleted_media_ids").on("value", snapshot => {
+                const val = snapshot.val() || {};
+                const list = Array.isArray(val) ? val : Object.keys(val).filter(k => val[k]);
+                localStorage.setItem("zad_deleted_media_ids", JSON.stringify(list));
+                updateCategoryCounts();
+                renderMedia();
+                initDailyFeaturedMediaClip();
+            });
+        }
+    } catch(e) {}
+
+    // دعم التشغيل المباشر عبر الرابط أو الإشعار (?play=ID أو #subpart-media?play=ID)
+    function checkUrlForDirectMediaPlay() {
+        const hash = window.location.hash || "";
+        const search = window.location.search || "";
+        const combined = hash + "&" + search;
+        const match = combined.match(/[?&#](?:play|media)=([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            const mediaId = match[1];
+            const item = getActiveIslamicMediaList().find(m => m.id === mediaId || m.youtubeId === mediaId);
+            if (item) {
+                setTimeout(() => openMediaPlayer(item), 600);
+            }
+        }
+    }
+    checkUrlForDirectMediaPlay();
+    window.addEventListener("hashchange", checkUrlForDirectMediaPlay);
+
     // تهيئة بطاقة موعظة اليوم المرئية
     initDailyFeaturedMediaClip();
 
@@ -4150,7 +4233,8 @@ function initIslamicMediaHub() {
    ========================================================================== */
 function initDailyFeaturedMediaClip() {
     const card = document.getElementById("daily-featured-media-card");
-    if (!card || typeof ISLAMIC_MEDIA_DATA === "undefined" || ISLAMIC_MEDIA_DATA.length === 0) return;
+    const mediaList = getActiveIslamicMediaList();
+    if (!card || mediaList.length === 0) return;
 
     // اختيار مقطع اليوم بشكل يومي محدد دورياً
     const now = new Date();
@@ -4158,7 +4242,7 @@ function initDailyFeaturedMediaClip() {
     const diff = now - startOfYear;
     const oneDay = 1000 * 60 * 60 * 24;
     const dayOfYear = Math.floor(diff / oneDay);
-    const item = ISLAMIC_MEDIA_DATA[dayOfYear % ISLAMIC_MEDIA_DATA.length];
+    const item = mediaList[dayOfYear % mediaList.length];
 
     const categoryNames = {
         podcast: "بودكاست إسلامي",

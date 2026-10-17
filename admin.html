@@ -19,6 +19,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/media-data.js"></script>
 
     <!-- ضبط المظهر فورياً قبل المعالجة البصرية لمنع أي وميض نهائياً (Zero FOUC Theme Init) -->
     <script>
@@ -894,11 +895,324 @@
             color: #64748b !important;
         }
 
-        [data-theme="light"] .login-icon,
-        body.light-theme .login-icon {
-            background: #fdf8ed !important;
-            border-color: #dfbe7d !important;
-            color: #b48316 !important;
+        /* ==========================================================
+           TAB: ISLAMIC MEDIA & PODCAST MANAGER
+           ========================================================== */
+        .media-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .media-form-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .media-form-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .media-preview-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1.5px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .media-preview-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            background: #000;
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .media-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .media-category-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .media-cat-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .media-cat-pill:hover,
+        .media-cat-pill.active {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #08121e;
+            border-color: var(--gold);
+            font-weight: 700;
+        }
+
+        .media-items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 18px;
+        }
+
+        .media-admin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            position: relative;
+        }
+
+        .media-admin-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            border-color: var(--gold);
+        }
+
+        .media-admin-card-thumb-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .media-admin-card-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .media-admin-card-duration {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.82);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: 700;
+            backdrop-filter: blur(4px);
+        }
+
+        .media-admin-card-cat-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(13, 30, 49, 0.85);
+            border: 1px solid var(--gold);
+            color: var(--gold-light);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .media-admin-card-body {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .media-admin-card-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 6px 0;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .media-admin-card-speaker {
+            font-size: 12px;
+            color: var(--gold-light);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .media-admin-card-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .media-admin-card-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .media-admin-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-media-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-media-action:hover {
+            transform: scale(1.08);
+        }
+
+        .btn-media-action.preview:hover {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .btn-media-action.edit:hover {
+            background: var(--gold);
+            color: #08121e;
+            border-color: var(--gold);
+        }
+
+        .btn-media-action.delete:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        .btn-media-action.broadcast:hover {
+            background: var(--emerald);
+            color: #fff;
+            border-color: var(--emerald);
+        }
+
+        /* Video Modal in Admin */
+        .admin-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .admin-modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 780px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+
+        .admin-modal-header {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .admin-modal-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .admin-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .admin-modal-close:hover {
+            color: var(--danger);
+        }
+
+        .admin-modal-video-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+        }
+
+        .admin-modal-video-wrap iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
@@ -954,6 +1268,10 @@
         <button type="button" class="admin-tab-btn active" data-tab="tab-broadcast">
             <i class="fa-solid fa-paper-plane"></i>
             <span>بث الإشعارات</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="tab-media">
+            <i class="fa-solid fa-film text-gold"></i>
+            <span>مرئيات وبودكاست</span>
         </button>
         <button type="button" class="admin-tab-btn" data-tab="tab-analytics">
             <i class="fa-solid fa-chart-pie"></i>
@@ -1370,7 +1688,255 @@
 
         </div>
 
+        <!-- ==========================================
+             TAB: ISLAMIC MEDIA & PODCAST MANAGER
+             ========================================== -->
+        <div id="tab-media" class="tab-content">
+            
+            <!-- Welcome Header Card -->
+            <div class="section-card" style="margin-bottom: 25px; border-right: 4px solid var(--gold);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <h2 style="font-size: 20px; font-weight: 800; color: var(--gold-light); margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-film text-gold"></i>
+                            <span>إدارة مكتبة المرئيات والبودكاست الإسلامي</span>
+                        </h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                            أضف، عدّل، واحذف المقاطع والبودكاست والمواعظ الخاشعة المعروضة لجميع زوار ومستخدمي زاد المسلم. يمكنك وضع رابط يوتيوب وسيتولى النظام استخراج الصورة والمعلومات تلقائياً، مع إمكانية إرسال إشعار فوري لأي مقطع بضغطة زر واحدة.
+                        </p>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" id="btn-scroll-to-add-media">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>إضافة مقطع جديد</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="media-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-video"></i></div>
+                    <div class="stat-value" id="stat-media-total">0</div>
+                    <div class="stat-label">إجمالي المقاطع والبودكاست</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-podcast"></i></div>
+                    <div class="stat-value" id="stat-media-podcasts">0</div>
+                    <div class="stat-label">حلقات البودكاست</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-book-quran"></i></div>
+                    <div class="stat-value" id="stat-media-quran">0</div>
+                    <div class="stat-label">تأملات وتدبر قرآني</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <div class="stat-value" id="stat-media-reminders">0</div>
+                    <div class="stat-label">مواعظ ورقائق وقصص</div>
+                </div>
+            </div>
+
+            <!-- Add / Edit Form Card -->
+            <div class="section-card" id="media-form-card" style="margin-bottom: 25px;">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-square-plus" id="media-form-icon"></i>
+                        <span id="media-form-heading">إضافة مقطع أو بودكاست جديد</span>
+                    </h2>
+                    <span class="badge" id="media-form-mode-badge" style="background: rgba(212,175,55,0.15); color: var(--gold); border: 1px solid var(--gold); font-size: 11px; padding: 4px 10px; border-radius: 20px;">
+                        وضع الإضافة
+                    </span>
+                </div>
+
+                <form id="form-media-item" onsubmit="return false;">
+                    <input type="hidden" id="media-input-edit-id" value="">
+
+                    <div class="media-form-layout">
+                        <!-- Inputs Column -->
+                        <div>
+                            <!-- YouTube URL or ID -->
+                            <div class="form-group">
+                                <label class="form-label" for="media-input-url">
+                                    <span>رابط المقطع على يوتيوب أو المعرّف (YouTube URL / ID)</span>
+                                    <span style="color: var(--danger);">*</span>
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="text" id="media-input-url" class="form-input" placeholder="مثال: https://www.youtube.com/watch?v=Pfj4niPP0DY أو Pfj4niPP0DY" required>
+                                    <span id="media-url-status" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted);"></span>
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                                    يدعم جميع الروابط: يوتيوب عادي، روابط مختصرة youtu.be، يوتيوب شورتس Shorts، أو المعرّف المباشر (11 حرفاً).
+                                </div>
+                            </div>
+
+                            <!-- Title -->
+                            <div class="form-group">
+                                <label class="form-label" for="media-input-title">
+                                    <span>عنوان المقطع أو حلقة البودكاست</span>
+                                    <span style="color: var(--danger);">*</span>
+                                </label>
+                                <input type="text" id="media-input-title" class="form-input" placeholder="مثال: كيف يمكن فهمك للقرآن أن يغيّر حياتك بالكامل؟" required>
+                            </div>
+
+                            <!-- Two Columns: Speaker & Category -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label class="form-label" for="media-input-speaker">
+                                        <span>اسم الشيخ / المتحدث / القناة</span>
+                                        <span style="color: var(--danger);">*</span>
+                                    </label>
+                                    <input type="text" id="media-input-speaker" class="form-input" placeholder="مثال: د. نايف بن نهار | بودكاست بدون ورق" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="media-input-category">
+                                        <span>التصنيف والقسم</span>
+                                        <span style="color: var(--danger);">*</span>
+                                    </label>
+                                    <select id="media-input-category" class="form-select" required>
+                                        <option value="podcast">🎙️ بودكاست إسلامي</option>
+                                        <option value="quran">📖 تأملات وتدبر قرآني</option>
+                                        <option value="reminder">💖 موعظة وترقيق قلوب</option>
+                                        <option value="seerah">📜 سيرة نبوية وقصص</option>
+                                        <option value="shorts">⚡ خاطرة إيمانية قصيرة (Shorts)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Two Columns: Duration & Badge -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label class="form-label" for="media-input-duration">
+                                        <span>المدة الزمنية (ساعة:دقيقة:ثانية)</span>
+                                    </label>
+                                    <input type="text" id="media-input-duration" class="form-input" placeholder="مثال: 1:25:40 أو 18:30" dir="ltr" style="text-align: right;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="media-input-badge">
+                                        <span>شارة تمييز أو عدد المشاهدات</span>
+                                    </label>
+                                    <input type="text" id="media-input-badge" class="form-input" placeholder="مثال: الأكثر مشاهدة 🔥 (10M) أو حلقة استثنائية">
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="form-group">
+                                <label class="form-label" for="media-input-desc">
+                                    <span>نبذة عن المقطع والمحاور التي يتناولها</span>
+                                </label>
+                                <textarea id="media-input-desc" class="form-textarea" rows="3" placeholder="اكتب ملخصاً مشوقاً ومفيداً يظهر للمستخدم في تفاصيل المقطع..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Live Preview Column -->
+                        <div>
+                            <label class="form-label">معاينة الصورة المصغرة</label>
+                            <div class="media-preview-box" id="media-live-preview-box">
+                                <img src="assets/icon.svg" id="media-preview-img" class="media-preview-thumb" alt="معاينة الصورة" onerror="this.src='assets/icon.svg'">
+                                <div id="media-preview-placeholder" style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+                                    الصورة المصغرة ستظهر هنا تلقائياً بمجرد إدخال الرابط ⚡
+                                </div>
+                                <div style="margin-top: 10px; display: flex; gap: 6px; width: 100%;">
+                                    <button type="button" class="btn btn-outline btn-sm btn-block" id="btn-test-live-preview" style="display: none;">
+                                        <i class="fa-solid fa-play"></i>
+                                        <span>تجربة التشغيل</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Buttons -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-outline" id="btn-cancel-edit-media" style="display: none;">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>إلغاء التعديل</span>
+                        </button>
+                        <button type="button" class="btn btn-outline" id="btn-clear-media-form">
+                            <i class="fa-solid fa-eraser"></i>
+                            <span>تفريغ الحقول</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="btn-save-media-item">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span id="btn-save-media-text">حفظ ونشر المقطع في زاد المسلم</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Library View & Management Card -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-table-cells"></i>
+                        <span>قائمة المقاطع الحالية في المكتبة</span>
+                    </h2>
+                    <div style="font-size: 13px; color: var(--gold-light); font-weight: 700;">
+                        المعروض: <span id="admin-media-shown-count">0</span> من إجمالي <span id="admin-media-total-count">0</span>
+                    </div>
+                </div>
+
+                <!-- Filters & Search Bar -->
+                <div class="media-filter-bar">
+                    <div class="media-category-pills" id="admin-media-category-pills">
+                        <button type="button" class="media-cat-pill active" data-cat="all">
+                            <i class="fa-solid fa-layer-group"></i> <span>الكل</span>
+                        </button>
+                        <button type="button" class="media-cat-pill" data-cat="podcast">
+                            <i class="fa-solid fa-podcast"></i> <span>بودكاست</span>
+                        </button>
+                        <button type="button" class="media-cat-pill" data-cat="quran">
+                            <i class="fa-solid fa-book-quran"></i> <span>قرآن وتدبر</span>
+                        </button>
+                        <button type="button" class="media-cat-pill" data-cat="reminder">
+                            <i class="fa-solid fa-heart-pulse"></i> <span>مواعظ</span>
+                        </button>
+                        <button type="button" class="media-cat-pill" data-cat="seerah">
+                            <i class="fa-solid fa-feather-pointed"></i> <span>سيرة وقصص</span>
+                        </button>
+                        <button type="button" class="media-cat-pill" data-cat="shorts">
+                            <i class="fa-solid fa-bolt"></i> <span>خواطر قصيرة</span>
+                        </button>
+                        <button type="button" class="media-cat-pill" data-cat="custom">
+                            <i class="fa-solid fa-cloud"></i> <span>المرفوع سحابياً</span>
+                        </button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div style="position: relative; width: 100%; max-width: 280px;">
+                        <input type="text" id="admin-media-search-input" class="form-input" placeholder="ابحث بالعنوان أو الشيخ أو الوصف..." style="padding-left: 35px;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                    </div>
+                </div>
+
+                <!-- Media Cards Grid -->
+                <div class="media-items-grid" id="admin-media-items-grid">
+                    <!-- Rendered dynamically -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="admin-media-empty-state" style="display: none; text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                    <i class="fa-solid fa-film" style="font-size: 42px; color: var(--gold); opacity: 0.6; margin-bottom: 12px;"></i>
+                    <h3 style="font-size: 16px; color: var(--text-main); margin-bottom: 6px;">لا توجد مقاطع مطابقة للبحث أو الفلتر</h3>
+                    <p style="font-size: 13px; margin: 0;">جرّب كتابة كلمات بحث أخرى أو اختر تصنيفاً مختلفاً من الأعلى.</p>
+                </div>
+            </div>
+
+        </div>
+
     </main>
+
+    <!-- Video Preview Modal for Admin -->
+    <div id="admin-video-modal" class="admin-modal-backdrop">
+        <div class="admin-modal-card">
+            <div class="admin-modal-header">
+                <h3 class="admin-modal-title" id="admin-video-modal-title">معاينة تشغيل المقطع</h3>
+                <button type="button" class="admin-modal-close" id="btn-close-admin-video-modal" title="إغلاق">&times;</button>
+            </div>
+            <div class="admin-modal-video-wrap">
+                <iframe id="admin-video-modal-iframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 
     <!-- Admin Toast Notification -->
     <div id="admin-toast" class="admin-toast">
@@ -1470,6 +2036,9 @@
 
                 if (targetTabId === "tab-analytics") {
                     loadLiveAnalyticsData();
+                } else if (targetTabId === "tab-media") {
+                    renderAdminMediaList();
+                    updateAdminMediaStats();
                 }
             });
         });
@@ -1622,14 +2191,17 @@
                     fetchAdminPinFromFirebase();
                     listenToSubscribersAndHistory();
                     loadLiveAnalyticsData();
+                    initMediaAdminManager();
                 } else {
                     const statusEl = document.getElementById("stat-connection-status");
                     if (statusEl) statusEl.textContent = "غير مهيأ ⚠️";
+                    initMediaAdminManager();
                 }
             } catch (e) {
                 console.error("Firebase admin init error:", e);
                 const statusEl = document.getElementById("stat-connection-status");
                 if (statusEl) statusEl.textContent = "خطأ في الاتصال 🔴";
+                initMediaAdminManager();
             }
         }
 
@@ -2098,6 +2670,559 @@
                 showAdminToast("حدث خطأ أثناء حفظ الرمز: " + err.message, true);
             }
         });
+
+        // ==========================================================
+        // ISLAMIC MEDIA & PODCAST MANAGEMENT (ADMIN CONTROLLER)
+        // ==========================================================
+        let adminCustomMedia = {};
+        let adminDeletedIds = new Set();
+        let adminMediaFilterCat = "all";
+        let adminMediaSearchQuery = "";
+
+        const ADMIN_MEDIA_CATS = {
+            podcast: { label: "بودكاست", icon: "fa-solid fa-podcast", color: "var(--gold)" },
+            quran: { label: "قرآن وتدبر", icon: "fa-solid fa-book-quran", color: "#38bdf8" },
+            reminder: { label: "موعظة", icon: "fa-solid fa-heart-pulse", color: "#f43f5e" },
+            seerah: { label: "سيرة وقصص", icon: "fa-solid fa-feather-pointed", color: "#a855f7" },
+            shorts: { label: "خاطرة قصيرة", icon: "fa-solid fa-bolt", color: "#eab308" }
+        };
+
+        // Extract YouTube ID from any standard or shortened URL or raw ID
+        function extractYouTubeId(urlOrId) {
+            if (!urlOrId) return "";
+            urlOrId = String(urlOrId).trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(urlOrId)) {
+                return urlOrId;
+            }
+            const match = urlOrId.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/|live\/))([\w-]{11})/i);
+            return match ? match[1] : "";
+        }
+
+        // Get unified active media list for admin
+        function getUnifiedAdminMedia() {
+            let baseList = (typeof ISLAMIC_MEDIA_DATA !== "undefined" && Array.isArray(ISLAMIC_MEDIA_DATA))
+                ? ISLAMIC_MEDIA_DATA.map(item => ({ ...item, isDefault: true }))
+                : [];
+
+            // Exclude deleted items
+            baseList = baseList.filter(item => !adminDeletedIds.has(item.id));
+
+            // Merge custom or edited items
+            const customList = Object.values(adminCustomMedia || {});
+            customList.forEach(customItem => {
+                if (!customItem || !customItem.id || adminDeletedIds.has(customItem.id)) return;
+                const idx = baseList.findIndex(m => m.id === customItem.id);
+                if (idx !== -1) {
+                    baseList[idx] = { ...baseList[idx], ...customItem, isEdited: true };
+                } else {
+                    baseList.unshift({ ...customItem, isCustom: true });
+                }
+            });
+
+            return baseList;
+        }
+
+        // Update Stats Counters
+        function updateAdminMediaStats() {
+            const allMedia = getUnifiedAdminMedia();
+            const totalEl = document.getElementById("stat-media-total");
+            const podcastEl = document.getElementById("stat-media-podcasts");
+            const quranEl = document.getElementById("stat-media-quran");
+            const remindersEl = document.getElementById("stat-media-reminders");
+
+            if (totalEl) totalEl.textContent = allMedia.length.toLocaleString("ar-EG");
+
+            let podcasts = 0, quran = 0, reminders = 0;
+            allMedia.forEach(m => {
+                if (m.category === "podcast") podcasts++;
+                else if (m.category === "quran") quran++;
+                else reminders++;
+            });
+
+            if (podcastEl) podcastEl.textContent = podcasts.toLocaleString("ar-EG");
+            if (quranEl) quranEl.textContent = quran.toLocaleString("ar-EG");
+            if (remindersEl) remindersEl.textContent = reminders.toLocaleString("ar-EG");
+        }
+
+        // Render Media Cards in Library View
+        function renderAdminMediaList() {
+            const grid = document.getElementById("admin-media-items-grid");
+            const emptyEl = document.getElementById("admin-media-empty-state");
+            const shownCountEl = document.getElementById("admin-media-shown-count");
+            const totalCountEl = document.getElementById("admin-media-total-count");
+            if (!grid) return;
+
+            const allMedia = getUnifiedAdminMedia();
+            if (totalCountEl) totalCountEl.textContent = allMedia.length.toLocaleString("ar-EG");
+
+            const q = adminMediaSearchQuery.trim().toLowerCase();
+            const filtered = allMedia.filter(item => {
+                let catMatch = false;
+                if (adminMediaFilterCat === "all") {
+                    catMatch = true;
+                } else if (adminMediaFilterCat === "custom") {
+                    catMatch = item.isCustom || item.isEdited;
+                } else {
+                    catMatch = item.category === adminMediaFilterCat;
+                }
+
+                const searchMatch = !q ||
+                    (item.title && item.title.toLowerCase().includes(q)) ||
+                    (item.speaker && item.speaker.toLowerCase().includes(q)) ||
+                    (item.desc && item.desc.toLowerCase().includes(q)) ||
+                    (item.badge && item.badge.toLowerCase().includes(q));
+
+                return catMatch && searchMatch;
+            });
+
+            if (shownCountEl) shownCountEl.textContent = filtered.length.toLocaleString("ar-EG");
+
+            if (filtered.length === 0) {
+                grid.innerHTML = "";
+                grid.style.display = "none";
+                if (emptyEl) emptyEl.style.display = "block";
+                return;
+            }
+
+            if (emptyEl) emptyEl.style.display = "none";
+            grid.style.display = "grid";
+
+            grid.innerHTML = filtered.map(item => {
+                const cat = ADMIN_MEDIA_CATS[item.category] || { label: "مرئي", icon: "fa-solid fa-video", color: "var(--gold)" };
+                const thumb = `https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg`;
+                const originLabel = item.isCustom
+                    ? '<span style="font-size: 10px; background: rgba(16,185,129,0.15); color: var(--emerald); border: 1px solid var(--emerald); padding: 2px 6px; border-radius: 4px;">مرفوع سحابياً ☁️</span>'
+                    : (item.isEdited
+                        ? '<span style="font-size: 10px; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid #38bdf8; padding: 2px 6px; border-radius: 4px;">معدل سحابياً ✏️</span>'
+                        : '<span style="font-size: 10px; background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px;">افتراضي 📦</span>');
+
+                return `
+                    <div class="media-admin-card" data-id="${escapeHtml(item.id)}">
+                        <div class="media-admin-card-thumb-wrap">
+                            <img src="${thumb}" alt="${escapeHtml(item.title)}" class="media-admin-card-thumb" loading="lazy" onerror="this.src='assets/icon.svg'">
+                            <span class="media-admin-card-duration">${escapeHtml(item.duration || "غير محدد")}</span>
+                            <span class="media-admin-card-cat-badge">
+                                <i class="${cat.icon}"></i> ${cat.label}
+                            </span>
+                        </div>
+                        <div class="media-admin-card-body">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
+                                ${originLabel}
+                                ${item.badge ? `<span style="font-size: 10px; color: var(--gold); font-weight: 700;">${escapeHtml(item.badge)}</span>` : ''}
+                            </div>
+                            <h3 class="media-admin-card-title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</h3>
+                            <div class="media-admin-card-speaker">
+                                <i class="fa-solid fa-user-tie text-gold" style="font-size: 11px;"></i>
+                                <span>${escapeHtml(item.speaker || "زاد المسلم")}</span>
+                            </div>
+                            <div class="media-admin-card-desc" title="${escapeHtml(item.desc || "")}">
+                                ${escapeHtml(item.desc || "لا يوجد وصف مدخل لهذا المقطع.")}
+                            </div>
+                            <div class="media-admin-card-footer">
+                                <span style="font-size: 11px; color: var(--text-muted); font-family: monospace;">ID: ${escapeHtml(item.youtubeId)}</span>
+                                <div class="media-admin-actions">
+                                    <button type="button" class="btn-media-action preview" onclick="previewMediaAdminItem('${escapeHtml(item.youtubeId)}', '${escapeHtml(item.title).replace(/'/g, "\\'")}')" title="معاينة وتشغيل المقطع ▶️">
+                                        <i class="fa-solid fa-play"></i>
+                                    </button>
+                                    <button type="button" class="btn-media-action edit" onclick="editMediaAdminItem('${escapeHtml(item.id)}')" title="تعديل بيانات المقطع ✏️">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button type="button" class="btn-media-action broadcast" onclick="broadcastMediaAdminItem('${escapeHtml(item.id)}')" title="بث إشعار بهذا المقطع للمشتركين 🔔">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                    <button type="button" class="btn-media-action delete" onclick="deleteMediaAdminItem('${escapeHtml(item.id)}')" title="حذف المقطع 🗑️">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        // Preview Video Modal Open
+        function previewMediaAdminItem(youtubeId, title) {
+            const modal = document.getElementById("admin-video-modal");
+            const iframe = document.getElementById("admin-video-modal-iframe");
+            const titleEl = document.getElementById("admin-video-modal-title");
+            if (!modal || !iframe) return;
+
+            if (titleEl) titleEl.textContent = title || "معاينة المقطع";
+            iframe.src = `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`;
+            modal.style.display = "flex";
+        }
+
+        function closeAdminVideoModal() {
+            const modal = document.getElementById("admin-video-modal");
+            const iframe = document.getElementById("admin-video-modal-iframe");
+            if (modal) modal.style.display = "none";
+            if (iframe) iframe.src = "";
+        }
+
+        // Edit Media Item: Populate Form
+        function editMediaAdminItem(id) {
+            const allMedia = getUnifiedAdminMedia();
+            const item = allMedia.find(m => m.id === id);
+            if (!item) {
+                showAdminToast("لم يتم العثور على المقطع المطلوب!", true);
+                return;
+            }
+
+            document.getElementById("media-input-edit-id").value = item.id;
+            document.getElementById("media-input-url").value = `https://www.youtube.com/watch?v=${item.youtubeId}`;
+            document.getElementById("media-input-title").value = item.title || "";
+            document.getElementById("media-input-speaker").value = item.speaker || "";
+            document.getElementById("media-input-category").value = item.category || "podcast";
+            document.getElementById("media-input-duration").value = item.duration || "";
+            document.getElementById("media-input-badge").value = item.badge || item.views || "";
+            document.getElementById("media-input-desc").value = item.desc || "";
+
+            // Update UI elements for Edit Mode
+            document.getElementById("media-form-heading").textContent = `تعديل المقطع: ${item.title.substring(0, 35)}...`;
+            document.getElementById("media-form-mode-badge").textContent = "وضع التعديل ✏️";
+            document.getElementById("media-form-mode-badge").style.background = "rgba(56,189,248,0.15)";
+            document.getElementById("media-form-mode-badge").style.color = "#38bdf8";
+            document.getElementById("media-form-mode-badge").style.borderColor = "#38bdf8";
+            document.getElementById("btn-save-media-text").textContent = "حفظ التعديلات في زاد المسلم 💾";
+            document.getElementById("btn-cancel-edit-media").style.display = "inline-flex";
+
+            // Trigger thumbnail preview
+            updateMediaUrlPreview(item.youtubeId);
+
+            // Smooth scroll to form
+            const formCard = document.getElementById("media-form-card");
+            if (formCard) {
+                formCard.scrollIntoView({ behavior: "smooth", block: "start" });
+                formCard.style.outline = "2px solid var(--gold)";
+                setTimeout(() => { formCard.style.outline = "none"; }, 1500);
+            }
+        }
+
+        // Reset Media Form
+        function resetMediaAdminForm() {
+            document.getElementById("form-media-item").reset();
+            document.getElementById("media-input-edit-id").value = "";
+            document.getElementById("media-form-heading").textContent = "إضافة مقطع أو بودكاست جديد";
+            document.getElementById("media-form-mode-badge").textContent = "وضع الإضافة";
+            document.getElementById("media-form-mode-badge").style.background = "rgba(212,175,55,0.15)";
+            document.getElementById("media-form-mode-badge").style.color = "var(--gold)";
+            document.getElementById("media-form-mode-badge").style.borderColor = "var(--gold)";
+            document.getElementById("btn-save-media-text").textContent = "حفظ ونشر المقطع في زاد المسلم 🚀";
+            document.getElementById("btn-cancel-edit-media").style.display = "none";
+            document.getElementById("media-url-status").textContent = "";
+            document.getElementById("media-preview-img").src = "assets/icon.svg";
+            document.getElementById("btn-test-live-preview").style.display = "none";
+        }
+
+        // Save (Add or Update) Media Item
+        async function saveMediaAdminItem() {
+            const editId = document.getElementById("media-input-edit-id").value.trim();
+            const urlOrId = document.getElementById("media-input-url").value.trim();
+            const title = document.getElementById("media-input-title").value.trim();
+            const speaker = document.getElementById("media-input-speaker").value.trim();
+            const category = document.getElementById("media-input-category").value;
+            const duration = document.getElementById("media-input-duration").value.trim();
+            const badge = document.getElementById("media-input-badge").value.trim();
+            const desc = document.getElementById("media-input-desc").value.trim();
+
+            const ytId = extractYouTubeId(urlOrId);
+            if (!ytId) {
+                showAdminToast("يرجى إدخال رابط يوتيوب صحيح أو معرّف صالح مكون من 11 حرفاً!", true);
+                document.getElementById("media-input-url").focus();
+                return;
+            }
+
+            if (!title) {
+                showAdminToast("يرجى إدخال عنوان المقطع أو الحلقة!", true);
+                document.getElementById("media-input-title").focus();
+                return;
+            }
+
+            if (!speaker) {
+                showAdminToast("يرجى إدخال اسم الشيخ أو المتحدث أو القناة!", true);
+                document.getElementById("media-input-speaker").focus();
+                return;
+            }
+
+            const isEditing = Boolean(editId);
+            const itemId = editId || `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+
+            const mediaObject = {
+                id: itemId,
+                youtubeId: ytId,
+                title: title,
+                speaker: speaker,
+                category: category,
+                duration: duration || "غير محدد",
+                badge: badge || "",
+                views: badge || "",
+                desc: desc || "",
+                updatedAt: Date.now()
+            };
+
+            try {
+                // If this ID was in deleted IDs (e.g. restoring or editing), un-delete it
+                if (adminDeletedIds.has(itemId)) {
+                    adminDeletedIds.delete(itemId);
+                    localStorage.setItem("zad_deleted_media_ids", JSON.stringify(Array.from(adminDeletedIds)));
+                    if (db) {
+                        try {
+                            await db.ref("deleted_media_ids/" + itemId).remove();
+                        } catch(e) {}
+                    }
+                }
+
+                // Save to local dictionary & storage
+                adminCustomMedia[itemId] = mediaObject;
+                localStorage.setItem("zad_custom_media", JSON.stringify(adminCustomMedia));
+
+                // Save to Firebase Realtime Database
+                if (db) {
+                    await db.ref("media_library/" + itemId).set(mediaObject);
+                }
+
+                showAdminToast(isEditing ? "تم حفظ وتحديث المقطع بنجاح! 💾" : "تمت إضافة المقطع الجديد ونشره بنجاح في زاد المسلم! 🚀");
+                resetMediaAdminForm();
+                renderAdminMediaList();
+                updateAdminMediaStats();
+            } catch(err) {
+                console.error("Save media error:", err);
+                showAdminToast("حدث خطأ أثناء الحفظ: " + (err.message || err), true);
+            }
+        }
+
+        // Delete Media Item
+        async function deleteMediaAdminItem(id) {
+            const allMedia = getUnifiedAdminMedia();
+            const item = allMedia.find(m => m.id === id);
+            const itemTitle = item ? item.title : id;
+
+            const confirmed = window.confirm(`هل أنت متأكد من رغبتك في حذف المقطع:\n"${itemTitle}"؟\n\nلن يظهر هذا المقطع للمستخدمين في الموقع والتطبيق بعد الحذف.`);
+            if (!confirmed) return;
+
+            try {
+                // 1. Remove from custom items if present
+                if (adminCustomMedia[id]) {
+                    delete adminCustomMedia[id];
+                    localStorage.setItem("zad_custom_media", JSON.stringify(adminCustomMedia));
+                    if (db) {
+                        try {
+                            await db.ref("media_library/" + id).remove();
+                        } catch(e) {}
+                    }
+                }
+
+                // 2. Add to deleted IDs so default items won't appear
+                adminDeletedIds.add(id);
+                localStorage.setItem("zad_deleted_media_ids", JSON.stringify(Array.from(adminDeletedIds)));
+                if (db) {
+                    try {
+                        await db.ref("deleted_media_ids/" + id).set(true);
+                    } catch(e) {}
+                }
+
+                // If currently editing this item, reset form
+                if (document.getElementById("media-input-edit-id").value === id) {
+                    resetMediaAdminForm();
+                }
+
+                showAdminToast("تم حذف المقطع بنجاح! 🗑️");
+                renderAdminMediaList();
+                updateAdminMediaStats();
+            } catch(err) {
+                console.error("Delete media error:", err);
+                showAdminToast("حدث خطأ أثناء الحذف: " + (err.message || err), true);
+            }
+        }
+
+        // Broadcast Media Item as Notification
+        function broadcastMediaAdminItem(id) {
+            const allMedia = getUnifiedAdminMedia();
+            const item = allMedia.find(m => m.id === id);
+            if (!item) return;
+
+            // Switch to Broadcast Tab
+            const broadcastTabBtn = document.querySelector('.admin-tab-btn[data-tab="tab-broadcast"]');
+            if (broadcastTabBtn) broadcastTabBtn.click();
+
+            // Populate broadcast inputs
+            const titleInput = document.getElementById("broadcast-title");
+            const bodyInput = document.getElementById("broadcast-body");
+            const urlInput = document.getElementById("broadcast-url");
+
+            if (titleInput) {
+                titleInput.value = `🎥 مقطع مختار: ${item.title.substring(0, 45)}`;
+            }
+            if (bodyInput) {
+                bodyInput.value = `✨ ${item.speaker} • ${item.badge || item.desc.substring(0, 75) || 'شاهده الآن بجودة عالية في زاد المسلم 🌿'}`;
+            }
+            if (urlInput) {
+                urlInput.value = `index.html#subpart-media?play=${item.id}`;
+            }
+
+            // Trigger preview update
+            const event = new Event('input', { bubbles: true });
+            if (titleInput) titleInput.dispatchEvent(event);
+
+            // Smooth scroll to broadcast form
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            showAdminToast("تم تجهيز بيانات الإشعار لهذا المقطع! راجع المحتوى واضغط (إرسال) 🔔");
+        }
+
+        // Update URL Preview & live auto-fetch
+        function updateMediaUrlPreview(directId) {
+            const urlInput = document.getElementById("media-input-url");
+            const statusEl = document.getElementById("media-url-status");
+            const previewImg = document.getElementById("media-preview-img");
+            const btnTest = document.getElementById("btn-test-live-preview");
+
+            const ytId = directId || extractYouTubeId(urlInput.value);
+            if (ytId) {
+                if (statusEl) {
+                    statusEl.textContent = `معرّف يوتيوب: ${ytId} ✅`;
+                    statusEl.style.color = "var(--emerald)";
+                }
+                if (previewImg) {
+                    previewImg.src = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
+                }
+                if (btnTest) {
+                    btnTest.style.display = "inline-flex";
+                    btnTest.onclick = () => previewMediaAdminItem(ytId, document.getElementById("media-input-title").value);
+                }
+
+                // If title is empty and online, try fetching title
+                const titleInput = document.getElementById("media-input-title");
+                const speakerInput = document.getElementById("media-input-speaker");
+                if (titleInput && !titleInput.value.trim() && navigator.onLine) {
+                    fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.title && !titleInput.value.trim()) {
+                                titleInput.value = data.title;
+                            }
+                            if (data.author_name && !speakerInput.value.trim()) {
+                                speakerInput.value = data.author_name;
+                            }
+                        })
+                        .catch(() => {});
+                }
+            } else {
+                if (statusEl) {
+                    statusEl.textContent = urlInput.value.trim() ? "رابط غير معروف ⚠️" : "";
+                    statusEl.style.color = "var(--danger)";
+                }
+                if (previewImg) previewImg.src = "assets/icon.svg";
+                if (btnTest) btnTest.style.display = "none";
+            }
+        }
+
+        // Listen to Firebase Media Changes
+        function listenToAdminMediaFromFirebase() {
+            if (!db) return;
+
+            db.ref("media_library").on("value", snapshot => {
+                adminCustomMedia = snapshot.val() || {};
+                localStorage.setItem("zad_custom_media", JSON.stringify(adminCustomMedia));
+                renderAdminMediaList();
+                updateAdminMediaStats();
+            });
+
+            db.ref("deleted_media_ids").on("value", snapshot => {
+                const val = snapshot.val() || {};
+                const list = Array.isArray(val) ? val : Object.keys(val).filter(k => val[k]);
+                adminDeletedIds = new Set(list);
+                localStorage.setItem("zad_deleted_media_ids", JSON.stringify(list));
+                renderAdminMediaList();
+                updateAdminMediaStats();
+            });
+        }
+
+        // Initialize Media Admin Manager
+        function initMediaAdminManager() {
+            // Load local storage fallback
+            try {
+                const localCustom = JSON.parse(localStorage.getItem("zad_custom_media") || "{}");
+                if (localCustom && typeof localCustom === "object") {
+                    adminCustomMedia = localCustom;
+                }
+                const localDeleted = JSON.parse(localStorage.getItem("zad_deleted_media_ids") || "[]");
+                if (Array.isArray(localDeleted)) {
+                    adminDeletedIds = new Set(localDeleted);
+                }
+            } catch(e) {}
+
+            // Setup Event Listeners
+            const urlInput = document.getElementById("media-input-url");
+            if (urlInput) {
+                urlInput.addEventListener("input", () => updateMediaUrlPreview());
+                urlInput.addEventListener("paste", () => setTimeout(() => updateMediaUrlPreview(), 50));
+            }
+
+            const btnSave = document.getElementById("btn-save-media-item");
+            if (btnSave) {
+                btnSave.addEventListener("click", saveMediaAdminItem);
+            }
+
+            const btnCancel = document.getElementById("btn-cancel-edit-media");
+            if (btnCancel) {
+                btnCancel.addEventListener("click", resetMediaAdminForm);
+            }
+
+            const btnClear = document.getElementById("btn-clear-media-form");
+            if (btnClear) {
+                btnClear.addEventListener("click", resetMediaAdminForm);
+            }
+
+            const btnScrollAdd = document.getElementById("btn-scroll-to-add-media");
+            if (btnScrollAdd) {
+                btnScrollAdd.addEventListener("click", () => {
+                    resetMediaAdminForm();
+                    const formCard = document.getElementById("media-form-card");
+                    if (formCard) formCard.scrollIntoView({ behavior: "smooth", block: "start" });
+                    if (urlInput) urlInput.focus();
+                });
+            }
+
+            // Category filter pills
+            const catPills = document.querySelectorAll("#admin-media-category-pills .media-cat-pill");
+            catPills.forEach(pill => {
+                pill.addEventListener("click", () => {
+                    catPills.forEach(p => p.classList.remove("active"));
+                    pill.classList.add("active");
+                    adminMediaFilterCat = pill.dataset.cat || "all";
+                    renderAdminMediaList();
+                });
+            });
+
+            // Search input
+            const searchInput = document.getElementById("admin-media-search-input");
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => {
+                    adminMediaSearchQuery = e.target.value;
+                    renderAdminMediaList();
+                });
+            }
+
+            // Modal close buttons
+            const btnCloseModal = document.getElementById("btn-close-admin-video-modal");
+            if (btnCloseModal) {
+                btnCloseModal.addEventListener("click", closeAdminVideoModal);
+            }
+            const modalBackdrop = document.getElementById("admin-video-modal");
+            if (modalBackdrop) {
+                modalBackdrop.addEventListener("click", (e) => {
+                    if (e.target === modalBackdrop) closeAdminVideoModal();
+                });
+            }
+
+            // Initial render
+            renderAdminMediaList();
+            updateAdminMediaStats();
+
+            // Firebase sync
+            listenToAdminMediaFromFirebase();
+        }
 
         // ==========================================
         // Security & Login Check
