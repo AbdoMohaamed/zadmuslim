@@ -9,6 +9,8 @@ jobs:
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -45,24 +47,58 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk ZadMuslim-Android.apk
           echo "ZadMuslim-Android.aab and ZadMuslim-Android.apk successfully created!"
 
-      - name: Upload Android AAB to GitHub Artifacts (For Google Play Console)
+      - name: Upload Android AAB to GitHub Artifacts (Optional)
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: ZadMuslim-Android-AAB
           path: ZadMuslim-Android.aab
           retention-days: 1
           compression-level: 0
-      - name: Upload Android APK to GitHub Artifacts
+
+      - name: Upload Android APK to GitHub Artifacts (Optional)
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: ZadMuslim-Android-APK
           path: ZadMuslim-Android.apk
           retention-days: 1
           compression-level: 0
 
+      - name: Publish Android Apps to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v3.6.0"
+          name: "زاد المسلم v3.6.0 (Android & iOS)"
+          draft: false
+          prerelease: false
+          make_latest: true
+          body: |
+            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.0)
+            تطبيق إسلامي شامل وصدقة جارية.
+
+            ---
+
+            ### 🤖 روابط تحميل الأندرويد (Android):
+            - **تحميل مباشر لملف APK:** [اضغط هنا لتحميل ZadMuslim-Android.apk](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-Android.apk)
+            - **طريقة التثبيت:** حمّل الملف وافتحه مباشرة على هاتفك لتثبيته.
+
+            ---
+
+            ### 🍏 روابط تحميل الآيفون (iOS):
+            - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-iOS.ipa)
+            - **طريقة التثبيت:** حمّل الملف واستخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو تطبيق **Sideloadly** لتوقيع وتثبيت التطبيق بحسابك مجاناً.
+          files: |
+            ZadMuslim-Android.aab
+            ZadMuslim-Android.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-ios:
     name: Build iOS IPA
     runs-on: macos-14
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -126,44 +162,16 @@ jobs:
           zip -qr ZadMuslim-iOS.ipa Payload
           echo "ZadMuslim-iOS.ipa successfully created!"
 
-      - name: Upload IPA to GitHub Artifacts
+      - name: Upload IPA to GitHub Artifacts (Optional)
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: ZadMuslim-iOS-IPA
           path: ZadMuslim-iOS.ipa
           retention-days: 1
           compression-level: 0
 
-  publish-release:
-    name: Publish to GitHub Releases
-    needs: [build-android, build-ios]
-    runs-on: ubuntu-latest
-    if: always() && (needs.build-android.result == 'success' || needs.build-ios.result == 'success')
-    permissions:
-      contents: write
-    steps:
-      - name: Download Android AAB (Google Play)
-        uses: actions/download-artifact@v4
-        with:
-          name: ZadMuslim-Android-AAB
-          path: release-files
-        continue-on-error: true
-
-      - name: Download Android APK
-        uses: actions/download-artifact@v4
-        with:
-          name: ZadMuslim-Android-APK
-          path: release-files
-        continue-on-error: true
-
-      - name: Download iOS IPA
-        uses: actions/download-artifact@v4
-        with:
-          name: ZadMuslim-iOS-IPA
-          path: release-files
-        continue-on-error: true
-
-      - name: Publish to GitHub Releases
+      - name: Publish iOS App to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v3.6.0"
@@ -186,6 +194,7 @@ jobs:
             ### 🍏 روابط تحميل الآيفون (iOS):
             - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-iOS.ipa)
             - **طريقة التثبيت:** حمّل الملف واستخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو تطبيق **Sideloadly** لتوقيع وتثبيت التطبيق بحسابك مجاناً.
-          files: release-files/*
+          files: |
+            ZadMuslim-iOS.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
