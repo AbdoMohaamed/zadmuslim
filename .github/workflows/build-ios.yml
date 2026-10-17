@@ -2,13 +2,57 @@ name: Build Mobile Apps (iOS & Android)
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [master, main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-release
+  cancel-in-progress: false
+
+env:
+  RELEASE_TAG: v3.6.0-build.${{ github.run_number }}
+  GH_REPO: ${{ github.repository }}
+
 jobs:
-  build-android:
-    name: Build Android APK
+  prepare-release:
+    name: Prepare Draft Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create Draft Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            IS_DRAFT=$(gh release view "$RELEASE_TAG" \
+              --json isDraft --jq '.isDraft')
+
+            if [ "$IS_DRAFT" != "true" ]; then
+              echo "This release is already published. Start a new workflow run."
+              exit 1
+            fi
+          else
+            gh release create "$RELEASE_TAG" \
+              --target "$GITHUB_SHA" \
+              --title "زاد المسلم v3.6.0 — Build $GITHUB_RUN_NUMBER" \
+              --notes "جارٍ تجهيز ملفات Android وiOS." \
+              --draft
+          fi
+
+  build-android:
+    name: Build Android APK & AAB
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -16,14 +60,14 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '21'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: npm
 
       - name: Install NPM Dependencies
         run: npm install
@@ -35,34 +79,38 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build Android Release AAB & APK
-        run: |
-          cd android
-          ./gradlew bundleRelease assembleRelease --no-daemon
+        working-directory: android
+        run: ./gradlew bundleRelease assembleRelease --no-daemon
 
       - name: Prepare Android Release Files
         run: |
-          cp android/app/build/outputs/bundle/release/app-release.aab ZadMuslim-Android.aab
-          cp android/app/build/outputs/apk/release/app-release.apk ZadMuslim-Android.apk
-          echo "ZadMuslim-Android.aab and ZadMuslim-Android.apk successfully created!"
+          set -euo pipefail
 
-      - name: Upload Android AAB to GitHub Artifacts (For Google Play Console)
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZadMuslim-Android-AAB
-          path: ZadMuslim-Android.aab
-          retention-days: 1
-          compression-level: 0
-      - name: Upload Android APK to GitHub Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZadMuslim-Android-APK
-          path: ZadMuslim-Android.apk
-          retention-days: 1
-          compression-level: 0
+          cp android/app/build/outputs/bundle/release/app-release.aab \
+            ZadMuslim-Android.aab
+
+          cp android/app/build/outputs/apk/release/app-release.apk \
+            ZadMuslim-Android.apk
+
+          test -s ZadMuslim-Android.aab
+          test -s ZadMuslim-Android.apk
+
+      - name: Upload Android Files Directly to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            ZadMuslim-Android.aab \
+            ZadMuslim-Android.apk \
+            --clobber
 
   build-ios:
     name: Build iOS IPA
+    needs: prepare-release
     runs-on: macos-14
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -71,7 +119,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: npm
 
       - name: Install NPM Dependencies
         run: npm install
@@ -84,11 +132,14 @@ jobs:
 
       - name: Configure Xcode Project for Unsigned CI Build
         run: |
-          sed -i '' 's/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g' ios/App/App.xcodeproj/project.pbxproj || true
+          sed -i '' \
+            's/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g' \
+            ios/App/App.xcodeproj/project.pbxproj
 
-      - name: Create iOS Archive (xcodebuild archive)
+      - name: Create iOS Archive
         run: |
-          set -o pipefail
+          set -euo pipefail
+
           xcodebuild archive \
             -project ios/App/App.xcodeproj \
             -scheme App \
@@ -99,93 +150,92 @@ jobs:
             -skipMacroValidation \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log || {
-              echo "=========================================="
-              echo "🚨 EXTRACTED XCODEBUILD COMPILATION ERRORS:"
-              echo "=========================================="
-              grep -E "error: |fatal error: " xcodebuild.log || tail -n 60 xcodebuild.log
-              echo "=========================================="
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee xcodebuild.log || {
+              echo "XCODEBUILD COMPILATION ERRORS:"
+              grep -E "error: |fatal error: " xcodebuild.log \
+                || tail -n 60 xcodebuild.log
               exit 1
             }
 
-      - name: Package Payload into ZadMuslim-iOS.ipa
+      - name: Package IPA
         run: |
-          mkdir -p Payload
+          set -euo pipefail
+
           APP_PATH="build/App.xcarchive/Products/Applications/App.app"
+
           if [ ! -d "$APP_PATH" ]; then
-            APP_PATH=$(find build -name "*.app" -type d | head -n 1)
-          fi
-          
-          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
             echo "Error: App.app was not found in archive!"
             exit 1
           fi
-          
-          echo "Found compiled app at: $APP_PATH"
-          cp -r "$APP_PATH" Payload/
-          zip -qr ZadMuslim-iOS.ipa Payload
-          echo "ZadMuslim-iOS.ipa successfully created!"
 
-      - name: Upload IPA to GitHub Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZadMuslim-iOS-IPA
-          path: ZadMuslim-iOS.ipa
-          retention-days: 1
-          compression-level: 0
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          zip -qry ZadMuslim-iOS.ipa Payload
+
+          test -s ZadMuslim-iOS.ipa
+
+      - name: Upload IPA Directly to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            ZadMuslim-iOS.ipa \
+            --clobber
 
   publish-release:
-    name: Publish to GitHub Releases
+    name: Publish Completed Release
     needs: [build-android, build-ios]
     runs-on: ubuntu-latest
-    if: always() && (needs.build-android.result == 'success' || needs.build-ios.result == 'success')
     permissions:
       contents: write
+
     steps:
-      - name: Download Android AAB (Google Play)
-        uses: actions/download-artifact@v4
-        with:
-          name: ZadMuslim-Android-AAB
-          path: release-files
-        continue-on-error: true
-
-      - name: Download Android APK
-        uses: actions/download-artifact@v4
-        with:
-          name: ZadMuslim-Android-APK
-          path: release-files
-        continue-on-error: true
-
-      - name: Download iOS IPA
-        uses: actions/download-artifact@v4
-        with:
-          name: ZadMuslim-iOS-IPA
-          path: release-files
-        continue-on-error: true
-
-      - name: Publish to GitHub Releases
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "v3.6.0"
-          name: "زاد المسلم v3.6.0 (Android & iOS)"
-          draft: false
-          prerelease: false
-          make_latest: true
-          body: |
-            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.0)
-            تطبيق إسلامي شامل وصدقة جارية.
-
-            ---
-
-            ### 🤖 روابط تحميل الأندرويد (Android):
-            - **تحميل مباشر لملف APK:** [اضغط هنا لتحميل ZadMuslim-Android.apk](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-Android.apk)
-            - **طريقة التثبيت:** حمّل الملف وافتحه مباشرة على هاتفك لتثبيته.
-
-            ---
-
-            ### 🍏 روابط تحميل الآيفون (iOS):
-            - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-iOS.ipa)
-            - **طريقة التثبيت:** حمّل الملف واستخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو تطبيق **Sideloadly** لتوقيع وتثبيت التطبيق بحسابك مجاناً.
-          files: release-files/*
+      - name: Verify Release Files
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          gh release view "$RELEASE_TAG" \
+            --json assets \
+            --jq '.assets[].name' > release-assets.txt
+
+          for FILE in \
+            ZadMuslim-Android.apk \
+            ZadMuslim-Android.aab \
+            ZadMuslim-iOS.ipa
+          do
+            if ! grep -Fxq "$FILE" release-assets.txt; then
+              echo "Missing release file: $FILE"
+              exit 1
+            fi
+          done
+
+      - name: Publish Release and Mark as Latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          cat > release-notes.md <<EOF
+          ## 📱 تطبيق زاد المسلم v3.6.0
+          تطبيق إسلامي شامل وصدقة جارية.
+
+          ### 🤖 Android
+          - [تحميل APK](https://github.com/${GH_REPO}/releases/latest/download/ZadMuslim-Android.apk)
+          - [تحميل AAB لرفعه إلى Google Play](https://github.com/${GH_REPO}/releases/latest/download/ZadMuslim-Android.aab)
+
+          ### 🍏 iOS
+          - [تحميل IPA](https://github.com/${GH_REPO}/releases/latest/download/ZadMuslim-iOS.ipa)
+          - ملف IPA غير موقّع، ويحتاج إلى التوقيع قبل التثبيت.
+
+          ---
+          Build: ${GITHUB_RUN_NUMBER}
+          Commit: ${GITHUB_SHA}
+          EOF
+
+          gh release edit "$RELEASE_TAG" \
+            --notes-file release-notes.md \
+            --draft=false \
+            --latest
