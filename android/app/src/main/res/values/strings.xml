@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">زاد المسلم</string>
     <string name="title_activity_main">زاد المسلم</string>
-    <string name="package_name">com.zadmuslim.app</string>
-    <string name="custom_url_scheme">com.zadmuslim.app</string>
+    <string name="package_name">com.abdomohamed.zadmuslim</string>
+    <string name="custom_url_scheme">com.abdomohamed.zadmuslim</string>
     <string name="widget_name">مواقيت الصلاة - زاد المسلم</string>
     <string name="widget_description">مواقيت الصلاة، العد التنازلي، والورد اليومي على شاشتك الرئيسية</string>
 </resources>
