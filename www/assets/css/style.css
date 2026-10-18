@@ -24013,32 +24013,41 @@ body.light-theme .dua-prophetic-banner .prophetic-text {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 .pg-prayer-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   padding-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .pg-prayer-name {
-  font-size: 1rem;
+  font-size: 1.02rem;
   font-weight: 800;
   color: var(--gold-400, #d4af37);
   margin: 0;
+  line-height: 1.35;
+  flex: 1 1 auto;
 }
 
 .pg-prayer-rakaat {
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 9px;
   background: rgba(16, 185, 129, 0.15);
   color: #34d399;
   border-radius: 8px;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.35;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  display: inline-block;
+  max-width: 100%;
 }
 
 .pg-prayer-meta {
