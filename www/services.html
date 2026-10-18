@@ -136,6 +136,17 @@
                     <span class="service-action-link">فتح مواقيت الصلاة ←</span>
                 </a>
 
+                <a class="service-card" href="#prayer-guide-section" onclick="if(window.PrayerGuide) PrayerGuide.openPrayerGuideSection();">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">📖</div>
+                        <div class="service-info">
+                            <h3>دليل الصلاة الشامل وفقهها</h3>
+                            <p>صفة صلاة النبي ﷺ خطوة بخطوة، أركانها، سننها، الفرائض والنوافل، وأدعية الركوع والسجود والمنهيات.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">استكشف فقه الصلاة 🕌 ←</span>
+                </a>
+
                 <a class="service-card" href="#azkar">
                     <div class="service-card-top">
                         <div class="service-icon-box">🤲</div>
@@ -2079,6 +2090,17 @@
     </section>
 
     <!-- ==========================================
+         قسم دليل الصلاة الشامل • صفة صلاة النبي ﷺ (Comprehensive Prayer Guide)
+         ========================================== -->
+    <section id="prayer-guide-section" class="prayer-guide-section">
+        <div class="container">
+            <div id="prayer-guide-content">
+                <!-- يُملأ برمجياً بواسطة PrayerGuide.init() من prayer-guide.js -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
          قسم دليل أحكام الجنائز والصدقة الجارية (Islamic Deceased Guide)
          ========================================== -->
     <section id="islamic-guide" class="faq-section">
@@ -3693,6 +3715,7 @@
     <script src="assets/js/zakat-calculator.js?v=1"></script>
     <script src="assets/js/nearby-mosques.js?v=7"></script>
     <script src="assets/js/wall-of-duas.js?v=1"></script>
+    <script src="assets/js/prayer-guide.js?v=1"></script>
 
     <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
     <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">

@@ -453,6 +453,9 @@
                 <button class="feature" style="text-align: right; cursor: pointer;" onclick="openServiceInApp('prayer-times')">
                     <div class="fi">🕌</div><h3>مواقيت الصلاة</h3><p>المواقيت وتنبيهات الأذان</p>
                 </button>
+                <button class="feature" style="text-align: right; cursor: pointer;" onclick="openServiceInApp('prayer-guide')">
+                    <div class="fi">📖</div><h3>دليل الصلاة الشامل</h3><p>صفة الصلاة والأركان والأذكار</p>
+                </button>
                 <button class="feature" style="text-align: right; cursor: pointer;" onclick="openServiceInApp('azkar')">
                     <div class="fi">🤲</div><h3>الأذكار وحصن المسلم</h3><p>أذكار الصباح والمساء</p>
                 </button>
@@ -3695,6 +3698,15 @@
                 if (dhikrCard) dhikrCard.scrollIntoView({ behavior: 'smooth' });
                 return;
             }
+            if (serviceId === 'prayer-guide') {
+                switchAppTab('services');
+                const container = document.getElementById('app-services-active-view');
+                if (container && window.PrayerGuide) {
+                    window.PrayerGuide.init('app-services-active-view');
+                    container.scrollIntoView({ behavior: 'smooth' });
+                }
+                return;
+            }
             switchAppTab('services');
             const target = document.getElementById(serviceId);
             const container = document.getElementById('app-services-active-view');
@@ -3736,6 +3748,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="assets/js/zakat-calculator.js?v=1"></script>
     <script src="assets/js/nearby-mosques.js?v=7"></script>
+    <script src="assets/js/prayer-guide.js?v=1"></script>
 
     <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
     <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">
