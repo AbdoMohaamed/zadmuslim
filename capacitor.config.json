@@ -8,8 +8,7 @@
   "plugins": {
     "LocalNotifications": {
       "smallIcon": "ic_stat_icon",
-      "iconColor": "#d4af37",
-      "sound": "adhan_makkah.mp3"
+      "iconColor": "#d4af37"
     }
   }
 }
