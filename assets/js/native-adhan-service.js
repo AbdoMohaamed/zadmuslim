@@ -49,12 +49,9 @@ const NativeAdhanService = {
                 { id: "prayer_pre_asr", name: "تنبيه اقتراب صلاة العصر", sound: "pre_asr", importance: 4 },
                 { id: "prayer_pre_maghrib", name: "تنبيه اقتراب صلاة المغرب", sound: "pre_maghrib", importance: 4 },
                 { id: "prayer_pre_isha", name: "تنبيه اقتراب صلاة العشاء", sound: "pre_isha", importance: 4 },
-                { id: "adhan_makkah", name: "أذان الحرم المكي", sound: "adhan_makkah", importance: 5 },
-                { id: "adhan_madinah", name: "أذان المسجد النبوي", sound: "adhan_madinah", importance: 5 },
-                { id: "adhan_aqsa", name: "أذان المسجد الأقصى", sound: "adhan_aqsa", importance: 5 },
+                { id: "adhan_qatami", name: "أذان الشيخ ناصر القطامي (الافتراضي)", sound: "adhan_qatami", importance: 5 },
                 { id: "adhan_abdulbasit", name: "أذان الشيخ عبد الباسط", sound: "adhan_abdulbasit", importance: 5 },
                 { id: "adhan_refaat", name: "أذان الشيخ محمد رفعت", sound: "adhan_refaat", importance: 5 },
-                { id: "adhan_qatami", name: "أذان الشيخ ناصر القطامي", sound: "adhan_qatami", importance: 5 },
                 { id: "adhan_fajr", name: "أذان الفجر المخصوص", sound: "adhan_fajr", importance: 5 },
                 { id: "daily_adhkar", name: "أذكار الصباح والمساء وسورة الكهف", sound: null, importance: 4 },
                 { id: "hourly_salawat", name: "تذكير الصلاة على النبي ﷺ كل ساعة", sound: "salawat", importance: 4 },
@@ -141,7 +138,7 @@ const NativeAdhanService = {
             await this.requestPermissions();
             await this.createNotificationChannels();
 
-            const selectedMuazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah";
+            const selectedMuazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami";
             const enabledPrayers = this.getEnabledPrayers();
             const now = new Date();
 
@@ -448,7 +445,7 @@ const NativeAdhanService = {
      * تجربة صوت الأذان
      */
     async testAdhanAudio(muazzin) {
-        const m = muazzin || ((typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah");
+        const m = muazzin || ((typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami");
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
             try {
                 return await window.Capacitor.Plugins.AdhanNative.testAdhanAudio({ muazzin: m });
@@ -493,7 +490,7 @@ const NativeAdhanService = {
      * اختبار إرسال إشعار الأذان الفوري
      */
     async testNotification(prayerKey = "asr", prayerName = "صلاة العصر") {
-        const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah";
+        const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami";
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
             try {
                 await window.Capacitor.Plugins.AdhanNative.testAdhanNotification({
@@ -618,7 +615,7 @@ const NativeAdhanService = {
      * اختبار الأذان الحقيقي في الخلفية والشاشة مقفلة (تشغيل منبه أندرويد حقيقي بعد دقيقتين)
      */
     async scheduleBackgroundDiagnosticTest(delaySeconds = 120) {
-        const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "makkah";
+        const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami";
         const triggerTime = new Date(Date.now() + (delaySeconds * 1000));
         const timeStr = triggerTime.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 

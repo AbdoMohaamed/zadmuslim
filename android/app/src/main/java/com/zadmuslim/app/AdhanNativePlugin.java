@@ -38,7 +38,7 @@ public class AdhanNativePlugin extends Plugin {
             return;
         }
 
-        String muazzin = call.getString("muazzin", "makkah");
+        String muazzin = call.getString("muazzin", "qatami");
         boolean preAlert = call.getBoolean("preAlert", true);
         JSObject enabledPrayers = call.getObject("enabledPrayers");
 
@@ -111,6 +111,7 @@ public class AdhanNativePlugin extends Plugin {
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, true);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
+                        preIntent.putExtra("scheduled_time", preAlertMillis);
 
                         PendingIntent pendingPre = PendingIntent.getBroadcast(
                                 context, reqCode, preIntent,
@@ -131,6 +132,7 @@ public class AdhanNativePlugin extends Plugin {
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+                    adhanIntent.putExtra("scheduled_time", prayerMillis);
 
                     PendingIntent pendingAdhan = PendingIntent.getBroadcast(
                             context, reqCode, adhanIntent,
@@ -299,7 +301,7 @@ public class AdhanNativePlugin extends Plugin {
         try {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             String jsonStr = prefs.getString("last_timings_json", null);
-            String muazzin = prefs.getString("selected_muazzin", "makkah");
+            String muazzin = prefs.getString("selected_muazzin", "qatami");
             if (jsonStr == null || jsonStr.isEmpty()) return;
 
             org.json.JSONObject timingsObj = new org.json.JSONObject(jsonStr);
@@ -352,6 +354,7 @@ public class AdhanNativePlugin extends Plugin {
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, true);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
+                        preIntent.putExtra("scheduled_time", preAlertMillis);
 
                         PendingIntent pendingPre = PendingIntent.getBroadcast(
                                 context, reqCode, preIntent,
@@ -369,6 +372,7 @@ public class AdhanNativePlugin extends Plugin {
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+                        adhanIntent.putExtra("scheduled_time", prayerMillis);
 
                         PendingIntent pendingAdhan = PendingIntent.getBroadcast(
                             context, reqCode, adhanIntent,
@@ -509,7 +513,7 @@ public class AdhanNativePlugin extends Plugin {
     @PluginMethod
     public void testAdhanAudio(PluginCall call) {
         Context context = getContext();
-        String muazzin = call.getString("muazzin", "makkah");
+        String muazzin = call.getString("muazzin", "qatami");
         if (AdhanPlayer.isPlaying() || AdhanService.isPlaying) {
             stopAdhan(call);
             return;
@@ -526,13 +530,14 @@ public class AdhanNativePlugin extends Plugin {
         Context context = getContext();
         String prayerName = call.getString("prayerName", "صلاة العصر");
         String prayerKey = call.getString("prayerKey", "asr");
-        String muazzin = call.getString("muazzin", "makkah");
+        String muazzin = call.getString("muazzin", "qatami");
 
         Intent testIntent = new Intent(context, AdhanAlarmReceiver.class);
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName + " (اختبار)");
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKey);
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+        testIntent.putExtra("scheduled_time", System.currentTimeMillis());
         context.sendBroadcast(testIntent);
 
         JSObject ret = new JSObject();

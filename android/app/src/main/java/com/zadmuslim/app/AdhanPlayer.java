@@ -58,10 +58,10 @@ public class AdhanPlayer {
             try {
                 afd = appContext.getResources().openRawResourceFd(soundResId);
             } catch (Exception e) {
-                Log.w(TAG, "Could not open primary adhan sound resource, falling back to makkah", e);
+                Log.w(TAG, "Could not open primary adhan sound resource, falling back to qatami", e);
             }
             if (afd == null) {
-                afd = appContext.getResources().openRawResourceFd(R.raw.adhan_makkah);
+                afd = appContext.getResources().openRawResourceFd(R.raw.adhan_qatami);
             }
 
             mediaPlayer = new MediaPlayer();
@@ -284,10 +284,10 @@ public class AdhanPlayer {
         if ("fajr".equalsIgnoreCase(prayerKey)) {
             return R.raw.adhan_fajr;
         }
-        if (muazzin == null || muazzin.isEmpty()) muazzin = "makkah";
+        if (muazzin == null || muazzin.isEmpty()) muazzin = "qatami";
         String name = "adhan_" + muazzin.toLowerCase();
         int res = context.getResources().getIdentifier(name, "raw", context.getPackageName());
-        return res != 0 ? res : R.raw.adhan_makkah;
+        return res != 0 ? res : R.raw.adhan_qatami;
     }
 
     public static synchronized void playPrePrayerVoice(Context context, String prayerKey) {

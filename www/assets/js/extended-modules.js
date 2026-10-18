@@ -1255,6 +1255,12 @@ function listenToCloudBroadcastNotifications() {
                 return;
             }
 
+            // صمام أمان حاسم: أثناء التحميل الأولي عند فتح التطبيق، نسجل الإشعارات السابقة كمقروءة دون إطلاق صوت أو إشعار مفاجئ
+            if (isInitialLoad) {
+                localStorage.setItem(seenKey, "true");
+                return;
+            }
+
             localStorage.setItem(seenKey, "true");
 
             // تشغيل نغمة الإشعار العذبة
@@ -1263,7 +1269,7 @@ function listenToCloudBroadcastNotifications() {
             // إظهار البنر المنبثق الأنيق داخل الموقع دائماً
             showInAppPushBanner(data);
 
-            // إظهار إشعار النظام الأصلي للموبايل والمتصفح
+            // إظهار إشعار النظام الأصلي للموبايل والمتصفح (بدون صوت الأذان إطلاقاً)
             triggerNativeNotification(data.title || "زاد المسلم • تذكير بالطاعة", data.body || "", data.url || "./");
         });
 
@@ -1293,7 +1299,7 @@ async function triggerNativeNotification(title, body, url = "./") {
                         title: title || "زاد المسلم 🌿",
                         body: body || "",
                         channelId: "zad_cloud_broadcast_channel",
-                        sound: "adhan_makkah.mp3",
+                        sound: null, // إشعار عام بدون تشغيل أذان
                         extra: { url: url },
                         schedule: { at: new Date(Date.now() + 500) }
                     }]

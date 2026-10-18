@@ -95,6 +95,16 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             return;
         }
 
+        // صمام أمان زمني لمنع انطلاق أذان قديم أو متأخر تم تسليمه بعد استيقاظ الهاتف
+        long scheduledTime = intent.getLongExtra("scheduled_time", 0L);
+        if (scheduledTime > 0) {
+            long diff = Math.abs(System.currentTimeMillis() - scheduledTime);
+            if (diff > 15 * 60 * 1000L) { // أكثر من 15 دقيقة تأخير
+                Log.w(TAG, "Discarding stale/delayed alarm (time diff: " + diff + "ms). Current time is outside prayer threshold.");
+                return;
+            }
+        }
+
         if (prayerName == null || prayerName.isEmpty()) prayerName = "الصلاة";
 
         // حجز WakeLock فوري

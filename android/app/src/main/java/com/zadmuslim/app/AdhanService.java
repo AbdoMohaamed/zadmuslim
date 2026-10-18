@@ -77,7 +77,7 @@ public class AdhanService extends Service {
 
         String prayerName = "الصلاة";
         String prayerKey = "dhuhr";
-        String muazzin = "makkah";
+        String muazzin = "qatami";
 
         if (intent != null) {
             if (intent.hasExtra(EXTRA_PRAYER_NAME)) prayerName = intent.getStringExtra(EXTRA_PRAYER_NAME);

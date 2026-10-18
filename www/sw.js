@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v51";
+const CACHE_NAME = "zad-muslim-v52";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",
@@ -42,12 +42,9 @@ const ASSETS_TO_CACHE = [
   "./assets/audio/pre/pre_maghrib.mp3",
   "./assets/audio/pre/pre_isha.mp3",
   "./assets/audio/pre/pre_prayer.mp3",
-  "./assets/audio/adhan/makkah.mp3",
-  "./assets/audio/adhan/madinah.mp3",
-  "./assets/audio/adhan/aqsa.mp3",
+  "./assets/audio/adhan/qatami.mp3",
   "./assets/audio/adhan/abdulbasit.mp3",
   "./assets/audio/adhan/refaat.mp3",
-  "./assets/audio/adhan/qatami.mp3",
   "./assets/audio/adhan/fajr.mp3",
   "./assets/share-preview.jpg",
   "./manifest.json",
@@ -72,7 +69,7 @@ function cleanResponse(response) {
 // جدول مواقيت الصلاة والمؤذن المختار لتنبيهات الخلفية
 let scheduledPrayerAlarms = [];
 let activeAlarmTimers = [];
-let selectedMuazzinPreference = "makkah";
+let selectedMuazzinPreference = "qatami";
 
 // مرحلة التثبيت وتخزين الملفات الأساسية بأمان
 self.addEventListener("install", (event) => {
@@ -285,9 +282,9 @@ function armBackgroundPrayerAlarms() {
 
 function showPrayerNotification(prayer) {
   const isFajr = prayer.key === "fajr";
-  const muazzinAudioFile = isFajr ? "fajr.mp3" : `${selectedMuazzinPreference || "makkah"}.mp3`;
+  const muazzinAudioFile = isFajr ? "fajr.mp3" : `${selectedMuazzinPreference || "qatami"}.mp3`;
   const soundUrl = `./assets/audio/adhan/${muazzinAudioFile}`;
-  const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayer.key}&muazzin=${selectedMuazzinPreference || "makkah"}&t=${Date.now()}`;
+  const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayer.key}&muazzin=${selectedMuazzinPreference || "qatami"}&t=${Date.now()}`;
 
   const options = {
     body: `الله أكبر، الله أكبر.. حان الآن موعد ${prayer.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕌`,

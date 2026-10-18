@@ -2050,13 +2050,16 @@ function startPrayerCountdown() {
             }
 
             // ب) إذا دخل وقت الصلاة في اللحظة الراهنة بالضبط (أثناء متابعة العداد التنازلي)
-            if (elapsedMs >= -1000 && elapsedMs <= 15 * 1000) {
+            if (elapsedMs >= 0 && elapsedMs <= 15 * 1000) {
                 const todayPrayerKey = `${p.key}_${dateStr}`;
                 const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
                 if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {
                     window._lastAdhanTriggeredKey = todayPrayerKey;
                     localStorage.setItem("zad_last_adhan_date_key", todayPrayerKey);
-                    triggerPrayerAdhanNotification(p.name, p.key);
+                    // صمام أمان صارم: تشغيل الأذان فقط إذا كان العداد يعمل مسبقاً والتطبيق مفتوح عند حلول الوقت وليس عند الفتح المفاجئ
+                    if (window._hasPrayerCountdownStarted) {
+                        triggerPrayerAdhanNotification(p.name, p.key);
+                    }
                     break;
                 }
             }
@@ -2115,6 +2118,7 @@ function startPrayerCountdown() {
     };
 
     updateCountdown();
+    window._hasPrayerCountdownStarted = true;
     prayerTimerInterval = setInterval(updateCountdown, 1000);
 
     // إعادة التنشيط والفحص الفوري عند فتح شاشة الهاتف أو العودة للتبويب
@@ -3602,28 +3606,12 @@ let isAdhanAudioEnabled = true;
 
 const MUAZZIN_LIST = [
     {
-        id: "makkah",
-        name: "الشيخ علي أحمد ملا",
-        title: "أذان الحرم المكي الشريف",
-        city: "مكة المكرمة",
-        file: "assets/audio/adhan/makkah.mp3",
-        icon: "fa-kaaba"
-    },
-    {
-        id: "madinah",
-        name: "الشيخ عصام بخاري",
-        title: "أذان المسجد النبوي الشريف",
-        city: "المدينة المنورة",
-        file: "assets/audio/adhan/madinah.mp3",
-        icon: "fa-mosque"
-    },
-    {
-        id: "aqsa",
-        name: "الشيخ ناجي قزاز",
-        title: "أذان المسجد الأقصى المبارك",
-        city: "القدس الشريف",
-        file: "assets/audio/adhan/aqsa.mp3",
-        icon: "fa-star-and-crescent"
+        id: "qatami",
+        name: "الشيخ ناصر القطامي",
+        title: "أذان عذب وهادئ ومؤثر (الافتراضي)",
+        city: "المملكة العربية السعودية",
+        file: "assets/audio/adhan/qatami.mp3",
+        icon: "fa-volume-high"
     },
     {
         id: "abdulbasit",
@@ -3640,19 +3628,17 @@ const MUAZZIN_LIST = [
         city: "جمهورية مصر العربية",
         file: "assets/audio/adhan/refaat.mp3",
         icon: "fa-radio"
-    },
-    {
-        id: "qatami",
-        name: "الشيخ ناصر القطامي",
-        title: "أذان عذب وهادئ ومؤثر",
-        city: "الرياض",
-        file: "assets/audio/adhan/qatami.mp3",
-        icon: "fa-volume-high"
     }
 ];
 
 function getSelectedMuazzinId() {
-    return localStorage.getItem("zad_selected_muazzin") || "makkah";
+    const saved = localStorage.getItem("zad_selected_muazzin");
+    if (saved === "qatami" || saved === "abdulbasit" || saved === "refaat") {
+        return saved;
+    }
+    // إعادة ضبط أي قيمة قديمة غير مدعومة إلى الشيخ ناصر القطامي كافتراضي دائم
+    localStorage.setItem("zad_selected_muazzin", "qatami");
+    return "qatami";
 }
 
 function getSelectedMuazzin() {
@@ -3694,7 +3680,7 @@ function updateMuazzinButtonUI() {
     const label = document.getElementById("selected-muazzin-label");
     if (!label) return;
     const current = getSelectedMuazzin();
-    label.textContent = `المؤذن: ${current.city || current.name.split(" ")[1] || "الحرم"}`;
+    label.textContent = `المؤذن: ${current.name}`;
 }
 
 function initAdhanNotifications() {
@@ -3998,6 +3984,11 @@ function hideAdhanAutoplayBanner() {
 
 // دالة فحص وتفعيل الأذان التلقائي عند فتح الإشعار
 function checkUrlForAdhanAutoPlay() {
+    // في تطبيق الهاتف الأصلي (Capacitor) يتولى نظام أندرويد عبر AdhanNative تشغيل الأذان
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+        return;
+    }
+
     const currentHash = window.location.hash || "";
     const currentSearch = window.location.search || "";
     const fullQuery = currentSearch + (currentHash.includes("?") ? ("?" + currentHash.split("?")[1]) : "");
