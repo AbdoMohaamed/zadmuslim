@@ -26,7 +26,7 @@ import java.util.Calendar;
 @CapacitorPlugin(name = "AdhanNative")
 public class AdhanNativePlugin extends Plugin {
     private static final String TAG = "AdhanNativePlugin";
-    private static final String PREFS_NAME = "zad_adhan_native_prefs";
+    public static final String PREFS_NAME = "zad_adhan_native_prefs";
     public static final String STICKY_CHANNEL_ID = "zad_sticky_prayer_channel";
     public static final int STICKY_NOTIF_ID = 10099;
 
@@ -537,6 +537,7 @@ public class AdhanNativePlugin extends Plugin {
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName + " (اختبار)");
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKey);
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+        testIntent.putExtra("is_test", true);
         testIntent.putExtra("scheduled_time", System.currentTimeMillis());
         context.sendBroadcast(testIntent);
 

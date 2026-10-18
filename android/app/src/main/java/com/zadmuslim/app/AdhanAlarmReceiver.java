@@ -95,12 +95,21 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             return;
         }
 
+        boolean isTest = intent.getBooleanExtra("is_test", false);
+
         // صمام أمان زمني لمنع انطلاق أذان قديم أو متأخر تم تسليمه بعد استيقاظ الهاتف
         long scheduledTime = intent.getLongExtra("scheduled_time", 0L);
-        if (scheduledTime > 0) {
-            long diff = Math.abs(System.currentTimeMillis() - scheduledTime);
-            if (diff > 15 * 60 * 1000L) { // أكثر من 15 دقيقة تأخير
-                Log.w(TAG, "Discarding stale/delayed alarm (time diff: " + diff + "ms). Current time is outside prayer threshold.");
+        if (!isTest) {
+            if (scheduledTime > 0) {
+                long diff = Math.abs(System.currentTimeMillis() - scheduledTime);
+                if (diff > 15 * 60 * 1000L) { // أكثر من 15 دقيقة تأخير
+                    Log.w(TAG, "Discarding stale/delayed alarm (time diff: " + diff + "ms). Current time is outside prayer threshold.");
+                    return;
+                }
+            }
+            // صمام أمان قاطع إضافي: التأكد من أن الوقت الحالي يقع ضمن 15 دقيقة من موعد الصلاة المسجل
+            if (!isWithinPrayerTimeWindow(context, prayerKey, isPreAlert)) {
+                Log.w(TAG, "Suppressed adhan trigger: Current time is not within prayer window for " + prayerKey);
                 return;
             }
         }
@@ -325,6 +334,12 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     SharedPreferences prefs = context.getSharedPreferences("zad_broadcast_prefs", Context.MODE_PRIVATE);
                     String lastSeenKey = prefs.getString("last_seen_broadcast_id", "");
 
+                    // إذا كان أول تشغيل للتطبيق ولم يرَ أي رسالة سابقة، نسجلها كسابقة لمنع انطلاق أي إشعار قديم فور فتح التطبيق
+                    if (lastSeenKey.isEmpty()) {
+                        prefs.edit().putString("last_seen_broadcast_id", broadcastKey).apply();
+                        return;
+                    }
+
                     if (!broadcastKey.equals(lastSeenKey) && !body.isEmpty()) {
                         showCloudBroadcastNotification(context, title, body);
                         prefs.edit().putString("last_seen_broadcast_id", broadcastKey).apply();
@@ -409,5 +424,57 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setColor(0xFFD4AF37);
 
         nm.notify((int) (System.currentTimeMillis() % 100000), builder.build());
+    }
+
+    private boolean isWithinPrayerTimeWindow(Context context, String prayerKey, boolean isPreAlert) {
+        try {
+            SharedPreferences prefs = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE);
+            String jsonStr = prefs.getString("last_timings_json", null);
+            if (jsonStr == null || jsonStr.isEmpty()) return true;
+
+            JSONObject timingsObj = new JSONObject(jsonStr);
+            String timingKey = null;
+            if ("fajr".equalsIgnoreCase(prayerKey)) timingKey = "Fajr";
+            else if ("dhuhr".equalsIgnoreCase(prayerKey)) timingKey = "Dhuhr";
+            else if ("asr".equalsIgnoreCase(prayerKey)) timingKey = "Asr";
+            else if ("maghrib".equalsIgnoreCase(prayerKey)) timingKey = "Maghrib";
+            else if ("isha".equalsIgnoreCase(prayerKey)) timingKey = "Isha";
+
+            if (timingKey == null) return false;
+
+            String rawTime = timingsObj.optString(timingKey, null);
+            if (rawTime == null) return true;
+
+            String clean = rawTime.split(" ")[0];
+            String[] parts = clean.split(":");
+            if (parts.length < 2) return true;
+
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.set(java.util.Calendar.HOUR_OF_DAY, hour);
+            cal.set(java.util.Calendar.MINUTE, minute);
+            cal.set(java.util.Calendar.SECOND, 0);
+            cal.set(java.util.Calendar.MILLISECOND, 0);
+
+            long targetMillis = cal.getTimeInMillis();
+            if (isPreAlert) {
+                targetMillis -= (5 * 60 * 1000L);
+            }
+
+            long now = System.currentTimeMillis();
+            long diff = Math.abs(now - targetMillis);
+
+            // نافذة الأمان: التنبيه يجب أن يقع ضمن 15 دقيقة كحد أقصى من موعده الشرعي لليوم
+            if (diff > 15 * 60 * 1000L) {
+                Log.w(TAG, "Device time (" + now + ") is outside 15-minute window of " + prayerKey + " (" + targetMillis + ", diff: " + diff + "ms). Adhan rejected!");
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            Log.w(TAG, "Error checking prayer time window: " + e.getMessage());
+            return true;
+        }
     }
 }
