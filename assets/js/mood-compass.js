@@ -273,7 +273,7 @@
                                 <div class="mood-counter-row">
                                     <button type="button" class="btn-mood-counter" id="btn-mood-count" onclick="MoodCompass.incrementCount('${mood.id}')">
                                         <span class="count-digit" id="mood-count-digit">${moodCounters[moodId]}</span>
-                                        <span class="count-label">سبّح الآن +1 ✦</span>
+                                        <span class="count-label">ردّد الذكر ✦</span>
                                     </button>
                                     <div class="counter-progress-info">
                                         <div class="progress-bar-bg">
