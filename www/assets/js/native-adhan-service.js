@@ -330,6 +330,7 @@ const NativeAdhanService = {
             // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي وتحديث ويدجت الشاشة
             let hasNativePlugin = false;
             if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+                try {
                     let hijriDateStr = "";
                     let gregorianDateStr = "";
                     try {
