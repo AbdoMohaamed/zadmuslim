@@ -90,16 +90,21 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             PendingIntent pendingRefresh = PendingIntent.getBroadcast(context, 1001, refreshIntent, flags);
             views.setOnClickPendingIntent(R.id.widget_btn_refresh, pendingRefresh);
 
-            // 3. قراءة البيانات المحفوظة لمواقيت الصلاة
+            // 3. قراءة البيانات المحفوظة لمواقيت الصلاة والتاريخ
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             String timingsJson = prefs.getString("last_timings_json", null);
             String savedHijri = prefs.getString("widget_hijri_date", null);
+            String savedGregorian = prefs.getString("widget_gregorian_date", null);
 
-            if (savedHijri != null && !savedHijri.isEmpty()) {
-                views.setTextViewText(R.id.widget_txt_hijri_date, savedHijri);
-            } else {
-                views.setTextViewText(R.id.widget_txt_hijri_date, "رفيق طاعتك اليومية 🌿");
+            if (savedHijri == null || savedHijri.trim().isEmpty()) {
+                savedHijri = getNativeHijriDate();
             }
+            if (savedGregorian == null || savedGregorian.trim().isEmpty()) {
+                savedGregorian = getNativeGregorianDate();
+            }
+
+            views.setTextViewText(R.id.widget_txt_hijri_date, savedHijri);
+            views.setTextViewText(R.id.widget_txt_gregorian_date, savedGregorian);
 
             // اختيار ذكر / آية دورية بحسب ساعة اليوم
             Calendar nowCal = Calendar.getInstance();
@@ -258,5 +263,26 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             res.countdownText = "زاد المسلم 🌿";
         }
         return res;
+    }
+
+    public static String getNativeGregorianDate() {
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("d MMMM yyyy", new java.util.Locale("ar"));
+            return sdf.format(new java.util.Date()) + " م";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public static String getNativeHijriDate() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                android.icu.util.IslamicCalendar cal = new android.icu.util.IslamicCalendar();
+                android.icu.text.SimpleDateFormat sdf = new android.icu.text.SimpleDateFormat("d MMMM yyyy", new java.util.Locale("ar"));
+                sdf.setCalendar(cal);
+                return sdf.format(new java.util.Date()) + " هـ";
+            }
+        } catch (Exception ignored) {}
+        return "التقويم الهجري المبارك";
     }
 }

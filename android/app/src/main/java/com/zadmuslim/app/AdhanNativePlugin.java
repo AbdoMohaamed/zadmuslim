@@ -51,12 +51,16 @@ public class AdhanNativePlugin extends Plugin {
 
         // حفظ الإعدادات في SharedPreferences للاسترجاع
         String hijriDate = call.getString("hijriDate", null);
+        String gregorianDate = call.getString("gregorianDate", null);
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit()
                 .putString("last_timings_json", timingsObj.toString())
                 .putString("selected_muazzin", muazzin);
         if (hijriDate != null && !hijriDate.isEmpty()) {
             editor.putString("widget_hijri_date", hijriDate);
+        }
+        if (gregorianDate != null && !gregorianDate.isEmpty()) {
+            editor.putString("widget_gregorian_date", gregorianDate);
         }
         if (enabledPrayers != null) {
             editor.putString("enabled_prayers_json", enabledPrayers.toString());
@@ -167,6 +171,7 @@ public class AdhanNativePlugin extends Plugin {
     public void updatePrayerWidget(PluginCall call) {
         JSObject timingsObj = call.getObject("timings");
         String hijriDate = call.getString("hijriDate", null);
+        String gregorianDate = call.getString("gregorianDate", null);
         Context context = getContext();
         if (timingsObj != null) {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -174,6 +179,9 @@ public class AdhanNativePlugin extends Plugin {
                     .putString("last_timings_json", timingsObj.toString());
             if (hijriDate != null && !hijriDate.isEmpty()) {
                 editor.putString("widget_hijri_date", hijriDate);
+            }
+            if (gregorianDate != null && !gregorianDate.isEmpty()) {
+                editor.putString("widget_gregorian_date", gregorianDate);
             }
             editor.apply();
         }

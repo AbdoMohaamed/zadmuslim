@@ -330,11 +330,29 @@ const NativeAdhanService = {
             // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي وتحديث ويدجت الشاشة
             let hasNativePlugin = false;
             if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
-                try {
                     let hijriDateStr = "";
+                    let gregorianDateStr = "";
                     try {
-                        const hEl = document.getElementById("daily-hijri-date") || document.getElementById("hijri-date-text") || document.getElementById("app-header-hijri-date");
+                        const hEl = document.getElementById("daily-hijri-date") || document.getElementById("hijri-date-text") || document.getElementById("app-header-hijri-date") || document.getElementById("hero-hijri-date-text");
                         if (hEl && hEl.innerText) hijriDateStr = hEl.innerText.trim();
+                    } catch(e) {}
+                    if (!hijriDateStr) {
+                        try {
+                            const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                            });
+                            hijriDateStr = hijriFormatter.format(new Date()) + " هـ";
+                        } catch(e) {}
+                    }
+                    try {
+                        const gregFormatter = new Intl.DateTimeFormat('ar-EG', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        gregorianDateStr = gregFormatter.format(new Date()) + " م";
                     } catch(e) {}
 
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
@@ -342,7 +360,8 @@ const NativeAdhanService = {
                         muazzin: selectedMuazzin,
                         preAlert: true,
                         enabledPrayers: enabledPrayers,
-                        hijriDate: hijriDateStr
+                        hijriDate: hijriDateStr,
+                        gregorianDate: gregorianDateStr
                     });
                     hasNativePlugin = true;
                     console.log("✅ Native Adhan Android Service: Alarms & Home Widget scheduled successfully:", nativeRes);
@@ -397,24 +416,46 @@ const NativeAdhanService = {
     },
 
     /**
-     * تحديث ويدجت الشاشة الرئيسية (Home Screen Widget) بمواقيت الصلاة والتاريخ الهجري
+     * تحديث ويدجت الشاشة الرئيسية (Home Screen Widget) بمواقيت الصلاة والتاريخ الهجري والميلادي
      */
-    async updateWidget(timings, hijriDate) {
+    async updateWidget(timings, hijriDate, gregorianDate) {
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
             try {
                 let hDate = hijriDate || "";
+                let gDate = gregorianDate || "";
                 if (!hDate) {
                     try {
-                        const hEl = document.getElementById("daily-hijri-date") || document.getElementById("hijri-date-text") || document.getElementById("app-header-hijri-date");
+                        const hEl = document.getElementById("daily-hijri-date") || document.getElementById("hijri-date-text") || document.getElementById("app-header-hijri-date") || document.getElementById("hero-hijri-date-text");
                         if (hEl && hEl.innerText) hDate = hEl.innerText.trim();
+                    } catch(e) {}
+                    if (!hDate) {
+                        try {
+                            const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                            });
+                            hDate = hijriFormatter.format(new Date()) + " هـ";
+                        } catch(e) {}
+                    }
+                }
+                if (!gDate) {
+                    try {
+                        const gregFormatter = new Intl.DateTimeFormat('ar-EG', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        gDate = gregFormatter.format(new Date()) + " م";
                     } catch(e) {}
                 }
 
                 await window.Capacitor.Plugins.AdhanNative.updatePrayerWidget({
                     timings: timings || window.lastFetchedPrayerTimings,
-                    hijriDate: hDate
+                    hijriDate: hDate,
+                    gregorianDate: gDate
                 });
-                console.log("✅ Home Screen Widget updated successfully via AdhanNative");
+                console.log("✅ Home Screen Widget updated successfully via AdhanNative (Hijri & Gregorian)");
             } catch(e) {
                 console.warn("Update prayer widget notice:", e);
             }

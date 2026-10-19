@@ -40,22 +40,46 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- التاريخ الهجري وموقع المدينة وزر التحديث -->
+        <!-- التاريخ الهجري والميلادي وزر التحديث السريع -->
         <LinearLayout
+            android:id="@+id/header_dates_wrap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:gravity="center_vertical"
+            android:gravity="center_vertical|end"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/widget_txt_hijri_date"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="زاد لقلبك ونور ليومك"
-                android:textColor="#9bb8ac"
-                android:textSize="10.5sp" />
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <!-- التاريخ الهجري بلون ذهبي واضح -->
+                <TextView
+                    android:id="@+id/widget_txt_hijri_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-- هـ"
+                    android:textColor="#ffd4af37"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- التاريخ الميلادي بلون هادئ متناسق -->
+                <TextView
+                    android:id="@+id/widget_txt_gregorian_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="-- م"
+                    android:textColor="#9bb8ac"
+                    android:textSize="9.5sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/widget_btn_refresh"
