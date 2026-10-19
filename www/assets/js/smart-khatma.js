@@ -413,7 +413,7 @@
                 this.showFullKhatmaCelebrationModal();
             } else {
                 if (typeof window.showToast === "function") {
-                    window.showToast(`تقبل الله طاعتك! 🔥 واصلت استمرارك لليوم الـ ${this.streakData.currentStreak} على التوالي ✨`);
+                    window.showToast(`تقبل الله طاعتك! ✨ واصلت استمرارك لليوم الـ ${this.streakData.currentStreak} على التوالي`);
                 }
             }
         },
@@ -429,7 +429,7 @@
                     <div class="celebration-stat-pills">
                         <div class="stat-pill"><span>عدد الصفحات</span><strong>604 صفحة</strong></div>
                         <div class="stat-pill"><span>الختمات المكتملة</span><strong>${this.plan.totalKhatmas} ختمة</strong></div>
-                        <div class="stat-pill"><span>الاستمرارية</span><strong>${this.streakData.currentStreak} يوماً 🔥</strong></div>
+                        <div class="stat-pill"><span>الاستمرارية</span><strong>${this.streakData.currentStreak} يوماً ✨</strong></div>
                     </div>
                     <div class="celebration-actions">
                         <button type="button" class="btn gold" onclick="SmartKhatmaService.startNewKhatma(); this.closest('.zad-khatma-celebration-overlay').remove();">
@@ -593,7 +593,7 @@
                                     <span>وسام مكتمل</span>
                                 </div>
                                 <div class="stat-bubble highlight">
-                                    <strong>🔥 ${this.streakData.currentStreak}</strong>
+                                    <strong>✨ ${this.streakData.currentStreak}</strong>
                                     <span>أيام متتالية</span>
                                 </div>
                                 <div class="stat-bubble">
@@ -620,7 +620,7 @@
             // تحديث بادج الـ Streak في الهيدر إذا وُجد
             const streakPill = document.getElementById("header-streak-pill");
             if (streakPill) {
-                streakPill.innerHTML = `🔥 ${this.streakData.currentStreak} <span class="streak-label">يوم</span>`;
+                streakPill.innerHTML = `✨ ${this.streakData.currentStreak} <span class="streak-label">يوم</span>`;
                 streakPill.style.display = "inline-flex";
             }
             // تحديث شارة الـ Streak في بانل الأذكار والتسبيح
@@ -648,7 +648,6 @@
                             </div>
                         </div>
                         <div class="khatma-streak-badge" onclick="SmartKhatmaService.openBadgesModal()" title="أوسمة الإنجاز والاستمرارية">
-                            <span class="streak-fire">🔥</span>
                             <span class="streak-num">${this.streakData.currentStreak}</span>
                             <span class="streak-txt">يوم مستمر</span>
                         </div>
