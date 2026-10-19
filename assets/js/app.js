@@ -3,7 +3,8 @@
  */
 window.getPublicAppUrl = function(pathAndQuery = "") {
     let base = "https://zadmuslim-zeta.vercel.app/";
-    if (typeof window !== "undefined" && window.location && window.location.hostname && !["localhost", "127.0.0.1", ""].includes(window.location.hostname)) {
+    const isNative = (typeof window !== "undefined" && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    if (!isNative && typeof window !== "undefined" && window.location && window.location.hostname && !["localhost", "127.0.0.1", ""].includes(window.location.hostname) && !window.location.hostname.includes("capacitor")) {
         base = window.location.origin + window.location.pathname;
     }
     if (!pathAndQuery) return base;

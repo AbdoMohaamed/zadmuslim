@@ -42,6 +42,7 @@ public class MainActivity extends BridgeActivity {
                 android.webkit.WebSettings settings = webView.getSettings();
                 settings.setJavaScriptEnabled(true);
                 settings.setDomStorageEnabled(true);
+                settings.setDatabaseEnabled(true);
                 settings.setMediaPlaybackRequiresUserGesture(false);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);

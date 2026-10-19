@@ -7,6 +7,18 @@
  * 6. نظام التنبيهات والإشعارات الذكية (Smart Notifications)
  */
 
+function getSafePublicUrl(subpath = "") {
+    if (typeof window.getPublicAppUrl === "function") {
+        return window.getPublicAppUrl(subpath);
+    }
+    const base = "https://zadmuslim-zeta.vercel.app/";
+    if (!subpath) return base;
+    if (subpath.startsWith("#") || subpath.startsWith("?")) {
+        return base.replace(/\/+$/, "") + subpath;
+    }
+    return base.replace(/\/+$/, "") + "/" + subpath.replace(/^\/+/, "");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initThemeToggle();
     initMobileNavDrawer();
@@ -297,7 +309,7 @@ function initAsmaaAllah() {
                                `📖 *المعنى:* ${currentSelectedName.meaning}\n\n` +
                                `💡 *الثمرة الإيمانية:* ${currentSelectedName.virtue}\n\n` +
                                `🤲 *الدعاء والتعبد بهذا الاسم:*\n${dua}\n\n` +
-                               `🌿 موقع زاد المسلم: ${window.location.origin + window.location.pathname}`;
+                                `🌿 موقع زاد المسلم: ${getSafePublicUrl()}`;
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     showToast(`تم نسخ اسم (${currentSelectedName.name}) ومعناه ودعاؤه بنجاح 📋`);
@@ -317,7 +329,7 @@ function initAsmaaAllah() {
                         `💡 *الثمرة الإيمانية:* ${currentSelectedName.virtue}\n\n` +
                         `🤲 *الدعاء به:*\n${dua}\n\n` +
                         `🌸 _من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)_\n` +
-                        `📲 تصفح أسماء الله الحسنى كاملة:\n${window.location.origin + window.location.pathname}#asmaa-allah`;
+                        `📲 تصفح أسماء الله الحسنى كاملة:\n${getSafePublicUrl('#asmaa-allah')}`;
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, "_blank");
         });
@@ -2194,7 +2206,7 @@ function initDailySpiritualMessage() {
                `💡 *الخاطرة والتدبر:*\n${todayMsg.reflection}\n\n` +
                `🤲 *دعاء اليوم:*\n${todayMsg.dua}\n\n` +
                `🌸 _من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)_\n` +
-               `📲 تصفح المزيد وتدبر القرآن كاملاً:\n${window.location.origin + window.location.pathname}`;
+               `📲 تصفح المزيد وتدبر القرآن كاملاً:\n${getSafePublicUrl()}`;
     };
 
     if (copyBtn) {
@@ -2361,7 +2373,7 @@ function initIslamicStories() {
             const verse = activeStory.keyVerse || activeStory.verse || '';
             const text = `📜 *${title}*\n\n${verse}\n\n💡 *أهم العبر والدروس:*\n` +
                          (activeStory.lessons ? activeStory.lessons.map(l => `• ${l}`).join('\n') : '') +
-                         `\n\n🌿 موقع زاد المسلم: ${window.location.origin + window.location.pathname}`;
+                          `\n\n🌿 موقع زاد المسلم: ${getSafePublicUrl()}`;
             navigator.clipboard.writeText(text).then(() => {
                 showToast("تم نسخ قصة وعبر اليوم بنجاح 📋");
             });
@@ -2378,7 +2390,7 @@ function initIslamicStories() {
                 `${verse}\n\n` +
                 `💡 *الدروس المستفادة:*\n` +
                 (activeStory.lessons ? activeStory.lessons.map(l => `• ${l}`).join('\n') : '') +
-                `\n\n🌿 اقرأ المزيد من القصص والسير المباركة:\n${window.location.origin + window.location.pathname}`
+                `\n\n🌿 اقرأ المزيد من القصص والسير المباركة:\n${getSafePublicUrl()}`
             );
             window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
         });
@@ -2561,7 +2573,7 @@ function initIslamicQuiz() {
                 const text = encodeURIComponent(
                     `🎯 حصلت على (${score} من 5) في مسابقة المعلومات الإسلامية على موقع زاد المسلم!\n` +
                     `اختبر معلوماتك الدينية وتحدَّ أصدقاءك في القرآن والسيرة العطرة:\n` +
-                    `${window.location.origin + window.location.pathname}#islamic-quiz`
+                    `${getSafePublicUrl('#islamic-quiz')}`
                 );
                 window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
             });
