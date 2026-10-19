@@ -541,6 +541,7 @@ public class AdhanNativePlugin extends Plugin {
         String muazzin = call.getString("muazzin", "qatami");
 
         Intent testIntent = new Intent(context, AdhanAlarmReceiver.class);
+        testIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName + " (اختبار)");
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKey);

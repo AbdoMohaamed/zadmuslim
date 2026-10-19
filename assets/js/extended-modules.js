@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initIslamicGuideFaq();
     initSmartNotifications();
     initHourlySalawatReminder();
+    initSmartAzkarLiveWatcher();
     initEnhancedCardGenerator();
     initEnhancedCategorizedDuas();
     initDailySpiritualMessage();
@@ -1009,8 +1010,9 @@ function initSmartNotifications() {
             }
 
             // مزامنة مواقيت الأذان والمنبهات مع نظام التشغيل فوراً
-            if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function" && window.prayerTimings) {
-                window.NativeAdhanService.schedulePrayers(window.prayerTimings);
+            if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
+                const timingsToPass = window.prayerTimings || (typeof window.getPrayerTimings === "function" ? window.getPrayerTimings() : null);
+                window.NativeAdhanService.schedulePrayers(timingsToPass);
             }
 
             const hasAnyActive = Object.values(settings).some(v => v === true);
@@ -1168,6 +1170,85 @@ function initHourlySalawatReminder() {
 
     window.restartSalawatReminder = scheduleSalawat;
     scheduleSalawat();
+}
+
+/**
+ * مراقب أذكار الصباح والمساء والنوم التفاعلي المباشر (Smart Azkar Live Watcher)
+ * يضمن انطلاق التنبيهات والصوت والإشعار في الدقيقة المحددة بالضبط حتى أثناء تصفح التطبيق
+ */
+function initSmartAzkarLiveWatcher() {
+    function checkAzkarMoments() {
+        try {
+            const raw = localStorage.getItem("smart_notify_settings");
+            if (!raw) return;
+            const settings = JSON.parse(raw);
+            const now = new Date();
+            const curH = String(now.getHours()).padStart(2, "0");
+            const curM = String(now.getMinutes()).padStart(2, "0");
+            const curTimeStr = `${curH}:${curM}`;
+            const dateStr = `${now.getFullYear()}_${now.getMonth() + 1}_${now.getDate()}`;
+
+            const checkTask = (type, isEnabled, targetTime, title, body, toastMsg) => {
+                if (!isEnabled || !targetTime) return;
+                const cleanTarget = targetTime.trim().slice(0, 5);
+                if (curTimeStr === cleanTarget) {
+                    const firedKey = `zad_azkar_fired_${type}_${dateStr}_${cleanTarget}`;
+                    if (!sessionStorage.getItem(firedKey) && !localStorage.getItem(firedKey)) {
+                        sessionStorage.setItem(firedKey, "1");
+                        localStorage.setItem(firedKey, "1");
+
+                        // 1. تشغيل صوت تنبيه نقي
+                        if (typeof window.playSalawatAudio === "function") {
+                            window.playSalawatAudio(false);
+                        }
+
+                        // 2. إظهار Toast وإشعار داخل التطبيق
+                        if (typeof showToast === "function") {
+                            showToast(toastMsg);
+                        }
+
+                        // 3. إرسال إشعار نظام حقيقي
+                        if (typeof triggerNativeNotification === "function") {
+                            triggerNativeNotification(title, body, "./index.html#azkar");
+                        }
+                    }
+                }
+            };
+
+            // أذكار الصباح
+            checkTask(
+                "morning",
+                settings.morning !== false,
+                settings.morningTime || "06:30",
+                "🌅 أذكار الصباح • حصن المسلم",
+                "أصبحنا وأصبح الملك لله.. ابدأ يومك بذكر الله وحصّن نفسك وأهلك بنور الأذكار 🌿",
+                "🌅 حان وقت أذكار الصباح • حصّن نفسك بذكر الله 🌿"
+            );
+
+            // أذكار المساء
+            checkTask(
+                "evening",
+                settings.evening !== false,
+                settings.eveningTime || "17:00",
+                "🌇 أذكار المساء • طمأنينة القلب",
+                "أمسينا وأمسى الملك لله.. حان وقت أذكار المساء لطمأنينة القلب وحفظ الرحمن 🤲",
+                "🌇 حان وقت أذكار المساء • طمأنينة لقلبك وحفظ من الرحمن 🤲"
+            );
+
+            // أذكار النوم والتحصين
+            checkTask(
+                "sleep",
+                settings.sleep === true,
+                settings.sleepTime || "22:30",
+                "🌙 أذكار النوم والتحصين • باسمك ربي",
+                "باسمك ربي وضعت جنبي وبك أرفعه.. حصّن نفسك بآية الكرسي والمعوذات وخواتيم سورة البقرة 🕊️",
+                "🌙 حان وقت أذكار النوم والتحصين • نوم هانئ وحفظ من الرحمن 🕊️"
+            );
+        } catch(e) {}
+    }
+
+    checkAzkarMoments();
+    setInterval(checkAzkarMoments, 10000); // فحص كل 10 ثوانٍ لدقة متناهية
 }
 
 /**

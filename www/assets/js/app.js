@@ -1696,6 +1696,15 @@ function initPWA() {
    11. مواقيت الصلاة وساعة الاستجابة وتنبيهات يوم الجمعة (Prayer Times)
    ========================================================================== */
 let prayerTimings = null;
+window.prayerTimings = null;
+window.getPrayerTimings = function() {
+    if (prayerTimings) return prayerTimings;
+    try {
+        const raw = localStorage.getItem("last_active_prayer_timings");
+        if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return (typeof FALLBACK_PRAYER_TIMES !== "undefined") ? FALLBACK_PRAYER_TIMES : null;
+};
 let prayerTimerInterval = null;
 
 const CITY_CONFIGS = {
@@ -1769,6 +1778,7 @@ function initPrayerTimes() {
             try { prayerTimings = JSON.parse(lastCached); } catch(e) {}
         }
         if (!prayerTimings) prayerTimings = FALLBACK_PRAYER_TIMES;
+        window.prayerTimings = prayerTimings;
         renderPrayerTimesUI(prayerTimings);
         startPrayerCountdown();
         // صمام أمان: لا نجدول FALLBACK_PRAYER_TIMES المؤقتة في نظام الهاتف الأصلي لمنع الأذان في أوقات خاطئة
@@ -1877,6 +1887,7 @@ function fetchPrayerTimes(cityKey) {
     if (cached) {
         try {
             prayerTimings = JSON.parse(cached);
+            window.prayerTimings = prayerTimings;
             renderPrayerTimesUI(prayerTimings);
             startPrayerCountdown();
             initFastingTracker();
@@ -1892,6 +1903,7 @@ function fetchPrayerTimes(cityKey) {
         .then(result => {
             if (result && result.code === 200 && result.data && result.data.timings) {
                 prayerTimings = result.data.timings;
+                window.prayerTimings = prayerTimings;
                 localStorage.setItem(cacheKey, JSON.stringify(prayerTimings));
                 localStorage.setItem("last_active_prayer_timings", JSON.stringify(prayerTimings));
                 renderPrayerTimesUI(prayerTimings);
@@ -1911,6 +1923,7 @@ function fetchPrayerTimes(cityKey) {
 
 function useFallbackTimings() {
     prayerTimings = FALLBACK_PRAYER_TIMES;
+    window.prayerTimings = prayerTimings;
     renderPrayerTimesUI(prayerTimings);
     startPrayerCountdown();
     initFastingTracker();

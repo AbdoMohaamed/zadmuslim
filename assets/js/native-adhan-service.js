@@ -120,12 +120,22 @@ const NativeAdhanService = {
      * جدولة مواقيت الصلوات الخمس والتنبيه المسبق بـ 5 دقائق في نظام الهاتف الأصلي (AlarmManager / iOS Notifications)
      */
     async schedulePrayers(prayersTimings) {
+        if (!prayersTimings) {
+            if (typeof window !== "undefined" && typeof window.getPrayerTimings === "function") {
+                prayersTimings = window.getPrayerTimings();
+            } else if (typeof window !== "undefined" && window.prayerTimings) {
+                prayersTimings = window.prayerTimings;
+            } else {
+                try {
+                    const raw = localStorage.getItem("last_active_prayer_timings");
+                    if (raw) prayersTimings = JSON.parse(raw);
+                } catch(e) {}
+            }
+        }
         if (!prayersTimings) return;
         if (!this.isNative) {
             if (typeof window !== "undefined" && window.Capacitor && window.Capacitor.isNativePlatform()) {
                 this.isNative = true;
-            } else {
-                return;
             }
         }
 
@@ -533,6 +543,14 @@ const NativeAdhanService = {
      */
     async testNotification(prayerKey = "asr", prayerName = "صلاة العصر") {
         const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami";
+        
+        // تشغيل صوت التنبيه الفوري
+        try {
+            if (typeof window.playSalawatAudio === "function") {
+                window.playSalawatAudio(false);
+            }
+        } catch(e) {}
+
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
             try {
                 await window.Capacitor.Plugins.AdhanNative.testAdhanNotification({
@@ -554,7 +572,7 @@ const NativeAdhanService = {
                         id: 99999,
                         title: `🕌 تجربة إشعار الأذان • ${prayerName}`,
                         body: "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋",
-                        schedule: { at: new Date(Date.now() + 1000), allowWhileIdle: true },
+                        schedule: { at: new Date(Date.now() + 500), allowWhileIdle: true },
                         sound: `adhan_${muazzin}.mp3`,
                         channelId: `adhan_${muazzin}`,
                         smallIcon: "res://ic_stat_icon",
@@ -567,25 +585,47 @@ const NativeAdhanService = {
             }
         }
 
-        // Web Notification fallback
+        // Web Notification fallback (متوافق مع الهواتف والمتصفحات عبر Service Worker)
         if (typeof Notification !== "undefined") {
+            const notifTitle = `🕌 تجربة إشعار الأذان • ${prayerName}`;
+            const notifOpts = {
+                body: "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋",
+                icon: "assets/icon-192.png",
+                badge: "assets/icon-192.png",
+                vibrate: [200, 100, 200]
+            };
+
             if (Notification.permission === "granted") {
-                new Notification(`🕌 تجربة إشعار الأذان • ${prayerName}`, {
-                    body: "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋",
-                    icon: "assets/icons/icon-192.png"
-                });
+                if ("serviceWorker" in navigator) {
+                    try {
+                        const reg = await navigator.serviceWorker.ready;
+                        if (reg && reg.showNotification) {
+                            await reg.showNotification(notifTitle, notifOpts);
+                            return { success: true, fallback: "sw" };
+                        }
+                    } catch(swErr) {}
+                }
+                try {
+                    new Notification(notifTitle, notifOpts);
+                    return { success: true, fallback: "window" };
+                } catch(e) {}
             } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(p => {
+                try {
+                    const p = await Notification.requestPermission();
                     if (p === "granted") {
-                        new Notification(`🕌 تجربة إشعار الأذان • ${prayerName}`, {
-                            body: "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋",
-                            icon: "assets/icons/icon-192.png"
-                        });
+                        if ("serviceWorker" in navigator) {
+                            const reg = await navigator.serviceWorker.ready;
+                            if (reg && reg.showNotification) {
+                                await reg.showNotification(notifTitle, notifOpts);
+                                return { success: true, fallback: "sw" };
+                            }
+                        }
+                        new Notification(notifTitle, notifOpts);
                     }
-                });
+                } catch(e) {}
             }
         }
-        return { success: true, fallback: "web" };
+        return { success: true, fallback: "toast" };
     },
 
     async openNotificationSettings() {
