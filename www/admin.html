@@ -6,18 +6,19 @@
     <title>لوحة تحكم زاد المسلم • الإشعارات والإحصائيات</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
-    
+
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <!-- Firebase SDK (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/media-data.js"></script>
 
@@ -111,7 +112,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
         }
@@ -1227,13 +1228,14 @@
             <h2 class="login-title">لوحة إدارة زاد المسلم</h2>
             <p class="login-desc">أدخل رمز المرور السري للدخول إلى لوحة التحكم وإرسال الإشعارات والإحصائيات</p>
             <div class="form-group">
-                <input type="password" id="admin-pin-input" class="form-input" placeholder="الرمز السري" style="text-align: center; font-size: 18px; letter-spacing: 3px;" autofocus>
+                <input type="email" id="admin-email-input" class="form-input" placeholder="البريد الإلكتروني للمسؤول" autocomplete="username" aria-label="البريد الإلكتروني للمسؤول">
+                <input autocomplete="current-password" type="password" id="admin-pin-input" class="form-input" placeholder="كلمة المرور" style="text-align: center; font-size: 18px; letter-spacing: 3px;" autofocus>
             </div>
             <button type="button" id="btn-login-submit" class="btn btn-primary btn-block">
                 <i class="fa-solid fa-key"></i>
                 <span>تسجيل الدخول</span>
             </button>
-            <div id="login-error-msg" style="color: var(--danger); font-size: 12px; margin-top: 10px; display: none;">الرمز السري غير صحيح، حاول ثانية.</div>
+            <div id="login-error-msg" style="color: var(--danger); font-size: 12px; margin-top: 10px; display: none;">كلمة المرور غير صحيح، حاول ثانية.</div>
         </div>
     </div>
 
@@ -1283,18 +1285,18 @@
         </button>
         <button type="button" class="admin-tab-btn" data-tab="tab-settings">
             <i class="fa-solid fa-gear"></i>
-            <span>تغيير الرمز السري والإعدادات</span>
+            <span>تغيير كلمة المرور والإعدادات</span>
         </button>
     </div>
 
     <!-- Main Content Container -->
     <main class="container">
-        
+
         <!-- ==========================================
              TAB 1: BROADCAST NOTIFICATIONS
              ========================================== -->
         <div id="tab-broadcast" class="tab-content active">
-            
+
             <!-- Quick Top Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -1330,7 +1332,7 @@
 
             <!-- Two Columns: Broadcast Composer + Live Mobile Preview -->
             <div class="main-layout">
-                
+
                 <!-- Composer Form -->
                 <div class="section-card">
                     <div class="section-header">
@@ -1470,7 +1472,7 @@
                     <div class="phone-mockup">
                         <div class="phone-notch"></div>
                         <div class="phone-time" id="preview-clock">12:30</div>
-                        
+
                         <div class="push-preview-card">
                             <div class="preview-header">
                                 <div class="preview-app-info">
@@ -1497,7 +1499,7 @@
              TAB 2: ANALYTICS & VIEWS DASHBOARD
              ========================================== -->
         <div id="tab-analytics" class="tab-content">
-            
+
             <div class="section-card">
                 <div class="section-header">
                     <h2 class="section-title">
@@ -1639,34 +1641,34 @@
              TAB 4: SETTINGS & CHANGE PIN
              ========================================== -->
         <div id="tab-settings" class="tab-content">
-            
+
             <div class="section-card" style="max-width: 600px; margin: 0 auto 20px;">
                 <div class="section-header">
                     <h2 class="section-title">
                         <i class="fa-solid fa-key"></i>
-                        <span>تغيير الرمز السري للوحة الإدارة (Admin PIN)</span>
+                        <span>تغيير كلمة المرور للوحة الإدارة (Admin PIN)</span>
                     </h2>
                 </div>
 
                 <form id="change-pin-form">
                     <div class="form-group">
-                        <label class="form-label" for="current-pin-input">الرمز السري الحالي:</label>
+                        <label class="form-label" for="current-pin-input">كلمة المرور الحالي:</label>
                         <input type="password" id="current-pin-input" class="form-input" placeholder="أدخل الرمز الحالي" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="new-pin-input">الرمز السري الجديد:</label>
-                        <input type="password" id="new-pin-input" class="form-input" placeholder="أدخل الرمز الجديد (4 أرقام أو حروف على الأقل)" required>
+                        <label class="form-label" for="new-pin-input">كلمة المرور الجديد:</label>
+                        <input type="password" id="new-pin-input" class="form-input" placeholder="أدخل الرمز الجديد (١٢ حرفًا على الأقل)" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="confirm-pin-input">تأكيد الرمز السري الجديد:</label>
+                        <label class="form-label" for="confirm-pin-input">تأكيد كلمة المرور الجديد:</label>
                         <input type="password" id="confirm-pin-input" class="form-input" placeholder="أعد كتابة الرمز الجديد" required>
                     </div>
 
                     <button type="submit" id="btn-save-new-pin" class="btn btn-primary btn-block" style="margin-top: 15px;">
                         <i class="fa-solid fa-floppy-disk"></i>
-                        <span>حفظ الرمز السري الجديد</span>
+                        <span>حفظ كلمة المرور الجديد</span>
                     </button>
                 </form>
             </div>
@@ -1692,7 +1694,7 @@
              TAB: ISLAMIC MEDIA & PODCAST MANAGER
              ========================================== -->
         <div id="tab-media" class="tab-content">
-            
+
             <!-- Welcome Header Card -->
             <div class="section-card" style="margin-bottom: 25px; border-right: 4px solid var(--gold);">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
@@ -2009,9 +2011,9 @@
             }
         };
 
-        const DEFAULT_PIN = "zad2026";
+
         let db = null;
-        let activeAdminPin = DEFAULT_PIN;
+
 
         // Register Service Worker in Admin Panel
         if ("serviceWorker" in navigator) {
@@ -2187,8 +2189,8 @@
                     db = firebase.database();
                     const statusEl = document.getElementById("stat-connection-status");
                     if (statusEl) statusEl.textContent = "متصل 🟢";
-                    
-                    fetchAdminPinFromFirebase();
+
+                    loadOneSignalConfig();
                     listenToSubscribersAndHistory();
                     loadLiveAnalyticsData();
                     initMediaAdminManager();
@@ -2206,19 +2208,6 @@
         }
 
         // Fetch PIN from Firebase with fallback
-        function fetchAdminPinFromFirebase() {
-            if (!db) return;
-            db.ref("admin_settings/pin").on("value", snapshot => {
-                const pin = snapshot.val();
-                if (pin) {
-                    activeAdminPin = String(pin);
-                    localStorage.setItem("zad_admin_pin", activeAdminPin);
-                } else {
-                    activeAdminPin = localStorage.getItem("zad_admin_pin") || DEFAULT_PIN;
-                }
-            });
-        }
-
         // Listen to Subscribers and History
         function listenToSubscribersAndHistory() {
             if (!db) return;
@@ -2379,7 +2368,7 @@
         // Form Submit -> Send Broadcast
         document.getElementById("broadcast-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            
+
             const title = titleInput.value.trim();
             const body = bodyInput.value.trim();
             const url = document.getElementById("notify-target-url").value;
@@ -2393,67 +2382,12 @@
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري بث الإشعار للجميع...';
 
+
             try {
-                if (db) {
-                    const newBroadcastRef = db.ref("push_broadcasts").push();
-                    await newBroadcastRef.set({
-                        title: title,
-                        body: body,
-                        url: url,
-                        icon: "assets/icon-192.png",
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
-                }
-
-                // Helper to get serverless push API endpoint
-                const getPushApiUrl = () => {
-                    if (location.hostname.includes("vercel.app")) {
-                        return "/api/send-push";
-                    }
-                    return "https://zadmuslim-zeta.vercel.app/api/send-push";
-                };
-
-                // Send Web Push + OneSignal Cloud Push via serverless endpoint (avoids CORS)
-                let pushInfo = "";
-                try {
-                    const apiUrl = getPushApiUrl();
-                    const osAppId = document.getElementById("os-app-id") ? document.getElementById("os-app-id").value.trim() : "";
-                    const osRestKey = document.getElementById("os-rest-key") ? document.getElementById("os-rest-key").value.trim() : "";
-
-                    const pushRes = await fetch(apiUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            title: title,
-                            body: body,
-                            url: url,
-                            icon: "/assets/icon-192.png",
-                            onesignalAppId: osAppId,
-                            onesignalRestKey: osRestKey
-                        })
-                    });
-                    const pushResult = await pushRes.json();
-                    if (pushResult && pushResult.sentCount > 0) {
-                        pushInfo += ` (تم الإرسال لـ ${pushResult.sentCount} متصفح ويب)`;
-                    }
-                    if (pushResult && pushResult.onesignal) {
-                        const osData = pushResult.onesignal;
-                        if (osData.recipients > 0 || osData.id) {
-                            pushInfo += ` (تم إيقاظ وإشعار ${osData.recipients || 'جميع'} أجهزة OneSignal • APNs & FCM)`;
-                        } else if (osData.errors) {
-                            const errStr = Array.isArray(osData.errors) ? osData.errors.join(", ") : JSON.stringify(osData.errors);
-                            console.warn("OneSignal API errors:", osData.errors);
-                            showAdminToast("⚠️ تنبيه OneSignal: " + errStr + " (تأكد من نسخ REST API Key وليس Key ID)", true);
-                        }
-                    }
-                } catch (pushErr) {
-                    console.warn("Unified push call warning:", pushErr);
-                }
-
-                // Trigger local device feedback
-                triggerNativeNotification(title, body, url);
-
-                showAdminToast("تم بث الإشعار بنجاح لجميع المشتركين والزوار!" + pushInfo + " 🚀🌿");
+                const result = await adminRequest('/api/send-push', { title, body, url });
+                if (!result.success) throw new Error('لم يتم إرسال أي إشعار. راجع المشتركين وإعدادات الخدمة.');
+                if (db) await db.ref('push_broadcasts').push({ title, body, url, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                showAdminToast('تم قبول الإرسال: ' + (result.sentCount || 0) + ' متصفح. الوصول يعتمد على حالة الجهاز.');
             } catch (err) {
                 console.error("Broadcast failed:", err);
                 showAdminToast("حدث خطأ أثناء الإرسال: " + err.message, true);
@@ -2474,95 +2408,36 @@
             }
         };
 
+
+        async function adminRequest(path, body) {
+            const user = firebase.auth().currentUser;
+            if (!user) throw new Error('سجّل الدخول أولاً');
+            const response = await fetch(path, { method: body ? 'POST' : 'GET',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await user.getIdToken() },
+                ...(body ? { body: JSON.stringify(body) } : {}) });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'تعذّر تنفيذ الطلب');
+            return result;
+        }
         async function loadOneSignalConfig() {
+            const key = document.getElementById('os-rest-key');
+            if (key) { key.value = ''; key.disabled = true; key.placeholder = 'يُضبط المفتاح في إعدادات الاستضافة فقط'; }
             try {
-                if (!db) return;
-                const snap = await db.ref("admin_settings/onesignal").once("value");
-                if (snap.exists()) {
-                    const cfg = snap.val();
-                    if (cfg.app_id && document.getElementById("os-app-id")) {
-                        document.getElementById("os-app-id").value = cfg.app_id;
-                    }
-                    if (cfg.rest_key && document.getElementById("os-rest-key")) {
-                        document.getElementById("os-rest-key").value = cfg.rest_key;
-                    }
-                    const badge = document.getElementById("os-status-badge");
-                    if (badge) badge.innerHTML = '<span style="color: #4ade80;">✅ الإعدادات محفوظة</span>';
-                }
-            } catch(e) {}
+                if (db) document.getElementById('os-app-id').value = (await db.ref('public_config/onesignal_app_id').once('value')).val() || '';
+            } catch { showAdminToast('تعذّر تحميل إعداد الخدمة', true); }
         }
-        loadOneSignalConfig();
-
-        if (document.getElementById("btn-save-os-config")) {
-            document.getElementById("btn-save-os-config").addEventListener("click", async () => {
-                const appId = document.getElementById("os-app-id").value.trim();
-                const restKey = document.getElementById("os-rest-key").value.trim();
-                if (!appId || !restKey) {
-                    showAdminToast("يرجى إدخال OneSignal App ID و REST API Key", true);
-                    return;
-                }
-                try {
-                    if (db) {
-                        await db.ref("admin_settings/onesignal").set({
-                            app_id: appId,
-                            rest_key: restKey,
-                            updatedAt: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    }
-                    localStorage.setItem("zad_onesignal_app_id", appId);
-                    const badge = document.getElementById("os-status-badge");
-                    if (badge) badge.innerHTML = '<span style="color: #4ade80;">✅ تم الحفظ بنجاح</span>';
-                    showAdminToast("تم حفظ إعدادات OneSignal بنجاح ✨");
-                } catch(err) {
-                    showAdminToast("فشل الحفظ: " + err.message, true);
-                }
-            });
-        }
-
-        // Test OneSignal Connection via Serverless Proxy (Prevents CORS Errors)
-        if (document.getElementById("btn-test-os-connection")) {
-            document.getElementById("btn-test-os-connection").addEventListener("click", async () => {
-                const appId = document.getElementById("os-app-id").value.trim();
-                const restKey = document.getElementById("os-rest-key").value.trim();
-                const badge = document.getElementById("os-status-badge");
-                if (!appId || !restKey) {
-                    showAdminToast("يرجى إدخال OneSignal App ID و REST API Key أولاً", true);
-                    return;
-                }
-                if (badge) badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري فحص الاتصال...';
-                try {
-                    const apiUrl = (location.hostname.includes("vercel.app")) 
-                        ? "/api/send-push" 
-                        : "https://zadmuslim-zeta.vercel.app/api/send-push";
-
-                    const res = await fetch(apiUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            action: "test_onesignal",
-                            appId: appId,
-                            restKey: restKey
-                        })
-                    });
-                    const data = await res.json();
-                    if (data && (data.id === appId || (data.name && !data.errors))) {
-                        const count = (data.players !== undefined) ? data.players : (data.total_users || 0);
-                        if (badge) badge.innerHTML = `<span style="color: #4ade80; font-weight: bold;">✅ متصل ومصرح بنجاح! المشتركون: ${count}</span>`;
-                        showAdminToast(`تم التحقق بنجاح! تطبيق OneSignal (${data.name || ''}) متصل وجاهز.`);
-                    } else if (data && data.errors) {
-                        const errMsg = Array.isArray(data.errors) ? data.errors.join(", ") : JSON.stringify(data.errors);
-                        if (badge) badge.innerHTML = `<span style="color: #f87171; font-weight: bold;">❌ غير مصرح: تأكد من نسخ REST API Key وليس Key ID</span>`;
-                        showAdminToast(`خطأ من OneSignal: ${errMsg}`, true);
-                    } else {
-                        if (badge) badge.innerHTML = `<span style="color: #f87171;">❌ الاستجابة: كود ${res.status}</span>`;
-                        showAdminToast("فشل التحقق من المفتاح", true);
-                    }
-                } catch(err) {
-                    if (badge) badge.innerHTML = `<span style="color: #f87171;">❌ خطأ شبكة</span>`;
-                    showAdminToast("خطأ في الاتصال بالخادم: " + err.message, true);
-                }
-            });
-        }
+        document.getElementById('btn-save-os-config')?.addEventListener('click', async () => {
+            try {
+                const appId = document.getElementById('os-app-id').value.trim();
+                if (!/^[a-f0-9-]{36}$/i.test(appId)) throw new Error('معرّف التطبيق غير صالح');
+                await db.ref('public_config/onesignal_app_id').set(appId);
+                showAdminToast('تم حفظ المعرّف العام. اضبط المفتاح الخاص على الخادم.');
+            } catch(e) { showAdminToast(e.message, true); }
+        });
+        document.getElementById('btn-test-os-connection')?.addEventListener('click', async () => {
+            try { await adminRequest('/api/send-push', { action: 'test_onesignal' }); showAdminToast('تم الاتصال بالخدمة'); }
+            catch(e) { showAdminToast(e.message, true); }
+        });
 
         // Test Notification On Self
         document.getElementById("btn-test-notification-self").addEventListener("click", () => {
@@ -2575,37 +2450,17 @@
         });
 
         // Resend Broadcast
+
         window.resendBroadcast = async function(id) {
-            if (!db || !confirm("هل أنت متأكد من إعادة إرسال هذا الإشعار الآن؟")) return;
+            if (!db || !confirm('إعادة إرسال هذا الإشعار؟')) return;
             try {
-                const snap = await db.ref("push_broadcasts/" + id).once("value");
-                const val = snap.val();
-                if (val) {
-                    await db.ref("push_broadcasts").push({
-                        ...val,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
-
-                    // Trigger Web Push to closed devices
-                    try {
-                        await fetch("/api/send-push", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                title: val.title || "تنبيه",
-                                body: val.body || "",
-                                url: val.url || "./",
-                                icon: "/assets/icon-192.png"
-                            })
-                        });
-                    } catch(e) {}
-
-                    triggerNativeNotification(val.title || "تنبيه معاد", val.body || "", val.url || "./");
-                    showAdminToast("تمت إعادة إرسال الإشعار لجميع الأجهزة بنجاح! 🚀");
-                }
-            } catch(e) {
-                showAdminToast("فشل إعادة الإرسال: " + e.message, true);
-            }
+                const val = (await db.ref('push_broadcasts/' + id).once('value')).val();
+                if (!val) throw new Error('الإشعار غير موجود');
+                const result = await adminRequest('/api/send-push', { title: val.title, body: val.body, url: val.url });
+                if (!result.success) throw new Error('لم يتم إرسال أي إشعار');
+                await db.ref('push_broadcasts').push({ ...val, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                showAdminToast('تم قبول إعادة الإرسال');
+            } catch(e) { showAdminToast(e.message, true); }
         };
 
         // Delete Broadcast
@@ -2633,42 +2488,18 @@
         // ==========================================
         // Change PIN Logic
         // ==========================================
-        document.getElementById("change-pin-form").addEventListener("submit", async (e) => {
+
+        document.getElementById('change-pin-form').addEventListener('submit', async e => {
             e.preventDefault();
-            const currentVal = document.getElementById("current-pin-input").value.trim();
-            const newVal = document.getElementById("new-pin-input").value.trim();
-            const confirmVal = document.getElementById("confirm-pin-input").value.trim();
-
-            const savedPin = localStorage.getItem("zad_admin_pin") || activeAdminPin || DEFAULT_PIN;
-
-            if (currentVal !== savedPin) {
-                showAdminToast("الرمز السري الحالي غير صحيح!", true);
-                return;
-            }
-
-            if (newVal.length < 4) {
-                showAdminToast("الرمز الجديد يجب أن يحتوي على 4 خانات على الأقل!", true);
-                return;
-            }
-
-            if (newVal !== confirmVal) {
-                showAdminToast("الرمز الجديد غير متطابق مع التأكيد!", true);
-                return;
-            }
-
             try {
-                // Save in Firebase & localStorage
-                if (db) {
-                    await db.ref("admin_settings/pin").set(newVal);
-                }
-                localStorage.setItem("zad_admin_pin", newVal);
-                activeAdminPin = newVal;
-
-                document.getElementById("change-pin-form").reset();
-                showAdminToast("تم تغيير الرمز السري بنجاح وحفظه! 🔐✨");
-            } catch(err) {
-                showAdminToast("حدث خطأ أثناء حفظ الرمز: " + err.message, true);
-            }
+                const user = firebase.auth().currentUser;
+                const current = document.getElementById('current-pin-input').value;
+                const password = document.getElementById('new-pin-input').value;
+                if (password.length < 12 || password !== document.getElementById('confirm-pin-input').value) throw new Error('استخدم ١٢ حرفًا على الأقل وتأكد من تطابق التأكيد.');
+                await user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, current));
+                await user.updatePassword(password);
+                e.target.reset(); showAdminToast('تم تغيير كلمة المرور');
+            } catch { showAdminToast('تعذّر تغيير كلمة المرور. تحقق من البيانات واتصالك.', true); }
         });
 
         // ==========================================================
@@ -3233,52 +3064,34 @@
         const logoutBtn = document.getElementById("btn-admin-logout");
         const loginErrorMsg = document.getElementById("login-error-msg");
 
-        function checkAuth() {
-            const isAuth = sessionStorage.getItem("zad_admin_auth");
-            if (isAuth === "true") {
-                loginScreen.style.display = "none";
-                initAdminFirebase();
-            } else {
-                loginScreen.style.display = "flex";
-                // Read local or Firebase pin before login
-                activeAdminPin = localStorage.getItem("zad_admin_pin") || DEFAULT_PIN;
-                if (typeof firebase !== "undefined" && isFirebaseConfigured()) {
-                    try {
-                        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-                        firebase.database().ref("admin_settings/pin").once("value").then(s => {
-                            if (s.val()) {
-                                activeAdminPin = String(s.val());
-                                localStorage.setItem("zad_admin_pin", activeAdminPin);
-                            }
-                        }).catch(() => {});
-                    } catch(e) {}
-                }
-            }
+
+        let adminInitialized = false;
+        async function checkAuth() {
+            localStorage.removeItem('zad_admin_pin'); localStorage.removeItem('sadqah_admin_pin');
+            sessionStorage.removeItem('zad_admin_auth');
+            if (typeof firebase === 'undefined' || !firebase.auth) { showAdminToast('تعذّر تحميل تسجيل الدخول. تحقق من الإنترنت.', true); return; }
+            if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+            await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+            firebase.auth().onAuthStateChanged(async user => {
+                loginScreen.style.display = 'flex';
+                if (!user) return;
+                try {
+                    await adminRequest('/api/admin-session');
+                    loginScreen.style.display = 'none';
+                    if (!adminInitialized) { adminInitialized = true; initAdminFirebase(); }
+                } catch(e) { showAdminToast(e.message, true); await firebase.auth().signOut(); }
+            });
         }
-
-        loginBtn.addEventListener("click", () => {
-            const entered = pinInput.value.trim();
-            const savedPin = localStorage.getItem("zad_admin_pin") || activeAdminPin || DEFAULT_PIN;
-            
-            if (entered === savedPin) {
-                sessionStorage.setItem("zad_admin_auth", "true");
-                loginScreen.style.display = "none";
-                initAdminFirebase();
-                showAdminToast("أهلاً بك يا مدير النظام! تم تسجيل الدخول بنجاح 🌿");
-            } else {
-                if (loginErrorMsg) loginErrorMsg.style.display = "block";
-                showAdminToast("الرمز السري غير صحيح. يرجى المحاولة ثانية", true);
-            }
+        loginBtn.addEventListener('click', async () => {
+            loginBtn.disabled = true;
+            try {
+                await firebase.auth().signInWithEmailAndPassword(document.getElementById('admin-email-input').value.trim(), pinInput.value);
+                pinInput.value = '';
+            } catch { if (loginErrorMsg) { loginErrorMsg.textContent = 'تعذّر الدخول. راجع البريد وكلمة المرور واتصالك.'; loginErrorMsg.style.display = 'block'; } }
+            finally { loginBtn.disabled = false; }
         });
-
-        pinInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") loginBtn.click();
-        });
-
-        logoutBtn.addEventListener("click", () => {
-            sessionStorage.removeItem("zad_admin_auth");
-            location.reload();
-        });
+        pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
+        logoutBtn.addEventListener('click', async () => { await firebase.auth().signOut(); location.reload(); });
 
         // Run Auth Check
         checkAuth();

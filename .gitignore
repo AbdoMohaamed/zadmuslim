@@ -407,4 +407,7 @@ DerivedData/
 *.swp
 *~
 .DS_Store
-Thumbs.db
+Thumbs.db
+# Private Android signing keys
+*.jks
+*.keystore

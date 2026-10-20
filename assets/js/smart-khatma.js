@@ -356,7 +356,13 @@
             if (this.streakData.currentStreak >= 15) this.awardBadge("badge_streak_15");
             if (this.streakData.currentStreak >= 30) this.awardBadge("badge_streak_30");
 
-            // 4. عرض احتفال وتحديث الشاشات
+            // 4. تسجيل أجر قراءة صفحات الورد في حديقة الحسنات
+            if (typeof window.addSpiritualGardenDeed === "function") {
+                const count = (wird && wird.pagesCount) ? wird.pagesCount : 1;
+                window.addSpiritualGardenDeed("quran", count * 5, count);
+            }
+
+            // 5. عرض احتفال وتحديث الشاشات
             this.renderAllUI();
             this.triggerCelebrationEffect(isKhatmaFinished);
         },

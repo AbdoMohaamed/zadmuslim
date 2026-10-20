@@ -1,28 +1,34 @@
 const webpush = require('web-push');
 
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || "BFCsM3Ryzc4kdbfNgCqtlOJPjIvrolQJTQUdD03b8g1ehKhnxqNeAUJ9T_Yl8WajcZj_dWvJhcCbHN6-pPCSJ4I";
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || "_aoEv2QuF5Zbo14whCStV5jrSVY3a8-tgPOKT0QS0rI";
-const VAPID_SUBJECT = "mailto:abdelrahman.developer@gmail.com";
-const FIREBASE_DB_URL = "https://sadqah-jaddi-default-rtdb.firebaseio.com";
-
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+const { authorize } = require('../server/admin-auth');
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:abdelrahman.developer@gmail.com";
+const FIREBASE_DB_URL = process.env.FIREBASE_DATABASE_URL;
 
 module.exports = async function handler(req, res) {
-  // Enable CORS for all origins (admin panel, localhost, mobile web)
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
+  res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
+  const session = await authorize(req, res);
+  if (!session) return;
+  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !FIREBASE_DB_URL) return res.status(503).json({ error: 'إعدادات الإشعارات غير مكتملة على الخادم.' });
   try {
-    const bodyData = req.body || {};
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+    const bodyData = { ...(req.body || {}), appId: process.env.ONESIGNAL_APP_ID, restKey: process.env.ONESIGNAL_REST_API_KEY,
+      onesignalAppId: process.env.ONESIGNAL_APP_ID, onesignalRestKey: process.env.ONESIGNAL_REST_API_KEY };
+    if (bodyData.action !== 'test_onesignal') {
+      if (typeof bodyData.title !== 'string' || !bodyData.title.trim() || bodyData.title.length > 120 ||
+          typeof bodyData.body !== 'string' || !bodyData.body.trim() || bodyData.body.length > 2000) return res.status(400).json({ error: 'العنوان والنص مطلوبان، بحد أقصى ١٢٠ و٢٠٠٠ حرف.' });
+      try {
+        const base = process.env.PUBLIC_SITE_URL || 'https://zadmuslim-zeta.vercel.app';
+        const target = new URL(bodyData.url || './', base);
+        if (target.origin !== new URL(base).origin || !['https:', 'http:'].includes(target.protocol)) throw new Error();
+        bodyData.url = target.pathname + target.search + target.hash;
+      } catch { return res.status(400).json({ error: 'الرابط يجب أن يكون داخل التطبيق.' }); }
+    }
 
     // -------------------------------------------------------------
     // 1. OneSignal Proxy Action: Test Connection
@@ -36,7 +42,7 @@ module.exports = async function handler(req, res) {
       const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
       try {
         const osRes = await fetch(`https://api.onesignal.com/apps/${encodeURIComponent(appId)}`, {
-          method: 'GET',
+          method: 'GET', signal: AbortSignal.timeout(10000),
           headers: {
             'Authorization': `Key ${cleanKey}`
           }
@@ -62,7 +68,7 @@ module.exports = async function handler(req, res) {
       const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
       try {
         const osRes = await fetch('https://api.onesignal.com/notifications', {
-          method: 'POST',
+          method: 'POST', signal: AbortSignal.timeout(10000),
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'Authorization': `Key ${cleanKey}`
@@ -102,7 +108,7 @@ module.exports = async function handler(req, res) {
       try {
         const cleanKey = onesignalRestKey.replace(/^(Key|Basic)\s+/i, '').trim();
         const osRes = await fetch('https://api.onesignal.com/notifications', {
-          method: 'POST',
+          method: 'POST', signal: AbortSignal.timeout(10000),
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'Authorization': `Key ${cleanKey}`
@@ -138,12 +144,13 @@ module.exports = async function handler(req, res) {
       }
     });
 
-    const fbResponse = await fetch(`${FIREBASE_DB_URL}/push_subscribers.json`);
+    const fbResponse = await fetch(`${FIREBASE_DB_URL}/push_subscribers.json?auth=${encodeURIComponent(session.token)}`, { signal: AbortSignal.timeout(10000) });
+    if (!fbResponse.ok) return res.status(502).json({ error: 'تعذّر قراءة المشتركين. راجع الصلاحيات.' });
     const subscribersData = await fbResponse.json();
 
     if (!subscribersData) {
       return res.status(200).json({
-        success: true,
+        success: Boolean(onesignalResult?.id),
         sentCount: 0,
         onesignal: onesignalResult,
         message: 'No web subscribers registered yet'
@@ -155,17 +162,25 @@ module.exports = async function handler(req, res) {
     let failureCount = 0;
     const expiredKeys = [];
 
-    const pushPromises = subscriberEntries.map(async ([key, subObj]) => {
+    const sendSubscriber = async ([key, subObj]) => {
       if (!subObj || !subObj.subscription || !subObj.subscription.endpoint) {
         return;
       }
 
       const subscription = subObj.subscription;
+      let endpoint;
+      try { endpoint = new URL(subscription.endpoint); } catch { failureCount++; return; }
+      const host = endpoint.hostname;
+      if (endpoint.protocol !== 'https:' || endpoint.port ||
+          !(host === 'fcm.googleapis.com' || host === 'updates.push.services.mozilla.com' ||
+            host.endsWith('.notify.windows.com') || host === 'web.push.apple.com' || host.endsWith('.push.apple.com'))) {
+        failureCount++; return;
+      }
 
       try {
         await webpush.sendNotification(subscription, payload, {
           TTL: 86400, // 24 hours retention
-          urgency: 'high'
+          urgency: 'high', timeout: 10000
         });
         successCount++;
       } catch (err) {
@@ -174,23 +189,25 @@ module.exports = async function handler(req, res) {
           expiredKeys.push(key);
         }
       }
-    });
+    };
 
-    await Promise.all(pushPromises);
+    for (let i = 0; i < subscriberEntries.length; i += 20) {
+      await Promise.all(subscriberEntries.slice(i, i + 20).map(sendSubscriber));
+    }
 
     // Clean up expired subscriptions from Firebase
     if (expiredKeys.length > 0) {
-      expiredKeys.forEach(async (expiredKey) => {
+      await Promise.all(expiredKeys.map(async (expiredKey) => {
         try {
-          await fetch(`${FIREBASE_DB_URL}/push_subscribers/${expiredKey}.json`, {
-            method: 'DELETE'
+          await fetch(`${FIREBASE_DB_URL}/push_subscribers/${encodeURIComponent(expiredKey)}.json?auth=${encodeURIComponent(session.token)}`, {
+            method: 'DELETE', signal: AbortSignal.timeout(10000)
           });
         } catch (e) {}
-      });
+      }));
     }
 
     return res.status(200).json({
-      success: true,
+      success: successCount > 0 || Boolean(onesignalResult?.id),
       totalSubscribers: subscriberEntries.length,
       sentCount: successCount,
       failedCount: failureCount,
@@ -203,7 +220,7 @@ module.exports = async function handler(req, res) {
     console.error('Push server error:', error);
     return res.status(500).json({
       error: 'Failed to send web push notifications',
-      details: error.message
+      details: 'راجع إعدادات الخادم والصلاحيات.'
     });
   }
 };

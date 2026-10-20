@@ -65,6 +65,7 @@ public class AdhanPlayer {
             }
 
             mediaPlayer = new MediaPlayer();
+            mediaPlayer.setWakeMode(appContext, PowerManager.PARTIAL_WAKE_LOCK);
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -72,6 +73,7 @@ public class AdhanPlayer {
                     .build();
             mediaPlayer.setAudioAttributes(audioAttributes);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            mediaPlayer.setVolume(1.0f, 1.0f);
 
             if (afd != null) {
                 mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
@@ -310,12 +312,15 @@ public class AdhanPlayer {
             } catch (Exception ignored) {}
 
             mediaPlayer = new MediaPlayer();
+            mediaPlayer.setWakeMode(appContext, PowerManager.PARTIAL_WAKE_LOCK);
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                     .build();
             mediaPlayer.setAudioAttributes(audioAttributes);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            mediaPlayer.setVolume(1.0f, 1.0f);
 
             if (afd != null) {
                 mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());

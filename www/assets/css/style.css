@@ -11,10 +11,10 @@ body.light-theme {
     --bg-primary: #F7F9F6;
     --bg-secondary: #FFFFFF;
     --bg-card: #FFFFFF;
-    --bg-elevated: #F0F5F1; 
+    --bg-elevated: #F0F5F1;
     --text-primary: #193B34;
     --text-secondary: #536A60;
-    --text-muted: #64786D; 
+    --text-muted: #64786D;
     --primary: #073F35;
     --primary-hover: #0E6654;
     --primary-contrast: #FFFFFF;
@@ -24,6 +24,7 @@ body.light-theme {
     --shadow-color: rgba(7, 63, 53, 0.08);
     --nav-bg: #FFFFFF;
     --input-bg: #FFFFFF;
+    --gold-rgb: #A87927;
     /* توافق المتغيرات الكلاسيكية والمرجعية */
     --dark: #073F35;
     --green: #0E6654;
@@ -8047,6 +8048,64 @@ input:checked + .slider-round {
 
 input:checked + .slider-round:before {
   transform: translateX(22px);
+}
+
+.prayer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.prayer-chip:hover {
+  border-color: rgba(var(--gold-rgb, 212, 175, 55), 0.4);
+}
+
+.prayer-chip:has(input:checked) {
+  background: rgba(var(--gold-rgb, 212, 175, 55), 0.14);
+  border-color: var(--gold-500, #d4af37);
+  color: var(--gold-400, #e6c86e);
+}
+
+.prayer-chip input {
+  accent-color: var(--gold-500, #d4af37);
+  cursor: pointer;
+  margin: 0;
+  width: 14px;
+  height: 14px;
+}
+
+[data-theme="light"] .prayer-chip {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #475569;
+}
+
+[data-theme="light"] .prayer-chip:has(input:checked) {
+  background: rgba(184, 134, 11, 0.12);
+  border-color: #b8860b;
+  color: #92400e;
+}
+
+.notif-test-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.notif-test-details[open] summary i.fa-chevron-down {
+  transform: rotate(180deg);
+}
+
+.notif-test-details summary i.fa-chevron-down {
+  transition: transform 0.2s ease;
 }
 
 /* ==========================================================================
@@ -21958,8 +22017,7 @@ body.light-theme .tasbih-stat-card .stat-lbl {
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
-  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .smart-dhikr-panel::before {
@@ -22024,6 +22082,7 @@ body.light-theme .tasbih-stat-card .stat-lbl {
   margin-bottom: 0.4rem;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
 }
 
 .dhikr-chips-strip::-webkit-scrollbar {
@@ -22129,7 +22188,7 @@ body.light-theme .tasbih-stat-card .stat-lbl {
   justify-content: center;
   align-items: center;
   margin: 0.5rem 0 0.9rem;
-  touch-action: none;
+  touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -22156,7 +22215,7 @@ body.light-theme .tasbih-stat-card .stat-lbl {
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
-  touch-action: none;
+  touch-action: manipulation;
   position: relative;
   overflow: hidden;
   transform: translateZ(0);

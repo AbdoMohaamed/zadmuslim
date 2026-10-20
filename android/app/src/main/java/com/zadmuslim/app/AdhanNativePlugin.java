@@ -40,6 +40,8 @@ public class AdhanNativePlugin extends Plugin {
 
         String muazzin = call.getString("muazzin", "qatami");
         boolean preAlert = call.getBoolean("preAlert", true);
+        boolean adhanEnabled = call.getBoolean("adhan", true);
+        int preAlertInterval = call.getInt("preAlertInterval", 5);
         JSObject enabledPrayers = call.getObject("enabledPrayers");
 
         Context context = getContext();
@@ -55,7 +57,11 @@ public class AdhanNativePlugin extends Plugin {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit()
                 .putString("last_timings_json", timingsObj.toString())
-                .putString("selected_muazzin", muazzin);
+                .putString("timings_date", new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(new java.util.Date()))
+                .putString("selected_muazzin", muazzin)
+                .putInt("pre_alert_interval", preAlertInterval)
+                .putBoolean("pre_alert_enabled", preAlert)
+                .putBoolean("adhan_enabled", adhanEnabled);
         if (hijriDate != null && !hijriDate.isEmpty()) {
             editor.putString("widget_hijri_date", hijriDate);
         }
@@ -78,7 +84,7 @@ public class AdhanNativePlugin extends Plugin {
         int scheduledCount = 0;
 
         // جدولة لليوم الحالي وللأيام الـ 4 القادمة لضمان استمرار العمل تلقائياً
-        for (int dayOffset = 0; dayOffset <= 4; dayOffset++) {
+        for (int dayOffset = 0; dayOffset <= 0; dayOffset++) {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DAY_OF_YEAR, dayOffset);
 
@@ -105,9 +111,9 @@ public class AdhanNativePlugin extends Plugin {
 
                 long prayerMillis = prayerCal.getTimeInMillis();
 
-                // 1. تنبيه اقتراب موعد الصلاة قبل 5 دقائق
+                // 1. تنبيه اقتراب موعد الصلاة بالفاصل المخصص
                 if (preAlert) {
-                    long preAlertMillis = prayerMillis - (5 * 60 * 1000L);
+                    long preAlertMillis = prayerMillis - (preAlertInterval * 60 * 1000L);
                     if (preAlertMillis > now + 2000L) {
                         int reqCode = 50000 + (dayOffset * 100) + (i * 2);
                         Intent preIntent = new Intent(context, AdhanAlarmReceiver.class);
@@ -115,6 +121,7 @@ public class AdhanNativePlugin extends Plugin {
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, true);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
+                        preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, preAlertInterval);
                         preIntent.putExtra("scheduled_time", preAlertMillis);
 
                         PendingIntent pendingPre = PendingIntent.getBroadcast(
@@ -128,7 +135,7 @@ public class AdhanNativePlugin extends Plugin {
                 }
 
                 // 2. تنبيه الأذان الفعلي وتشغيل الصوت كاملاً
-                if (prayerMillis > now + 2000L) {
+                if (adhanEnabled && prayerMillis > now + 2000L) {
                     int reqCode = 50000 + (dayOffset * 100) + (i * 2) + 1;
                     Intent adhanIntent = new Intent(context, AdhanAlarmReceiver.class);
                     adhanIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
@@ -308,8 +315,13 @@ public class AdhanNativePlugin extends Plugin {
     public static void rescheduleAlarmsFromPrefs(Context context) {
         try {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(new java.util.Date());
+            if (!today.equals(prefs.getString("timings_date", ""))) return;
             String jsonStr = prefs.getString("last_timings_json", null);
             String muazzin = prefs.getString("selected_muazzin", "qatami");
+            int preAlertInterval = prefs.getInt("pre_alert_interval", 5);
+            boolean preAlertEnabled = prefs.getBoolean("pre_alert_enabled", true);
+            boolean adhanEnabled = prefs.getBoolean("adhan_enabled", true);
             if (jsonStr == null || jsonStr.isEmpty()) return;
 
             org.json.JSONObject timingsObj = new org.json.JSONObject(jsonStr);
@@ -326,7 +338,7 @@ public class AdhanNativePlugin extends Plugin {
             String[] timingKeys = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"};
 
             long now = System.currentTimeMillis();
-            for (int dayOffset = 0; dayOffset <= 4; dayOffset++) {
+            for (int dayOffset = 0; dayOffset <= 0; dayOffset++) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.add(Calendar.DAY_OF_YEAR, dayOffset);
 
@@ -353,26 +365,29 @@ public class AdhanNativePlugin extends Plugin {
 
                     long prayerMillis = prayerCal.getTimeInMillis();
 
-                    // Pre-alert (5 min before)
-                    long preAlertMillis = prayerMillis - (5 * 60 * 1000L);
-                    if (preAlertMillis > now + 2000L) {
-                        int reqCode = 50000 + (dayOffset * 100) + (i * 2);
-                        Intent preIntent = new Intent(context, AdhanAlarmReceiver.class);
-                        preIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
-                        preIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, true);
-                        preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
-                        preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
-                        preIntent.putExtra("scheduled_time", preAlertMillis);
+                    // Pre-alert (configured minutes before)
+                    if (preAlertEnabled) {
+                        long preAlertMillis = prayerMillis - (preAlertInterval * 60 * 1000L);
+                        if (preAlertMillis > now + 2000L) {
+                            int reqCode = 50000 + (dayOffset * 100) + (i * 2);
+                            Intent preIntent = new Intent(context, AdhanAlarmReceiver.class);
+                            preIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
+                            preIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, true);
+                            preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
+                            preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
+                            preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, preAlertInterval);
+                            preIntent.putExtra("scheduled_time", preAlertMillis);
 
-                        PendingIntent pendingPre = PendingIntent.getBroadcast(
-                                context, reqCode, preIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-                        );
-                        scheduleExactAlarmStatic(context, alarmManager, preAlertMillis, pendingPre);
+                            PendingIntent pendingPre = PendingIntent.getBroadcast(
+                                    context, reqCode, preIntent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+                            );
+                            scheduleExactAlarmStatic(context, alarmManager, preAlertMillis, pendingPre);
+                        }
                     }
 
                     // Adhan alarm
-                    if (prayerMillis > now + 2000L) {
+                    if (adhanEnabled && prayerMillis > now + 2000L) {
                         int reqCode = 50000 + (dayOffset * 100) + (i * 2) + 1;
                         Intent adhanIntent = new Intent(context, AdhanAlarmReceiver.class);
                         adhanIntent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
@@ -556,6 +571,84 @@ public class AdhanNativePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void scheduleDiagnosticTestAlarm(PluginCall call) {
+        Context context = getContext();
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager == null) {
+            call.reject("AlarmManager not available");
+            return;
+        }
+
+        String type = call.getString("type", "adhan"); // "pre_prayer" or "adhan"
+        int delaySeconds = call.getInt("delaySeconds", type.equals("pre_prayer") ? 60 : 120);
+        String prayerName = call.getString("prayerName", "صلاة العصر");
+        String prayerKey = call.getString("prayerKey", "asr");
+        String muazzin = call.getString("muazzin", "qatami");
+
+        long triggerMillis = System.currentTimeMillis() + (delaySeconds * 1000L);
+        boolean isPreAlert = "pre_prayer".equalsIgnoreCase(type);
+
+        Intent intent = new Intent(context, AdhanAlarmReceiver.class);
+        intent.setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
+        intent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, isPreAlert);
+        intent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName + " (اختبار التشخيص)");
+        intent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKey);
+        intent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+        intent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, 1);
+        intent.putExtra("is_test", true);
+        intent.putExtra("scheduled_time", triggerMillis);
+
+        int reqCode = isPreAlert ? 99981 : 99982;
+        PendingIntent pi = PendingIntent.getBroadcast(
+                context, reqCode, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        scheduleExactAlarm(alarmManager, triggerMillis, pi);
+
+        JSObject ret = new JSObject();
+        ret.put("success", true);
+        ret.put("type", type);
+        ret.put("delaySeconds", delaySeconds);
+        ret.put("scheduledTime", triggerMillis);
+        ret.put("message", "تمت جدولة اختبار " + (isPreAlert ? "التنبيه المسبق" : "الأذان") + " بعد " + delaySeconds + " ثانية بنجاح");
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void checkAlarmPermissions(PluginCall call) {
+        Context context = getContext();
+        JSObject ret = new JSObject();
+
+        boolean notifsGranted = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notifsGranted = androidx.core.content.ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.POST_NOTIFICATIONS
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED;
+        } else {
+            NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null) notifsGranted = nm.areNotificationsEnabled();
+        }
+        ret.put("notificationsGranted", notifsGranted);
+
+        boolean exactAlarmsGranted = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (am != null) exactAlarmsGranted = am.canScheduleExactAlarms();
+        }
+        ret.put("exactAlarmsGranted", exactAlarmsGranted);
+
+        boolean batteryIgnored = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            android.os.PowerManager pm = (android.os.PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            if (pm != null) batteryIgnored = pm.isIgnoringBatteryOptimizations(context.getPackageName());
+        }
+        ret.put("batteryOptimizationsIgnored", batteryIgnored);
+
+        call.resolve(ret);
+    }
+
+    @PluginMethod
     public void openNotificationSettings(PluginCall call) {
         Context context = getContext();
         try {
@@ -633,42 +726,5 @@ public class AdhanNativePlugin extends Plugin {
         } catch (Exception e) {
             call.reject("Could not request exact alarm permission", e);
         }
-    }
-
-    @PluginMethod
-    public void scheduleDiagnosticTestAlarm(PluginCall call) {
-        Context context = getContext();
-        int delaySeconds = call.getInt("delaySeconds", 120);
-        String muazzin = call.getString("muazzin", "makkah");
-        String prayerName = call.getString("prayerName", "صلاة العصر (اختبار)");
-
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager == null) {
-            call.reject("AlarmManager not available");
-            return;
-        }
-
-        long triggerAtMillis = System.currentTimeMillis() + (delaySeconds * 1000L);
-
-        Intent adhanIntent = new Intent(context, AdhanAlarmReceiver.class);
-        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
-        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName);
-        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, "asr");
-        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
-
-        int reqCode = 99995;
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, reqCode, adhanIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-
-        scheduleExactAlarmStatic(context, alarmManager, triggerAtMillis, pendingIntent);
-
-        Log.d(TAG, "Scheduled diagnostic background adhan test in " + delaySeconds + " seconds (at " + triggerAtMillis + ")");
-        JSObject ret = new JSObject();
-        ret.put("success", true);
-        ret.put("triggerAtMillis", triggerAtMillis);
-        ret.put("delaySeconds", delaySeconds);
-        call.resolve(ret);
     }
 }

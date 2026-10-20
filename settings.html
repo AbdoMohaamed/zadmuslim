@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>الإعدادات وتخصيص التطبيق • زاد المسلم</title>
+    <meta name="description" content="تخصيص التنبيهات، الأذان، المواقيت، الخطوط، التنزيلات بدون إنترنت، النسخ الاحتياطي واختصارات الصفحة الرئيسية لتطبيق زاد المسلم.">
+    <meta name="theme-color" content="#0e231c">
+    
+    <!-- الخطوط والأيقونات -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- ملفات التنسيق -->
+    <link rel="stylesheet" href="assets/css/style.css?v=96">
+    <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
+    
+    <style>
+        .settings-page-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 16px 80px;
+        }
+        .settings-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: var(--bg-card, #163329);
+            border: 1px solid var(--border-color, #315346);
+            border-radius: var(--radius-lg, 16px);
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+        .settings-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gold-400, #d4af37);
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 7px 16px;
+            border-radius: 9999px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .settings-back-btn:hover {
+            background: rgba(212, 175, 55, 0.22);
+            transform: translateX(3px);
+        }
+        .settings-nav-strip {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 18px;
+            scrollbar-width: none;
+        }
+        .settings-nav-strip::-webkit-scrollbar {
+            display: none;
+        }
+        .settings-nav-chip {
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--bg-card, #163329);
+            border: 1px solid var(--border-color, #315346);
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary, #F3F8F4);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .settings-nav-chip:hover, .settings-nav-chip.active {
+            border-color: var(--gold-400, #d4af37);
+            color: var(--gold-400, #d4af37);
+            background: rgba(212, 175, 55, 0.12);
+        }
+        .settings-section-card {
+            background: var(--bg-card, #163329);
+            border: 1px solid var(--border-color, #315346);
+            border-radius: var(--radius-lg, 18px);
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.2s ease;
+            scroll-margin-top: 20px;
+        }
+        .settings-section-card:hover {
+            border-color: rgba(212, 175, 55, 0.35);
+        }
+        .settings-section-card.highlighted-section {
+            animation: highlightGlow 2s ease-out;
+            border-color: var(--gold-400, #d4af37);
+        }
+        @keyframes highlightGlow {
+            0% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.5); }
+            100% { box-shadow: var(--shadow-sm); }
+        }
+        .settings-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--gold-400, #d4af37);
+            margin: 0 0 6px;
+        }
+        .settings-section-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted, #A7BFB0);
+            margin: 0 0 16px;
+            line-height: 1.5;
+        }
+        /* كروت الاختصارات التفاعلية */
+        .settings-fav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .settings-fav-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.12);
+            border: 1.5px solid var(--border-color, #315346);
+            border-radius: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.22s ease;
+        }
+        .settings-fav-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        .settings-fav-card.active {
+            background: rgba(212, 175, 55, 0.14);
+            border-color: var(--gold-400, #d4af37);
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.15);
+        }
+        .settings-fav-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+        .settings-fav-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+        .settings-fav-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary, #F3F8F4);
+        }
+        .settings-fav-card.active .settings-fav-name {
+            color: var(--gold-400, #d4af37);
+        }
+        .settings-fav-desc {
+            font-size: 0.72rem;
+            color: var(--text-muted, #A7BFB0);
+        }
+        .settings-fav-check {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-color, #315346);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: transparent;
+            transition: all 0.2s ease;
+        }
+        .settings-fav-card.active .settings-fav-check {
+            background: var(--gold-400, #d4af37);
+            border-color: var(--gold-400, #d4af37);
+            color: #0c2018;
+            font-weight: 900;
+        }
+    </style>
+    <script src="assets/js/theme-controller.js"></script>
+</head>
+<body data-settings-page="true">
+    <div class="settings-page-wrapper">
+        <!-- شريط الترويسة العلوي -->
+        <header class="settings-header-bar">
+            <a href="index.html" class="settings-back-btn" id="btn-settings-back">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>العودة للرئيسية</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1 style="font-size: 1.18rem; margin: 0; font-weight: 800; color: var(--gold-400, #d4af37);">
+                    <i class="fa-solid fa-sliders"></i> الإعدادات والتخصيص
+                </h1>
+            </div>
+            <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" style="padding: 8px 12px; border-radius: 9999px;">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </header>
+
+        <!-- شريط التنقل السريع بين أقسام الإعدادات -->
+        <nav class="settings-nav-strip" aria-label="أقسام الإعدادات">
+            <a href="#notifications-section" class="settings-nav-chip"><i class="fa-solid fa-bell text-gold"></i> التنبيهات والأذان</a>
+            <a href="#settings-shortcuts-section" class="settings-nav-chip"><i class="fa-solid fa-star text-gold"></i> الاختصارات المفضلة</a>
+            <a href="#settings-prayer-timing-section" class="settings-nav-chip"><i class="fa-solid fa-mosque text-gold"></i> المواقيت والخط</a>
+            <a href="#zad-downloads" class="settings-nav-chip"><i class="fa-solid fa-cloud-arrow-down text-gold"></i> التنزيلات أوفلاين</a>
+            <a href="#zad-backup-section" class="settings-nav-chip"><i class="fa-solid fa-database text-gold"></i> النسخ والاحتياط</a>
+            <a href="#zad-report-section" class="settings-nav-chip"><i class="fa-solid fa-flag text-gold"></i> تصويب خطأ</a>
+        </nav>
+
+        <!-- ==========================================
+        1. قسم التنبيهات والأذان الشامل المدمج
+        ========================================== -->
+        <section class="settings-section-card" id="notifications-section">
+            <div class="settings-section-title">
+                <i class="fa-solid fa-bell text-gold"></i>
+                <span>التنبيهات والأذان</span>
+            </div>
+            <p class="settings-section-desc">
+                تحكم كامل في أوقات الأذان، التنبيه المسبق، أذكار الصباح والمساء، وسنن الأسبوع مع خيارات الصوت والتخصيص:
+            </p>
+
+            <!-- فحص حالة الإذن والتنبيهات السريعة -->
+            <div class="zad-feature-card" style="margin-bottom: 16px;">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-shield-halved text-gold"></i> حالة التنبيهات والأذونات</span>
+                    <button type="button" class="btn outline" id="btn-request-notification-perm" style="font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-key text-gold"></i> طلب إذن التنبيهات
+                    </button>
+                </div>
+                <p id="zad-notification-state" style="font-size: 0.82rem; margin: 6px 0 10px; color: var(--text-muted); line-height: 1.5;"></p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn outline" id="zad-test-notification" style="font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-flask text-gold"></i> تجربة إرسال تنبيه
+                    </button>
+                    <button type="button" class="btn outline" id="zad-refresh-notifications" style="font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-arrows-rotate text-gold"></i> تحديث الحالة
+                    </button>
+                    <button type="button" class="btn outline" id="btn-open-os-battery-settings" style="font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-battery-full text-gold"></i> إعدادات البطارية وDoze
+                    </button>
+                    <a id="settings-open-notifications" href="index.html?panel=notifications" hidden aria-hidden="true" style="display: none;"></a>
+                </div>
+            </div>
+
+            <!-- أ. الصلوات والأذان -->
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--gold-400); margin: 18px 0 8px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-mosque"></i> <span>صوت الأذان والصلوات الخمس</span>
+            </div>
+
+            <div class="notifications-settings-list" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- صوت الأذان في وقته -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.1); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <span class="toggle-switch-title">صوت الأذان في وقته</span>
+                        <span class="toggle-switch-desc">رفع الأذان تلقائياً عند دخول وقت كل صلاة مفعلة</span>
+                        
+                        <!-- شرائح الصلوات الخمس المفعلة -->
+                        <div id="prayer-individual-toggles" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;">
+                            <label class="prayer-chip">
+                                <input type="checkbox" id="prayer-toggle-fajr" checked class="prayer-sub-toggle" data-prayer="fajr">
+                                <span>الفجر</span>
+                            </label>
+                            <label class="prayer-chip">
+                                <input type="checkbox" id="prayer-toggle-dhuhr" checked class="prayer-sub-toggle" data-prayer="dhuhr">
+                                <span>الظهر</span>
+                            </label>
+                            <label class="prayer-chip">
+                                <input type="checkbox" id="prayer-toggle-asr" checked class="prayer-sub-toggle" data-prayer="asr">
+                                <span>العصر</span>
+                            </label>
+                            <label class="prayer-chip">
+                                <input type="checkbox" id="prayer-toggle-maghrib" checked class="prayer-sub-toggle" data-prayer="maghrib">
+                                <span>المغرب</span>
+                            </label>
+                            <label class="prayer-chip">
+                                <input type="checkbox" id="prayer-toggle-isha" checked class="prayer-sub-toggle" data-prayer="isha">
+                                <span>العشاء</span>
+                            </label>
+                        </div>
+                    </div>
+                    <label class="custom-switch" style="align-self: flex-start; margin-top: 4px;">
+                        <input type="checkbox" id="notify-adhan-calls" checked>
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <!-- اختيار صوت المؤذن ومستوى الصوت -->
+                <div style="background: rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <label for="select-adhan-muazzin" style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary); margin: 0;">
+                            <i class="fa-solid fa-microphone-lines text-gold"></i> صوت المؤذن المفضل:
+                        </label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <select id="select-adhan-muazzin" style="padding: 6px 12px; border-radius: 8px; font-size: 0.85rem;">
+                                <option value="qatami" selected>الشيخ ناصر القطامي (الافتراضي)</option>
+                                <option value="abdulbasit">الشيخ عبد الباسط عبد الصمد</option>
+                                <option value="refaat">الشيخ محمد رفعت</option>
+                                <option value="makkah">أذان الحرم المكي الشريف</option>
+                                <option value="madinah">أذان الحرم المدني الشريف</option>
+                                <option value="aqsa">أذان المسجد الأقصى المبارك</option>
+                            </select>
+                            <button type="button" class="btn outline" id="btn-preview-adhan" style="padding: 6px 12px; font-size: 0.82rem;" title="سماع صوت المؤذن">
+                                <i class="fa-solid fa-volume-high text-gold"></i> <span id="btn-preview-adhan-text">تجربة</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-volume-low"></i> مستوى صوت الأذان:</span>
+                        <input type="range" id="slider-adhan-volume" min="0.1" max="1.0" step="0.05" value="1.0" style="flex: 1; accent-color: var(--gold-400);">
+                        <span id="adhan-volume-label" style="font-size: 0.8rem; font-weight: 700; min-width: 38px;">100%</span>
+                    </div>
+                </div>
+
+                <!-- التنبيه المسبق قبل الصلاة ناطقاً -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.1); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <span class="toggle-switch-title">⏳ اقتربت الصلاة (تنبيه مسبق ناطق)</span>
+                        <span class="toggle-switch-desc">تنبيه صوتي ناطق يذكّرك بالوضوء والاستعداد قبل دخول الوقت</span>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                            <div class="azkar-time-picker-wrapper" style="margin: 0;">
+                                <label for="select-pre-prayer-interval"><i class="fa-solid fa-clock text-gold"></i> قبل الموعد بـ:</label>
+                                <select id="select-pre-prayer-interval" class="azkar-time-input" style="padding: 4px 8px; cursor: pointer;">
+                                    <option value="5" selected>5 دقائق</option>
+                                    <option value="10">10 دقائق</option>
+                                    <option value="15">15 دقيقة</option>
+                                    <option value="20">20 دقيقة</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn outline" id="btn-test-pre-prayer-sound" style="font-size: 0.78rem; padding: 4px 10px;">
+                                <i class="fa-solid fa-headphones text-gold"></i> سماع التنبيه الناطق
+                            </button>
+                        </div>
+                    </div>
+                    <label class="custom-switch" style="align-self: flex-start; margin-top: 4px;">
+                        <input type="checkbox" id="notify-pre-prayer" checked>
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ب. الأذكار اليومية وسنن الأسبوع -->
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--gold-400); margin: 22px 0 8px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-book-quran"></i> <span>الأذكار اليومية وسنن الأسبوع</span>
+            </div>
+
+            <div class="notifications-settings-list" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- أذكار الصباح -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.08); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span class="toggle-switch-title">🌅 أذكار الصباح</span>
+                            <div class="azkar-time-picker-wrapper" style="margin: 0;">
+                                <input type="time" id="time-morning-azkar" value="06:30" class="azkar-time-input" style="padding: 2px 6px; font-size: 0.8rem;">
+                            </div>
+                        </div>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-morning-azkar">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <!-- أذكار المساء -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.08); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span class="toggle-switch-title">🌇 أذكار المساء</span>
+                            <div class="azkar-time-picker-wrapper" style="margin: 0;">
+                                <input type="time" id="time-evening-azkar" value="17:00" class="azkar-time-input" style="padding: 2px 6px; font-size: 0.8rem;">
+                            </div>
+                        </div>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-evening-azkar">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <!-- أذكار النوم -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.08); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span class="toggle-switch-title">🌙 أذكار النوم والتحصين</span>
+                            <div class="azkar-time-picker-wrapper" style="margin: 0;">
+                                <input type="time" id="time-sleep-azkar" value="22:30" class="azkar-time-input" style="padding: 2px 6px; font-size: 0.8rem;">
+                            </div>
+                        </div>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-sleep-azkar">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <!-- الصلاة على النبي ﷺ -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.08); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 4px;">
+                            <span class="toggle-switch-title">ﷺ التذكير بالصلاة على النبي</span>
+                            <label class="custom-switch" style="margin: 0;">
+                                <input type="checkbox" id="notify-hourly-salawat" checked>
+                                <span class="slider-round"></span>
+                            </label>
+                        </div>
+                        <span class="toggle-switch-desc" style="display: block; margin-bottom: 8px;">
+                            تنبيه صوتي وإشعار دوري بالصلاة والسلام على الحبيب المصطفى ﷺ حتى والتطبيق مغلق وقفل الشاشة
+                        </span>
+
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <div class="azkar-time-picker-wrapper" style="margin: 0;">
+                                <label for="select-salawat-interval"><i class="fa-solid fa-clock text-gold"></i> التكرار:</label>
+                                <select id="select-salawat-interval" class="azkar-time-input" style="padding: 4px 8px; font-size: 0.8rem; cursor: pointer;">
+                                    <option value="15">كل 15 دقيقة</option>
+                                    <option value="30">كل 30 دقيقة</option>
+                                    <option value="45">كل 45 دقيقة</option>
+                                    <option value="60" selected>كل ساعة (الافتراضي)</option>
+                                    <option value="120">كل ساعتين</option>
+                                    <option value="180">كل 3 ساعات</option>
+                                    <option value="240">كل 4 ساعات</option>
+                                </select>
+                            </div>
+
+                            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin: 0; padding: 4px 8px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid var(--border-color);">
+                                <input type="checkbox" id="notify-salawat-sound" checked style="accent-color: var(--gold-400); width: 16px; height: 16px;">
+                                <span>🔊 تشغيل الصوت</span>
+                            </label>
+
+                            <button type="button" class="btn outline" id="btn-test-salawat-sound" style="font-size: 0.78rem; padding: 4px 10px;" title="سماع صوت التذكير">
+                                <i class="fa-solid fa-volume-high text-gold"></i> <span id="btn-test-salawat-text">تجربة الصوت</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- سورة الكهف يوم الجمعة -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.08); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <span class="toggle-switch-title">✨ تذكير سورة الكهف (يوم الجمعة)</span>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-friday-kahf">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <!-- صيام الإثنين والخميس -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.08); padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <span class="toggle-switch-title">🌿 تذكير صيام الإثنين والخميس</span>
+                    </div>
+                    <label class="custom-switch">
+                        <input type="checkbox" id="notify-fasting-days">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- زر الحفظ والتفعيل للتنبيهات -->
+            <div style="margin-top: 18px;">
+                <button type="button" class="btn solid btn-block" id="btn-save-notif-settings" style="width: 100%; font-size: 0.95rem; padding: 12px; font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> حفظ وتفعيل إعدادات التنبيهات والأذان ✨
+                </button>
+                <div id="notif-settings-feedback" style="display: none; margin-top: 8px; text-align: center; color: #10B981; font-weight: 700; font-size: 0.85rem;">
+                    تم حفظ وتفعيل التنبيهات بنجاح في جهازك ✨
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+        2. قسم اختصارات الصفحة الرئيسية
+        ========================================== -->
+        <section class="settings-section-card" id="settings-shortcuts-section">
+            <div class="settings-section-title">
+                <i class="fa-solid fa-star text-gold"></i>
+                <span>اختصاراتك المفضلة في الصفحة الرئيسية</span>
+            </div>
+            <p class="settings-section-desc">
+                انقر على أي أداة لإضافتها أو إزالتها من شريط الوصول السريع بالصفحة الرئيسية. يتم الحفظ والتحديث فوراً.
+            </p>
+
+            <div class="settings-fav-grid" id="settings-shortcuts-grid">
+                <!-- يتم إنشاؤها تفاعلياً بواسطة JavaScript -->
+            </div>
+            <div id="settings-shortcuts-feedback" style="margin-top: 10px; font-size: 0.82rem; color: #10B981; font-weight: 700; display: none;"></div>
+        </section>
+
+        <!-- ==========================================
+        3. قسم المواقيت والواجهة وحجم الخط
+        ========================================== -->
+        <section class="settings-section-card" id="settings-prayer-timing-section">
+            <div class="settings-section-title">
+                <i class="fa-solid fa-mosque text-gold"></i>
+                <span>المواقيت والواجهة وحجم الخط</span>
+            </div>
+            <p class="settings-section-desc">
+                حدد مدينتك وطريقة الحساب الفقهية المناسبة لك وحجم الخط المفضل للقراءة:
+            </p>
+
+            <div class="zad-form-grid">
+                <div class="zad-form-group">
+                    <label for="zad-city"><i class="fa-solid fa-location-dot text-gold"></i> المدينة:</label>
+                    <select id="zad-city"></select>
+                </div>
+
+                <div class="zad-form-group">
+                    <label for="zad-method"><i class="fa-solid fa-calculator text-gold"></i> طريقة الحساب الفقهية:</label>
+                    <select id="zad-method">
+                        <option value="">تلقائي حسب المدينة</option>
+                        <option value="4">أم القرى (مكة المكرمة والخليج)</option>
+                        <option value="5">الهيئة المصرية العامة للمساحة</option>
+                        <option value="3">رابطة العالم الإسلامي</option>
+                        <option value="2">أمريكا الشمالية (ISNA)</option>
+                        <option value="7">معهد الجيوفيزياء (طهران)</option>
+                        <option value="8">منطقة الخليج</option>
+                        <option value="9">وزارة الأوقاف والشؤون الإسلامية (الكويت)</option>
+                        <option value="10">وزارة الأوقاف (قطر)</option>
+                        <option value="13">رئاسة الشؤون الدينية (تركيا)</option>
+                    </select>
+                </div>
+
+                <div class="zad-form-group">
+                    <label for="zad-school"><i class="fa-solid fa-scale-balanced text-gold"></i> حساب صلاة العصر:</label>
+                    <select id="zad-school">
+                        <option value="0">الجمهور (الشافعي، المالكي، الحنبلي)</option>
+                        <option value="1">المذهب الحنفي</option>
+                    </select>
+                </div>
+
+                <div class="zad-form-group">
+                    <label for="zad-font"><i class="fa-solid fa-font text-gold"></i> حجم خط القراءة:</label>
+                    <select id="zad-font">
+                        <option value="normal">عادي (الافتراضي)</option>
+                        <option value="large">كبير (مريح للعين)</option>
+                        <option value="larger">كبير جدًا (قراءة واضحة)</option>
+                    </select>
+                </div>
+            </div>
+
+            <p id="zad-tools-status" role="status" aria-live="polite" style="margin-top: 10px;"></p>
+
+            <div style="margin-top: 14px;">
+                <button type="button" class="btn solid btn-block" id="zad-save-settings" style="width: 100%; font-size: 0.95rem; padding: 11px;">
+                    <i class="fa-solid fa-check"></i> حفظ التغييرات وتطبيقها ✨
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================
+        4. قسم التنزيلات بدون إنترنت
+        ========================================== -->
+        <section class="settings-section-card" id="zad-downloads">
+            <div class="settings-section-title">
+                <i class="fa-solid fa-cloud-arrow-down text-gold"></i>
+                <span>التنزيلات والاستخدام بدون إنترنت (Offline)</span>
+            </div>
+            <p class="settings-section-desc">
+                نزّل ما تحتاجه للقراءة والاستماع بدون إنترنت. البث المباشر والخدمات السحابية تحتاج اتصالاً:
+            </p>
+
+            <div class="zad-feature-card" style="background: rgba(14, 102, 84, 0.18); border-color: rgba(115, 211, 171, 0.35);">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-circle-check text-gold" style="color: #10B981;"></i> المصحف الشريف (٦٠٤ صفحة)</span>
+                    <span style="background: rgba(16, 185, 129, 0.2); color: #73D3AB; border: 1px solid rgba(16, 185, 129, 0.4); padding: 3px 10px; border-radius: 9999px; font-size: 0.74rem; font-weight: 700;">مضمّن في نسخة الهاتف؛ نزّله أولاً على الويب</span>
+                </div>
+                <p class="zad-feature-card-desc" style="color: var(--text-primary, #F3F8F4);">صفحات المصحف مضمّنة في نسخة الهاتف. في المتصفح استخدم زر التنزيل قبل القراءة بدون إنترنت.</p>
+                <button type="button" class="btn outline" data-download="pages">تنزيل صفحات المصحف</button>
+            </div>
+
+            <div class="zad-feature-card">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-book-open text-gold"></i> التفسير الميسر</span>
+                    <button type="button" class="btn outline" data-download="tafsir"><i class="fa-solid fa-download"></i> تنزيل التفسير</button>
+                </div>
+                <p class="zad-feature-card-desc">تنزيل تفسير آيات القرآن الكريم الميسر لجميع الصفحات للتصفح أوفلاين.</p>
+            </div>
+
+            <div class="zad-feature-card">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-headphones text-gold"></i> تلاوة سورة كاملة بصوت العفاسي</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <label style="flex: 1; min-width: 140px; margin: 0;">اختر السورة:
+                        <select id="zad-audio-surah" style="margin-top: 4px;">
+                            <option value="1">1. الفاتحة</option>
+                            <option value="18">18. الكهف</option>
+                            <option value="36">36. يس</option>
+                            <option value="55">55. الرحمن</option>
+                            <option value="56">56. الواقعة</option>
+                            <option value="67" selected>67. الملك</option>
+                            <option value="112">112. الإخلاص</option>
+                            <option value="113">113. الفلق</option>
+                            <option value="114">114. الناس</option>
+                        </select>
+                    </label>
+                    <button type="button" class="btn outline" data-download="audio" style="margin-top: auto;">
+                        <i class="fa-solid fa-download"></i> تنزيل السورة
+                    </button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 6px;">
+                <button type="button" class="btn outline" id="zad-list-downloads">
+                    <i class="fa-solid fa-hard-drive text-gold"></i> عرض الملفات المنزلة والمساحة
+                </button>
+                <button type="button" class="btn btn-danger-outline" id="zad-stop-download" hidden>
+                    <i class="fa-solid fa-stop"></i> إيقاف التنزيل
+                </button>
+            </div>
+            <div id="zad-download-list"></div>
+        </section>
+
+        <!-- ==========================================
+        5. قسم النسخ الاحتياطي واسترجاع البيانات
+        ========================================== -->
+        <section class="settings-section-card" id="zad-backup-section">
+            <div class="settings-section-title">
+                <i class="fa-solid fa-database text-gold"></i>
+                <span>النسخ والاحتياط لتقدمك الإيماني</span>
+            </div>
+            <p class="settings-section-desc">
+                احفظ ختماتك، علامات القراءة، الملاحظات، وسجل أذكارك في ملف آمن لنقله لأي جهاز آخر:
+            </p>
+
+            <div class="zad-feature-card">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-file-export text-gold"></i> تصدير نسخة احتياطية</span>
+                    <button type="button" class="btn solid" id="zad-export-backup">
+                        <i class="fa-solid fa-download"></i> حفظ ملف النسخة
+                    </button>
+                </div>
+                <p class="zad-feature-card-desc">تنزيل ملف .json يحتوي على جميع بياناتك الشخصية دون المساس بأي كلمات مرور أو موقع.</p>
+            </div>
+
+            <div class="zad-feature-card">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-file-import text-gold"></i> استرجاع نسخة سابقة</span>
+                </div>
+                <p class="zad-feature-card-desc">اختر ملف نسخة احتياطية محفوظة لاسترجاع تقدمك السابق على هذا الجهاز:</p>
+                <div style="margin-top: 6px;">
+                    <label style="cursor: pointer; display: block; margin: 0;">
+                        <span class="btn outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa-solid fa-folder-open text-gold"></i> اختيار ملف النسخة (.json)
+                        </span>
+                        <input id="zad-import-backup" type="file" accept=".json,application/json" style="display: none;">
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+        6. قسم الإبلاغ عن خطأ أو ملاحظة
+        ========================================== -->
+        <section class="settings-section-card" id="zad-report-section">
+            <div class="settings-section-title">
+                <i class="fa-solid fa-flag text-gold"></i>
+                <span>الإبلاغ عن خطأ أو اقتراح تصويب</span>
+            </div>
+            <p class="settings-section-desc">
+                جزاك الله خيراً على تنبيهنا لأي خطأ طباعي أو لغوي؛ يسعدنا مراجعته وتصويبه فوراً:
+            </p>
+
+            <label for="zad-report-location" style="display: block; margin-bottom: 10px;">
+                <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-map-pin text-gold"></i> موضع الخطأ:</span>
+                <input id="zad-report-location" maxlength="200" placeholder="مثال: سورة البقرة، آية ٢٥٥" style="margin-top: 4px;">
+            </label>
+
+            <label for="zad-report-text" style="display: block; margin-bottom: 14px;">
+                <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-pen-to-square text-gold"></i> تفاصيل الخطأ أو الملاحظة:</span>
+                <textarea id="zad-report-text" maxlength="3000" rows="3" placeholder="اكتب التصويب المقترح أو الملاحظة بالتفصيل..." style="margin-top: 4px;"></textarea>
+            </label>
+
+            <button type="button" class="btn solid btn-block" id="zad-send-report" style="width: 100%; font-size: 0.95rem; padding: 10px;">
+                <i class="fa-solid fa-envelope"></i> فتح البلاغ في تطبيق البريد للإرسال
+            </button>
+        </section>
+    </div>
+
+    <!-- مشغلات صوتية مخفية لمعاينة الأذان والتنبيه المسبق والصلاة على النبي -->
+    <audio id="audio-adhan-preview" preload="none"></audio>
+    <audio id="audio-pre-prayer-preview" preload="none"></audio>
+    <audio id="audio-salawat-preview" preload="none"></audio>
+
+    <script src="assets/js/prayer-cities.js?v=1"></script>
+    <script src="assets/js/native-adhan-service.js?v=1"></script>
+    <script src="assets/js/user-tools.js?v=3"></script>
+
+    <!-- سكربت التحكم في إعدادات التنبيهات والأذان والمعاينة الصوتية -->
+    <script>
+        (function() {
+            // 1. عناصر الإعدادات والتنبيهات
+            const chkAdhan = document.getElementById('notify-adhan-calls');
+            const selectMuazzin = document.getElementById('select-adhan-muazzin');
+            const sliderVolume = document.getElementById('slider-adhan-volume');
+            const labelVolume = document.getElementById('adhan-volume-label');
+            const btnPreviewAdhan = document.getElementById('btn-preview-adhan');
+            const btnPreviewAdhanText = document.getElementById('btn-preview-adhan-text');
+            const audioAdhan = document.getElementById('audio-adhan-preview');
+
+            const chkPrePrayer = document.getElementById('notify-pre-prayer');
+            const selectPreInterval = document.getElementById('select-pre-prayer-interval');
+            const btnTestPreSound = document.getElementById('btn-test-pre-prayer-sound');
+            const audioPre = document.getElementById('audio-pre-prayer-preview');
+
+            const chkMorning = document.getElementById('notify-morning-azkar');
+            const timeMorning = document.getElementById('time-morning-azkar');
+            const chkEvening = document.getElementById('notify-evening-azkar');
+            const timeEvening = document.getElementById('time-evening-azkar');
+            const chkSleep = document.getElementById('notify-sleep-azkar');
+            const timeSleep = document.getElementById('time-sleep-azkar');
+            const chkSalawat = document.getElementById('notify-hourly-salawat');
+            const selectSalawat = document.getElementById('select-salawat-interval');
+            const chkSalawatSound = document.getElementById('notify-salawat-sound');
+            const btnTestSalawat = document.getElementById('btn-test-salawat-sound');
+            const btnTestSalawatText = document.getElementById('btn-test-salawat-text');
+            const audioSalawat = document.getElementById('audio-salawat-preview');
+
+            const chkFriday = document.getElementById('notify-friday-kahf');
+            const chkFasting = document.getElementById('notify-fasting-days');
+
+            const btnSaveNotif = document.getElementById('btn-save-notif-settings');
+            const feedbackNotif = document.getElementById('notif-settings-feedback');
+            const prayerToggles = document.querySelectorAll('.prayer-sub-toggle');
+
+            let feedbackTimeout = null;
+
+            function loadSettings() {
+                try {
+                    const raw = localStorage.getItem('smart_notify_settings');
+                    const settings = raw ? JSON.parse(raw) : {};
+
+                    if (chkAdhan) chkAdhan.checked = settings.adhan !== false;
+                    if (chkPrePrayer) chkPrePrayer.checked = settings.prePrayer !== false;
+                    if (selectPreInterval && settings.prePrayerInterval) selectPreInterval.value = String(settings.prePrayerInterval);
+
+                    if (chkMorning) chkMorning.checked = settings.morning === true;
+                    if (timeMorning && settings.morningTime) timeMorning.value = settings.morningTime;
+                    if (chkEvening) chkEvening.checked = settings.evening === true;
+                    if (timeEvening && settings.eveningTime) timeEvening.value = settings.eveningTime;
+                    if (chkSleep) chkSleep.checked = settings.sleep === true;
+                    if (timeSleep && settings.sleepTime) timeSleep.value = settings.sleepTime;
+
+                    if (chkSalawat) chkSalawat.checked = settings.hourlySalawat !== false;
+                    if (selectSalawat && settings.salawatInterval) selectSalawat.value = String(settings.salawatInterval);
+                    if (chkSalawatSound) chkSalawatSound.checked = settings.salawatSound !== false;
+
+                    if (chkFriday) chkFriday.checked = settings.friday === true;
+                    if (chkFasting) chkFasting.checked = settings.fasting === true;
+                } catch (_) {}
+
+                // المؤذن المحفوظ
+                const savedMuazzin = localStorage.getItem('zad_selected_muazzin') || 'qatami';
+                if (selectMuazzin) selectMuazzin.value = savedMuazzin;
+
+                // مستوى الصوت المحفوظ
+                const savedVol = localStorage.getItem('zad_adhan_volume') || '1.0';
+                if (sliderVolume) sliderVolume.value = savedVol;
+                if (labelVolume) labelVolume.textContent = Math.round(parseFloat(savedVol) * 100) + '%';
+
+                // مفاتيح الصلوات الفردية
+                try {
+                    const rawPrayers = localStorage.getItem('zad_enabled_prayers');
+                    const enabled = rawPrayers ? JSON.parse(rawPrayers) : { fajr: true, dhuhr: true, asr: true, maghrib: true, isha: true };
+                    prayerToggles.forEach(t => {
+                        const p = t.getAttribute('data-prayer');
+                        if (p && enabled[p] !== undefined) t.checked = enabled[p];
+                    });
+                } catch (_) {}
+            }
+
+            loadSettings();
+
+            // حفظ وتطبيق التنبيهات والأذان والصلاة على النبي فورياً
+            function autoSaveNotifSettings(isExplicit = false) {
+                const settings = {
+                    adhan: chkAdhan ? chkAdhan.checked : true,
+                    prePrayer: chkPrePrayer ? chkPrePrayer.checked : true,
+                    prePrayerInterval: selectPreInterval ? parseInt(selectPreInterval.value, 10) : 5,
+                    morning: chkMorning ? chkMorning.checked : false,
+                    morningTime: timeMorning ? timeMorning.value : '06:30',
+                    evening: chkEvening ? chkEvening.checked : false,
+                    eveningTime: timeEvening ? timeEvening.value : '17:00',
+                    sleep: chkSleep ? chkSleep.checked : false,
+                    sleepTime: timeSleep ? timeSleep.value : '22:30',
+                    hourlySalawat: chkSalawat ? chkSalawat.checked : true,
+                    salawatInterval: selectSalawat ? parseInt(selectSalawat.value, 10) : 60,
+                    salawatSound: chkSalawatSound ? chkSalawatSound.checked : true,
+                    friday: chkFriday ? chkFriday.checked : false,
+                    fasting: chkFasting ? chkFasting.checked : false
+                };
+                localStorage.setItem('smart_notify_settings', JSON.stringify(settings));
+
+                if (selectMuazzin) {
+                    localStorage.setItem('zad_selected_muazzin', selectMuazzin.value);
+                }
+
+                if (sliderVolume) {
+                    localStorage.setItem('zad_adhan_volume', sliderVolume.value);
+                }
+
+                const enabledPrayers = {};
+                prayerToggles.forEach(t => {
+                    const p = t.getAttribute('data-prayer');
+                    if (p) enabledPrayers[p] = t.checked;
+                });
+                localStorage.setItem('zad_enabled_prayers', JSON.stringify(enabledPrayers));
+
+                // جدولة التنبيهات فوراً عبر NativeAdhanService
+                if (window.NativeAdhanService) {
+                    if (typeof window.NativeAdhanService.scheduleLocalNotifications === 'function') {
+                        window.NativeAdhanService.scheduleLocalNotifications();
+                    } else if (typeof window.NativeAdhanService.schedulePrayers === 'function') {
+                        window.NativeAdhanService.schedulePrayers();
+                    }
+                }
+
+                // إعادة ضبط مؤقت الصلاة على النبي فوراً
+                if (typeof window.restartSalawatReminder === 'function') {
+                    window.restartSalawatReminder();
+                }
+
+                if (feedbackNotif) {
+                    feedbackNotif.style.display = 'block';
+                    feedbackNotif.innerHTML = isExplicit
+                        ? '<i class="fa-solid fa-circle-check"></i> تم حفظ وتفعيل إعدادات التنبيهات والأذان بنجاح في جهازك ✨'
+                        : '<i class="fa-solid fa-check"></i> تم الحفظ والتطبيق فوراً في جهازك ✓';
+                    clearTimeout(feedbackTimeout);
+                    feedbackTimeout = setTimeout(() => { feedbackNotif.style.display = 'none'; }, isExplicit ? 4000 : 2500);
+                }
+            }
+
+            // ربط الحفظ التلقائي اللحظي بكل أداة وخيار
+            const reactiveInputs = [
+                chkAdhan, selectMuazzin,
+                chkPrePrayer, selectPreInterval,
+                chkMorning, timeMorning,
+                chkEvening, timeEvening,
+                chkSleep, timeSleep,
+                chkSalawat, selectSalawat, chkSalawatSound,
+                chkFriday, chkFasting,
+                ...prayerToggles
+            ].filter(Boolean);
+
+            reactiveInputs.forEach(el => {
+                el.addEventListener('change', () => autoSaveNotifSettings(false));
+            });
+
+            // معاينة صوت المؤذن
+            if (btnPreviewAdhan && selectMuazzin && audioAdhan) {
+                btnPreviewAdhan.onclick = () => {
+                    if (!audioAdhan.paused) {
+                        audioAdhan.pause();
+                        audioAdhan.currentTime = 0;
+                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'تجربة';
+                        return;
+                    }
+                    const muazzin = selectMuazzin.value || 'qatami';
+                    audioAdhan.src = `assets/audio/adhan/${muazzin}.mp3?v=` + Date.now();
+                    audioAdhan.volume = sliderVolume ? parseFloat(sliderVolume.value) : 1.0;
+                    audioAdhan.play().then(() => {
+                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'إيقاف ⏹';
+                    }).catch(e => {
+                        console.warn('Audio play error:', e);
+                    });
+                    audioAdhan.onended = () => {
+                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'تجربة';
+                    };
+                };
+            }
+
+            // مستوى الصوت
+            if (sliderVolume) {
+                sliderVolume.oninput = () => {
+                    const vol = sliderVolume.value;
+                    if (labelVolume) labelVolume.textContent = Math.round(parseFloat(vol) * 100) + '%';
+                    if (audioAdhan) audioAdhan.volume = parseFloat(vol);
+                    localStorage.setItem('zad_adhan_volume', vol);
+                };
+                sliderVolume.onchange = () => autoSaveNotifSettings(false);
+            }
+
+            // معاينة التنبيه المسبق
+            if (btnTestPreSound && audioPre) {
+                btnTestPreSound.onclick = () => {
+                    audioPre.src = 'assets/audio/pre/pre_asr.mp3?v=' + Date.now();
+                    audioPre.volume = 1.0;
+                    audioPre.play().catch(e => console.warn('Pre-prayer play error:', e));
+                };
+            }
+
+            // معاينة صوت الصلاة على النبي ﷺ
+            if (btnTestSalawat && audioSalawat) {
+                btnTestSalawat.onclick = () => {
+                    if (!audioSalawat.paused) {
+                        audioSalawat.pause();
+                        audioSalawat.currentTime = 0;
+                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'تجربة الصوت';
+                        return;
+                    }
+                    audioSalawat.src = 'assets/audio/salawat.mp3?v=' + Date.now();
+                    audioSalawat.volume = 1.0;
+                    audioSalawat.play().then(() => {
+                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'إيقاف ⏹';
+                    }).catch(e => {
+                        console.warn('Salawat test audio error:', e);
+                        if (typeof window.playSalawatAudio === 'function') window.playSalawatAudio(true);
+                    });
+                    audioSalawat.onended = () => {
+                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'تجربة الصوت';
+                    };
+                };
+            }
+
+            // زر طلب الإذن
+            const btnReqPerm = document.getElementById('btn-request-notification-perm');
+            if (btnReqPerm) {
+                btnReqPerm.onclick = async () => {
+                    if (window.NativeAdhanService && typeof window.NativeAdhanService.requestPermissions === 'function') {
+                        await window.NativeAdhanService.requestPermissions();
+                    } else if (window.Notification && typeof window.Notification.requestPermission === 'function') {
+                        await window.Notification.requestPermission();
+                    }
+                    if (window.ZadUserTools && typeof window.ZadUserTools.open === 'function') {
+                        const refreshBtn = document.getElementById('zad-refresh-notifications');
+                        if (refreshBtn) refreshBtn.click();
+                    }
+                };
+            }
+
+            // زر البطارية
+            const btnBattery = document.getElementById('btn-open-os-battery-settings');
+            if (btnBattery) {
+                btnBattery.onclick = () => {
+                    if (window.NativeAdhanService && typeof window.NativeAdhanService.openBatterySettings === 'function') {
+                        window.NativeAdhanService.openBatterySettings();
+                    } else {
+                        alert('إعدادات تحسين البطارية متاحة في تطبيق الأندرويد لضمان عمل الأذان دائماً.');
+                    }
+                };
+            }
+
+            // حفظ التنبيهات والأذان عند النقر الصريح على الزر
+            if (btnSaveNotif) {
+                btnSaveNotif.onclick = () => autoSaveNotifSettings(true);
+            }
+
+            // التمرير التلقائي للقسم عند وجود Hash في الرابط
+            function checkHashScroll() {
+                const hash = window.location.hash;
+                if (hash === '#notifications-section' || hash === '#notifications') {
+                    const sec = document.getElementById('notifications-section');
+                    if (sec) {
+                        setTimeout(() => {
+                            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            sec.classList.add('highlighted-section');
+                            setTimeout(() => sec.classList.remove('highlighted-section'), 2200);
+                        }, 100);
+                    }
+                }
+            }
+            window.addEventListener('hashchange', checkHashScroll);
+            checkHashScroll();
+        })();
+    </script>
+</body>
+</html>

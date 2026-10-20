@@ -23,7 +23,7 @@ const OneSignalService = {
                 try {
                     const db = getSafeFirebaseDb();
                     if (db) {
-                        const snap = await db.ref("admin_settings/onesignal/app_id").once("value");
+                        const snap = await db.ref("public_config/onesignal_app_id").once("value");
                         if (snap.exists() && snap.val()) {
                             appId = snap.val().trim();
                             localStorage.setItem("zad_onesignal_app_id", appId);

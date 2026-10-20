@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+android
+ios
+node_modules
+tests
+store-assets
+*.jks
+*.keystore
+*.pem
+*.key

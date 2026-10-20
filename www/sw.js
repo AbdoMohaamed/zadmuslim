@@ -4,15 +4,45 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v54";
+const CACHE_NAME = "zad-muslim-v57";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
+  "./assets/css/style.css?v=96",
+  "./assets/js/theme-controller.js",
+  "./assets/css/user-tools.css?v=3",
+  "./assets/js/data.js",
+  "./assets/js/azkar-data.js?v=10",
+  "./assets/js/asmaa-allah-data.js?v=1",
+  "./assets/js/islamic-guide-data.js?v=1",
+  "./assets/js/daily-message-data.js?v=2",
+  "./assets/js/radio-stations-data.js?v=4",
+  "./assets/js/quiz-data.js?v=2",
+  "./assets/js/islamic-stories-data.js?v=3",
+  "./assets/js/media-data.js?v=2",
+  "./assets/js/firebase-config.js",
+  "./assets/js/native-adhan-service.js?v=5",
+  "./assets/js/onesignal-service.js?v=1",
+  "./assets/js/app.js?v=18",
+  "./assets/js/quran.js?v=26",
+  "./assets/js/extended-modules.js?v=28",
+  "./assets/js/smart-khatma.js?v=1",
+  "./assets/js/share-card-generator.js?v=1",
+  "./assets/js/mood-compass.js?v=1",
+  "./assets/js/smart-tasbih.js?v=1",
+  "./assets/js/prayer-guide.js?v=1",
+  "./assets/js/user-tools.js?v=3",
+  "./assets/js/zakat-calculator.js?v=1",
+  "./assets/js/nearby-mosques.js?v=7",
+  "./assets/js/wall-of-duas.js?v=1",
   "./",
   "./index.html",
   "./services.html",
   "./app.html",
+  "./settings.html",
+  "./assets/js/prayer-cities.js?v=1",
   "./privacy.html",
-  "./admin.html",
+  "./assets/js/user-tools.js?v=3",
+  "./assets/css/user-tools.css?v=3",
   "./assets/css/style.css",
   "./assets/images/logo.png",
   "./assets/js/theme-controller.js",
@@ -103,7 +133,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME && key !== QURAN_CACHE_NAME) {
+          if (key !== CACHE_NAME && key !== QURAN_CACHE_NAME && key !== "zad-downloads-v1") {
             return caches.delete(key);
           }
         })
@@ -116,6 +146,30 @@ self.addEventListener("activate", (event) => {
 // استراتيجية جلب البيانات (معالجة متقدمة لحماية Safari و WebKit)
 self.addEventListener("fetch", (event) => {
   const url = event.request.url;
+  // Private APIs and live prayer data must never be returned from an old cache.
+  const parsedUrl = new URL(url);
+  if (event.request.method !== 'GET' || parsedUrl.pathname.startsWith('/api/') || url.includes('api.aladhan.com') || parsedUrl.pathname.endsWith('/admin.html') || url.includes('identitytoolkit.googleapis.com') || url.includes('securetoken.googleapis.com')) return;
+  const managed = url.includes('/assets/quran-pages/') || url.includes('api.alquran.cloud/v1/page/') || url.includes('server8.mp3quran.net/afs/');
+  if (managed) {
+    event.respondWith((async () => {
+      const saved = await (await caches.open('zad-downloads-v1')).match(event.request.url);
+      if (saved) {
+        const range = event.request.headers.get('range');
+        if (range) {
+          const bytes = await saved.arrayBuffer();
+          const match = /^bytes=(\d+)-(\d*)$/.exec(range);
+          if (!match) return new Response(null, { status: 416, headers: { 'Content-Range': 'bytes */' + bytes.byteLength } });
+          const start = Number(match[1]), end = Math.min(match[2] ? Number(match[2]) : bytes.byteLength - 1, bytes.byteLength - 1);
+          if (start > end || start >= bytes.byteLength) return new Response(null, { status: 416, headers: { 'Content-Range': 'bytes */' + bytes.byteLength } });
+          return new Response(bytes.slice(start, end + 1), { status: 206, headers: { 'Content-Type': saved.headers.get('content-type') || 'audio/mpeg', 'Accept-Ranges': 'bytes', 'Content-Range': 'bytes ' + start + '-' + end + '/' + bytes.byteLength, 'Content-Length': String(end - start + 1) } });
+        }
+        return saved;
+      }
+      try { return await fetch(event.request); }
+      catch { return await caches.match(event.request) || new Response('', { status: 503 }); }
+    })());
+    return;
+  }
 
   // تجاهل طلبات الفيربيز والبث المباشر والصوتيات الكبيرة
   if (

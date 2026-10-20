@@ -7,8 +7,8 @@ android {
         applicationId "com.abdomohamed.zadmuslim"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "3.6.2"
+        versionCode 4
+        versionName "3.6.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,10 +18,16 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('zadmuslim-release-key.jks')
-            storePassword 'zadmuslim2026'
-            keyAlias 'zadmuslim'
-            keyPassword 'zadmuslim2026'
+            def keyPath = System.getenv('ZAD_KEYSTORE_PATH') ?: 'zadmuslim-release-key.jks'
+            def pass = System.getenv('ZAD_KEYSTORE_PASSWORD') ?: 'zadmuslim2026'
+            def alias = System.getenv('ZAD_KEY_ALIAS') ?: 'zadmuslim'
+            def keyPass = System.getenv('ZAD_KEY_PASSWORD') ?: 'zadmuslim2026'
+            if (file(keyPath).exists()) {
+                storeFile file(keyPath)
+                storePassword pass
+                keyAlias alias
+                keyPassword keyPass
+            }
         }
     }
     buildTypes {

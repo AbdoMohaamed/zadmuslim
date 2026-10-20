@@ -802,12 +802,15 @@ function initSmartNotifications() {
     const chkFriday = document.getElementById("notify-friday-kahf");
     const chkFasting = document.getElementById("notify-fasting-days");
     const chkPrePrayer = document.getElementById("notify-pre-prayer");
+    const selectPrePrayerInterval = document.getElementById("select-pre-prayer-interval");
+    const btnTestPrePrayerSound = document.getElementById("btn-test-pre-prayer-sound");
     const chkAdhan = document.getElementById("notify-adhan-calls");
     const chkHourlySalawat = document.getElementById("notify-hourly-salawat");
     const selectSalawatInterval = document.getElementById("select-salawat-interval");
+    const chkSalawatSound = document.getElementById("notify-salawat-sound");
     const btnTestSalawatSound = document.getElementById("btn-test-salawat-sound");
 
-    const allCheckboxes = [chkMorning, chkEvening, chkSleep, chkFriday, chkFasting, chkPrePrayer, chkAdhan, chkHourlySalawat].filter(Boolean);
+    const allCheckboxes = [chkMorning, chkEvening, chkSleep, chkFriday, chkFasting, chkPrePrayer, chkAdhan, chkHourlySalawat, chkSalawatSound].filter(Boolean);
 
     // دالة تحديث الحقول واستعادة الإعدادات المحفوظة
     function refreshModalForm() {
@@ -824,18 +827,23 @@ function initSmartNotifications() {
                 if (chkFriday) chkFriday.checked = savedSettings.friday === true;
                 if (chkFasting) chkFasting.checked = savedSettings.fasting === true;
                 if (chkPrePrayer) chkPrePrayer.checked = savedSettings.prePrayer !== false;
+                if (selectPrePrayerInterval && savedSettings.prePrayerInterval) selectPrePrayerInterval.value = String(savedSettings.prePrayerInterval);
                 if (chkAdhan) chkAdhan.checked = savedSettings.adhan !== false;
                 if (chkHourlySalawat) chkHourlySalawat.checked = savedSettings.hourlySalawat !== false;
                 if (selectSalawatInterval && savedSettings.salawatInterval) selectSalawatInterval.value = String(savedSettings.salawatInterval);
+                if (chkSalawatSound) chkSalawatSound.checked = savedSettings.salawatSound !== false;
             } else {
                 // الإعداد الافتراضي الذكي: الأذان والتنبيه المسبق والصلاة على النبي مفعلة تلقائياً
                 if (chkPrePrayer) chkPrePrayer.checked = true;
+                if (selectPrePrayerInterval) selectPrePrayerInterval.value = "5";
                 if (chkAdhan) chkAdhan.checked = true;
                 if (chkHourlySalawat) chkHourlySalawat.checked = true;
                 if (selectSalawatInterval) selectSalawatInterval.value = "60";
+                if (chkSalawatSound) chkSalawatSound.checked = true;
             }
         } catch(e) {
             if (chkPrePrayer) chkPrePrayer.checked = true;
+            if (selectPrePrayerInterval) selectPrePrayerInterval.value = "5";
             if (chkAdhan) chkAdhan.checked = true;
             if (chkHourlySalawat) chkHourlySalawat.checked = true;
             if (selectSalawatInterval) selectSalawatInterval.value = "60";
@@ -906,10 +914,23 @@ function initSmartNotifications() {
 
     const btnTestAdhanNotif = document.getElementById("btn-test-adhan-notif");
     if (btnTestAdhanNotif) {
-        btnTestAdhanNotif.addEventListener("click", () => {
+        btnTestAdhanNotif.addEventListener("click", async () => {
             if (window.NativeAdhanService) {
-                window.NativeAdhanService.testNotification();
-                if (typeof showToast === "function") showToast("تم إرسال إشعار تجريبي 🔔");
+                const result = await window.NativeAdhanService.testNotification();
+                if (typeof showToast === "function") showToast(result.success ? "تم إرسال طلب الإشعار التجريبي للنظام 🔔" : (result.message || "تعذّر إرسال الإشعار؛ راجع الإذن."));
+            }
+        });
+    }
+
+    if (btnTestPrePrayerSound) {
+        btnTestPrePrayerSound.addEventListener("click", () => {
+            try {
+                const audio = new Audio("assets/audio/pre/pre_asr.mp3?v=" + Date.now());
+                audio.volume = 1.0;
+                audio.play().catch(e => console.warn("Pre-prayer preview error:", e));
+                if (typeof showToast === "function") showToast("تجربة صوت التنبيه المسبق 🔊");
+            } catch(e) {
+                console.warn(e);
             }
         });
     }
@@ -932,44 +953,75 @@ function initSmartNotifications() {
         });
     }
 
+    const btnTestPrePrayer1Min = document.getElementById("btn-test-pre-prayer-1min");
+    const btnTestAdhan2Min = document.getElementById("btn-test-adhan-2min");
     const btnTestAdhanBackground = document.getElementById("btn-test-adhan-background");
     const statusBox = document.getElementById("adhan-bg-test-status");
-    if (btnTestAdhanBackground) {
-        btnTestAdhanBackground.addEventListener("click", async () => {
-            if (btnTestAdhanBackground.disabled) return;
-            btnTestAdhanBackground.disabled = true;
-            btnTestAdhanBackground.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-gold"></i> <span>جاري الجدولة...</span>';
+
+    if (btnTestPrePrayer1Min) {
+        btnTestPrePrayer1Min.addEventListener("click", async () => {
+            if (btnTestPrePrayer1Min.disabled) return;
+            btnTestPrePrayer1Min.disabled = true;
+            btnTestPrePrayer1Min.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-gold"></i> <span>جاري الجدولة...</span>';
 
             if (statusBox) {
                 statusBox.style.display = "block";
                 statusBox.innerHTML = `
                     <div style="font-weight: 700; color: var(--gold-500); margin-bottom: 4px;">
-                        <i class="fa-solid fa-clock"></i> جاري إرسال طلب المنبه الأصلي للنظام...
+                        <i class="fa-solid fa-clock"></i> جاري إرسال طلب التنبيه المسبق للنظام...
                     </div>
                 `;
             }
 
             if (window.NativeAdhanService) {
-                const res = await window.NativeAdhanService.scheduleBackgroundDiagnosticTest(120);
+                const res = await window.NativeAdhanService.scheduleBackgroundDiagnosticTest("pre_prayer", 60);
                 if (statusBox) {
-                    statusBox.innerHTML = `
-                        <div style="font-weight: 700; color: var(--gold-500); margin-bottom: 6px;">
-                            <i class="fa-solid fa-circle-check text-success"></i> ${res.platform === "android_native" ? "تم ضبط منبه أندرويد الأصلي بنجاح!" : "تمت جدولة إشعار الأذان المسموع بنجاح!"}
-                        </div>
-                        <div style="font-size: 0.8rem; opacity: 0.95;">
-                            ⏰ وقت انطلاق الأذان الصوتي: <strong>${res.triggerTime}</strong> (بعد دقيقتين).<br>
-                            🔒 <strong>الخطوة المطلوبة الآن:</strong> اغلق التطبيق أو اقفل شاشة هاتفك (Lock Screen) ودع الهاتف، سينطلق صوت الأذان كاملاً تلقائياً من نظام التشغيل.
-                        </div>
-                    `;
+                    statusBox.textContent = res.message || (res.success ? 'تم إرسال طلب الاختبار لنظام الهاتف. اقفل الشاشة للتحقق.' : 'تعذّرت الجدولة؛ راجع أذونات الهاتف.');
                 }
-                if (typeof showToast === "function") showToast("تمت جدولة الأذان بعد دقيقتين.. اقفل الشاشة للتجربة 📱");
+                if (typeof showToast === "function") showToast(res.success ? "تمت جدولة الاختبار بعد دقيقة" : res.message);
             }
 
             setTimeout(() => {
-                btnTestAdhanBackground.disabled = false;
-                btnTestAdhanBackground.innerHTML = '<i class="fa-solid fa-mobile-screen-button text-gold"></i> <span>اختبار الأذان في الخلفية (دقيقتين) ⏳</span>';
+                btnTestPrePrayer1Min.disabled = false;
+                btnTestPrePrayer1Min.innerHTML = '<i class="fa-solid fa-clock-rotate-left text-gold"></i> <span>تنبيه مسبق (بعد دقيقة ⏱️)</span>';
             }, 5000);
         });
+    }
+
+    const triggerAdhan2MinTest = async (btn) => {
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        const oldContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-gold"></i> <span>جاري الجدولة...</span>';
+
+        if (statusBox) {
+            statusBox.style.display = "block";
+            statusBox.innerHTML = `
+                <div style="font-weight: 700; color: var(--gold-500); margin-bottom: 4px;">
+                    <i class="fa-solid fa-clock"></i> جاري إرسال طلب المنبه الأصلي للنظام...
+                </div>
+            `;
+        }
+
+        if (window.NativeAdhanService) {
+            const res = await window.NativeAdhanService.scheduleBackgroundDiagnosticTest("adhan", 120);
+            if (statusBox) {
+                statusBox.textContent = res.message || (res.success ? 'تم إرسال طلب الاختبار لنظام الهاتف. اقفل الشاشة للتحقق.' : 'تعذّرت الجدولة؛ راجع أذونات الهاتف.');
+            }
+            if (typeof showToast === "function") showToast(res.success ? "تمت جدولة الاختبار بعد دقيقتين" : res.message);
+        }
+
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = oldContent;
+        }, 5000);
+    };
+
+    if (btnTestAdhan2Min) {
+        btnTestAdhan2Min.addEventListener("click", () => triggerAdhan2MinTest(btnTestAdhan2Min));
+    }
+    if (btnTestAdhanBackground) {
+        btnTestAdhanBackground.addEventListener("click", () => triggerAdhan2MinTest(btnTestAdhanBackground));
     }
 
     if (btnTestSalawatSound) {
@@ -997,9 +1049,11 @@ function initSmartNotifications() {
                 friday: chkFriday ? chkFriday.checked : false,
                 fasting: chkFasting ? chkFasting.checked : false,
                 prePrayer: chkPrePrayer ? chkPrePrayer.checked : true,
+                prePrayerInterval: (selectPrePrayerInterval && selectPrePrayerInterval.value) ? parseInt(selectPrePrayerInterval.value, 10) : 5,
                 adhan: chkAdhan ? chkAdhan.checked : true,
                 hourlySalawat: chkHourlySalawat ? chkHourlySalawat.checked : true,
-                salawatInterval: (selectSalawatInterval && selectSalawatInterval.value) ? parseInt(selectSalawatInterval.value, 10) : 60
+                salawatInterval: (selectSalawatInterval && selectSalawatInterval.value) ? parseInt(selectSalawatInterval.value, 10) : 60,
+                salawatSound: chkSalawatSound ? chkSalawatSound.checked : true
             };
             localStorage.setItem("smart_notify_settings", JSON.stringify(settings));
             localStorage.setItem("smart_notify_configured", "true");
@@ -1010,10 +1064,7 @@ function initSmartNotifications() {
             }
 
             // مزامنة مواقيت الأذان والمنبهات مع نظام التشغيل فوراً
-            if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
-                const timingsToPass = window.prayerTimings || (typeof window.getPrayerTimings === "function" ? window.getPrayerTimings() : null);
-                window.NativeAdhanService.schedulePrayers(timingsToPass);
-            }
+            const scheduling = await window.NativeAdhanService?.scheduleLocalNotifications?.();
 
             const hasAnyActive = Object.values(settings).some(v => v === true);
 
@@ -1034,7 +1085,7 @@ function initSmartNotifications() {
                 } catch (e) {
                     console.warn("Native notification permission request:", e);
                 }
-                showToast("تم تفعيل وتثبيت التنبيهات والأذان في نظام الهاتف لتصلك داخل وخارج التطبيق والشاشة مقفلة 🔔✨");
+                showToast(scheduling?.success ? "حُفظت التنبيهات في نظام الهاتف. الأذان يحتاج مواقيت اليوم المحدّثة؛ استخدم اختبار الخلفية للتحقق." : (scheduling?.message || "حُفظت التفضيلات، لكن تعذّر تأكيد الجدولة. راجع أذونات الهاتف."));
                 registerPushSubscriberInFirebase();
                 if (modal) modal.classList.remove("open");
                 return;
@@ -1113,6 +1164,7 @@ function initHourlySalawatReminder() {
     function getSalawatConfig() {
         let isEnabled = true;
         let intervalMins = 60;
+        let hasSound = true;
         try {
             const raw = localStorage.getItem("smart_notify_settings");
             if (raw) {
@@ -1122,17 +1174,20 @@ function initHourlySalawatReminder() {
                     const parsed = parseInt(s.salawatInterval, 10);
                     if (!isNaN(parsed) && parsed > 0) intervalMins = parsed;
                 }
+                if (s.salawatSound === false) hasSound = false;
             }
         } catch(e) {}
-        return { isEnabled, intervalMins };
+        return { isEnabled, intervalMins, hasSound };
     }
 
     function triggerSalawat() {
-        const { isEnabled } = getSalawatConfig();
+        const { isEnabled, hasSound } = getSalawatConfig();
         if (!isEnabled) return;
 
-        // 1. تشغيل الصوت النقي
-        window.playSalawatAudio(false);
+        // 1. تشغيل الصوت النقي فقط إذا كان الصوت مفعلاً
+        if (hasSound) {
+            window.playSalawatAudio(false);
+        }
 
         // 2. إظهار Toast داخل التطبيق
         if (typeof showToast === "function") {
@@ -1148,6 +1203,7 @@ function initHourlySalawatReminder() {
     function scheduleSalawat() {
         if (salawatTimer) clearTimeout(salawatTimer);
         if (salawatIntervalId) clearInterval(salawatIntervalId);
+        if (window.Capacitor?.isNativePlatform?.()) return;
 
         const { isEnabled, intervalMins } = getSalawatConfig();
         if (!isEnabled) return;
@@ -1177,6 +1233,7 @@ function initHourlySalawatReminder() {
  * يضمن انطلاق التنبيهات والصوت والإشعار في الدقيقة المحددة بالضبط حتى أثناء تصفح التطبيق
  */
 function initSmartAzkarLiveWatcher() {
+    if (window.Capacitor?.isNativePlatform?.()) return;
     function checkAzkarMoments() {
         try {
             const raw = localStorage.getItem("smart_notify_settings");
@@ -1214,6 +1271,11 @@ function initSmartAzkarLiveWatcher() {
                     }
                 }
             };
+
+            if ([0, 3].includes(now.getDay())) checkTask('fasting', settings.fasting === true, '20:00',
+                'تذكير بصيام الإثنين والخميس', 'غدًا يوم صيام تطوع لمن ينوي الصيام.', 'تذكير بصيام الغد 🌿');
+            if (now.getDay() === 5) checkTask('friday', settings.friday === true, '09:00',
+                'يوم الجمعة', 'تذكير بقراءة سورة الكهف والصلاة على النبي ﷺ.', 'تذكير سورة الكهف والصلاة على النبي ﷺ');
 
             // أذكار الصباح
             checkTask(
@@ -1275,11 +1337,9 @@ async function registerPushSubscriberInFirebase() {
         const db = getSafeFirebaseDb();
         if (!db) return;
 
-        let subscriberId = localStorage.getItem("zad_push_sub_id");
-        if (!subscriberId) {
-            subscriberId = "sub_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
-            localStorage.setItem("zad_push_sub_id", subscriberId);
-        }
+        if (!firebase.auth) return;
+        if (!firebase.auth().currentUser) await firebase.auth().signInAnonymously();
+        const subscriberId = firebase.auth().currentUser.uid;
 
         let pushSubscriptionJson = null;
 
@@ -1288,6 +1348,11 @@ async function registerPushSubscriberInFirebase() {
             try {
                 const reg = await navigator.serviceWorker.ready;
                 let subscription = await reg.pushManager.getSubscription();
+                const expectedKey = urlBase64ToUint8Array(ZAD_VAPID_PUBLIC_KEY);
+                const activeKey = subscription?.options?.applicationServerKey;
+                if (subscription && (!activeKey || Array.from(new Uint8Array(activeKey)).join(',') !== Array.from(expectedKey).join(','))) {
+                    await subscription.unsubscribe(); subscription = null;
+                }
 
                 // إذا كان المستخدم وافق على الإشعارات ولم يكن مسجلاً في السيرفر بعد
                 if (!subscription && typeof Notification !== "undefined" && Notification.permission === "granted" && typeof ZAD_VAPID_PUBLIC_KEY !== "undefined" && ZAD_VAPID_PUBLIC_KEY) {
@@ -1385,7 +1450,7 @@ async function triggerNativeNotification(title, body, url = "./") {
         if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
             const LocalNotifications = window.Capacitor.Plugins ? window.Capacitor.Plugins.LocalNotifications : null;
             if (LocalNotifications) {
-                const notifId = Math.floor(Date.now() % 100000) + Math.floor(Math.random() * 1000);
+                const notifId = 1000000 + Math.floor(Date.now() % 1000000000);
                 await LocalNotifications.schedule({
                     notifications: [{
                         id: notifId,
@@ -3116,41 +3181,69 @@ function getGardenStorageKey() {
 }
 
 function getGardenData() {
+    const today = new Date().toISOString().slice(0, 10);
     const key = getGardenStorageKey();
     const raw = localStorage.getItem(key);
+    let data = null;
     if (raw) {
         try {
-            return JSON.parse(raw);
+            data = JSON.parse(raw);
         } catch(e) {}
     }
-    return {
-        points: 0,
-        tasbeeh: 0,
-        quran: 0,
-        azkar: 0,
-        quiz: 0,
-        streak: parseInt(localStorage.getItem("spiritual_garden_streak") || "1", 10)
-    };
+    if (!data) {
+        data = {
+            points: 0,
+            tasbeeh: 0,
+            quran: 0,
+            azkar: 0,
+            quiz: 0,
+            streak: 1
+        };
+    }
+
+    // حساب الـ Streak وتتابع الأيام الإيمانية بدقة
+    const lastActiveDate = localStorage.getItem("spiritual_garden_last_date");
+    let streak = parseInt(localStorage.getItem("spiritual_garden_streak") || "1", 10);
+    if (!lastActiveDate) {
+        streak = 1;
+    } else if (lastActiveDate !== today) {
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        if (lastActiveDate === yesterday) {
+            // تتابع مستمر من الأمس
+        } else {
+            // انقطاع أيام سابقة، إعادة البدء بـ 1
+            streak = 1;
+        }
+    }
+    data.streak = streak || 1;
+    return data;
 }
 
 function saveGardenData(data) {
+    const today = new Date().toISOString().slice(0, 10);
     const key = getGardenStorageKey();
     localStorage.setItem(key, JSON.stringify(data));
+    localStorage.setItem("spiritual_garden_last_date", today);
     localStorage.setItem("spiritual_garden_streak", String(data.streak || 1));
 }
 
-window.addSpiritualGardenDeed = function(type, points = 1) {
+window.addSpiritualGardenDeed = function(type, points = 1, count = 1) {
     const data = getGardenData();
     const prevPoints = data.points;
     data.points += points;
 
-    if (type === "tasbeeh") data.tasbeeh = (data.tasbeeh || 0) + 1;
-    else if (type === "quran") data.quran = (data.quran || 0) + 1;
-    else if (type === "azkar") data.azkar = (data.azkar || 0) + 1;
-    else if (type === "quiz") data.quiz = (data.quiz || 0) + 1;
+    if (type === "tasbeeh") data.tasbeeh = (data.tasbeeh || 0) + count;
+    else if (type === "quran") data.quran = (data.quran || 0) + count;
+    else if (type === "azkar") data.azkar = (data.azkar || 0) + count;
+    else if (type === "quiz") data.quiz = (data.quiz || 0) + count;
 
     saveGardenData(data);
     updateGardenUI(data);
+
+    // إرسال إشعار تفاعلي فوري لجميع الأجزاء والصفحات المفتوحة
+    try {
+        window.dispatchEvent(new CustomEvent("spiritual-garden-updated", { detail: data }));
+    } catch(e) {}
 
     // التحقق من الترقية لمرحلة جديدة
     const prevStage = GARDEN_STAGES.slice().reverse().find(s => prevPoints >= s.minPoints) || GARDEN_STAGES[0];
@@ -3219,8 +3312,47 @@ function updateGardenUI(data = null) {
 function initSpiritualGarden() {
     updateGardenUI();
 
+    // التفاعل المباشر عند النقر على شجرة الذكر التفاعلية
+    const treeDisplay = document.getElementById("tree-display-wrapper");
+    if (treeDisplay && !treeDisplay.dataset.interactiveBound) {
+        treeDisplay.dataset.interactiveBound = "true";
+        treeDisplay.style.cursor = "pointer";
+        treeDisplay.title = "انقر هنا لتزكية شجرة طاعاتك وتذكير نفسك بالذكر 🌿";
+        treeDisplay.addEventListener("click", () => {
+            const emojiEl = document.getElementById("tree-stage-emoji");
+            if (emojiEl) {
+                emojiEl.style.transform = "scale(1.22) rotate(6deg)";
+                setTimeout(() => { emojiEl.style.transform = ""; }, 350);
+            }
+            if ("vibrate" in navigator) {
+                try { navigator.vibrate(25); } catch(_) {}
+            }
+            const quotes = [
+                "قال رسول الله ﷺ: «سُبْحَانَ اللهِ، وَالحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللهُ، وَاللهُ أَكْبَرُ - غِراسُ الجَنَّةِ» 🌿",
+                "«كَلِمَتَانِ حَبِيبَتَانِ إِلَى الرَّحْمَنِ، خَفِيفَتَانِ عَلَى اللِّسَانِ، ثَقِيلَتَانِ فِي المِيزَانِ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ العَظِيمِ» ✨",
+                "«مَنْ قَرَأَ حَرْفًا مِنْ كِتَابِ اللَّهِ فَلَهُ بِهِ حَسَنَةٌ، وَالحَسَنَةُ بِعَشْرِ أَمْثَالِهَا» 📖",
+                "«أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ» 🌺"
+            ];
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            if (typeof showToast === "function") {
+                showToast(quote);
+            }
+        });
+    }
+
+    // التزامن التلقائي عبر التبويبات والأحداث
+    window.addEventListener("storage", (e) => {
+        if (e.key && e.key.startsWith("spiritual_garden")) {
+            updateGardenUI();
+        }
+    });
+    window.addEventListener("spiritual-garden-updated", () => {
+        updateGardenUI();
+    });
+
     const shareBtn = document.getElementById("btn-share-garden-status");
-    if (shareBtn) {
+    if (shareBtn && !shareBtn.dataset.bound) {
+        shareBtn.dataset.bound = "true";
         shareBtn.addEventListener("click", () => {
             const data = getGardenData();
             const currentStage = GARDEN_STAGES.slice().reverse().find(s => data.points >= s.minPoints) || GARDEN_STAGES[0];
@@ -4454,293 +4586,9 @@ function trackSiteTelemetry() {
    23. لوحة الإحصائيات والإدارة الخاصة (Admin & Analytics Dashboard)
    ========================================================================== */
 function initAdminDashboard() {
-    const loginModal = document.getElementById("admin-login-modal");
-    const dashboardModal = document.getElementById("admin-dashboard-modal");
-    const pinForm = document.getElementById("admin-pin-form");
-    const pinInput = document.getElementById("admin-pin-input");
-    const pinError = document.getElementById("admin-pin-error");
-    const btnCloseLogin = document.getElementById("btn-close-admin-login");
-    const btnCancelLogin = document.getElementById("btn-cancel-admin-login");
-    const btnCloseDashboard = document.getElementById("btn-close-admin-dashboard");
-    const btnLogout = document.getElementById("btn-admin-logout");
-    const btnRefresh = document.getElementById("btn-refresh-admin-stats");
-    const btnChangePin = document.getElementById("btn-change-admin-pin");
-    const btnExport = document.getElementById("btn-export-admin-stats");
-    const footerTrigger = document.getElementById("footer-admin-trigger");
-
-    let clickCount = 0;
-    let clickTimeout = null;
-    let currentFetchedStats = {};
-
-    function getAdminPin() {
-        return localStorage.getItem("zad_admin_pin") || localStorage.getItem("sadqah_admin_pin") || "zad2026";
-    }
-
-    function openLoginModal() {
-        if (!loginModal) return;
-        if (pinInput) { pinInput.value = ""; }
-        if (pinError) { pinError.style.display = "none"; }
-        loginModal.classList.add("open");
-        loginModal.classList.add("active");
-        document.body.style.overflow = "hidden";
-        setTimeout(() => { if (pinInput) pinInput.focus(); }, 150);
-    }
-
-    function closeLoginModal() {
-        if (!loginModal) return;
-        loginModal.classList.remove("open");
-        loginModal.classList.remove("active");
-        document.body.style.overflow = "";
-    }
-
-    function openDashboard() {
-        closeLoginModal();
-        if (!dashboardModal) return;
-        dashboardModal.classList.add("open");
-        dashboardModal.classList.add("active");
-        document.body.style.overflow = "hidden";
-        loadLiveStatistics();
-    }
-
-    function closeDashboard() {
-        if (!dashboardModal) return;
-        dashboardModal.classList.remove("open");
-        dashboardModal.classList.remove("active");
-        document.body.style.overflow = "";
-        if (window.location.hash === "#admin") {
-            history.replaceState(null, "", window.location.pathname + window.location.search);
-        }
-    }
-
-    // Check PIN submission
-    if (pinForm) {
-        pinForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const inputVal = (pinInput ? pinInput.value.trim() : "");
-            const correctPin = getAdminPin();
-
-            if (inputVal === correctPin) {
-                openDashboard();
-            } else {
-                if (pinError) {
-                    pinError.textContent = "رمز المرور غير صحيح! حاول مرة أخرى.";
-                    pinError.style.display = "block";
-                }
-                if (pinInput) {
-                    pinInput.select();
-                    pinInput.focus();
-                }
-            }
-        });
-    }
-
-    // Triggers to open Admin login:
-    // 1. Footer click (5 consecutive clicks on author name)
-    if (footerTrigger) {
-        footerTrigger.addEventListener("click", () => {
-            clickCount++;
-            clearTimeout(clickTimeout);
-            if (clickCount >= 5) {
-                clickCount = 0;
-                openLoginModal();
-            } else {
-                clickTimeout = setTimeout(() => { clickCount = 0; }, 2000);
-            }
-        });
-    }
-
-    // 2. Keyboard shortcut: Ctrl + Shift + A or Cmd + Shift + A
-    document.addEventListener("keydown", (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "A" || e.key === "a" || e.key === "ش")) {
-            e.preventDefault();
-            openLoginModal();
-        }
-        if (e.key === "Escape") {
-            if (loginModal && loginModal.classList.contains("open")) closeLoginModal();
-            if (dashboardModal && dashboardModal.classList.contains("open")) closeDashboard();
-        }
-    });
-
-    // 3. URL Hash or query param check
-    if (window.location.hash === "#admin" || new URLSearchParams(window.location.search).get("admin") === "1") {
-        setTimeout(openLoginModal, 600);
-    }
-
-    // Close buttons
-    if (btnCloseLogin) btnCloseLogin.addEventListener("click", closeLoginModal);
-    if (btnCancelLogin) btnCancelLogin.addEventListener("click", closeLoginModal);
-    if (btnCloseDashboard) btnCloseDashboard.addEventListener("click", closeDashboard);
-    if (btnLogout) btnLogout.addEventListener("click", closeDashboard);
-
-    if (loginModal) {
-        loginModal.addEventListener("click", (e) => {
-            if (e.target === loginModal) closeLoginModal();
-        });
-    }
-    if (dashboardModal) {
-        dashboardModal.addEventListener("click", (e) => {
-            if (e.target === dashboardModal) closeDashboard();
-        });
-    }
-
-    // Fetch and display live statistics
-    function loadLiveStatistics() {
-        const todayKey = new Date().toISOString().slice(0, 10);
-        
-        if (typeof firebase === "undefined" || typeof isFirebaseConfigured !== "function" || !isFirebaseConfigured()) {
-            showLocalFallbackStats();
-            return;
-        }
-
-        const db = firebase.database();
-        db.ref("stats").once("value").then(snap => {
-            const stats = snap.val() || {};
-            currentFetchedStats = stats;
-
-            const totalVisits = stats.totalVisits || 0;
-            const uniqueVisitors = stats.uniqueVisitors || 0;
-            const totalDownloads = stats.totalDownloads || 0;
-            const todayVisits = (stats.dailyVisits && stats.dailyVisits[todayKey]) || 0;
-            const totalTasbeeh = stats.globalTasbeehCount || 0;
-
-            const visitsEl = document.getElementById("stat-total-visits");
-            const todayEl = document.getElementById("stat-today-visits");
-            const uniqueEl = document.getElementById("stat-unique-visitors");
-            const downloadsEl = document.getElementById("stat-total-downloads");
-            const tasbeehEl = document.getElementById("stat-total-tasbeeh");
-
-            if (visitsEl) visitsEl.textContent = totalVisits.toLocaleString("ar-EG");
-            if (todayEl) todayEl.textContent = `اليوم: ${todayVisits.toLocaleString("ar-EG")} زيارة`;
-            if (uniqueEl) uniqueEl.textContent = uniqueVisitors.toLocaleString("ar-EG");
-            if (downloadsEl) downloadsEl.textContent = totalDownloads.toLocaleString("ar-EG");
-            if (tasbeehEl) tasbeehEl.textContent = totalTasbeeh.toLocaleString("ar-EG");
-
-            // Devices breakdown
-            const devices = stats.devices || {};
-            const mobileCount = (devices.mobile || 0) + (devices.tablet || 0);
-            const desktopCount = devices.desktop || 0;
-            const totalDevices = mobileCount + desktopCount || 1;
-
-            const mobilePct = Math.round((mobileCount / totalDevices) * 100);
-            const desktopPct = Math.round((desktopCount / totalDevices) * 100);
-
-            const mobilePctEl = document.getElementById("stat-device-mobile-pct");
-            const desktopPctEl = document.getElementById("stat-device-desktop-pct");
-            const fillMobile = document.getElementById("fill-device-mobile");
-            const fillDesktop = document.getElementById("fill-device-desktop");
-
-            if (mobilePctEl) mobilePctEl.textContent = `${mobilePct}%`;
-            if (desktopPctEl) desktopPctEl.textContent = `${desktopPct}%`;
-            if (fillMobile) fillMobile.style.width = `${mobilePct}%`;
-            if (fillDesktop) fillDesktop.style.width = `${desktopPct}%`;
-
-            // Daily list (last 7 days)
-            const dailyListEl = document.getElementById("admin-daily-list");
-            if (dailyListEl && stats.dailyVisits) {
-                const days = Object.keys(stats.dailyVisits).sort().reverse().slice(0, 7);
-                if (days.length === 0) {
-                    dailyListEl.innerHTML = '<div style="font-size:0.82rem; color:var(--text-muted); text-align:center;">لا توجد سجلات سابقة بعد</div>';
-                } else {
-                    dailyListEl.innerHTML = days.map(d => {
-                        return `
-                            <div class="admin-daily-item">
-                                <span><i class="fa-regular fa-calendar text-muted"></i> ${d}</span>
-                                <strong>${stats.dailyVisits[d].toLocaleString("ar-EG")} زيارة</strong>
-                            </div>
-                        `;
-                    }).join("");
-                }
-            }
-        }).catch(err => {
-            console.error("Error loading stats:", err);
-            showLocalFallbackStats();
-        });
-
-        // Load Prayers Count
-        db.ref("prayers").once("value").then(snap => {
-            const prayers = snap.val() || {};
-            const count = Object.keys(prayers).length;
-            const prayersEl = document.getElementById("stat-total-prayers");
-            if (prayersEl) prayersEl.textContent = count.toLocaleString("ar-EG");
-            currentFetchedStats.totalPrayers = count;
-        });
-
-        // Load Khatma Count
-        db.ref("khatma").once("value").then(snap => {
-            const khatma = snap.val() || {};
-            let reservedCount = 0;
-            Object.keys(khatma).forEach(k => {
-                if (khatma[k] && khatma[k].reserved) reservedCount++;
-            });
-            const khatmaEl = document.getElementById("stat-total-khatmas");
-            if (khatmaEl) khatmaEl.textContent = `${reservedCount} / 30 جزء`;
-            currentFetchedStats.totalKhatmasReserved = reservedCount;
-        });
-    }
-
-    function showLocalFallbackStats() {
-        const visitsEl = document.getElementById("stat-total-visits");
-        const uniqueEl = document.getElementById("stat-unique-visitors");
-        const downloadsEl = document.getElementById("stat-total-downloads");
-        if (visitsEl) visitsEl.textContent = "1";
-        if (uniqueEl) uniqueEl.textContent = "1";
-        if (downloadsEl) downloadsEl.textContent = "0";
-    }
-
-    if (btnRefresh) {
-        btnRefresh.addEventListener("click", () => {
-            loadLiveStatistics();
-            showToast("تم تحديث الإحصائيات الحية 🔄✨");
-        });
-    }
-
-    // Change PIN handler
-    if (btnChangePin) {
-        btnChangePin.addEventListener("click", () => {
-            const currentPin = getAdminPin();
-            const enteredOld = prompt("أدخل رمز المرور الحالي:");
-            if (!enteredOld) return;
-
-            if (enteredOld.trim() !== currentPin) {
-                alert("رمز المرور الحالي غير صحيح!");
-                return;
-            }
-
-            const newPin = prompt("أدخل رمز المرور الجديد (أرقام أو حروف):");
-            if (newPin && newPin.trim().length >= 4) {
-                localStorage.setItem("sadqah_admin_pin", newPin.trim());
-                showToast("تم تغيير رمز المرور بنجاح 🔑✅");
-            } else if (newPin) {
-                alert("يجب أن يتكون رمز المرور من 4 خانات على الأقل.");
-            }
-        });
-    }
-
-    // Export report
-    if (btnExport) {
-        btnExport.addEventListener("click", () => {
-            const nowStr = new Date().toLocaleString("ar-EG");
-            const report = {
-                title: "تقرير إحصائيات موقع زاد المسلم - صدقة جارية",
-                timestamp: nowStr,
-                stats: currentFetchedStats
-            };
-
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
-            const downloadAnchor = document.createElement("a");
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `zad-almuslim-stats-${new Date().toISOString().slice(0, 10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showToast("تم تصدير ملف الإحصائيات بنجاح 📥📊");
-        });
-    }
+    document.getElementById('footer-admin-trigger')?.addEventListener('click', () => { location.href = 'admin.html'; });
 }
 
-/* ==========================================================================
-   نظام تبديل المظهر النهاري / الليلي (White Mode / Light Theme Toggle)
-   ========================================================================== */
 function initThemeToggle() {
     if (window.zadTheme && typeof window.zadTheme.init === "function") {
         window.zadTheme.init();
@@ -4824,6 +4672,11 @@ function initModernZadDashboard() {
             const prayerNameEl = document.getElementById("daily-next-prayer-name");
             const prayerTimeEl = document.getElementById("daily-next-prayer-time");
             if (!prayerNameEl || !prayerTimeEl) return;
+            if (!window.zadPrayerVerified) {
+                prayerNameEl.textContent = 'المواقيت غير متاحة';
+                prayerTimeEl.textContent = 'اتصل بالإنترنت لتحديث مواقيت مدينتك.';
+                return;
+            }
 
             const existingName = document.getElementById("next-prayer-name");
             const existingTimer = document.getElementById("next-prayer-timer");

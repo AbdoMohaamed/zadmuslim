@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
 };
 
 // المفتاح العام لتشفير وبث إشعارات الويب للأجهزة المقفلة (Web Push VAPID Public Key)
-const ZAD_VAPID_PUBLIC_KEY = "BFCsM3Ryzc4kdbfNgCqtlOJPjIvrolQJTQUdD03b8g1ehKhnxqNeAUJ9T_Yl8WajcZj_dWvJhcCbHN6-pPCSJ4I";
+const ZAD_VAPID_PUBLIC_KEY = "BPm0LksyOCC3B9_6l_QqbRwwgZ2m2aX2F-SY4xd-IBzDyovvzc_f9RpjGD5H2xxZjf6IdJDSE7ZY9JaN1eXvy50";
 
 // فحص هل تم تفعيل ووضع الإعدادات
 function isFirebaseConfigured() {

@@ -1558,7 +1558,7 @@ function initPWA() {
             });
             if (window.caches) {
                 caches.keys().then(keys => {
-                    for (let key of keys) caches.delete(key);
+                    for (let key of keys) if (key !== "zad-downloads-v1") caches.delete(key);
                 });
             }
         } else {
@@ -1698,39 +1698,11 @@ function initPWA() {
 let prayerTimings = null;
 window.prayerTimings = null;
 window.getPrayerTimings = function() {
-    if (prayerTimings) return prayerTimings;
-    try {
-        const raw = localStorage.getItem("last_active_prayer_timings");
-        if (raw) return JSON.parse(raw);
-    } catch(e) {}
-    return (typeof FALLBACK_PRAYER_TIMES !== "undefined") ? FALLBACK_PRAYER_TIMES : null;
+    return window.zadPrayerVerified ? prayerTimings : null;
 };
 let prayerTimerInterval = null;
 
-const CITY_CONFIGS = {
-    // المملكة العربية السعودية (طريقة أم القرى: method 4)
-    Riyadh: { city: "Riyadh", country: "Saudi Arabia", method: 4 },
-    Makkah: { city: "Makkah", country: "Saudi Arabia", method: 4 },
-    Madinah: { city: "Medina", country: "Saudi Arabia", method: 4 },
-    Jeddah: { city: "Jeddah", country: "Saudi Arabia", method: 4 },
-    Dammam: { city: "Dammam", country: "Saudi Arabia", method: 4 },
-
-    // جمهورية مصر العربية (الهيئة المصرية العامة للمساحة: method 5)
-    Cairo: { city: "Cairo", country: "Egypt", method: 5 },
-    Alexandria: { city: "Alexandria", country: "Egypt", method: 5 },
-    Giza: { city: "Giza", country: "Egypt", method: 5 },
-    Mansoura: { city: "Mansoura", country: "Egypt", method: 5 },
-    Tanta: { city: "Tanta", country: "Egypt", method: 5 },
-    Zagazig: { city: "Zagazig", country: "Egypt", method: 5 },
-    Assiut: { city: "Assiut", country: "Egypt", method: 5 },
-
-    // العواصم والمدن الإسلامية
-    Jerusalem: { city: "Jerusalem", country: "Palestine", method: 3 },
-    Dubai: { city: "Dubai", country: "United Arab Emirates", method: 16 },
-    Kuwait: { city: "Kuwait", country: "Kuwait", method: 9 },
-    Doha: { city: "Doha", country: "Qatar", method: 10 },
-    Amman: { city: "Amman", country: "Jordan", method: 3 }
-};
+const CITY_CONFIGS = window.ZadPrayerCities;
 
 // كشف المدينة المبدئية بالمنطقة الزمنية لحظياً دون انتظار أي شبكة
 function detectInitialDefaultCity() {
@@ -1752,14 +1724,6 @@ function detectInitialDefaultCity() {
 }
 
 // مواقيت افتراضية احتياطية واقعية للعرض المؤقت فقط (في حال انقطاع الإنترنت التام)
-const FALLBACK_PRAYER_TIMES = {
-    Fajr: "05:30",
-    Sunrise: "06:55",
-    Dhuhr: "12:40",
-    Asr: "15:55",
-    Maghrib: "18:20",
-    Isha: "19:40"
-};
 
 function initPrayerTimes() {
     const citySelect = document.getElementById("select-prayer-city");
@@ -1771,24 +1735,11 @@ function initPrayerTimes() {
         localStorage.setItem("selected_prayer_city", savedCity);
     }
 
-    // جدولة فورية سريعة للمواقيت لتشغيل إشعارات الأذان والمنبه فور فتح التطبيق
-    if (!prayerTimings) {
-        const lastCached = localStorage.getItem("last_active_prayer_timings");
-        if (lastCached) {
-            try { prayerTimings = JSON.parse(lastCached); } catch(e) {}
-        }
-        if (!prayerTimings) prayerTimings = FALLBACK_PRAYER_TIMES;
-        window.prayerTimings = prayerTimings;
-        renderPrayerTimesUI(prayerTimings);
-        startPrayerCountdown();
-        // صمام أمان: لا نجدول FALLBACK_PRAYER_TIMES المؤقتة في نظام الهاتف الأصلي لمنع الأذان في أوقات خاطئة
-        // نجدول فقط إذا كان هناك كاش موثوق به محفوظ سابقاً، وإلا ننتظر وصول المواقيت الحقيقية للمدينة
-        if (lastCached && window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
-            window.NativeAdhanService.schedulePrayers(prayerTimings);
-        }
-    }
-
+    // Only date- and location-matched timings may start alarms.
     if (citySelect) {
+        if (CITY_CONFIGS[savedCity] && ![...citySelect.options].some(o => o.value === savedCity)) {
+            citySelect.add(new Option(CITY_CONFIGS[savedCity].label || CITY_CONFIGS[savedCity].city, savedCity));
+        }
         citySelect.value = savedCity;
         citySelect.addEventListener("change", (e) => {
             const city = e.target.value;
@@ -1847,7 +1798,14 @@ function checkSpecialTimesNotice() {
     }
 }
 
-function fetchPrayerTimes(cityKey) {
+let prayerRequestVersion = 0;
+async function fetchPrayerTimes(cityKey) {
+    const requestVersion = ++prayerRequestVersion;
+    window.zadPrayerVerified = false;
+    if (prayerTimerInterval) clearInterval(prayerTimerInterval);
+    navigator.serviceWorker?.controller?.postMessage({ type: "SCHEDULE_PRAYERS", schedule: [] });
+    await window.NativeAdhanService?.cancelPrayerAlarms?.();
+    if (requestVersion !== prayerRequestVersion) return;
     let url;
     let cacheKey;
 
@@ -1861,7 +1819,7 @@ function fetchPrayerTimes(cityKey) {
         if (savedGps) {
             try {
                 const parsed = JSON.parse(savedGps);
-                if (parsed.lat && parsed.lng) {
+                if (Number.isFinite(Number(parsed.lat)) && Number.isFinite(Number(parsed.lng)) && Math.abs(Number(parsed.lat)) <= 90 && Math.abs(Number(parsed.lng)) <= 180) {
                     const latNum = Number(parsed.lat);
                     const lngNum = Number(parsed.lng);
                     // تحديد طريقة الحساب الفقهية تلقائياً: أم القرى (4) للسعودية والخليج، مصر (5)، رابطة العالم الإسلامي (3)
@@ -1876,17 +1834,34 @@ function fetchPrayerTimes(cityKey) {
         }
     }
 
+    if (!url && cityKey === "gps") { useFallbackTimings(); return; }
     if (!url) {
-        const config = CITY_CONFIGS[cityKey] || CITY_CONFIGS["Cairo"] || CITY_CONFIGS["Riyadh"];
+        const config = CITY_CONFIGS[cityKey];
+        if (!config) { useFallbackTimings(); return; }
         cacheKey = `prayer_times_${cityKey}_${localDateStr}`;
         url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(config.city)}&country=${encodeURIComponent(config.country)}&method=${config.method}${tzParam}`;
     }
 
+    const methodOverride = localStorage.getItem('zad_prayer_method') || '';
+    if (/^(2|3|4|5|7|8|9|10|11|12|13|14|15)$/.test(methodOverride)) url = url.replace(/method=\d+/, 'method=' + methodOverride);
+    const school = localStorage.getItem('zad_prayer_school') === '1' ? '1' : '0';
+    url += '&school=' + school;
+    cacheKey += '_' + methodOverride + '_' + school + '_' + userTz;
+    const markVerified = () => {
+        window.zadPrayerVerified = true;
+        localStorage.setItem('zad_prayer_verified', JSON.stringify({ date: new Date().toLocaleDateString('en-CA'), city: cityKey, method: methodOverride, school }));
+        document.dispatchEvent(new Event('zad:prayer-updated'));
+    };
+    const validTimings = value => ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].every(key => /^(?:[01]\d|2[0-3]):[0-5]\d/.test(value?.[key] || ''));
+    const apiDate = String(now.getDate()).padStart(2, '0') + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + now.getFullYear();
+    url = url.replace('/timings?', '/timings/' + apiDate + '?').replace('/timingsByCity?', '/timingsByCity/' + apiDate + '?');
     const cached = localStorage.getItem(cacheKey);
 
     if (cached) {
         try {
             prayerTimings = JSON.parse(cached);
+            if (!validTimings(prayerTimings)) throw new Error("Invalid timings");
+            markVerified();
             window.prayerTimings = prayerTimings;
             renderPrayerTimesUI(prayerTimings);
             startPrayerCountdown();
@@ -1898,10 +1873,12 @@ function fetchPrayerTimes(cityKey) {
         } catch(e) {}
     }
 
-    fetch(url)
-        .then(res => res.json())
+    fetch(url, { cache: "no-store" })
+        .then(res => { if (!res.ok) throw new Error("Unavailable"); return res.json(); })
         .then(result => {
-            if (result && result.code === 200 && result.data && result.data.timings) {
+            if (requestVersion !== prayerRequestVersion) return;
+            if (result && result.code === 200 && validTimings(result.data?.timings)) {
+                markVerified();
                 prayerTimings = result.data.timings;
                 window.prayerTimings = prayerTimings;
                 localStorage.setItem(cacheKey, JSON.stringify(prayerTimings));
@@ -1917,19 +1894,25 @@ function fetchPrayerTimes(cityKey) {
             }
         })
         .catch(() => {
+            if (requestVersion !== prayerRequestVersion) return;
             useFallbackTimings();
         });
 }
 
 function useFallbackTimings() {
-    prayerTimings = FALLBACK_PRAYER_TIMES;
-    window.prayerTimings = prayerTimings;
-    renderPrayerTimesUI(prayerTimings);
-    startPrayerCountdown();
-    initFastingTracker();
-    if (window.NativeAdhanService && typeof window.NativeAdhanService.schedulePrayers === "function") {
-        window.NativeAdhanService.schedulePrayers(prayerTimings);
-    }
+    window.zadPrayerVerified = false;
+    prayerTimings = null; window.prayerTimings = null;
+    if (prayerTimerInterval) clearInterval(prayerTimerInterval);
+    const timer = document.getElementById('next-prayer-timer'); if (timer) timer.textContent = '--:--';
+    ['fajr','sunrise','dhuhr','asr','maghrib','isha'].forEach(key => {
+        const el = document.getElementById('time-' + key); if (el) el.textContent = '--:--';
+    });
+    ['next-prayer-name','daily-next-prayer-name'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.textContent = 'المواقيت غير متاحة';
+    });
+    const detail = document.getElementById('daily-next-prayer-time');
+    if (detail) detail.textContent = 'اتصل بالإنترنت لتحديث مواقيت مدينتك؛ لم تُجدول مواعيد بديلة.';
+    document.dispatchEvent(new Event('zad:prayer-updated'));
 }
 
 function renderPrayerTimesUI(timings) {
@@ -2019,11 +2002,17 @@ function syncPrayersWithServiceWorker(timings) {
 }
 
 function startPrayerCountdown() {
+    if (!window.zadPrayerVerified || !prayerTimings) return;
     if (prayerTimerInterval) clearInterval(prayerTimerInterval);
 
     const updateCountdown = () => {
         if (!prayerTimings) return;
-
+        const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
+        if (verified?.date !== new Date().toLocaleDateString('en-CA')) {
+            clearInterval(prayerTimerInterval);
+            fetchPrayerTimes(localStorage.getItem('selected_prayer_city') || 'Cairo');
+            return;
+        }
         const now = new Date();
         const prayersList = [
             { name: "صلاة الفجر", key: "fajr", time: prayerTimings.Fajr },
@@ -2693,7 +2682,7 @@ function getFastingInfo() {
         });
     } catch (e) {}
 
-    const timings = prayerTimings || (typeof FALLBACK_PRAYER_TIMES !== "undefined" ? FALLBACK_PRAYER_TIMES : null);
+    const timings = window.zadPrayerVerified ? prayerTimings : null;
     if (!timings) return { isFasting: false };
 
     const maghribStr = timings.Maghrib ? timings.Maghrib.split(" ")[0] : "18:00";

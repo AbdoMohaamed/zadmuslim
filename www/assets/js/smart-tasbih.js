@@ -230,6 +230,10 @@
             this.playBeadClick();
             this.triggerHaptic("click");
 
+            if (typeof window.addSpiritualGardenDeed === "function") {
+                window.addSpiritualGardenDeed("tasbeeh", 1);
+            }
+
             // تأثير التموج الضوئي في موضع النقر (Ripple Effect)
             const bead = document.getElementById("btn-quick-bead-tap");
             if (bead) {

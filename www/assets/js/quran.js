@@ -1,3 +1,16 @@
+let downloadedAudioObjectUrl = null;
+async function getDownloadedAudioUrl(url) {
+    if (downloadedAudioObjectUrl) { URL.revokeObjectURL(downloadedAudioObjectUrl); downloadedAudioObjectUrl = null; }
+    try {
+        const saved = await (await caches.open('zad-downloads-v1')).match(url);
+        if (saved) { downloadedAudioObjectUrl = URL.createObjectURL(await saved.blob()); return downloadedAudioObjectUrl; }
+    } catch {}
+    return url;
+}
+async function fetchQuranReference(url) {
+    try { const saved = await (await caches.open('zad-downloads-v1')).match(url); if (saved) return saved; } catch {}
+    return fetch(url);
+}
 /**
  * زاد المسلم - المصحف الذهبي الشريف المدمج محلياً 100% بدون إنترنت
  * طبعة مجمع الملك فهد لطباعة المصحف الشريف بالمدينة المنورة برواية حفص عن عاصم
@@ -267,6 +280,28 @@ function initGoldenQuran() {
     goToMushafPage(currentPageNumber);
 }
 
+// تسجيل قراءة الصفحة في حديقة الحسنات والمهام الإيمانية اليومية
+function recordMushafPageRead(pageNumber) {
+    if (!pageNumber || pageNumber < 1 || pageNumber > TOTAL_MUSHAF_PAGES) return;
+    try {
+        const todayKey = `zad_quran_pages_read_${new Date().toISOString().slice(0, 10)}`;
+        let readPages = [];
+        try {
+            readPages = JSON.parse(localStorage.getItem(todayKey) || "[]");
+        } catch (_) {}
+        if (!readPages.includes(pageNumber)) {
+            readPages.push(pageNumber);
+            localStorage.setItem(todayKey, JSON.stringify(readPages));
+            if (typeof window.addSpiritualGardenDeed === "function") {
+                window.addSpiritualGardenDeed("quran", 5, 1);
+            }
+        }
+    } catch (e) {
+        console.error("Error recording Quran page deed:", e);
+    }
+}
+window.recordMushafPageRead = recordMushafPageRead;
+
 // الانتقال إلى صفحة معينة في المصحف الشريف
 
 function isDualPageMode() {
@@ -363,6 +398,15 @@ function goToMushafPage(pageNumber) {
 
     // 6. تحديث بطاقة "أكمل من حيث توقفت"
     updateResumeCardUI(pageNumber, surah);
+
+    // 7. تسجيل قراءة الصفحة في حديقة الحسنات والمهام اليومية
+    if (window._mushafPageReadTimer) clearTimeout(window._mushafPageReadTimer);
+    window._mushafPageReadTimer = setTimeout(() => {
+        recordMushafPageRead(pageNumber);
+        if (dual && leftPage) {
+            recordMushafPageRead(leftPage);
+        }
+    }, 800);
 }
 
 // تحديث حالة الفاصل وشريط موضع الوقوف
@@ -476,7 +520,7 @@ function setupGoldenNavigation() {
     }
 }
 
-function toggleSurahRecitation() {
+async function toggleSurahRecitation() {
     const surah = getSurahForPage(currentPageNumber);
     const paddedSurah = String(surah.id).padStart(3, "0");
     const btnAudio = document.getElementById("btn-surah-audio");
@@ -490,7 +534,7 @@ function toggleSurahRecitation() {
         if (icon) icon.className = "fa-solid fa-volume-high";
         if (typeof showToast === "function") showToast("تم إيقاف التلاوة ⏸️");
     } else {
-        quranAudio.src = `https://server8.mp3quran.net/afs/${paddedSurah}.mp3`;
+        quranAudio.src = await getDownloadedAudioUrl(`https://server8.mp3quran.net/afs/${paddedSurah}.mp3`);
         quranAudio.play().then(() => {
             isQuranAudioPlaying = true;
             if (textSpan) textSpan.textContent = "إيقاف";
@@ -843,8 +887,9 @@ async function loadPageTafsir(page) {
     }
 
     try {
-        const res = await fetch(`https://api.alquran.cloud/v1/page/${page}/ar.muyassar`);
+        const res = await fetchQuranReference(`https://api.alquran.cloud/v1/page/${page}/ar.muyassar`);
         const json = await res.json();
+        if (!res.ok || !Array.isArray(json?.data?.ayahs)) throw new Error("Content unavailable");
         if (json && json.data && json.data.ayahs) {
             localStorage.setItem(`tafsir_cache_p${page}`, JSON.stringify(json.data.ayahs));
             renderTafsirAyahs(json.data.ayahs, content);
@@ -857,23 +902,9 @@ async function loadPageTafsir(page) {
 }
 
 function renderTafsirAyahs(ayahs, container) {
-    container.innerHTML = "";
-    ayahs.forEach(ayah => {
-        const box = document.createElement("div");
-        box.style.cssText = "margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08);";
-        box.innerHTML = `
-            <div style="font-family: 'Amiri', serif; font-size: 1.15rem; color: #fef08a; margin-bottom: 6px; line-height: 1.8;">
-                ${ayah.text} <span style="color: var(--gold-400); font-size: 0.9rem;">﴿${toArabicDigits(ayah.numberInSurah)}﴾</span>
-            </div>
-            <div style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6;">
-                ${ayah.text}
-            </div>
-        `;
-        container.appendChild(box);
-    });
+    renderSheetTafsir(ayahs, container);
 }
 
-// تبويبات الختمة
 function initKhatmaTabs() {
     const tabBtns = document.querySelectorAll(".quran-tab-btn");
     const subpartMushaf = document.getElementById("subpart-mushaf");
@@ -1149,6 +1180,12 @@ function openGoldenAyahSheet(page) {
     }
 
     loadAyahReferencesContent(page || currentPageNumber, surah);
+    if (!modal.querySelector('.zad-report-content')) {
+        const report = document.createElement('button'); report.className = 'btn outline zad-report-content';
+        report.textContent = 'بلّغ عن خطأ في المحتوى';
+        report.onclick = () => window.ZadUserTools?.report('مراجع المصحف — صفحة ' + currentPageNumber);
+        (modal.querySelector('.modal-content') || modal).append(report);
+    }
     modal.classList.add("open");
 }
 
@@ -1160,22 +1197,8 @@ async function loadAyahReferencesContent(page, surah) {
     const bodyIrab = document.getElementById("golden-ref-body-irab");
     const bodyTopic = document.getElementById("golden-ref-body-topic");
 
-    if (bodyTopic) {
-        bodyTopic.innerHTML = `<div style="color: #fef08a; font-weight: 700; margin-bottom: 6px;">مقاصد سورة ${surah.name}:</div><p>سورة ${surah.name} من السور الـ${surah.type}، عدد آياتها ${toArabicDigits(surah.ayahs)} آية، تدعو إلى توحيد الله وكمال قدرته وتذكر بنعمه على عباده.</p>`;
-    }
-
-    if (bodyWords) {
-        bodyWords.innerHTML = `<p><strong>البيان والمعاني:</strong> تشتمل الصفحة على مفردات جليلة في تعظيم الخالق وتصريف الآيات، يُستحب تكرارها وتدبر معانيها وتطبيق العمل بها.</p>`;
-    }
-
-    if (bodyAsbab) {
-        bodyAsbab.innerHTML = `<p><strong>سبب النزول:</strong> نزلت سورة ${surah.name} ${surah.type === "مكية" ? "بمكة المكرمة في شأن تقرير أصول التوحيد والبعث والرسالة" : "بالمدينة المنورة في شأن ترسيخ الأحكام والتشريعات الإلهية"}.</p>`;
-    }
-
-    if (bodyIrab) {
-        bodyIrab.innerHTML = `<p><strong>الإعراب:</strong> إعراب كلام رب العالمين بأفصح اللغات وأشرفها، تجري آياته على قواعد لسان العرب بأعظم أساليب البيان والبلاغة.</p>`;
-    }
-
+    const unavailable = 'لم يُضف محتوى موثّق لهذا القسم بعد. لا يُعرض نص عام باعتباره شرحًا للآيات.';
+    [bodyWords, bodyAsbab, bodyIrab, bodyTopic].forEach(el => { if (el) el.textContent = unavailable; });
     if (bodyTafsir) {
         bodyTafsir.innerHTML = '<div style="color: #d4af37;"><i class="fa-solid fa-spinner fa-spin"></i> جاري استحضار التفسير الميسر...</div>';
     }
@@ -1194,7 +1217,7 @@ async function loadAyahReferencesContent(page, surah) {
     }
 
     try {
-        const res = await fetch(`https://api.alquran.cloud/v1/page/${page}/ar.muyassar`);
+        const res = await fetchQuranReference(`https://api.alquran.cloud/v1/page/${page}/ar.muyassar`);
         const json = await res.json();
         if (json && json.data && json.data.ayahs) {
             localStorage.setItem(cacheKey, JSON.stringify(json.data.ayahs));
@@ -1202,12 +1225,12 @@ async function loadAyahReferencesContent(page, surah) {
         }
     } catch (e) {
         if (bodyTafsir && !cached) {
-            bodyTafsir.innerHTML = `<p><strong>التفسير الميسر لسورة ${surah.name}:</strong> بيان معاني كلام الله وتوضيح هدايات الآيات بما يفتح الله به على قلب القارئ، ومتاح دون إنترنت فور تحميل الصفحات.</p>`;
+            bodyTafsir.textContent = "تعذّر تحميل التفسير الميسر. اتصل بالإنترنت أو نزّل التفسير من التنزيلات.";
         }
     }
 
     try {
-        const resEn = await fetch(`https://api.alquran.cloud/v1/page/${page}/en.sahih`);
+        const resEn = await fetchQuranReference(`https://api.alquran.cloud/v1/page/${page}/en.sahih`);
         const jsonEn = await resEn.json();
         if (jsonEn && jsonEn.data && jsonEn.data.ayahs && bodyEnglish) {
             bodyEnglish.innerHTML = jsonEn.data.ayahs.map(a => `<div style="margin-bottom: 8px;"><strong>[${a.numberInSurah}]</strong> ${a.text}</div>`).join("");
@@ -1221,12 +1244,15 @@ async function loadAyahReferencesContent(page, surah) {
 
 function renderSheetTafsir(ayahs, container) {
     if (!container) return;
-    container.innerHTML = ayahs.map(a => `
-        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <div style="color: #fef08a; font-weight: 700; margin-bottom: 4px;">﴿${toArabicDigits(a.numberInSurah)}﴾ ${a.text}</div>
-            <div style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.8;">${a.text}</div>
-        </div>
-    `).join("");
+    container.replaceChildren();
+    const source = document.createElement('p');
+    source.textContent = 'المصدر: التفسير الميسر — خدمة AlQuran Cloud (ar.muyassar). الأرقام تشير إلى آيات الصفحة.';
+    container.append(source);
+    ayahs.forEach(a => {
+        const row = document.createElement('p');
+        row.textContent = '[' + toArabicDigits(a.numberInSurah) + '] ' + a.text;
+        container.append(row);
+    });
 }
 
 // ==========================================================================
@@ -1266,7 +1292,7 @@ function setupGoldenMiniPlayer() {
     });
 }
 
-function startGoldenAudioPlayer() {
+async function startGoldenAudioPlayer() {
     const player = document.getElementById("golden-mini-player");
     const titleEl = document.getElementById("golden-player-title");
     const icon = document.getElementById("golden-player-icon");
@@ -1276,7 +1302,7 @@ function startGoldenAudioPlayer() {
     if (player) player.style.display = "block";
     if (titleEl) titleEl.textContent = `تلاوة سورة ${surah.name}`;
 
-    quranAudio.src = `https://server8.mp3quran.net/afs/${padded}.mp3`;
+    quranAudio.src = await getDownloadedAudioUrl(`https://server8.mp3quran.net/afs/${padded}.mp3`);
     quranAudio.play().then(() => {
         isQuranAudioPlaying = true;
         if (icon) icon.className = "fa-solid fa-pause";
@@ -1436,7 +1462,7 @@ async function fetchPageAyahsForMemorization(page) {
         } catch(e) {}
     }
 
-    const res = await fetch(`https://api.alquran.cloud/v1/page/${page}/quran-uthmani`);
+    const res = await fetchQuranReference(`https://api.alquran.cloud/v1/page/${page}/quran-uthmani`);
     if (!res.ok) throw new Error("API response error");
     const json = await res.json();
     if (json && json.data && json.data.ayahs) {

@@ -1,0 +1,711 @@
+/* ==========================================================================
+   زاد المسلم • تنسيقات أدوات وإعدادات المستخدم (ZadMuslim User Tools & Settings)
+   ========================================================================== */
+
+/* نافذة الإشعارات الموحدة - توسيع العرض ودعم التبديل السلس */
+#notifications-modal .modal-card {
+    max-width: 540px !important;
+    width: 94% !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+#notif-view-alerts,
+#notif-view-settings {
+    animation: zadFadeSlide 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes zadFadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ترويسة الإعدادات المدمجة مع زر العودة للإشعارات */
+.zad-notif-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.zad-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.15);
+    border: 1px solid rgba(var(--gold-rgb, 212, 175, 55), 0.45);
+    color: var(--gold-400, #d4af37);
+    padding: 6px 14px;
+    border-radius: var(--radius-full, 9999px);
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.zad-back-btn:hover {
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.28);
+    border-color: var(--gold-400, #d4af37);
+    transform: translateX(3px);
+}
+
+#btn-switch-to-settings {
+    width: 100%;
+    margin-top: 12px;
+    font-size: 0.88rem;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(var(--gold-rgb, 212, 175, 55), 0.45);
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.09);
+    color: var(--gold-400, #d4af37);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#btn-switch-to-settings:hover {
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.2);
+    border-color: var(--gold-400, #d4af37);
+}
+
+/* نافذة الحوار الرئيسية السابقة للتوافق */
+#zad-tools-dialog {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    width: min(600px, 92vw) !important;
+    max-height: 86vh !important;
+    max-height: 86dvh !important;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(var(--gold-rgb, 212, 175, 55), 0.35) !important;
+    border-radius: var(--radius-lg, 20px) !important;
+    background: var(--bg-card, #163329) !important;
+    color: var(--text-primary, #F3F8F4) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 30px rgba(var(--gold-rgb, 212, 175, 55), 0.16) !important;
+    z-index: 99999 !important;
+    display: none;
+    flex-direction: column !important;
+}
+
+#zad-tools-dialog[open] {
+    display: flex !important;
+    animation: zadDialogPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes zadDialogPopIn {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -46%) scale(0.94);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+#zad-tools-dialog::backdrop {
+    background: rgba(4, 18, 14, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    animation: zadBackdropFadeIn 0.25s ease forwards !important;
+}
+
+@keyframes zadBackdropFadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* الرأس (Header) */
+.zad-tools-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid var(--border-color, #315346);
+}
+
+.zad-tools-heading h2 {
+    margin: 0;
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: var(--gold-400, #d4af37);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#zad-close-tools {
+    min-height: 34px;
+    padding: 4px 14px;
+    border-radius: var(--radius-full, 9999px);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--border-color, #315346);
+    color: var(--text-muted, #A7BFB0);
+    transition: all 0.2s ease;
+}
+
+#zad-close-tools:hover {
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.1);
+    color: var(--gold-400, #d4af37);
+    border-color: var(--gold-400, #d4af37);
+}
+
+/* شريط التبويبات العلوي (Tab Navigation) */
+.zad-tools-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--border-color, #315346);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.zad-tools-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.zad-tab-btn {
+    flex: 1;
+    min-width: fit-content;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    background: transparent;
+    color: var(--text-muted, #A7BFB0);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.zad-tab-btn:hover {
+    color: var(--text-primary, #F3F8F4);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.zad-tab-btn.active {
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.15);
+    color: var(--gold-400, #d4af37);
+    font-weight: 700;
+    border: 1px solid rgba(var(--gold-rgb, 212, 175, 55), 0.3);
+}
+
+/* صندوق الحالة (Status Banner) */
+#zad-tools-status {
+    margin: 10px 16px 0;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.4;
+    background: rgba(14, 102, 84, 0.2);
+    border: 1px solid rgba(115, 211, 171, 0.4);
+    color: #9BE5C3;
+    display: none;
+    align-items: center;
+    gap: 6px;
+}
+
+#zad-tools-status:not(:empty) {
+    display: flex;
+}
+
+/* محتوى النافذة القابل للتمرير */
+.zad-tools-body {
+    padding: 16px 20px;
+    max-height: calc(88vh - 120px);
+    max-height: calc(88dvh - 120px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* الأقسام والتبويبات */
+#zad-tools-dialog section,
+#notif-view-settings section {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#zad-tools-dialog section h3,
+#notif-view-settings section h3 {
+    margin: 0 0 4px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--gold-400, #d4af37);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#zad-tools-dialog section > p,
+#notif-view-settings section > p {
+    margin: 0 0 14px;
+    font-size: 0.82rem;
+    color: var(--text-muted, #A7BFB0);
+    line-height: 1.5;
+}
+
+/* بطاقات ونماذج الإدخال */
+.zad-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.zad-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.zad-form-group label,
+#zad-tools-dialog label,
+#notif-view-settings label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary, #F3F8F4);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 0 0 10px;
+}
+
+#zad-tools-dialog input:not([type=checkbox]),
+#zad-tools-dialog select,
+#zad-tools-dialog textarea,
+#notif-view-settings input:not([type=checkbox]),
+#notif-view-settings select,
+#notif-view-settings textarea,
+.settings-page-wrapper input:not([type=checkbox]),
+.settings-page-wrapper select,
+.settings-page-wrapper textarea {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color, #315346);
+    border-radius: var(--radius-sm, 8px);
+    background: var(--input-bg, #102820);
+    color: var(--text-primary, #F3F8F4);
+    font: inherit;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#zad-tools-dialog select,
+#notif-view-settings select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+    background-size: 14px;
+    padding-left: 30px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+#zad-tools-dialog input:focus,
+#zad-tools-dialog select:focus,
+#zad-tools-dialog textarea:focus,
+#notif-view-settings input:focus,
+#notif-view-settings select:focus,
+#notif-view-settings textarea:focus {
+    border-color: var(--gold-400, #d4af37);
+    box-shadow: 0 0 0 2px rgba(var(--gold-rgb, 212, 175, 55), 0.25);
+}
+
+/* شرائح الاختصارات المفضلة (Chips) */
+#zad-favorite-choices {
+    border: 1px dashed var(--border-color, #315346);
+    border-radius: var(--radius-md, 12px);
+    padding: 12px;
+    margin: 12px 0 16px;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+#zad-favorite-choices legend {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gold-400, #d4af37);
+    padding: 0 8px;
+}
+
+.zad-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.zad-chip-item {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    margin: 0 !important;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--bg-card, #163329);
+    border: 1px solid var(--border-color, #315346);
+    border-radius: var(--radius-full, 9999px);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.zad-chip-item:has(input:checked) {
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.16);
+    border-color: var(--gold-400, #d4af37);
+    color: var(--gold-400, #d4af37);
+}
+
+.zad-chip-item input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--gold-500, #d4af37);
+    cursor: pointer;
+    margin: 0;
+}
+
+/* بطاقات الإجراءات (Cards for downloads & backup) */
+.zad-feature-card {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color, #315346);
+    border-radius: var(--radius-md, 12px);
+    padding: 14px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.zad-feature-card:hover {
+    border-color: rgba(var(--gold-rgb, 212, 175, 55), 0.35);
+}
+
+.zad-feature-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.zad-feature-card-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary, #F3F8F4);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.zad-feature-card-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted, #A7BFB0);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* أزرار الحوار */
+#zad-tools-dialog .btn,
+#notif-view-settings .btn {
+    min-height: 38px;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm, 8px);
+    font-size: 0.84rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+#zad-tools-dialog .btn.solid,
+#zad-tools-dialog .btn-gold,
+#notif-view-settings .btn.solid,
+#notif-view-settings .btn-gold {
+    background: linear-gradient(135deg, #d4af37 0%, #b8972e 100%);
+    color: #0b211a;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+}
+
+#zad-tools-dialog .btn.solid:hover,
+#zad-tools-dialog .btn-gold:hover,
+#notif-view-settings .btn.solid:hover,
+#notif-view-settings .btn-gold:hover {
+    background: linear-gradient(135deg, #e0be4d 0%, #c4a338 100%);
+    transform: translateY(-1px);
+}
+
+#zad-tools-dialog .btn.outline,
+#notif-view-settings .btn.outline {
+    background: transparent;
+    border: 1px solid var(--border-color, #315346);
+    color: var(--text-primary, #F3F8F4);
+}
+
+#zad-tools-dialog .btn.outline:hover,
+#notif-view-settings .btn.outline:hover {
+    background: rgba(var(--gold-rgb, 212, 175, 55), 0.08);
+    border-color: var(--gold-400, #d4af37);
+    color: var(--gold-400, #d4af37);
+}
+
+#zad-tools-dialog .btn-danger-outline,
+#notif-view-settings .btn-danger-outline {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+#zad-tools-dialog .btn-danger-outline:hover,
+#notif-view-settings .btn-danger-outline:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+}
+
+/* بطاقة قسم "المزيد" (More Tab Section) */
+.zad-personal-panel {
+    background: var(--bg-card, #163329);
+    border: 1px solid var(--border-color, #315346);
+    border-radius: var(--radius-lg, 16px);
+    margin: 12px 16px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.1));
+}
+
+.zad-personal-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.zad-personal-panel h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold-400, #d4af37);
+}
+
+.zad-personal-panel p {
+    margin: 2px 0 12px;
+    font-size: 0.82rem;
+    color: var(--text-muted, #A7BFB0);
+}
+
+.zad-personal-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.zad-personal-panel-actions .btn {
+    flex: 1;
+    min-width: 130px;
+}
+
+/* توافق وضع النهار (Light Theme) */
+html[data-theme="light"] #zad-tools-dialog,
+html[data-theme="light"] #notifications-modal .modal-card,
+body.light-theme #zad-tools-dialog,
+body.light-theme #notifications-modal .modal-card {
+    background: #FFFFFF !important;
+    border-color: #D1E0D7 !important;
+    color: #1A2E26 !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+html[data-theme="light"] .zad-tools-heading,
+body.light-theme .zad-tools-heading {
+    background: #F4F8F5 !important;
+    border-color: #E2ECE5 !important;
+}
+
+html[data-theme="light"] .zad-tools-tabs,
+body.light-theme .zad-tools-tabs {
+    background: #F8FAF9 !important;
+    border-color: #E2ECE5 !important;
+}
+
+html[data-theme="light"] .zad-tab-btn,
+body.light-theme .zad-tab-btn {
+    color: #4A6356 !important;
+}
+
+html[data-theme="light"] .zad-tab-btn.active,
+body.light-theme .zad-tab-btn.active {
+    background: #EBF4EF !important;
+    color: #1F543B !important;
+    border-color: #1F543B !important;
+}
+
+html[data-theme="light"] #zad-tools-dialog input:not([type=checkbox]),
+html[data-theme="light"] #zad-tools-dialog select,
+html[data-theme="light"] #zad-tools-dialog textarea,
+html[data-theme="light"] #notif-view-settings input:not([type=checkbox]),
+html[data-theme="light"] #notif-view-settings select,
+html[data-theme="light"] #notif-view-settings textarea,
+body.light-theme #notif-view-settings input:not([type=checkbox]),
+body.light-theme #notif-view-settings select,
+body.light-theme #notif-view-settings textarea {
+    background: #F4F8F5 !important;
+    border-color: #D1E0D7 !important;
+    color: #1A2E26 !important;
+}
+
+html[data-theme="light"] .zad-chip-item,
+body.light-theme .zad-chip-item {
+    background: #F4F8F5 !important;
+    border-color: #D1E0D7 !important;
+    color: #1A2E26 !important;
+}
+
+html[data-theme="light"] .zad-chip-item:has(input:checked),
+body.light-theme .zad-chip-item:has(input:checked) {
+    background: #EBF4EF !important;
+    border-color: #1F543B !important;
+    color: #1F543B !important;
+}
+
+html[data-theme="light"] .zad-feature-card,
+body.light-theme .zad-feature-card {
+    background: #F9FBFA !important;
+    border-color: #E2ECE5 !important;
+}
+
+html[data-theme="light"] .zad-feature-card-title,
+body.light-theme .zad-feature-card-title {
+    color: #1A2E26 !important;
+}
+
+html[data-theme="light"] .zad-feature-card-desc,
+body.light-theme .zad-feature-card-desc {
+    color: #4A6356 !important;
+}
+
+html[data-theme="light"] #zad-tools-dialog .btn.outline,
+html[data-theme="light"] #notif-view-settings .btn.outline,
+body.light-theme #notif-view-settings .btn.outline {
+    border-color: #D1E0D7 !important;
+    color: #1A2E26 !important;
+}
+
+html[data-theme="light"] .zad-personal-panel,
+body.light-theme .zad-personal-panel {
+    background: #FFFFFF !important;
+    border-color: #D1E0D7 !important;
+}
+
+html[data-theme="light"] .zad-personal-panel p,
+body.light-theme .zad-personal-panel p {
+    color: #4A6356 !important;
+}
+
+#zad-download-list p {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 6px 0;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+#zad-download-list .btn {
+    min-height: 28px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+}
+
+/* توافق أحجام خطوط القراءة */
+html[data-reading-size=large] .panel p,
+html[data-reading-size=large] .modal p,
+html[data-reading-size=large] .azkar-text {
+    font-size: 1.2rem !important;
+    line-height: 2 !important;
+}
+
+html[data-reading-size=larger] .panel p,
+html[data-reading-size=larger] .modal p,
+html[data-reading-size=larger] .azkar-text {
+    font-size: 1.4rem !important;
+    line-height: 2.1 !important;
+}
+
+:focus-visible {
+    outline: 2px solid var(--gold-400, #d4af37) !important;
+    outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+    #notifications-modal .modal-card,
+    #zad-tools-dialog {
+        width: 96vw !important;
+        border-radius: 16px !important;
+    }
+    .zad-tools-heading {
+        padding: 12px 16px;
+    }
+    .zad-tools-tabs {
+        padding: 6px 12px;
+    }
+    .zad-tools-body {
+        padding: 12px 16px;
+    }
+    .zad-personal-panel {
+        margin-inline: 10px;
+    }
+}
+
+.settings-fav-card{font:inherit;text-align:right;width:100%}
+html[data-reading-size=large] .settings-section-desc{font-size:1.1rem;line-height:1.9}
+html[data-reading-size=larger] .settings-section-desc{font-size:1.25rem;line-height:2}
+@media(max-width:480px){.features.quick-access-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.app-quick-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
