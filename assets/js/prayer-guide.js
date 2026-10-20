@@ -801,7 +801,7 @@
             section.scrollIntoView({ behavior: 'smooth' });
             return;
         }
-        // في حال كان مفتوحاً داخل app.html
+        // في حال كان مفتوحاً داخل التطبيق
         if (typeof window.openServiceInApp === "function") {
             window.openServiceInApp('prayer-guide');
         }

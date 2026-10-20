@@ -348,7 +348,7 @@
         const activeServices = services.filter(s => favoriteIds.includes(s[0]));
         const listToRender = activeServices.length ? activeServices : services.slice(0, 5);
 
-        // 1. تحديث شبكة اختصارات الصفحة الرئيسية في التطبيق (app.html)
+        // 1. تحديث شبكة اختصارات الصفحة الرئيسية في التطبيق
         const quickGrid = document.querySelector('.app-quick-tools-grid');
         if (quickGrid) {
             quickGrid.style.gridTemplateColumns = `repeat(${Math.min(listToRender.length, 6)}, 1fr)`;
@@ -855,7 +855,7 @@
             };
         }
 
-        // إضافة لوحة إعدادات تاب المزيد في التطبيق (app.html)
+        // إضافة لوحة إعدادات تاب المزيد في التطبيق
         const host = $('pane-more')?.querySelector('.app-container');
         if (host && !host.querySelector('.zad-personal-panel')) {
             const panel = document.createElement('section'); panel.className = 'panel zad-personal-panel';
