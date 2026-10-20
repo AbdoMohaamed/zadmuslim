@@ -326,7 +326,12 @@
                 const selected = getFavorites();
                 if (setFavorites(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id])) {
                     const feedback = $('settings-shortcuts-feedback');
-                    if (feedback) { feedback.style.display = 'block'; feedback.textContent = 'تم حفظ اختصاراتك.'; }
+                    if (feedback) {
+                        feedback.style.display = 'block';
+                        feedback.innerHTML = '<i class="fa-solid fa-circle-check"></i> تم حفظ وتحديث اختصاراتك في الصفحة الرئيسية فوراً ✨';
+                        clearTimeout(root._zadShortcutsFeedbackTimer);
+                        root._zadShortcutsFeedbackTimer = setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+                    }
                 }
             };
             grid.append(card);
@@ -893,6 +898,11 @@
         window.addEventListener('pageshow', event => {
             renderFavorites(); syncFavoriteCheckboxes(); applyFont();
             if (event.persisted && typeof root.fetchPrayerTimes === 'function') root.fetchPrayerTimes(store.getItem('selected_prayer_city') || 'Cairo');
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                renderFavorites(); syncFavoriteCheckboxes(); applyFont();
+            }
         });
         document.addEventListener('zad:prayer-updated', () => {
             const settings = $('notif-view-settings');

@@ -705,7 +705,13 @@ html[data-reading-size=larger] .azkar-text {
     }
 }
 
-.settings-fav-card{font:inherit;text-align:right;width:100%}
+.settings-fav-card{font:inherit;text-align:right;width:100%;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 html[data-reading-size=large] .settings-section-desc{font-size:1.1rem;line-height:1.9}
 html[data-reading-size=larger] .settings-section-desc{font-size:1.25rem;line-height:2}
-@media(max-width:480px){.features.quick-access-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.app-quick-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:768px){
+  .features.quick-access-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+  .app-quick-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:380px){
+  .features.quick-access-grid{grid-template-columns:1fr!important;gap:10px!important}
+}

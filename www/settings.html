@@ -108,6 +108,30 @@
         .settings-nav-strip::-webkit-scrollbar {
             display: none;
         }
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        button, a, select, input, label {
+            touch-action: manipulation;
+        }
+        @media (max-width: 768px) {
+            /* منع الزوم التلقائي في متصفح Safari على iPhone */
+            select, input[type="text"], input[type="time"], input[type="number"], textarea {
+                font-size: 16px !important;
+            }
+            .settings-fav-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 10px !important;
+            }
+            .settings-fav-card {
+                padding: 12px 10px !important;
+                min-height: 54px;
+            }
+            .prayer-chip {
+                min-height: 42px;
+                padding: 6px 14px !important;
+            }
+        }
         @media (max-width: 580px) {
             .settings-page-wrapper {
                 padding: calc(12px + env(safe-area-inset-top, 0px)) 12px calc(40px + env(safe-area-inset-bottom, 0px));
@@ -137,6 +161,9 @@
             }
             .settings-back-btn span {
                 font-size: 0.78rem;
+            }
+            .settings-fav-grid {
+                grid-template-columns: 1fr !important;
             }
         }
         .settings-nav-chip {
@@ -1029,12 +1056,18 @@
                     }
                     const muazzin = selectMuazzin.value || 'qatami';
                     audioAdhan.src = `assets/audio/adhan/${muazzin}.mp3?v=` + Date.now();
-                    audioAdhan.volume = sliderVolume ? parseFloat(sliderVolume.value) : 1.0;
-                    audioAdhan.play().then(() => {
-                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'إيقاف ⏹';
-                    }).catch(e => {
-                        console.warn('Audio play error:', e);
-                    });
+                    try {
+                        audioAdhan.volume = sliderVolume ? parseFloat(sliderVolume.value) : 1.0;
+                    } catch (_) {}
+                    try { audioAdhan.load(); } catch (_) {}
+                    const p = audioAdhan.play();
+                    if (p && typeof p.then === 'function') {
+                        p.then(() => {
+                            if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'إيقاف ⏹';
+                        }).catch(e => {
+                            console.warn('Audio play error:', e);
+                        });
+                    }
                     audioAdhan.onended = () => {
                         if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'تجربة';
                     };
@@ -1046,7 +1079,7 @@
                 sliderVolume.oninput = () => {
                     const vol = sliderVolume.value;
                     if (labelVolume) labelVolume.textContent = Math.round(parseFloat(vol) * 100) + '%';
-                    if (audioAdhan) audioAdhan.volume = parseFloat(vol);
+                    try { if (audioAdhan) audioAdhan.volume = parseFloat(vol); } catch (_) {}
                     localStorage.setItem('zad_adhan_volume', vol);
                 };
                 sliderVolume.onchange = () => autoSaveNotifSettings(false);
@@ -1056,8 +1089,12 @@
             if (btnTestPreSound && audioPre) {
                 btnTestPreSound.onclick = () => {
                     audioPre.src = 'assets/audio/pre/pre_asr.mp3?v=' + Date.now();
-                    audioPre.volume = 1.0;
-                    audioPre.play().catch(e => console.warn('Pre-prayer play error:', e));
+                    try { audioPre.volume = 1.0; } catch (_) {}
+                    try { audioPre.load(); } catch (_) {}
+                    const p = audioPre.play();
+                    if (p && typeof p.catch === 'function') {
+                        p.catch(e => console.warn('Pre-prayer play error:', e));
+                    }
                 };
             }
 
@@ -1071,13 +1108,17 @@
                         return;
                     }
                     audioSalawat.src = 'assets/audio/salawat.mp3?v=' + Date.now();
-                    audioSalawat.volume = 1.0;
-                    audioSalawat.play().then(() => {
-                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'إيقاف ⏹';
-                    }).catch(e => {
-                        console.warn('Salawat test audio error:', e);
-                        if (typeof window.playSalawatAudio === 'function') window.playSalawatAudio(true);
-                    });
+                    try { audioSalawat.volume = 1.0; } catch (_) {}
+                    try { audioSalawat.load(); } catch (_) {}
+                    const p = audioSalawat.play();
+                    if (p && typeof p.then === 'function') {
+                        p.then(() => {
+                            if (btnTestSalawatText) btnTestSalawatText.textContent = 'إيقاف ⏹';
+                        }).catch(e => {
+                            console.warn('Salawat test audio error:', e);
+                            if (typeof window.playSalawatAudio === 'function') window.playSalawatAudio(true);
+                        });
+                    }
                     audioSalawat.onended = () => {
                         if (btnTestSalawatText) btnTestSalawatText.textContent = 'تجربة الصوت';
                     };
@@ -1091,7 +1132,12 @@
                     if (window.NativeAdhanService && typeof window.NativeAdhanService.requestPermissions === 'function') {
                         await window.NativeAdhanService.requestPermissions();
                     } else if (window.Notification && typeof window.Notification.requestPermission === 'function') {
-                        await window.Notification.requestPermission();
+                        const perm = await window.Notification.requestPermission();
+                        if (perm === 'granted') {
+                            alert('تم تفعيل إذن التنبيهات بنجاح في جهازك ✓');
+                        }
+                    } else {
+                        alert('على أجهزة iPhone و iOS: لإتاحة استقبال التنبيهات والأذان، اضغط على زر المشاركة (Share) في متصفح Safari ثم اختر "إضافة إلى الصفحة الرئيسية (Add to Home Screen)".');
                     }
                     if (window.ZadUserTools && typeof window.ZadUserTools.open === 'function') {
                         const refreshBtn = document.getElementById('zad-refresh-notifications');
@@ -1107,7 +1153,12 @@
                     if (window.NativeAdhanService && typeof window.NativeAdhanService.openBatterySettings === 'function') {
                         window.NativeAdhanService.openBatterySettings();
                     } else {
-                        alert('إعدادات تحسين البطارية متاحة في تطبيق الأندرويد لضمان عمل الأذان دائماً.');
+                        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                        if (isIOS) {
+                            alert('على أجهزة iPhone: لضمان دقة التنبيهات، تأكد من تفعيل (تحديث التطبيقات في الخلفية Background App Refresh) والسماح بالإشعارات من إعدادات iOS.');
+                        } else {
+                            alert('إعدادات تحسين البطارية (Doze) متاحة في تطبيق الأندرويد لضمان استمرار عمل الأذان والتنبيهات بدقة.');
+                        }
                     }
                 };
             }
@@ -1117,18 +1168,21 @@
                 btnSaveNotif.onclick = () => autoSaveNotifSettings(true);
             }
 
-            // التمرير التلقائي للقسم عند وجود Hash في الرابط
+            // التمرير التلقائي السلس لأي قسم عند وجود Hash في الرابط
             function checkHashScroll() {
                 const hash = window.location.hash;
-                if (hash === '#notifications-section' || hash === '#notifications') {
-                    const sec = document.getElementById('notifications-section');
-                    if (sec) {
-                        setTimeout(() => {
-                            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            sec.classList.add('highlighted-section');
-                            setTimeout(() => sec.classList.remove('highlighted-section'), 2200);
-                        }, 100);
-                    }
+                if (!hash) return;
+                const cleanId = hash.replace(/^#/, '');
+                const target = document.getElementById(cleanId) ||
+                    (cleanId === 'notifications' ? document.getElementById('notifications-section') : null) ||
+                    (cleanId === 'shortcuts' ? document.getElementById('settings-shortcuts-section') : null) ||
+                    (cleanId === 'prayers' ? document.getElementById('settings-prayer-timing-section') : null);
+                if (target) {
+                    setTimeout(() => {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        target.classList.add('highlighted-section');
+                        setTimeout(() => target.classList.remove('highlighted-section'), 2200);
+                    }, 120);
                 }
             }
             window.addEventListener('hashchange', checkHashScroll);
