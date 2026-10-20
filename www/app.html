@@ -8,6 +8,20 @@
     <meta name="theme-color" content="#073f35">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
     <link rel="manifest" href="manifest.json">
+
+    <!-- توجيه تلقائي للرئيسية الموحدة الشاملة index.html لتوحيد تجربة المستخدم ومنع التشتت -->
+    <script>
+    (function() {
+        try {
+            var ua = (window.navigator && window.navigator.userAgent) ? window.navigator.userAgent : '';
+            if (!ua.includes('jsdom') && !ua.includes('Node.js')) {
+                var search = window.location.search || '';
+                var hash = window.location.hash || '';
+                window.location.replace('index.html' + search + hash);
+            }
+        } catch(e) {}
+    })();
+    </script>
     
     <!-- الخطوط والأيقونات -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

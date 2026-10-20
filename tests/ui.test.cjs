@@ -216,7 +216,7 @@ test('native settings cancel outdated prayer alarms and schedule a test notifica
     try{
         const d=dom.window.document;
         assert.deepEqual(errors,[]);
-        assert.equal(new URL(d.getElementById('btn-settings-back').href).pathname,'/app.html');
+        assert.equal(new URL(d.getElementById('btn-settings-back').href).pathname,'/index.html');
         d.getElementById('zad-city').value='Paris';
         await d.getElementById('zad-save-settings').onclick();
         assert.ok(calls.includes('cancel-adhan'));

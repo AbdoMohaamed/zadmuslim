@@ -414,7 +414,7 @@
             if (!root.Capacitor?.isNativePlatform?.() && navigator.serviceWorker) {
                 navigator.serviceWorker.register('./sw.js').catch(() => status('تعذّر تجهيز القراءة بدون إنترنت؛ أعد المحاولة عند الاتصال.'));
             }
-            let destination = root.Capacitor?.isNativePlatform?.() ? 'app.html' : 'index.html';
+            let destination = 'index.html';
             try {
                 const ref = new URL(document.referrer);
                 if (ref.origin === location.origin && /\/(app|index|services)\.html$/.test(ref.pathname)) destination = ref.pathname.split('/').pop();
