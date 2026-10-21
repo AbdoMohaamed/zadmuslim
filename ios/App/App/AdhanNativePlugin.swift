@@ -29,7 +29,12 @@ public class AdhanNativePlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func updatePrayerWidget(_ call: CAPPluginCall) {
-        let timingsJson = call.getString("timingsJson") ?? ""
+        var timingsJson = call.getString("timingsJson") ?? ""
+        if timingsJson.isEmpty, let obj = call.getObject("timings"),
+           let data = try? JSONSerialization.data(withJSONObject: obj, options: []),
+           let str = String(data: data, encoding: .utf8) {
+            timingsJson = str
+        }
         let hijriDate = call.getString("hijriDate") ?? ""
 
         // Save to Shared App Group container so WidgetKit Extension can read it

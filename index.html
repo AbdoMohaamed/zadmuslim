@@ -195,7 +195,7 @@
         </div>
 
         <section class="dashboard">
-            <article class="panel">
+            <article class="panel" id="daily-journey-panel">
                 <h3>رحلتك الإيمانية اليوم</h3>
                 <div class="small">تابع وردك وأذكارك، ويتم حفظ تقدمك على هذا الجهاز</div>
                 <div class="prayer">
@@ -320,67 +320,69 @@
             </div>
         </article>
 
-        <div class="section-head" id="services">
-            <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <h2>اكتشف زاد المسلم</h2>
-                    <p>اختصاراتك السريعة والمخصصة في الصفحة الرئيسية</p>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <a class="subtle" href="settings.html#settings-shortcuts-section" title="تخصيص وترتيب اختصارات الصفحة الرئيسية" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-400); font-weight: 700; font-size: 0.85rem; text-decoration: none;">
-                        <i class="fa-solid fa-star"></i>
-                        <span>تخصيص الاختصارات</span>
-                    </a>
-                    <a class="subtle" href="services.html" style="font-size: 0.88rem;">عرض كل الأقسام ←</a>
+        <div id="home-services-section">
+            <div class="section-head" id="services">
+                <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2>اكتشف زاد المسلم</h2>
+                        <p>اختصاراتك السريعة والمخصصة في الصفحة الرئيسية</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <a class="subtle" href="settings.html#settings-shortcuts-section" title="تخصيص وترتيب اختصارات الصفحة الرئيسية" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-400); font-weight: 700; font-size: 0.85rem; text-decoration: none;">
+                            <i class="fa-solid fa-star"></i>
+                            <span>تخصيص الاختصارات</span>
+                        </a>
+                        <a class="subtle" href="services.html" style="font-size: 0.88rem;">عرض كل الأقسام ←</a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- القسم 3: بطاقات الوصول السريع الأربعة الأساسية -->
-        <section class="features quick-access-grid">
-            <a class="feature" href="services.html#quran-khatma">
-                <div class="fi">📖</div>
-                <h3>القرآن الكريم</h3>
-                <p>تلاوة وتدبر ومتابعة الورد والختمة القرآنية</p>
-            </a>
-            <a class="feature" href="services.html#azkar">
-                <div class="fi">🤲</div>
-                <h3>الأذكار والأدعية</h3>
-                <p>حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة</p>
-            </a>
-            <a class="feature" href="services.html#prayer-times">
-                <div class="fi">🕌</div>
-                <h3>مواقيت الصلاة</h3>
-                <p>تحديد دقيق للمواقيت واتجاه القبلة مع تنبيهات الأذان</p>
-            </a>
-            <a class="feature" href="services.html#sadaqa">
-                <div class="fi">🤍</div>
-                <h3>الصدقة الجارية</h3>
-                <p>صفحات تذكارية ودعوات مستمرة للأحباب والراحلين</p>
-            </a>
-            <a class="feature" href="services.html#zakat-calculator-section">
-                <div class="fi">🧮</div>
-                <h3>حاسبة الزكاة</h3>
-                <p>حساب زكاة المال، الذهب، والفضة بدقة شرعية 100%</p>
-            </a>
-            <a class="feature" href="services.html#islamic-media">
-                <div class="fi">🎬</div>
-                <h3>مرئيات وبودكاست</h3>
-                <p>حلقات بودكاست ومواعظ مرئية وتأملات قرآنية</p>
-            </a>
-            <a class="feature" href="services.html#nearby-mosques-section">
-                <div class="fi">🕌</div>
-                <h3>مساجد قريبة</h3>
-                <p>استكشف أقرب بيوت الله إليك مع الاتجاهات والخريطة</p>
-            </a>
-        </section>
+            <!-- القسم 3: بطاقات الوصول السريع الأربعة الأساسية -->
+            <section class="features quick-access-grid">
+                <a class="feature" href="services.html#quran-khatma">
+                    <div class="fi">📖</div>
+                    <h3>القرآن الكريم</h3>
+                    <p>تلاوة وتدبر ومتابعة الورد والختمة القرآنية</p>
+                </a>
+                <a class="feature" href="services.html#azkar">
+                    <div class="fi">🤲</div>
+                    <h3>الأذكار والأدعية</h3>
+                    <p>حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة</p>
+                </a>
+                <a class="feature" href="services.html#prayer-times">
+                    <div class="fi">🕌</div>
+                    <h3>مواقيت الصلاة</h3>
+                    <p>تحديد دقيق للمواقيت واتجاه القبلة مع تنبيهات الأذان</p>
+                </a>
+                <a class="feature" href="services.html#sadaqa">
+                    <div class="fi">🤍</div>
+                    <h3>الصدقة الجارية</h3>
+                    <p>صفحات تذكارية ودعوات مستمرة للأحباب والراحلين</p>
+                </a>
+                <a class="feature" href="services.html#zakat-calculator-section">
+                    <div class="fi">🧮</div>
+                    <h3>حاسبة الزكاة</h3>
+                    <p>حساب زكاة المال، الذهب، والفضة بدقة شرعية 100%</p>
+                </a>
+                <a class="feature" href="services.html#islamic-media">
+                    <div class="fi">🎬</div>
+                    <h3>مرئيات وبودكاست</h3>
+                    <p>حلقات بودكاست ومواعظ مرئية وتأملات قرآنية</p>
+                </a>
+                <a class="feature" href="services.html#nearby-mosques-section">
+                    <div class="fi">🕌</div>
+                    <h3>مساجد قريبة</h3>
+                    <p>استكشف أقرب بيوت الله إليك مع الاتجاهات والخريطة</p>
+                </a>
+            </section>
 
-        <!-- القسم 4: استكشف المزيد من الخدمات -->
-        <div style="text-align: center; margin: 28px 0 35px;">
-            <a class="btn outline explore-all-btn" href="services.html" style="font-size: 15px; padding: 14px 28px; border-radius: 16px; border: 1.5px solid var(--border-color); display: inline-flex; align-items: center; gap: 8px;">
-                <span>استكشف جميع خدمات زاد المسلم</span>
-                <span style="font-size: 18px;">←</span>
-            </a>
+            <!-- القسم 4: استكشف المزيد من الخدمات -->
+            <div style="text-align: center; margin: 28px 0 35px;">
+                <a class="btn outline explore-all-btn" href="services.html" style="font-size: 15px; padding: 14px 28px; border-radius: 16px; border: 1.5px solid var(--border-color); display: inline-flex; align-items: center; gap: 8px;">
+                    <span>استكشف جميع خدمات زاد المسلم</span>
+                    <span style="font-size: 18px;">←</span>
+                </a>
+            </div>
         </div>
 
         <!-- القسم 5: بطاقة الصدقة الجارية والتحدي المميزة -->
@@ -398,6 +400,16 @@
                 <button class="btn outline" id="btn-open-7days-challenge" onclick="showModal('challenge')">اكتشف التحدي ←</button>
             </article>
         </section>
+
+        <!-- تنبيه عند إخفاء جميع الأقسام -->
+        <div id="home-empty-sections-notice" style="display: none; text-align: center; padding: 40px 20px; background: rgba(0,0,0,0.15); border: 1.5px dashed var(--border-color, #315346); border-radius: 18px; margin: 30px auto; max-width: 600px;">
+            <div style="font-size: 2.5rem; margin-bottom: 12px;">🌿</div>
+            <h3 style="color: var(--gold-400, #d4af37); margin-bottom: 8px;">جميع أقسام الرئيسية مخفية حاليًا</h3>
+            <p style="color: var(--muted, #A7BFB0); font-size: 0.9rem; margin-bottom: 20px;">يمكنك إعادة تفعيل أي قسم تريده أو استعادة الأقسام الافتراضية بضغطة واحدة من صفحة الإعدادات.</p>
+            <a href="settings.html#settings-home-customization-section" class="btn gold" style="padding: 10px 22px; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-sliders"></i> تخصيص أقسام الرئيسية
+            </a>
+        </div>
     </main>
 
     <!-- ==========================================
@@ -443,7 +455,7 @@
                     جزاكم الله خيرًا على زيارتكم وصالح دعواتكم لهما.
                 </p>
                 <p class="footer-text" style="font-size: 12px; margin: 6px 0 0; color: var(--muted);">
-                    لا تنسونا من صالح دعائكم <span class="footer-author" style="cursor: pointer; user-select: none; color: var(--gold-500);">— عبدو محمد</span>
+                    لا تنسونا من صالح دعائكم <span class="footer-author" style="cursor: pointer; user-select: none; color: var(--gold-500);">— عبده محمد</span>
                 </p>
                 <!-- id="footer-admin-trigger" -->
             </div>

@@ -381,6 +381,258 @@
         });
     }
 
+    const HOME_SECTIONS = [
+        {
+            id: 'hero',
+            name: 'بنر الترحيب الرئيسي',
+            desc: 'واجهة البداية الترحيبية "زادٌ لقلبك، ونورٌ ليومك" وأزرار البدء السريع',
+            icon: 'fa-sun'
+        },
+        {
+            id: 'smart_reminder',
+            name: 'شريط التذكير الذكي',
+            desc: 'بنر التذكير بالسياق الزمني والأدعية المناسبة لوقتك الحالي',
+            icon: 'fa-bell'
+        },
+        {
+            id: 'daily_journey',
+            name: 'رحلتك الإيمانية اليوم (مواقيت الصلاة والمهام)',
+            desc: 'بطاقة موعد الصلاة القادمة، عداد إنجاز اليوم، ومتابعة الأذكار والورد القرآني',
+            icon: 'fa-calendar-check'
+        },
+        {
+            id: 'smart_dhikr',
+            name: 'السبحة الإلكترونية التفاعلية',
+            desc: 'لوحة التسبيح السريع التفاعلية، أهداف الأذكار، ومشاركة الاستوري',
+            icon: 'fa-hand-dots'
+        },
+        {
+            id: 'smart_khatma',
+            name: 'الختمة القرآنية الذكية',
+            desc: 'بطاقة خطة الختمة الشخصية والصفحات المتبقية ومتابعة القراءة اليومية',
+            icon: 'fa-book-quran'
+        },
+        {
+            id: 'mood_compass',
+            name: 'بوصلة المشاعر والسكينة',
+            desc: 'توجيهات قرآنية ونبوية مهدئة للقلب حسب حالتك النفسية والشعورية',
+            icon: 'fa-compass'
+        },
+        {
+            id: 'daily_clip',
+            name: 'موعظة اليوم المرئية والبودكاست',
+            desc: 'مقاطع فيديو إيمانية قصيرة ومختارات وعظية متجددة يومياً',
+            icon: 'fa-film'
+        },
+        {
+            id: 'quick_services',
+            name: 'بطاقات الوصول السريع للخدمات',
+            desc: 'شبكة بطاقات الخدمات الرئيسية (القرآن، الأذكار، القبلة، الزكاة، المساجد...)',
+            icon: 'fa-table-cells'
+        },
+        {
+            id: 'sadaqa_challenge',
+            name: 'الصدقة الجارية وتحدي 7 أيام',
+            desc: 'إنشاء صفحة صدقة جارية للأحباب وتحدي البدايات الإيمانية السبع',
+            icon: 'fa-hand-holding-heart'
+        }
+    ];
+
+    function getHomeSectionsConfig() {
+        try {
+            const raw = store.getItem('zad_home_sections');
+            return raw ? JSON.parse(raw) : {};
+        } catch {
+            return {};
+        }
+    }
+
+    function isHomeSectionVisible(id) {
+        const config = getHomeSectionsConfig();
+        return config[id] !== false;
+    }
+
+    function setHomeSectionVisible(id, visible) {
+        const config = getHomeSectionsConfig();
+        config[id] = !!visible;
+        try {
+            store.setItem('zad_home_sections', JSON.stringify(config));
+        } catch (_) {}
+        applyHomeSectionsVisibility();
+        try {
+            document.dispatchEvent(new CustomEvent('zad:home-sections-updated', { detail: config }));
+        } catch (_) {}
+    }
+
+    function resetAllHomeSections() {
+        try {
+            store.removeItem('zad_home_sections');
+        } catch (_) {}
+        applyHomeSectionsVisibility();
+        try {
+            document.dispatchEvent(new CustomEvent('zad:home-sections-updated', { detail: {} }));
+        } catch (_) {}
+    }
+
+    function applyHomeSectionsVisibility() {
+        const config = getHomeSectionsConfig();
+        const isVisible = id => config[id] !== false;
+
+        // 1. Hero
+        const heroEl = document.querySelector('section.hero');
+        if (heroEl) heroEl.style.display = isVisible('hero') ? '' : 'none';
+
+        // 2. Smart Reminder
+        const reminderEl = $('smart-reminder-banner');
+        if (reminderEl) {
+            if (!isVisible('smart_reminder')) {
+                reminderEl.style.setProperty('display', 'none', 'important');
+            } else if (reminderEl.style.display === 'none' && reminderEl.style.getPropertyPriority('display') === 'important') {
+                reminderEl.style.removeProperty('display');
+            }
+        }
+
+        // 3. Daily Journey & 4. Smart Dhikr
+        const journeyPanel = $('daily-journey-panel');
+        const dhikrPanel = $('smart-dhikr-panel');
+        const dailyHead = $('daily');
+        const dashboardSec = document.querySelector('section.dashboard');
+        const journeyVis = isVisible('daily_journey');
+        const dhikrVis = isVisible('smart_dhikr');
+
+        if (journeyPanel) journeyPanel.style.display = journeyVis ? '' : 'none';
+        if (dhikrPanel) dhikrPanel.style.display = dhikrVis ? '' : 'none';
+
+        if (dailyHead) dailyHead.style.display = (!journeyVis && !dhikrVis) ? 'none' : '';
+        if (dashboardSec) {
+            if (!journeyVis && !dhikrVis) {
+                dashboardSec.style.display = 'none';
+            } else {
+                dashboardSec.style.display = '';
+                dashboardSec.style.gridTemplateColumns = (journeyVis && !dhikrVis) || (!journeyVis && dhikrVis) ? '1fr' : '';
+            }
+        }
+
+        // 5. Smart Khatma
+        const khatmaSlot = $('smart-khatma-dashboard-slot');
+        if (khatmaSlot) khatmaSlot.style.display = isVisible('smart_khatma') ? '' : 'none';
+
+        // 6. Mood Compass
+        const moodSlot = $('mood-compass-slot');
+        if (moodSlot) moodSlot.style.display = isVisible('mood_compass') ? '' : 'none';
+
+        // 7. Daily Clip
+        const clipCard = $('daily-featured-media-card');
+        if (clipCard) clipCard.style.display = isVisible('daily_clip') ? '' : 'none';
+
+        // 8. Quick Services
+        const homeServices = $('home-services-section');
+        const sVis = isVisible('quick_services');
+        if (homeServices) {
+            homeServices.style.display = sVis ? '' : 'none';
+        } else {
+            const sHead = $('services');
+            const sGrid = document.querySelector('.features.quick-access-grid');
+            const sBtn = document.querySelector('.explore-all-btn')?.closest('div');
+            if (sHead) sHead.style.display = sVis ? '' : 'none';
+            if (sGrid) sGrid.style.display = sVis ? '' : 'none';
+            if (sBtn) sBtn.style.display = sVis ? '' : 'none';
+        }
+
+        // 9. Sadaqa & Challenge
+        const sadaqaSec = $('sadaqa');
+        if (sadaqaSec) sadaqaSec.style.display = isVisible('sadaqa_challenge') ? '' : 'none';
+
+        // Empty notice if all sections are hidden
+        const emptyNotice = $('home-empty-sections-notice');
+        if (emptyNotice) {
+            const allHidden = HOME_SECTIONS.every(s => !isVisible(s.id));
+            emptyNotice.style.display = allHidden ? 'block' : 'none';
+        }
+    }
+
+    function renderHomeSectionsSettings() {
+        const grid = $('home-sections-toggle-grid');
+        if (!grid) return;
+        const config = getHomeSectionsConfig();
+
+        if (grid.children.length === HOME_SECTIONS.length) {
+            grid.querySelectorAll('.settings-home-section-card').forEach(card => {
+                const id = card.dataset.sectionId;
+                const visible = config[id] !== false;
+                card.classList.toggle('active', visible);
+                card.setAttribute('aria-checked', String(visible));
+                const pill = card.querySelector('.home-toggle-pill');
+                if (pill) {
+                    pill.innerHTML = `<i class="fa-solid ${visible ? 'fa-check' : 'fa-xmark'}"></i> <span>${visible ? 'ظاهر' : 'مخفي'}</span>`;
+                }
+            });
+            return;
+        }
+
+        grid.replaceChildren();
+
+        HOME_SECTIONS.forEach(sec => {
+            const visible = config[sec.id] !== false;
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'settings-home-section-card' + (visible ? ' active' : '');
+            card.dataset.sectionId = sec.id;
+            card.setAttribute('role', 'switch');
+            card.setAttribute('aria-checked', String(visible));
+
+            card.innerHTML = `
+                <div class="settings-home-section-icon">
+                    <i class="fa-solid ${sec.icon}"></i>
+                </div>
+                <div class="settings-home-section-info">
+                    <div class="settings-home-section-title">${sec.name}</div>
+                    <div class="settings-home-section-desc">${sec.desc}</div>
+                </div>
+                <div class="settings-home-section-toggle">
+                    <span class="home-toggle-pill">
+                        <i class="fa-solid ${visible ? 'fa-check' : 'fa-xmark'}"></i>
+                        <span>${visible ? 'ظاهر' : 'مخفي'}</span>
+                    </span>
+                </div>
+            `;
+
+            card.onclick = () => {
+                const currentConfig = getHomeSectionsConfig();
+                const current = currentConfig[sec.id] !== false;
+                const next = !current;
+                setHomeSectionVisible(sec.id, next);
+                renderHomeSectionsSettings();
+
+                const feedback = $('home-sections-feedback');
+                if (feedback) {
+                    feedback.style.display = 'block';
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> تم ${next ? 'إظهار' : 'إخفاء'} قسم "${sec.name}" فوراً ✨`;
+                    clearTimeout(root._zadHomeSectionsFeedbackTimer);
+                    root._zadHomeSectionsFeedbackTimer = setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+                }
+            };
+
+            grid.append(card);
+        });
+
+        const resetBtn = $('btn-reset-home-sections');
+        if (resetBtn && !resetBtn.dataset.bound) {
+            resetBtn.dataset.bound = 'true';
+            resetBtn.onclick = () => {
+                resetAllHomeSections();
+                renderHomeSectionsSettings();
+                const feedback = $('home-sections-feedback');
+                if (feedback) {
+                    feedback.style.display = 'block';
+                    feedback.innerHTML = '<i class="fa-solid fa-circle-check"></i> تم إظهار جميع أقسام الصفحة الرئيسية بنجاح ✨';
+                    clearTimeout(root._zadHomeSectionsFeedbackTimer);
+                    root._zadHomeSectionsFeedbackTimer = setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+                }
+            };
+        }
+    }
+
     function init() {
         applyFont();
         if (standalone) {
@@ -917,28 +1169,47 @@
         };
 
         renderFavorites();
+        renderHomeSectionsSettings();
+        applyHomeSectionsVisibility();
         if (standalone) refreshNotifications();
         if (!standalone && new URLSearchParams(location.search).get('panel') === 'notifications') root.openNotificationsModal();
         window.addEventListener('pageshow', event => {
             renderFavorites(); syncFavoriteCheckboxes(); applyFont();
+            renderHomeSectionsSettings(); applyHomeSectionsVisibility();
             if (event.persisted && typeof root.fetchPrayerTimes === 'function') root.fetchPrayerTimes(store.getItem('selected_prayer_city') || 'Cairo');
         });
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 renderFavorites(); syncFavoriteCheckboxes(); applyFont();
+                renderHomeSectionsSettings(); applyHomeSectionsVisibility();
             }
         });
         document.addEventListener('zad:prayer-updated', () => {
             const settings = $('notif-view-settings');
             if (settings && settings.style.display !== 'none') refreshNotifications();
         });
+        document.addEventListener('zad:home-sections-updated', () => {
+            applyHomeSectionsVisibility();
+            renderHomeSectionsSettings();
+        });
 
         window.addEventListener('storage', (e) => {
             if (e.key === 'zad_favorites') { renderFavorites(); syncFavoriteCheckboxes(); }
             if (e.key === 'zad_font_size') applyFont();
+            if (e.key === 'zad_home_sections') { applyHomeSectionsVisibility(); renderHomeSectionsSettings(); }
             if (['selected_prayer_city','zad_prayer_method','zad_prayer_school'].includes(e.key) && typeof root.fetchPrayerTimes === 'function') root.fetchPrayerTimes(store.getItem('selected_prayer_city') || 'Cairo');
         });
     }
+
+    root.ZadHomeSections = {
+        HOME_SECTIONS,
+        getHomeSectionsConfig,
+        isHomeSectionVisible,
+        setHomeSectionVisible,
+        resetAllHomeSections,
+        applyHomeSectionsVisibility,
+        renderHomeSectionsSettings
+    };
 
     root.ZadUserTools = {
         ...api,

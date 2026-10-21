@@ -1759,6 +1759,16 @@ function initPrayerTimes() {
     }
 
     checkSpecialTimesNotice();
+    try {
+        const savedActive = localStorage.getItem("last_active_prayer_timings");
+        if (savedActive) {
+            const parsed = JSON.parse(savedActive);
+            if (['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].every(k => parsed[k])) {
+                window.prayerTimings = parsed;
+                document.dispatchEvent(new Event('zad:prayer-updated'));
+            }
+        }
+    } catch (_) {}
     fetchPrayerTimes(savedCity);
 
 
@@ -1900,11 +1910,17 @@ function useFallbackTimings() {
     ['fajr','sunrise','dhuhr','asr','maghrib','isha'].forEach(key => {
         const el = document.getElementById('time-' + key); if (el) el.textContent = '--:--';
     });
-    ['next-prayer-name','daily-next-prayer-name'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.textContent = 'المواقيت غير متاحة';
-    });
+    const nextPrayerEl = document.getElementById('next-prayer-name');
+    if (nextPrayerEl) nextPrayerEl.textContent = 'المواقيت غير متاحة';
+    const dailyName = document.getElementById('daily-next-prayer-name');
     const detail = document.getElementById('daily-next-prayer-time');
-    if (detail) detail.textContent = 'اتصل بالإنترنت لتحديث مواقيت مدينتك؛ لم تُجدول مواعيد بديلة.';
+    const hasOfflineTimings = !!localStorage.getItem('last_active_prayer_timings');
+    if (dailyName && !hasOfflineTimings) {
+        dailyName.textContent = 'المواقيت غير متاحة';
+    }
+    if (detail && !hasOfflineTimings) {
+        detail.textContent = 'اتصل بالإنترنت لتحديث مواقيت مدينتك؛ لم تُجدول مواعيد بديلة.';
+    }
     document.dispatchEvent(new Event('zad:prayer-updated'));
 }
 
@@ -1931,6 +1947,9 @@ function renderPrayerTimesUI(timings) {
     setTime("time-isha", timings.Isha);
 
     syncPrayersWithServiceWorker(timings);
+    if (window.NativeAdhanService && typeof window.NativeAdhanService.updateWidget === "function") {
+        window.NativeAdhanService.updateWidget(timings);
+    }
 }
 
 function syncPrayersWithServiceWorker(timings) {

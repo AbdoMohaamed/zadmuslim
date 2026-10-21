@@ -292,6 +292,106 @@
             font-weight: 900;
         }
 
+        /* بطاقات تخصيص ما يظهر في الصفحة الرئيسية */
+        .home-sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .settings-home-section-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.12);
+            border: 1.5px solid var(--border-color, #315346);
+            border-radius: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.22s ease;
+            text-align: right;
+            font: inherit;
+            width: 100%;
+        }
+        .settings-home-section-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        .settings-home-section-card.active {
+            background: rgba(212, 175, 55, 0.12);
+            border-color: var(--gold-400, #d4af37);
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.12);
+        }
+        .settings-home-section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            display: grid;
+            place-items: center;
+            font-size: 1.25rem;
+            color: var(--gold-400, #d4af37);
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .settings-home-section-card.active .settings-home-section-icon {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: var(--gold-400, #d4af37);
+        }
+        .settings-home-section-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
+        }
+        .settings-home-section-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-primary, #F3F8F4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .settings-home-section-card.active .settings-home-section-title {
+            color: var(--gold-400, #d4af37);
+        }
+        .settings-home-section-desc {
+            font-size: 0.74rem;
+            color: var(--text-muted, #A7BFB0);
+            line-height: 1.35;
+        }
+        .settings-home-section-toggle {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+        .home-toggle-pill {
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            border: 1px solid var(--border-color, #315346);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-muted, #A7BFB0);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+        .settings-home-section-card.active .home-toggle-pill {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10B981;
+            color: #10B981;
+        }
+        .settings-home-section-card:not(.active) .home-toggle-pill {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #ef4444;
+        }
+
         /* تذييل صفحة الإعدادات الأنيق والموحد */
         .settings-footer {
             margin-top: 36px;
@@ -384,6 +484,7 @@
         <!-- شريط التنقل السريع بين أقسام الإعدادات -->
         <nav class="settings-nav-strip" aria-label="أقسام الإعدادات">
             <a href="#notifications-section" class="settings-nav-chip"><i class="fa-solid fa-bell text-gold"></i> التنبيهات والأذان</a>
+            <a href="#settings-home-customization-section" class="settings-nav-chip"><i class="fa-solid fa-table-cells-large text-gold"></i> أقسام الرئيسية</a>
             <a href="#settings-shortcuts-section" class="settings-nav-chip"><i class="fa-solid fa-star text-gold"></i> الاختصارات المفضلة</a>
             <a href="#settings-prayer-timing-section" class="settings-nav-chip"><i class="fa-solid fa-mosque text-gold"></i> المواقيت والخط</a>
             <a href="#zad-backup-section" class="settings-nav-chip"><i class="fa-solid fa-database text-gold"></i> النسخ والاحتياط</a>
@@ -650,7 +751,30 @@
         </section>
 
         <!-- ==========================================
-        2. قسم اختصارات الصفحة الرئيسية
+        2. قسم تخصيص ما يظهر في الصفحة الرئيسية بالكامل
+        ========================================== -->
+        <section class="settings-section-card" id="settings-home-customization-section">
+            <div class="settings-section-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-table-cells-large text-gold"></i>
+                    <span>تخصيص ما يظهر في الصفحة الرئيسية</span>
+                </div>
+                <button type="button" class="btn outline" id="btn-reset-home-sections" style="font-size: 0.8rem; padding: 4px 12px; border-radius: 9999px;">
+                    <i class="fa-solid fa-rotate-left text-gold"></i> <span>إظهار الكل</span>
+                </button>
+            </div>
+            <p class="settings-section-desc">
+                تحكم بالكامل في أقسام وبطاقات الصفحة الرئيسية؛ انقر على أي قسم لتفعيله أو إخفائه حسب رغبتك واحتياجك. يتم الحفظ والتطبيق فوراً:
+            </p>
+
+            <div class="home-sections-grid" id="home-sections-toggle-grid">
+                <!-- يتم إنشاؤها تفاعلياً بواسطة JavaScript -->
+            </div>
+            <div id="home-sections-feedback" style="margin-top: 10px; font-size: 0.82rem; color: #10B981; font-weight: 700; display: none;"></div>
+        </section>
+
+        <!-- ==========================================
+        3. قسم اختصارات الصفحة الرئيسية
         ========================================== -->
         <section class="settings-section-card" id="settings-shortcuts-section">
             <div class="settings-section-title">

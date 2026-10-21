@@ -650,8 +650,13 @@ const NativeAdhanService = {
                     } catch(e) {}
                 }
 
+                const finalTimings = timings || window.prayerTimings || window.lastFetchedPrayerTimings || (function() {
+                    try { return JSON.parse(localStorage.getItem("last_active_prayer_timings") || "null"); } catch(e) { return null; }
+                })();
+
                 await window.Capacitor.Plugins.AdhanNative.updatePrayerWidget({
-                    timings: timings || window.lastFetchedPrayerTimings,
+                    timings: finalTimings,
+                    timingsJson: JSON.stringify(finalTimings || {}),
                     hijriDate: hDate,
                     gregorianDate: gDate
                 });
@@ -660,6 +665,10 @@ const NativeAdhanService = {
                 console.warn("Update prayer widget notice:", e);
             }
         }
+    },
+
+    updatePrayerWidget(timings, hijriDate, gregorianDate) {
+        return this.updateWidget(timings, hijriDate, gregorianDate);
     },
 
     async toggleStickyNotification(enable) {

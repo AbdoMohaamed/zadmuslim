@@ -273,3 +273,38 @@ test('settings never return users to the retired app page',async()=>{
         assert.deepEqual(errors,[]);
     }finally{dom.window.close();}
 });
+
+test('home section toggles in settings persist and control visibility on index.html',async()=>{
+    const {dom,errors}=await load('settings.html');
+    let saved;
+    try{
+        const w=dom.window,d=w.document;
+        assert.deepEqual(errors,[]);
+        const cards=d.querySelectorAll('.settings-home-section-card');
+        assert.equal(cards.length,9,'all 9 home sections must be controllable');
+        
+        const dhikrCard=d.querySelector('[data-section-id="smart_dhikr"]');
+        assert.ok(dhikrCard);
+        assert.equal(dhikrCard.getAttribute('aria-checked'),'true');
+        dhikrCard.click();
+        assert.equal(dhikrCard.getAttribute('aria-checked'),'false');
+        
+        const clipCard=d.querySelector('[data-section-id="daily_clip"]');
+        clipCard.click();
+        assert.equal(clipCard.getAttribute('aria-checked'),'false');
+
+        const config=JSON.parse(w.localStorage.getItem('zad_home_sections'));
+        assert.equal(config.smart_dhikr,false);
+        assert.equal(config.daily_clip,false);
+        saved=Object.fromEntries(Object.keys(w.localStorage).map(k=>[k,w.localStorage.getItem(k)]));
+    }finally{dom.window.close();}
+
+    const home=await load('index.html',{storage:saved});
+    try{
+        const hd=home.dom.window.document;
+        assert.deepEqual(home.errors,[]);
+        assert.equal(hd.getElementById('smart-dhikr-panel').style.display,'none');
+        assert.equal(hd.getElementById('daily-featured-media-card').style.display,'none');
+        assert.notEqual(hd.getElementById('daily-journey-panel').style.display,'none');
+    }finally{home.dom.window.close();}
+});

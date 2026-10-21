@@ -58,7 +58,7 @@
         if (!btn || btn.dataset.bound) return;
         btn.dataset.bound = 'true';
         btn.removeAttribute('onclick');
-        btn.onclick = () => runTask(() => requestUserLocationAndFind());
+        btn.onclick = () => runTask(() => requestUserLocationAndFind(true, true));
 
         const refresh = document.createElement('button');
         refresh.type = 'button';
@@ -66,7 +66,7 @@
         refresh.id = 'btn-refresh-mosques-location';
         refresh.style.cssText = 'font-size: 0.8rem; padding: 6px 12px;';
         refresh.innerHTML = '<i class="fa-solid fa-arrows-rotate text-gold"></i> <span>تحديث موقعي</span>';
-        refresh.onclick = () => runTask(() => requestUserLocationAndFind(true));
+        refresh.onclick = () => runTask(() => requestUserLocationAndFind(true, true));
 
         const reload = document.createElement('button');
         reload.type = 'button';
@@ -189,9 +189,23 @@
      * طلب إذن وتحديد الموقع الجغرافي بعدة طبقات أمان
      */
     async function requestUserLocationAndFind(refresh = false, force = false) {
-        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري استخدام الموقع المحفوظ أو تحديد موقعك عند الحاجة...</span></div>');
+        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><i class="fa-solid fa-spinner fa-spin text-gold"></i><span>' + (refresh ? 'جاري تحديد موقعك الجغرافي الدقيق عبر GPS...' : 'جاري استخدام الموقع المحفوظ أو تحديد موقعك عند الحاجة...') + '</span></div>');
         try {
-            const coords = await window.ZadLocation.get({ refresh });
+            let coords;
+            if (refresh) {
+                try {
+                    coords = await window.ZadLocation.get({ refresh: true });
+                } catch (gpsErr) {
+                    const saved = window.ZadLocation.saved ? window.ZadLocation.saved() : null;
+                    if (saved && valid(saved.lat, saved.lng)) {
+                        coords = saved;
+                    } else {
+                        throw gpsErr;
+                    }
+                }
+            } else {
+                coords = await window.ZadLocation.get({ refresh: false });
+            }
             currentLat = coords.lat;
             currentLon = coords.lng;
         } catch (error) {
@@ -617,7 +631,7 @@ out center tags 75;`;
                             </div>
                         </div>
                     </div>
-                    <div class="mosque-actions" style="display: flex; gap: 6px; align-items: center;">
+                    <div class="mosque-actions">
                         <button type="button" class="btn btn-sm outline" onclick="focusMosqueOnMap(${index})" title="عرض وتكبير المسجد على الخريطة">
                             <i class="fa-solid fa-map-location-dot text-gold"></i>
                             <span>الخريطة</span>
@@ -845,7 +859,7 @@ out center tags 75;`;
     }
 
     window.initNearbyMosques = initNearbyMosques;
-    window.requestUserLocationAndFindMosques = () => runTask(() => requestUserLocationAndFind());
+    window.requestUserLocationAndFindMosques = (refresh = false, force = false) => runTask(() => requestUserLocationAndFind(refresh, force));
 
     document.addEventListener('DOMContentLoaded', () => {
         initNearbyMosques();

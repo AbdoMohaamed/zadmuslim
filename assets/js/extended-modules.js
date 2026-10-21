@@ -4669,55 +4669,118 @@ function initModernZadDashboard() {
 
         updateTasksProgressUI();
 
-        // --- 3. مزامنة موعد الصلاة القادمة في شريط يومي مع الله ---
+        // --- 3. مزامنة موعد الصلاة القادمة في شريط يومي مع الله (فوري وأوفلاين بدون إنترنت) ---
         function updateModernPrayerStrip() {
             const prayerNameEl = document.getElementById("daily-next-prayer-name");
             const prayerTimeEl = document.getElementById("daily-next-prayer-time");
             if (!prayerNameEl || !prayerTimeEl) return;
-            if (!window.zadPrayerVerified) {
-                prayerNameEl.textContent = 'المواقيت غير متاحة';
-                prayerTimeEl.textContent = 'اتصل بالإنترنت لتحديث مواقيت مدينتك.';
-                return;
-            }
 
             const existingName = document.getElementById("next-prayer-name");
             const existingTimer = document.getElementById("next-prayer-timer");
 
-            if (existingName && existingName.textContent && existingName.textContent !== "...") {
+            if (existingName && existingName.textContent && existingName.textContent !== "..." && existingName.textContent !== "المواقيت غير متاحة") {
                 const pName = existingName.textContent;
                 const pTime = existingTimer ? existingTimer.textContent : "";
                 prayerNameEl.textContent = pName;
                 prayerTimeEl.textContent = pTime ? `متبقي على دخول الوقت: ${pTime}` : "صلاتك في وقتها نور وطمأنينة";
-            } else if (typeof prayerTimings !== "undefined" && prayerTimings) {
+                return;
+            }
+
+            // جلب المواقيت: من الذاكرة أو من التخزين المحلي للأوفلاين فوراً
+            let timings = window.prayerTimings || (typeof window.getPrayerTimings === "function" ? window.getPrayerTimings() : null);
+            if (!timings) {
+                try {
+                    const saved = localStorage.getItem("last_active_prayer_timings");
+                    if (saved) timings = JSON.parse(saved);
+                } catch (_) {}
+            }
+            if (!timings) {
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith("prayer_times_")) {
+                            const val = localStorage.getItem(k);
+                            if (val && val.includes('"Fajr"') && val.includes('"Isha"')) {
+                                timings = JSON.parse(val);
+                                break;
+                            }
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            if (timings && ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].every(k => timings[k])) {
                 const now = new Date();
                 const prayersList = [
-                    { name: "صلاة الفجر", key: "fajr", time: prayerTimings.Fajr },
-                    { name: "الشروق", key: "sunrise", time: prayerTimings.Sunrise },
-                    { name: "صلاة الظهر", key: "dhuhr", time: prayerTimings.Dhuhr },
-                    { name: "صلاة العصر", key: "asr", time: prayerTimings.Asr },
-                    { name: "صلاة المغرب", key: "maghrib", time: prayerTimings.Maghrib },
-                    { name: "صلاة العشاء", key: "isha", time: prayerTimings.Isha }
+                    { name: "صلاة الفجر", key: "fajr", time: timings.Fajr },
+                    { name: "الشروق", key: "sunrise", time: timings.Sunrise },
+                    { name: "صلاة الظهر", key: "dhuhr", time: timings.Dhuhr },
+                    { name: "صلاة العصر", key: "asr", time: timings.Asr },
+                    { name: "صلاة المغرب", key: "maghrib", time: timings.Maghrib },
+                    { name: "صلاة العشاء", key: "isha", time: timings.Isha }
                 ];
 
                 let nextP = null;
+                let minDiff = Infinity;
                 for (const p of prayersList) {
                     if (!p.time) continue;
-                    const [h, m] = p.time.split(" ")[0].split(":").map(Number);
+                    const clean = p.time.split(" ")[0];
+                    const [h, m] = clean.split(":").map(Number);
+                    if (isNaN(h) || isNaN(m)) continue;
                     const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
-                    if (pDate > now) {
-                        nextP = p;
-                        break;
+                    const diff = pDate.getTime() - now.getTime();
+                    if (diff > 0 && diff < minDiff) {
+                        minDiff = diff;
+                        nextP = { ...p, diffMs: diff, cleanTime: clean };
                     }
                 }
-                if (!nextP) nextP = prayersList[0];
+                if (!nextP) {
+                    const fajrClean = timings.Fajr ? timings.Fajr.split(" ")[0] : "05:00";
+                    const [fh, fm] = fajrClean.split(":").map(Number);
+                    const tomorrowFajr = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, fh, fm, 0);
+                    nextP = {
+                        name: "صلاة الفجر",
+                        key: "fajr",
+                        time: timings.Fajr,
+                        cleanTime: fajrClean,
+                        diffMs: Math.max(0, tomorrowFajr.getTime() - now.getTime())
+                    };
+                }
 
                 prayerNameEl.textContent = nextP.name;
-                prayerTimeEl.textContent = `موعد الأذان: ${nextP.time}`;
+
+                const totalMins = Math.max(0, Math.floor(nextP.diffMs / 60000));
+                const hours = Math.floor(totalMins / 60);
+                const mins = totalMins % 60;
+                let remainingText = '';
+                if (hours > 0) {
+                    remainingText = ` (متبقي ${hours} س و ${mins} د)`;
+                } else if (mins > 0) {
+                    remainingText = ` (متبقي ${mins} د)`;
+                } else {
+                    remainingText = ` (حان موعد الصلاة)`;
+                }
+
+                const clean = nextP.cleanTime;
+                const [h, m] = clean.split(":").map(Number);
+                const period = h >= 12 ? "م" : "ص";
+                const formattedHour = h % 12 || 12;
+                const formattedTime = `${formattedHour}:${String(m).padStart(2, "0")} ${period}`;
+
+                prayerTimeEl.textContent = `موعد الأذان: ${formattedTime}${remainingText}`;
+                return;
+            }
+
+            // في حال عدم توفر مواقيت إطلاقاً، إبقاء العبارة الترحيبية اللطيفة دون إظهار أخطاء شبكة
+            if (!prayerNameEl.textContent || prayerNameEl.textContent === 'المواقيت غير متاحة') {
+                prayerNameEl.textContent = 'صلاتك في وقتها';
+                prayerTimeEl.textContent = 'تختلف المواقيت حسب مدينتك';
             }
         }
 
         updateModernPrayerStrip();
         setInterval(updateModernPrayerStrip, 2000);
+        document.addEventListener('zad:prayer-updated', updateModernPrayerStrip);
 
         // --- 4. عداد التسبيح السريع في بطاقة يومي مع الله ---
         const quickCounterEl = document.getElementById("quick-tasbeeh-counter");

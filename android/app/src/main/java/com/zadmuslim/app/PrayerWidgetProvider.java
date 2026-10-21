@@ -8,12 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * PrayerWidgetProvider.java
@@ -45,12 +47,19 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
     }
 
     @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+        updateWidget(context, appWidgetManager, appWidgetId);
+    }
+
+    @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         String action = intent.getAction();
         if (ACTION_UPDATE_PRAYER_WIDGET.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)
-                || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
+                || Intent.ACTION_TIMEZONE_CHANGED.equals(action)
+                || Intent.ACTION_DATE_CHANGED.equals(action)) {
             updateAllWidgets(context);
         }
     }
@@ -114,11 +123,11 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             if (timingsJson != null && !timingsJson.isEmpty()) {
                 JSONObject json = new JSONObject(timingsJson);
 
-                String fajrTime = formatPrayerTime12H(json.optString("Fajr", "05:00"));
-                String dhuhrTime = formatPrayerTime12H(json.optString("Dhuhr", "12:00"));
-                String asrTime = formatPrayerTime12H(json.optString("Asr", "15:30"));
-                String maghribTime = formatPrayerTime12H(json.optString("Maghrib", "18:00"));
-                String ishaTime = formatPrayerTime12H(json.optString("Isha", "19:30"));
+                String fajrTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Fajr", "fajr", "05:00"));
+                String dhuhrTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Dhuhr", "dhuhr", "12:00"));
+                String asrTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Asr", "asr", "15:30"));
+                String maghribTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Maghrib", "maghrib", "18:00"));
+                String ishaTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Isha", "isha", "19:30"));
 
                 views.setTextViewText(R.id.widget_time_fajr, fajrTime);
                 views.setTextViewText(R.id.widget_time_dhuhr, dhuhrTime);
@@ -132,13 +141,14 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
                 views.setTextViewText(R.id.widget_txt_next_prayer_time, calc.prayerTime12H);
                 views.setTextViewText(R.id.widget_txt_countdown, calc.countdownText);
 
-                // إبراز عمود الصلاة القادمة بلون ذهبي
+                // إبراز عمود الصلاة القادمة بلون ذهبي متناسق
                 resetPrayerColumnBackgrounds(views);
                 highlightActivePrayerColumn(views, calc.prayerKey);
             } else {
                 views.setTextViewText(R.id.widget_txt_next_prayer_name, "افتح التطبيق لتحديث المواقيت");
                 views.setTextViewText(R.id.widget_txt_next_prayer_time, "--:--");
                 views.setTextViewText(R.id.widget_txt_countdown, "انقر هنا 🕌");
+                resetPrayerColumnBackgrounds(views);
             }
 
             appWidgetManager.updateAppWidget(widgetId, views);
@@ -147,25 +157,62 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
         }
     }
 
+    private static String getPrayerTimeRaw(JSONObject json, String keyCap, String keyLower, String def) {
+        String val = json.optString(keyCap, "");
+        if (val.isEmpty()) val = json.optString(keyLower, def);
+        return val;
+    }
+
     private static void resetPrayerColumnBackgrounds(RemoteViews views) {
-        views.setInt(R.id.col_fajr, "setBackgroundResource", R.drawable.widget_prayer_col_normal);
-        views.setInt(R.id.col_dhuhr, "setBackgroundResource", R.drawable.widget_prayer_col_normal);
-        views.setInt(R.id.col_asr, "setBackgroundResource", R.drawable.widget_prayer_col_normal);
-        views.setInt(R.id.col_maghrib, "setBackgroundResource", R.drawable.widget_prayer_col_normal);
-        views.setInt(R.id.col_isha, "setBackgroundResource", R.drawable.widget_prayer_col_normal);
+        int normalBg = R.drawable.widget_prayer_col_normal;
+        int normalLabelColor = 0xFF8FAEA1;
+        int normalTimeColor = 0xFFFFFFFF;
+
+        views.setInt(R.id.col_fajr, "setBackgroundResource", normalBg);
+        views.setTextColor(R.id.widget_label_fajr, normalLabelColor);
+        views.setTextColor(R.id.widget_time_fajr, normalTimeColor);
+
+        views.setInt(R.id.col_dhuhr, "setBackgroundResource", normalBg);
+        views.setTextColor(R.id.widget_label_dhuhr, normalLabelColor);
+        views.setTextColor(R.id.widget_time_dhuhr, normalTimeColor);
+
+        views.setInt(R.id.col_asr, "setBackgroundResource", normalBg);
+        views.setTextColor(R.id.widget_label_asr, normalLabelColor);
+        views.setTextColor(R.id.widget_time_asr, normalTimeColor);
+
+        views.setInt(R.id.col_maghrib, "setBackgroundResource", normalBg);
+        views.setTextColor(R.id.widget_label_maghrib, normalLabelColor);
+        views.setTextColor(R.id.widget_time_maghrib, normalTimeColor);
+
+        views.setInt(R.id.col_isha, "setBackgroundResource", normalBg);
+        views.setTextColor(R.id.widget_label_isha, normalLabelColor);
+        views.setTextColor(R.id.widget_time_isha, normalTimeColor);
     }
 
     private static void highlightActivePrayerColumn(RemoteViews views, String prayerKey) {
+        int activeBg = R.drawable.widget_prayer_col_active;
+        int activeGoldColor = 0xFFFFD4AF37;
+
         if ("fajr".equalsIgnoreCase(prayerKey)) {
-            views.setInt(R.id.col_fajr, "setBackgroundResource", R.drawable.widget_prayer_col_active);
+            views.setInt(R.id.col_fajr, "setBackgroundResource", activeBg);
+            views.setTextColor(R.id.widget_label_fajr, activeGoldColor);
+            views.setTextColor(R.id.widget_time_fajr, activeGoldColor);
         } else if ("dhuhr".equalsIgnoreCase(prayerKey)) {
-            views.setInt(R.id.col_dhuhr, "setBackgroundResource", R.drawable.widget_prayer_col_active);
+            views.setInt(R.id.col_dhuhr, "setBackgroundResource", activeBg);
+            views.setTextColor(R.id.widget_label_dhuhr, activeGoldColor);
+            views.setTextColor(R.id.widget_time_dhuhr, activeGoldColor);
         } else if ("asr".equalsIgnoreCase(prayerKey)) {
-            views.setInt(R.id.col_asr, "setBackgroundResource", R.drawable.widget_prayer_col_active);
+            views.setInt(R.id.col_asr, "setBackgroundResource", activeBg);
+            views.setTextColor(R.id.widget_label_asr, activeGoldColor);
+            views.setTextColor(R.id.widget_time_asr, activeGoldColor);
         } else if ("maghrib".equalsIgnoreCase(prayerKey)) {
-            views.setInt(R.id.col_maghrib, "setBackgroundResource", R.drawable.widget_prayer_col_active);
+            views.setInt(R.id.col_maghrib, "setBackgroundResource", activeBg);
+            views.setTextColor(R.id.widget_label_maghrib, activeGoldColor);
+            views.setTextColor(R.id.widget_time_maghrib, activeGoldColor);
         } else if ("isha".equalsIgnoreCase(prayerKey)) {
-            views.setInt(R.id.col_isha, "setBackgroundResource", R.drawable.widget_prayer_col_active);
+            views.setInt(R.id.col_isha, "setBackgroundResource", activeBg);
+            views.setTextColor(R.id.widget_label_isha, activeGoldColor);
+            views.setTextColor(R.id.widget_time_isha, activeGoldColor);
         }
     }
 
@@ -180,7 +227,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
                 String period = (h >= 12) ? "م" : "ص";
                 int h12 = h % 12;
                 if (h12 == 0) h12 = 12;
-                return String.format("%02d:%02d %s", h12, m, period);
+                return String.format(Locale.US, "%02d:%02d %s", h12, m, period);
             }
         } catch (Exception e) {}
         return raw;
@@ -206,8 +253,33 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             Calendar nextCal = null;
             int foundIdx = -1;
 
+            // 1. فحص ما إذا كانت الصلاة قد حان وقتها الآن (خلال الـ 15 دقيقة الماضية)
             for (int i = 0; i < keys.length; i++) {
-                String raw = json.optString(jsonKeys[i], "");
+                String raw = getPrayerTimeRaw(json, jsonKeys[i], keys[i], "");
+                if (raw.isEmpty()) continue;
+                String clean = raw.split(" ")[0];
+                String[] p = clean.split(":");
+                if (p.length < 2) continue;
+
+                Calendar cal = (Calendar) now.clone();
+                cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(p[0]));
+                cal.set(Calendar.MINUTE, Integer.parseInt(p[1]));
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                long pMs = cal.getTimeInMillis();
+                if (nowMs >= pMs && (nowMs - pMs) <= (15 * 60 * 1000L)) {
+                    res.prayerKey = keys[i];
+                    res.prayerName = "حان الآن موعد " + names[i];
+                    res.prayerTime12H = formatPrayerTime12H(raw);
+                    res.countdownText = "وقت الصلاة 🕋";
+                    return res;
+                }
+            }
+
+            // 2. البحث عن الصلاة القادمة اليوم
+            for (int i = 0; i < keys.length; i++) {
+                String raw = getPrayerTimeRaw(json, jsonKeys[i], keys[i], "");
                 if (raw.isEmpty()) continue;
                 String clean = raw.split(" ")[0];
                 String[] p = clean.split(":");
@@ -226,10 +298,10 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
                 }
             }
 
-            // إذا انتهت صلوات اليوم بعد العشاء، الصلاة القادمة هي فجر الغد
+            // 3. إذا انتهت صلوات اليوم بعد العشاء، الصلاة القادمة هي فجر الغد
             if (foundIdx == -1) {
                 foundIdx = 0; // Fajr
-                String raw = json.optString("Fajr", "05:00");
+                String raw = getPrayerTimeRaw(json, "Fajr", "fajr", "05:00");
                 String clean = raw.split(" ")[0];
                 String[] p = clean.split(":");
                 Calendar cal = (Calendar) now.clone();
@@ -243,7 +315,8 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
 
             res.prayerKey = keys[foundIdx];
             res.prayerName = names[foundIdx];
-            res.prayerTime12H = formatPrayerTime12H(json.optString(jsonKeys[foundIdx]));
+            String targetRaw = getPrayerTimeRaw(json, jsonKeys[foundIdx], keys[foundIdx], "");
+            res.prayerTime12H = formatPrayerTime12H(targetRaw);
 
             long diffMs = nextCal.getTimeInMillis() - nowMs;
             long diffMins = Math.max(1, diffMs / (60 * 1000L));

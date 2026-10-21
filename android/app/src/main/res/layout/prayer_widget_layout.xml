@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layoutDirection="rtl"
     android:background="@drawable/widget_bg"
-    android:padding="12dp">
+    android:padding="10dp">
 
     <!-- 1. شريط العنوان والتاريخ الهجري وزر التحديث السريع -->
     <RelativeLayout
@@ -27,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:text="☪"
                 android:textColor="#d4af37"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -46,6 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@id/header_branding"
             android:layout_centerVertical="true"
             android:gravity="center_vertical|end"
             android:orientation="horizontal">
@@ -88,6 +90,7 @@
                 android:layout_marginStart="6dp"
                 android:background="@drawable/widget_pill_bg"
                 android:padding="3dp"
+                android:tint="#ffd4af37"
                 android:src="@android:drawable/ic_popup_sync" />
         </LinearLayout>
     </RelativeLayout>
@@ -96,13 +99,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:background="@drawable/widget_hero_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="8dp">
 
-        <!-- الأيقونة الإسلامية واسم الصلاة -->
+        <!-- الأيقونة واسم الصلاة -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -123,7 +127,9 @@
                 android:layout_height="wrap_content"
                 android:text="صلاة المغرب"
                 android:textColor="#ffffff"
-                android:textSize="16sp"
+                android:textSize="15sp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -140,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:text="05:45 م"
                 android:textColor="#ffd4af37"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -158,11 +164,11 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 3. شريط الصلوات الخمس بالتوقيتات -->
+    <!-- 3. شريط الصلوات الخمس بالتوقيتات المتناسقة -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:orientation="horizontal">
 
         <!-- الفجر -->
@@ -171,13 +177,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="2dp"
+            android:layout_marginEnd="3dp"
             android:background="@drawable/widget_prayer_col_normal"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="4dp">
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="2dp">
 
             <TextView
+                android:id="@+id/widget_label_fajr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="الفجر"
@@ -188,9 +196,11 @@
                 android:id="@+id/widget_time_fajr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:text="--:--"
                 android:textColor="#ffffff"
                 android:textSize="10.5sp"
+                android:maxLines="1"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -200,13 +210,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="2dp"
+            android:layout_marginEnd="3dp"
             android:background="@drawable/widget_prayer_col_normal"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="4dp">
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="2dp">
 
             <TextView
+                android:id="@+id/widget_label_dhuhr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="الظهر"
@@ -217,9 +229,11 @@
                 android:id="@+id/widget_time_dhuhr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:text="--:--"
                 android:textColor="#ffffff"
                 android:textSize="10.5sp"
+                android:maxLines="1"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -229,13 +243,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="2dp"
+            android:layout_marginEnd="3dp"
             android:background="@drawable/widget_prayer_col_normal"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="4dp">
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="2dp">
 
             <TextView
+                android:id="@+id/widget_label_asr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="العصر"
@@ -246,9 +262,11 @@
                 android:id="@+id/widget_time_asr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:text="--:--"
                 android:textColor="#ffffff"
                 android:textSize="10.5sp"
+                android:maxLines="1"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -258,13 +276,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="2dp"
+            android:layout_marginEnd="3dp"
             android:background="@drawable/widget_prayer_col_normal"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="4dp">
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="2dp">
 
             <TextView
+                android:id="@+id/widget_label_maghrib"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="المغرب"
@@ -275,9 +295,11 @@
                 android:id="@+id/widget_time_maghrib"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:text="--:--"
                 android:textColor="#ffffff"
                 android:textSize="10.5sp"
+                android:maxLines="1"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -290,9 +312,11 @@
             android:background="@drawable/widget_prayer_col_normal"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="4dp">
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="2dp">
 
             <TextView
+                android:id="@+id/widget_label_isha"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="العشاء"
@@ -303,9 +327,11 @@
                 android:id="@+id/widget_time_isha"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:text="--:--"
                 android:textColor="#ffffff"
                 android:textSize="10.5sp"
+                android:maxLines="1"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
@@ -315,8 +341,10 @@
         android:id="@+id/widget_txt_dhikr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:text="«أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🌿"
         android:textColor="#c3dbd0"
         android:textSize="9.5sp" />
