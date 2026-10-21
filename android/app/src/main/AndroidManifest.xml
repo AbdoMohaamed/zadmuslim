@@ -57,6 +57,7 @@
             android:foregroundServiceType="mediaPlayback" />
 
         <!-- مستقبل منبه الأذان والتنبيه المسبق وإعادة الجدولة -->
+        <receiver android:name="com.zadmuslim.app.BackgroundReminderReceiver" android:exported="false" />
         <receiver
             android:name=".AdhanAlarmReceiver"
             android:enabled="true"

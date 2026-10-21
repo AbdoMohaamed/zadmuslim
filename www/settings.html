@@ -967,7 +967,7 @@
     <audio id="audio-salawat-preview" preload="none"></audio>
 
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/native-adhan-service.js?v=6"></script>
+    <script src="assets/js/native-adhan-service.js?v=7"></script>
     <script src="assets/js/user-tools.js?v=5"></script>
 
     <!-- سكربت التحكم في إعدادات التنبيهات والأذان والمعاينة الصوتية -->
@@ -1056,7 +1056,7 @@
             loadSettings();
 
             // حفظ وتطبيق التنبيهات والأذان والصلاة على النبي فورياً
-            function autoSaveNotifSettings(isExplicit = false) {
+            async function autoSaveNotifSettings(isExplicit = false) {
                 const settings = {
                     adhan: chkAdhan ? chkAdhan.checked : true,
                     prePrayer: chkPrePrayer ? chkPrePrayer.checked : true,
@@ -1090,12 +1090,13 @@
                 });
                 localStorage.setItem('zad_enabled_prayers', JSON.stringify(enabledPrayers));
 
+                let scheduling;
                 // جدولة التنبيهات فوراً عبر NativeAdhanService
                 if (window.NativeAdhanService) {
                     if (typeof window.NativeAdhanService.scheduleLocalNotifications === 'function') {
-                        window.NativeAdhanService.scheduleLocalNotifications();
+                        scheduling = await window.NativeAdhanService.scheduleLocalNotifications();
                     } else if (typeof window.NativeAdhanService.schedulePrayers === 'function') {
-                        window.NativeAdhanService.schedulePrayers();
+                        scheduling = await window.NativeAdhanService.schedulePrayers();
                     }
                 }
 
@@ -1106,10 +1107,7 @@
 
                 if (feedbackNotif) {
                     feedbackNotif.style.display = 'block';
-                    feedbackNotif.innerHTML = isExplicit
-                        ? '<i class="fa-solid fa-circle-check"></i> تم حفظ وتفعيل إعدادات التنبيهات والأذان بنجاح في جهازك ✨'
-                        : '<i class="fa-solid fa-check"></i> تم الحفظ والتطبيق فوراً في جهازك ✓';
-                    clearTimeout(feedbackTimeout);
+                    feedbackNotif.textContent = scheduling?.message || (scheduling?.success === false ? 'تم حفظ الاختيارات، لكن تعذّرت جدولة التنبيهات.' : 'تم حفظ إعدادات التنبيهات.');
                     feedbackTimeout = setTimeout(() => { feedbackNotif.style.display = 'none'; }, isExplicit ? 4000 : 2500);
                 }
             }

@@ -67,6 +67,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             "android.intent.action.TIME_SET".equals(action) ||
             Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
             Log.d(TAG, "System event (" + action + ") - Rescheduling prayer alarms");
+            BackgroundReminderReceiver.restore(context);
             AdhanNativePlugin.rescheduleAlarmsFromPrefs(context);
             PrayerWidgetProvider.updateAllWidgets(context);
             checkCloudBroadcastsInBackground(context);

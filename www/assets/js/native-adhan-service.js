@@ -1,7 +1,7 @@
 /**
  * native-adhan-service.js
  * نظام جدولة الأذان والمنبهات الأصلية لتطبيقات الموبايل (Capacitor Android & iOS)
- * يتيح خروج إشعار وتنبيه قبل الصلاة بـ 5 دقائق، وصوت الأذان كاملاً تلقائياً حتى والتطبيق مغلق تماماً والشاشة مقفلة
+ * تنبيهات نظام الهاتف: أذان كامل على Android، وصوت إشعار محدود على iOS، حسب الأذونات.
  */
 
 const NativeAdhanService = {
@@ -133,7 +133,74 @@ const NativeAdhanService = {
             if (prayers.length) await plugins.LocalNotifications.cancel({ notifications: prayers });
         } catch {}
     },
+    async futurePrayerDays(now) {
+        const source = window.zadPrayerApiSource;
+        if (!source || !window.Capacitor?.isNativePlatform?.()) return [];
+        const days = [];
+        const months = new Map();
+        for (let offset = 1; offset < 14; offset++) {
+            const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+            const month = date.getFullYear() + '/' + (date.getMonth() + 1);
+            if (!months.has(month)) {
+                const url = source.replace('/timingsByCity?', '/calendarByCity/' + month + '?').replace('/timings?', '/calendar/' + month + '?') + '&iso8601=true';
+                const key = 'zad_alarm_calendar:' + url;
+                let entries;
+                try { entries = JSON.parse(localStorage.getItem(key) || 'null'); } catch {}
+                if (!Array.isArray(entries)) {
+                    try {
+                        const response = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                        if (!response.ok) throw new Error('Calendar unavailable');
+                        const result = await response.json();
+                        entries = result.code === 200 && Array.isArray(result.data) ? result.data : [];
+                        if (entries.length) localStorage.setItem(key, JSON.stringify(entries));
+                    } catch { entries = []; }
+                }
+                months.set(month, entries);
+            }
+            const entry = months.get(month).find(e => Number(e.date?.gregorian?.day) === date.getDate());
+            const expected = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0') + 'T';
+            if (entry && ['Fajr','Dhuhr','Asr','Maghrib','Isha'].every(k => entry.timings?.[k]?.startsWith(expected) && Number.isFinite(Date.parse(entry.timings[k])))) days.push({date, timings:entry.timings});
+        }
+        return window.zadPrayerApiSource === source ? days : [];
+    },
+
+    async recurringReminders(settings) {
+        const list = [];
+        const daily = (id, type, title, body, time, weekday) => {
+            const [hour, minute] = time.split(':').map(Number);
+            list.push({id, title, body, channelId:'daily_adhkar', smallIcon:'res://ic_stat_icon', extra:{type}, schedule:{on:{hour,minute,...(weekday ? {weekday}: {})},allowWhileIdle:true}});
+        };
+        if (settings.morning !== false) daily(70000,'morning_azkar','أذكار الصباح','ابدأ يومك بذكر الله',settings.morningTime);
+        if (settings.evening !== false) daily(71000,'evening_azkar','أذكار المساء','حان وقت أذكار المساء',settings.eveningTime);
+        if (settings.sleep) daily(73000,'sleep_azkar','أذكار النوم','باسمك ربي وضعت جنبي وبك أرفعه',settings.sleepTime);
+        if (settings.friday !== false) daily(72000,'friday_kahf','جمعة مباركة','تذكير بسورة الكهف والصلاة على النبي ﷺ','09:00',6);
+        if (settings.fasting) for (const day of [1,4]) daily(74000+day,'fasting','تذكير بالصيام','غدًا موعد صيام الإثنين أو الخميس','20:00',day);
+        if (settings.hourlySalawat !== false) list.push({id:80001,title:'ﷺ صلِّ على النبي',body:'اللهم صلِّ وسلِّم وبارك على نبينا محمد ﷺ',sound:settings.salawatSound !== false ? 'salawat.mp3':null,channelId:settings.salawatSound !== false ? 'hourly_salawat':'hourly_salawat_silent',extra:{type:'hourly_salawat'},schedule:{every:'minute',count:settings.salawatInterval,allowWhileIdle:true}});
+        if (window.Capacitor?.getPlatform?.() === 'android') {
+            const plugin = window.Capacitor.Plugins.AdhanNative;
+            if (!plugin?.scheduleReminders) throw new Error('حدّث تطبيق الهاتف لتفعيل التذكيرات المستمرة');
+            await plugin.scheduleReminders({reminders:list});
+            return [];
+        }
+        return list;
+    },
+
     async schedulePrayers(prayersTimings) {
+        const revision = this.scheduleRevision = (this.scheduleRevision || 0) + 1;
+        if (!window.zadPrayerVerified) {
+            try {
+                const saved = JSON.parse(localStorage.getItem('zad_alarm_days') || 'null');
+                const signature = JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]);
+                const today = new Date().toLocaleDateString('en-CA');
+                const entry = saved?.signature === signature && saved.days.find(d => d.date === today);
+                if (entry) {
+                    prayersTimings = Object.fromEntries(Object.entries(entry.timings).map(([k,v])=>[k,v.includes('T') ? v.slice(11,16) : v]));
+                    window.zadPrayerApiSource = saved.source;
+                    window.zadPrayerVerified = true;
+                    localStorage.setItem('zad_prayer_verified',JSON.stringify({date:today,city:localStorage.getItem('selected_prayer_city'),method:localStorage.getItem('zad_prayer_method')||'',school:localStorage.getItem('zad_prayer_school')||'0'}));
+                }
+            } catch {}
+        }
         let verified;
         try { verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null'); } catch { return; }
         if (!window.zadPrayerVerified || verified?.date !== new Date().toLocaleDateString('en-CA') ||
@@ -172,6 +239,15 @@ const NativeAdhanService = {
             const enabledPrayers = this.getEnabledPrayers();
             const now = new Date();
 
+            const settingsSnapshot = localStorage.getItem('smart_notify_settings');
+            const futureDays = await this.futurePrayerDays(now);
+            if (revision !== this.scheduleRevision || settingsSnapshot !== localStorage.getItem('smart_notify_settings')) return {success:false};
+            if (!window.zadPrayerVerified || JSON.stringify(verified) !== localStorage.getItem('zad_prayer_verified')) return {success:false};
+            localStorage.setItem('zad_alarm_days',JSON.stringify({
+                signature:JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]),
+                source:window.zadPrayerApiSource,
+                days:[{date:now.toLocaleDateString('en-CA'),timings:prayersTimings},...futureDays.map(d=>({date:d.date.toLocaleDateString('en-CA'),timings:d.timings}))]
+            }));
             const prayersList = [
                 { idBase: 100, name: "صلاة الفجر", key: "fajr", time: prayersTimings.Fajr },
                 { idBase: 200, name: "صلاة الظهر", key: "dhuhr", time: prayersTimings.Dhuhr },
@@ -186,23 +262,25 @@ const NativeAdhanService = {
 
             const preInterval = parseInt(notifySettings.prePrayerInterval, 10) || 5;
 
-            // جدولة لليوم الحالي ولليومين القادمين (3 أيام = 36 إشعاراً) للبقاء بأمان تام تحت الحد الأقصى لنظام iOS (64 إشعاراً)
-            for (let dayOffset = 0; dayOffset <= 2; dayOffset++) {
+            // Dated daily timings; iOS requests are capped below before submission.
+            for (let dayOffset = 0; dayOffset < 14; dayOffset++) {
                 const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
 
                 for (const p of prayersList) {
-                    if (dayOffset > 0) continue; // Never reuse today's prayer times for another date.
+                    const future = futureDays.find(d => d.date.toDateString() === targetDay.toDateString());
+                    if (dayOffset > 0 && !future) continue;
                     if (!p.time) continue;
                     const clean = p.time.split(" ")[0];
                     const [h, m] = clean.split(":").map(Number);
 
-                    const prayerMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), h, m, 0);
+                    const timingKey = p.key[0].toUpperCase() + p.key.slice(1);
+                    const prayerMoment = dayOffset > 0 ? new Date(future.timings[timingKey]) : new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), h, m, 0);
 
                     // 1. تنبيه اقتراب موعد الصلاة قبل دقائق مخصصة (Pre-prayer reminder بصوت ناطق)
                     if (notifySettings.prePrayer !== false) {
                         const preAlertMoment = new Date(prayerMoment.getTime() - (preInterval * 60 * 1000));
                         if (preAlertMoment.getTime() > now.getTime() + 1000) {
-                            const preNotifId = p.idBase + 1000 + (dayOffset * 10);
+                            const preNotifId = p.idBase + 1000 + (dayOffset * 2000);
                             const preSoundName = `pre_${p.key}.mp3`;
                             notificationsToSchedule.push({
                                 id: preNotifId,
@@ -227,7 +305,7 @@ const NativeAdhanService = {
 
                     // 2. إشعار دخول وقت الصلاة والأذان التام (Main Adhan Notification)
                     if (notifySettings.adhan !== false && prayerMoment.getTime() > now.getTime() + 1000) {
-                        const notifId = p.idBase + (dayOffset * 10);
+                        const notifId = p.idBase + (dayOffset * 2000);
                         const isFajr = p.key === "fajr";
                         const channelId = isFajr ? "adhan_fajr" : `adhan_${selectedMuazzin}`;
                         const soundName = isFajr ? "adhan_fajr.mp3" : `adhan_${selectedMuazzin}.mp3`;
@@ -255,106 +333,6 @@ const NativeAdhanService = {
                     }
                 }
 
-                // 3. جدولة أذكار الصباح والمساء والنوم في نظام الهاتف الأصلي وفق التوقيت المخصص للمستخدم
-                // أذكار الصباح: بالوقت المخصص من المستخدم (افتراضياً 06:30)
-                if (notifySettings.morning !== false) {
-                    let [mH, mM] = (notifySettings.morningTime || "06:30").split(":").map(Number);
-                    if (isNaN(mH)) mH = 6;
-                    if (isNaN(mM)) mM = 30;
-                    const morningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), mH, mM, 0);
-                    if (morningMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 70000 + (dayOffset * 10),
-                            title: "🌅 أذكار الصباح • حصن المسلم",
-                            body: "أصبحنا وأصبح الملك لله.. ابدأ يومك بذكر الله وحصّن نفسك وأهلك بنور الأذكار 🌿",
-                            schedule: { at: morningMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "morning_azkar" }
-                        });
-                    }
-                }
-
-                // أذكار المساء: بالوقت المخصص من المستخدم (افتراضياً 17:00)
-                if (notifySettings.evening !== false) {
-                    let [eH, eM] = (notifySettings.eveningTime || "17:00").split(":").map(Number);
-                    if (isNaN(eH)) eH = 17;
-                    if (isNaN(eM)) eM = 0;
-                    const eveningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), eH, eM, 0);
-                    if (eveningMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 71000 + (dayOffset * 10),
-                            title: "🌇 أذكار المساء • طمأنينة القلب",
-                            body: "أمسينا وأمسى الملك لله.. حان وقت أذكار المساء لطمأنينة القلب وحفظ الرحمن 🤲",
-                            schedule: { at: eveningMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "evening_azkar" }
-                        });
-                    }
-                }
-
-                // أذكار النوم: بالوقت المخصص من المستخدم (افتراضياً 22:30)
-                if (notifySettings.sleep === true) {
-                    let [sH, sM] = (notifySettings.sleepTime || "22:30").split(":").map(Number);
-                    if (isNaN(sH)) sH = 22;
-                    if (isNaN(sM)) sM = 30;
-                    const sleepMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), sH, sM, 0);
-                    if (sleepMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 73000 + (dayOffset * 10),
-                            title: "🌙 أذكار النوم والتحصين • باسمك ربي",
-                            body: "باسمك ربي وضعت جنبي وبك أرفعه.. حصّن نفسك بآية الكرسي والمعوذات وخواتيم سورة البقرة 🕊️",
-                            schedule: { at: sleepMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "sleep_azkar" }
-                        });
-                    }
-                }
-
-                // تذكير سورة الكهف والصلاة على النبي يوم الجمعة (الساعة 09:00 صباحاً)
-                if (notifySettings.friday !== false && targetDay.getDay() === 5) { // 5 = Friday
-                    const fridayMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 9, 0, 0);
-                    if (fridayMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 72000 + (dayOffset * 10),
-                            title: "✨ جمعة مباركة • نور ما بين الجمعتين",
-                            body: "لا تنس قراءة سورة الكهف والإكثار من الصلاة والسلام على الحبيب المصطفى ﷺ 🌿",
-                            schedule: { at: fridayMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "friday_kahf" }
-                        });
-                    }
-                }
-            }
-
-            this.appendFastingReminders(notificationsToSchedule, notifySettings, now);
-            // 4. جدولة تذكير الصلاة على النبي ﷺ في نظام التشغيل حسب الفاصل الزمني المحدد (مع ملف الصوت المدمج salawat.mp3)
-            if (notifySettings.hourlySalawat !== false) {
-                const intervalMins = parseInt(notifySettings.salawatInterval, 10) || 60;
-                const intervalMs = intervalMins * 60 * 1000;
-                const hasSound = notifySettings.salawatSound !== false;
-
-                // عدد الإشعارات المتاحة بحيث لا نتجاوز حد نظام iOS البالغ 64 إشعاراً كلياً
-                const remainingSlots = Math.max(5, 60 - notificationsToSchedule.length);
-                const countToSchedule = Math.min(remainingSlots, Math.max(1, Math.floor((24 * 60) / intervalMins)));
-
-                for (let i = 1; i <= countToSchedule; i++) {
-                    const salawatMoment = new Date(now.getTime() + (i * intervalMs));
-                    notificationsToSchedule.push({
-                        id: 80000 + i,
-                        title: "ﷺ صلِّ على النبي",
-                        body: "اللهم صلِّ وسلِّم وبارك على نبينا وحبيبنا محمد ﷺ",
-                        schedule: { at: salawatMoment, allowWhileIdle: true },
-                        sound: hasSound ? "salawat.mp3" : null,
-                        channelId: hasSound ? "hourly_salawat" : "hourly_salawat_silent",
-                        smallIcon: "res://ic_stat_icon",
-                        iconColor: "#d4af37",
-                        extra: { type: "hourly_salawat" }
-                    });
-                }
             }
 
             // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي وتحديث ويدجت الشاشة
@@ -387,6 +365,7 @@ const NativeAdhanService = {
                     } catch(e) {}
 
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
+                        alarmSchedule: notificationsToSchedule.filter(n => n.id < 70000).map(n => ({at:n.schedule.at.getTime(),prayerKey:n.extra.prayerKey,prayerName:n.extra.prayerName,isPreAlert:n.extra.type==='pre_prayer_alert',muazzin:selectedMuazzin,preAlertInterval:preInterval})),
                         timings: prayersTimings,
                         muazzin: selectedMuazzin,
                         preAlert: notifySettings.prePrayer !== false,
@@ -396,9 +375,11 @@ const NativeAdhanService = {
                         hijriDate: hijriDateStr,
                         gregorianDate: gregorianDateStr
                     });
+                    if (nativeRes?.success === false) throw new Error('Native scheduling rejected');
                     hasNativePlugin = true;
                     console.log("✅ Native Adhan Android Service: Alarms & Home Widget scheduled successfully:", nativeRes);
                 } catch(nativeErr) {
+                    await window.Capacitor.Plugins.AdhanNative.cancelAllAlarms();
                     console.warn("Native Adhan Android plugin call failed, falling back to LocalNotifications:", nativeErr);
                 }
             }
@@ -411,6 +392,8 @@ const NativeAdhanService = {
                 notificationsForLocal = notificationsToSchedule.filter(n => n.id >= 70000);
             }
 
+            notificationsForLocal = notificationsForLocal.filter(n => n.id < 70000).sort((a,b)=>a.schedule.at-b.schedule.at).slice(0,50);
+            notificationsForLocal.push(...await this.recurringReminders(notifySettings));
             // Remove legacy iOS native prayer requests; LocalNotifications owns iOS scheduling.
             if (window.Capacitor?.getPlatform?.() === 'ios') await window.Capacitor.Plugins.AdhanNative?.cancelAllAlarms?.();
             const pending = await LocalNotifications.getPending();
@@ -422,7 +405,10 @@ const NativeAdhanService = {
                 await LocalNotifications.schedule({ notifications: notificationsForLocal });
                 console.log(`✅ Native Adhan Service: Scheduled ${notificationsForLocal.length} notifications via LocalNotifications directly into OS.`);
             }
-            return { success: true };
+            const prayerRequests = notificationsToSchedule.filter(n=>n.id<70000);
+            const actualRequests = isAndroid && hasNativePlugin ? prayerRequests : notificationsForLocal.filter(n=>n.id<70000);
+            const until = actualRequests.length ? new Date(Math.max(...actualRequests.map(n=>n.schedule.at.getTime()))).toLocaleDateString('ar-EG') : '';
+            return { success: true, message: until ? 'تمت الجدولة في الهاتف؛ الأذان حتى ' + until + '. افتح التطبيق لتجديد المواعيد قبل انتهاء المدة.' : 'تم حفظ التذكيرات المتكررة في الهاتف.' };
         } catch (e) {
             console.warn("Failed to schedule native prayer alarms:", e);
             return { success: false, message: 'تعذّرت جدولة التنبيهات في نظام الهاتف.' };
@@ -442,17 +428,6 @@ const NativeAdhanService = {
             settings[key] = Number.isInteger(value) && value > 0 && value <= 1440 ? value : defaults[key];
         }
         return settings;
-    },
-
-    appendFastingReminders(notifications, settings, now) {
-        if (settings.fasting !== true) return;
-        for (let day = 0; day < 7; day++) {
-            const at = new Date(now.getFullYear(), now.getMonth(), now.getDate() + day, 20, 0, 0);
-            if (![0, 3].includes(at.getDay()) || at <= now) continue;
-            notifications.push({ id: 74000 + day, title: 'تذكير بصيام الإثنين والخميس',
-                body: 'غدًا ' + (at.getDay() === 0 ? 'الإثنين' : 'الخميس') + '؛ تذكير لمن ينوي صيام التطوع.',
-                schedule: { at, allowWhileIdle: true }, channelId: 'daily_adhkar', extra: { type: 'fasting' } });
-        }
     },
 
     getEnabledPrayers() {
@@ -476,7 +451,7 @@ const NativeAdhanService = {
      * جدولة إشعارات الأذكار والصلاة على النبي وسنن الأسبوع فورياً في نظام التشغيل (مع تحديث الصلوات إن كانت متوفرة)
      */
     async scheduleLocalNotifications() {
-        if (window.zadPrayerVerified) {
+        {
             const result = await this.schedulePrayers();
             if (result) return result;
         }
@@ -490,110 +465,6 @@ const NativeAdhanService = {
 
             const notifySettings = this.getNotificationSettings();
             if (notifySettings.adhan === false && notifySettings.prePrayer === false) await this.cancelPrayerAlarms();
-            const now = new Date();
-            const notificationsToSchedule = [];
-
-            // 1. أذكار الصباح والمساء والنوم وسورة الكهف لليومين القادمين
-            for (let dayOffset = 0; dayOffset <= 1; dayOffset++) {
-                const targetDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
-
-                // أذكار الصباح
-                if (notifySettings.morning !== false) {
-                    let [mH, mM] = (notifySettings.morningTime || "06:30").split(":").map(Number);
-                    if (isNaN(mH)) mH = 6; if (isNaN(mM)) mM = 30;
-                    const morningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), mH, mM, 0);
-                    if (morningMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 70000 + (dayOffset * 10),
-                            title: "🌅 أذكار الصباح • حصن المسلم",
-                            body: "أصبحنا وأصبح الملك لله.. ابدأ يومك بذكر الله وحصّن نفسك وأهلك بنور الأذكار 🌿",
-                            schedule: { at: morningMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "morning_azkar" }
-                        });
-                    }
-                }
-
-                // أذكار المساء
-                if (notifySettings.evening !== false) {
-                    let [eH, eM] = (notifySettings.eveningTime || "17:00").split(":").map(Number);
-                    if (isNaN(eH)) eH = 17; if (isNaN(eM)) eM = 0;
-                    const eveningMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), eH, eM, 0);
-                    if (eveningMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 71000 + (dayOffset * 10),
-                            title: "🌇 أذكار المساء • طمأنينة القلب",
-                            body: "أمسينا وأمسى الملك لله.. حان وقت أذكار المساء لطمأنينة القلب وحفظ الرحمن 🤲",
-                            schedule: { at: eveningMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "evening_azkar" }
-                        });
-                    }
-                }
-
-                // أذكار النوم
-                if (notifySettings.sleep === true) {
-                    let [sH, sM] = (notifySettings.sleepTime || "22:30").split(":").map(Number);
-                    if (isNaN(sH)) sH = 22; if (isNaN(sM)) sM = 30;
-                    const sleepMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), sH, sM, 0);
-                    if (sleepMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 73000 + (dayOffset * 10),
-                            title: "🌙 أذكار النوم والتحصين • باسمك ربي",
-                            body: "باسمك ربي وضعت جنبي وبك أرفعه.. حصّن نفسك بآية الكرسي والمعوذات وخواتيم سورة البقرة 🕊️",
-                            schedule: { at: sleepMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "sleep_azkar" }
-                        });
-                    }
-                }
-
-                // تذكير سورة الكهف والصلاة على النبي يوم الجمعة
-                if (notifySettings.friday !== false && targetDay.getDay() === 5) {
-                    const fridayMoment = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate(), 9, 0, 0);
-                    if (fridayMoment.getTime() > now.getTime() + 1000) {
-                        notificationsToSchedule.push({
-                            id: 72000 + (dayOffset * 10),
-                            title: "✨ جمعة مباركة • نور ما بين الجمعتين",
-                            body: "لا تنس قراءة سورة الكهف والإكثار من الصلاة والسلام على الحبيب المصطفى ﷺ 🌿",
-                            schedule: { at: fridayMoment, allowWhileIdle: true },
-                            smallIcon: "res://ic_stat_icon",
-                            iconColor: "#d4af37",
-                            extra: { type: "friday_kahf" }
-                        });
-                    }
-                }
-            }
-
-            this.appendFastingReminders(notificationsToSchedule, notifySettings, now);
-            // 2. تذكير الصلاة على النبي ﷺ
-            if (notifySettings.hourlySalawat !== false) {
-                const intervalMins = parseInt(notifySettings.salawatInterval, 10) || 60;
-                const intervalMs = intervalMins * 60 * 1000;
-                const hasSound = notifySettings.salawatSound !== false;
-
-                const remainingSlots = Math.max(5, 50 - notificationsToSchedule.length);
-                const countToSchedule = Math.min(remainingSlots, Math.max(1, Math.floor((24 * 60) / intervalMins)));
-
-                for (let i = 1; i <= countToSchedule; i++) {
-                    const salawatMoment = new Date(now.getTime() + (i * intervalMs));
-                    notificationsToSchedule.push({
-                        id: 80000 + i,
-                        title: "ﷺ صلِّ على النبي",
-                        body: "اللهم صلِّ وسلِّم وبارك على نبينا وحبيبنا محمد ﷺ",
-                        schedule: { at: salawatMoment, allowWhileIdle: true },
-                        sound: hasSound ? "salawat.mp3" : null,
-                        channelId: hasSound ? "hourly_salawat" : "hourly_salawat_silent",
-                        smallIcon: "res://ic_stat_icon",
-                        iconColor: "#d4af37",
-                        extra: { type: "hourly_salawat" }
-                    });
-                }
-            }
-
             // إلغاء الإشعارات السابقة من نوع أذكار وصلاة على النبي فقط (IDs 70000 to 89999)
             const pending = await LocalNotifications.getPending();
             if (pending && pending.notifications && pending.notifications.length > 0) {
@@ -603,8 +474,9 @@ const NativeAdhanService = {
                 }
             }
 
-            if (notificationsToSchedule.length > 0) {
-                await LocalNotifications.schedule({ notifications: notificationsToSchedule });
+            const recurring = await this.recurringReminders(notifySettings);
+            if (recurring.length > 0) {
+                await LocalNotifications.schedule({ notifications: recurring });
             }
 
             // إذا كانت الصلوات مفعّلة ومتاحة، نحدّث جدول الصلوات أيضاً

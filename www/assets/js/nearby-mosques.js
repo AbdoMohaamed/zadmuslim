@@ -23,8 +23,7 @@
 
     const OVERPASS_ENDPOINTS = [
         'https://overpass-api.de/api/interpreter',
-        'https://lz4.overpass-api.de/api/interpreter',
-        'https://overpass.kumi.systems/api/interpreter'
+        'https://overpass.private.coffee/api/interpreter'
     ];
 
     function initNearbyMosques() {
@@ -102,7 +101,7 @@
     }
 
     function cachedStatus(entry) {
-        updateStatusBox('<div>نتائج محفوظة للموقع المعروض بتاريخ ' + escapeHtml(new Date(entry.time).toLocaleDateString('ar')) + '. معروضة من تخزين الجهاز. استخدم زر التحديث عند الحاجة.</div>');
+        updateStatusBox('<div>نتائج محفوظة للموقع المعروض بتاريخ ' + escapeHtml(new Date(entry.time).toLocaleDateString('ar')) + '. معروضة من تخزين الجهاز.' + (entry.partial ? ' نتائج بديلة محدودة.' : '') + ' استخدم زر التحديث عند الحاجة.</div>');
     }
 
     async function fetchJSON(url, timeout = 12000) {
@@ -278,13 +277,6 @@
         const rad = radiusMeters || currentRadius;
         const key = lat.toFixed(4) + ',' + lon.toFixed(4) + ',' + rad;
 
-        if (force) {
-            try {
-                const filtered = readCache().filter(e => e.key !== key);
-                localStorage.setItem(CACHE_KEY, JSON.stringify(filtered));
-            } catch (_) {}
-        }
-
         const saved = readCache().find(e => e.key === key);
         if (saved && !force) {
             applyMosquesData(saved.list, lat, lon);
@@ -311,33 +303,16 @@
             const data = await fetchMosquesViaOverpass(lat, lon, rad);
             let list = deduplicateAndCleanMosques(data, lat, lon, rad);
 
-            // Auto-radius expansion if 0 results in current radius without making unnecessary network calls
-            let expandedFrom = null;
-            if (list.length === 0 && rad < 20000 && !force) {
-                const radiusSteps = [2000, 5000, 10000, 20000];
-                const nextRadii = radiusSteps.filter(r => r > rad);
-                for (const nextRad of nextRadii) {
-                    const expandedList = deduplicateAndCleanMosques(data, lat, lon, nextRad);
-                    if (expandedList.length > 0) {
-                        expandedFrom = rad;
-                        currentRadius = nextRad;
-                        list = expandedList;
-                        document.querySelectorAll('.mosques-radius-pill').forEach(b => {
-                            b.classList.toggle('active', Number(b.dataset.radius) === currentRadius);
-                        });
-                        break;
-                    }
-                }
-            }
-
-            applyMosquesData(list, lat, lon, expandedFrom);
+            currentRadius = rad;
+            applyMosquesData(list, lat, lon);
+            if (data.partial) updateStatusBox('<div>نتائج بديلة محدودة: ' + list.length + ' مسجد وجامع داخل ' + (rad/1000) + ' كم. تعذّر البحث الشامل؛ جرّب تحديث المساجد لاحقًا.</div>');
             const entryKey = lat.toFixed(4) + ',' + lon.toFixed(4) + ',' + currentRadius;
-            const entry = { key: entryKey, lat, lon, radius: currentRadius, time: Date.now(), list };
+            const entry = { key: entryKey, lat, lon, radius: currentRadius, time: Date.now(), list, partial: !!data.partial };
             try {
                 localStorage.setItem(CACHE_KEY, JSON.stringify([...readCache().filter(e => e.key !== entryKey), entry].slice(-5)));
             } catch (_) {}
 
-            if (!list.length) {
+            if (!list.length && !data.partial) {
                 renderEmptyMosquesState(rad);
             }
         } catch (error) {
@@ -402,12 +377,12 @@
         const maxKm = (maxRadiusMeters ? maxRadiusMeters / 1000 : 25);
 
         list.forEach(item => {
-            if (!item || typeof item.lat !== 'number' || typeof item.lon !== 'number') return;
+            if (!item || !valid(item.lat, item.lon)) return;
             const dist = calculateDistanceKm(userLat, userLon, item.lat, item.lon);
             if (dist > maxKm) return;
 
             const forbiddenNames = ['كنيسة', 'دير', 'مطرانية', 'كاتدرائية', 'إيبارشية', 'معبد', 'church', 'cathedral', 'monastery', 'synagogue', 'temple'];
-            const nLower = ((item.name || '') + ' ' + (item.address || '')).toLowerCase();
+            const nLower = (item.name || '').toLowerCase();
             if (forbiddenNames.some(w => nLower.includes(w))) return;
 
             const nonMosquePrefixes = ['جامعة', 'كلية', 'معهد', 'أكاديمية', 'سفارة', 'قنصلية', 'مستشفى', 'عيادة', 'صيدلية', 'مدرسة', 'حضانة', 'بنك', 'شركة', 'وزارة', 'قسم شرطة', 'نادي', 'حديقة'];
@@ -424,7 +399,9 @@
 
             const exists = unique.find(u => {
                 const d = calculateDistanceKm(u.lat, u.lon, item.lat, item.lon);
-                return d < 0.045; // 45 meters
+                const sameId = item.id != null && u.id === item.id;
+                const named = item.name && !item.name.includes('بيت من بيوت الله');
+                return sameId || (d < 0.045 && named && item.name === u.name);
             });
 
             if (!exists) {
@@ -456,50 +433,42 @@
     async function fetchMosquesViaOverpass(lat, lon, radiusMeters) {
         const rad = Math.min(radiusMeters || 5000, 20000);
         const query = `[out:json][timeout:25];(
-  node["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${lat},${lon});
-  way["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${lat},${lon});
-  relation["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${lat},${lon});
-  node["building"="mosque"](around:${rad},${lat},${lon});
-  way["building"="mosque"](around:${rad},${lat},${lon});
+  nwr["amenity"="place_of_worship"]["religion"~"^(muslim|islam)$"](around:${rad},${lat},${lon});
+  nwr["building"="mosque"](around:${rad},${lat},${lon});
+  nwr["amenity"="mosque"](around:${rad},${lat},${lon});
+  nwr["amenity"="place_of_worship"]["name"~"مسجد|جامع|مصلى|mosque|masjid|jami",i](around:${rad},${lat},${lon});
+  nwr["amenity"="place_of_worship"]["name:ar"~"مسجد|جامع|مصلى"](around:${rad},${lat},${lon});
 );
-out center tags 75;`;
+out body center;`;
 
-        for (const endpoint of OVERPASS_ENDPOINTS.slice(0, 1)) {
+        for (const endpoint of OVERPASS_ENDPOINTS) {
             try {
-                const data = await fetchJSON(endpoint + '?data=' + encodeURIComponent(query), 9000);
+                const data = await fetchJSON(endpoint + '?data=' + encodeURIComponent(query), 28000);
                 if (data && Array.isArray(data.elements) && !data.remark) {
                     const list = parseOverpassElements(data.elements, lat, lon);
-                    if (list.length > 0) return list;
+                    return list;
                 }
             } catch (error) {
                 /* Fallback to Photon */
             }
         }
 
-        const p1Url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent('مسجد') + '&lat=' + lat + '&lon=' + lon + '&limit=50';
-        const data1 = await fetchJSON(p1Url, 10000);
-
-        // Fetch additional common Arabic place-of-worship terms in parallel
-        const extraQueries = ['جامع', 'مصلى', 'زاوية'];
-        const extraData = await Promise.all(extraQueries.map(q =>
-            fetchJSON('https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&lat=' + lat + '&lon=' + lon + '&limit=50', 8000).catch(() => null)
+        // A text-search fallback cannot promise complete geographic coverage.
+        const terms = ['مسجد', 'جامع', 'مصلى', 'mosque', 'masjid'];
+        const responses = await Promise.allSettled(terms.map(q =>
+            fetchJSON('https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&lat=' + lat + '&lon=' + lon + '&limit=50', 8000)
         ));
-
-        const allFeatures = [
-            ...(Array.isArray(data1?.features) ? data1.features : []),
-            ...extraData.flatMap(d => Array.isArray(d?.features) ? d.features : [])
-        ];
-
-        if (allFeatures.length === 0) throw Error('تعذّر الاتصال بخدمة المساجد.');
-
-        return allFeatures.flatMap(feature => {
+        const successful = responses.filter(r=>r.status==='fulfilled' && Array.isArray(r.value?.features));
+        if (!successful.length) throw Error('تعذّر الاتصال بخدمة المساجد.');
+        const allFeatures = successful.flatMap(r=>r.value.features);
+        const fallback = allFeatures.flatMap(feature => {
             const [lng, latitude] = feature.geometry?.coordinates || [];
             const tags = feature.properties || {};
             if (!valid(latitude, lng) || !['place_of_worship', 'mosque'].includes(tags.osm_value)) return [];
 
             const name = formatArabicMosqueName(tags.name, tags.street, tags.district, tags);
             return [{
-                id: tags.osm_id || Math.random(),
+                id: (tags.osm_type || 'photon') + '/' + (tags.osm_id ?? (latitude + ',' + lng)),
                 lat: latitude,
                 lon: lng,
                 name: name,
@@ -508,6 +477,8 @@ out center tags 75;`;
                 distanceKm: calculateDistanceKm(lat, lon, latitude, lng)
             }];
         });
+        fallback.partial = true;
+        return fallback;
     }
 
     function parseOverpassElements(elements, userLat, userLon) {
@@ -530,7 +501,7 @@ out center tags 75;`;
             const distKm = calculateDistanceKm(userLat, userLon, lat, lon);
 
             list.push({
-                id: el.id,
+                id: (el.type || 'node') + '/' + el.id,
                 name: name,
                 lat: lat,
                 lon: lon,
@@ -579,7 +550,7 @@ out center tags 75;`;
             updateStatusBox(`
                 <div class="mosques-alert mosques-alert-success" style="display: flex; gap: 10px; align-items: center; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; width: 100%;">
                     <i class="fa-solid fa-mosque" style="color: #10b981; font-size: 1.2rem;"></i>
-                    <div style="font-size: 0.88rem;">تم العثور على <strong>${mosquesList.length}</strong> مسجداً قريباً منك بنجاح 🕌</div>
+                    <div style="font-size: 0.88rem;">تم العثور على <strong>${mosquesList.length}</strong> مسجد وجامع داخل نطاق ${currentRadius / 1000} كم 🕌<br><small>مرتبة من الأقرب. قد توجد مساجد غير مسجّلة في الخرائط.</small></div>
                 </div>
             `);
         }

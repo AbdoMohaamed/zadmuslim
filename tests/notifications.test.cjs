@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const source = fs.readFileSync('assets/js/native-adhan-service.js', 'utf8');
 const off = { morning:false, evening:false, sleep:false, friday:false, fasting:false, hourlySalawat:false, prePrayer:false, adhan:false };
 function harness({platform='android', permission='granted', settings={}, verified=true, exact=true}={}) {
-    const calls = {local:[],native:[],cancel:[],legacy:0};
+    const calls = {local:[],native:[],reminders:[],cancel:[],legacy:0};
     const data = new Map(Object.entries({
         selected_prayer_city:'Cairo', smart_notify_settings:JSON.stringify({...off,...settings}),
         zad_prayer_verified:JSON.stringify({date:new Date().toLocaleDateString('en-CA'),city:'Cairo',method:'',school:'0'})
@@ -18,6 +18,7 @@ function harness({platform='android', permission='granted', settings={}, verifie
         checkExactNotificationSetting:async()=>({exact_alarm:exact?'granted':'denied'})
     };
     const native = {
+        scheduleReminders:async o=>{calls.reminders=o.reminders;return {success:true};},
         schedulePrayerAlarms:async o=>{calls.native.push(o);return {success:true};},
         cancelAllAlarms:async()=>{calls.legacy++;},
         checkExactAlarmPermission:async()=>({canSchedule:exact}),
@@ -68,8 +69,8 @@ test('individual prayer switch reschedules current verified timings',async()=>{
 test('daily and fasting reminders work without prayer timings and stop when disabled',async()=>{
     const h=harness({verified:false,settings:{morning:true,fasting:true}});
     assert.equal((await h.service.scheduleLocalNotifications()).success,true);
-    assert.ok(h.calls.local.some(n=>n.extra.type==='morning_azkar'));
-    assert.ok(h.calls.local.some(n=>n.extra.type==='fasting'));
+    assert.ok(h.calls.reminders.some(n=>n.extra.type==='morning_azkar'));
+    assert.ok(h.calls.reminders.some(n=>n.extra.type==='fasting'));
     assert.equal(h.calls.native.length,0);
     h.data.set('smart_notify_settings',JSON.stringify(off));
     h.calls.local.length=0;
@@ -109,8 +110,72 @@ test('stale date or changed location never schedules prayer times',async()=>{
 });
 test('failed OS scheduling is surfaced and invalid intervals are normalized',async()=>{
     const h=harness({settings:{morning:true,salawatInterval:-5,morningTime:'99:99'}});
-    h.local.schedule=async()=>{throw Error('OS failure');};
+    h.native.scheduleReminders=async()=>{throw Error('OS failure');};
     assert.equal((await h.service.schedulePrayers()).success,false);
     assert.equal(h.service.getNotificationSettings().salawatInterval,60);
     assert.equal(h.service.getNotificationSettings().morningTime,'06:30');
+});
+
+
+test('salawat and daily reminders repeat in the OS instead of expiring as a finite list',async()=>{
+    for (const platform of ['android','ios']) {
+        const h=harness({platform,verified:false,settings:{hourlySalawat:true,salawatInterval:45,morning:true,friday:true,fasting:true}});
+        await h.service.scheduleLocalNotifications();
+        const rules=platform==='android'?h.calls.reminders:h.calls.local;
+        assert.equal(rules.filter(n=>n.extra.type==='hourly_salawat').length,1);
+        assert.equal(rules.find(n=>n.extra.type==='hourly_salawat').schedule.count,45);
+        assert.equal(rules.find(n=>n.extra.type==='morning_azkar').schedule.on.hour,6);
+        assert.equal(rules.find(n=>n.extra.type==='friday_kahf').schedule.on.weekday,6);
+        assert.deepEqual(Array.from(rules.filter(n=>n.extra.type==='fasting'),n=>n.schedule.on.weekday),[1,4]);
+    }
+});
+
+test('dated prayer calendar crosses months, uses distinct daily times, caches requests and respects iOS budget',async()=>{
+    for (const platform of ['android','ios']) {
+        const h=harness({platform,settings:{adhan:true,prePrayer:true,hourlySalawat:true}});
+        h.context.zadPrayerApiSource='https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt';
+        h.context.AbortSignal={timeout:()=>undefined};
+        let requests=0;
+        h.context.fetch=async url=>{
+            requests++;
+            const [,year,month]=url.match(/calendarByCity\/(\d+)\/(\d+)/);
+            const data=[];
+            for(let day=1;day<=new Date(Number(year),Number(month),0).getDate();day++) {
+                const stamp=year+'-'+month.padStart(2,'0')+'-'+String(day).padStart(2,'0');
+                data.push({date:{gregorian:{day:String(day)}},timings:Object.fromEntries(['Fajr','Dhuhr','Asr','Maghrib','Isha'].map((key,i)=>[key,stamp+'T'+String(5+i*3).padStart(2,'0')+':'+String(day).padStart(2,'0')+':00+03:00']))});
+            }
+            return {ok:true,json:async()=>({code:200,data})};
+        };
+        const result=await h.service.schedulePrayers();
+        assert.equal(result.success,true);
+        if(platform==='android') {
+            const alarms=h.calls.native[0].alarmSchedule;
+            assert.ok(alarms.length>=130);
+            assert.equal(new Set(alarms.map(n=>n.at)).size,alarms.length);
+            assert.ok(alarms.some(n=>n.at>Date.now()+12*86400000));
+        } else {
+            assert.equal(h.calls.local.filter(n=>n.id<70000).length,50);
+            assert.ok(h.calls.local.length<64);
+            assert.equal(new Set(h.calls.local.map(n=>n.id)).size,h.calls.local.length);
+        }
+        const count=requests;
+        await h.service.schedulePrayers();
+        assert.equal(requests,count);
+        h.context.zadPrayerVerified=false;
+        await h.service.scheduleLocalNotifications();
+        assert.equal(requests,count);
+    }
+});
+
+test('calendar failure does not invent future prayers and settings changed during fetch are discarded',async()=>{
+    const h=harness({settings:{adhan:true}});
+    h.context.zadPrayerApiSource='https://api.aladhan.com/v1/timings?latitude=1&longitude=1';
+    h.context.AbortSignal={timeout:()=>undefined};
+    h.context.fetch=async()=>{throw Error('offline');};
+    await h.service.schedulePrayers();
+    assert.ok(h.calls.native[0].alarmSchedule.every(n=>new Date(n.at).toDateString()===new Date().toDateString()));
+    h.calls.native.length=0;
+    h.context.fetch=async()=>{h.data.set('smart_notify_settings',JSON.stringify(off));throw Error('offline');};
+    assert.equal((await h.service.schedulePrayers()).success,false);
+    assert.equal(h.calls.native.length,0);
 });

@@ -62,7 +62,7 @@ test('repeated searches share one operation and service failures do not claim th
     try{
         h.w.fetch=async()=>{h.calls.fetch++;throw Error('network');};
         await Promise.all([h.w.requestUserLocationAndFindMosques(),h.w.requestUserLocationAndFindMosques()]);
-        assert.equal(h.calls.fetch,2,'one attempt per endpoint, no automatic radius expansion');
+        assert.equal(h.calls.fetch,7,'two spatial endpoints and five independent fallback terms');
         assert.match(h.w.document.getElementById('mosques-status-box').textContent,/تعذّر الاتصال/);
     }finally{h.dom.window.close();}
 });
@@ -83,4 +83,49 @@ test('mosque search falls back to Photon and accepts worship places only',async(
         assert.match(h.w.document.getElementById('mosques-results-list').textContent,/مسجد بديل/);
         assert.doesNotMatch(h.w.document.getElementById('mosques-results-list').textContent,/مدرسة مسجد/);
     }finally{h.dom.window.close();}
+});
+
+
+test('uncapped spatial search preserves distinct adjacent mosques and merges duplicate OSM objects',async()=>{
+ const h=setup({saved:{lat:0,lng:0}});
+ try {
+  h.w.fetch=async url=>{h.calls.url=url; return {ok:true,json:async()=>({elements:[
+   ...Array.from({length:100},(_,i)=>({type:'node',id:i,lat:0,lon:0.0001+i*0.0001,tags:{religion:'muslim',amenity:'place_of_worship',name:'مسجد '+i}})),
+   {type:'node',id:0,lat:0,lon:0.0001,tags:{religion:'muslim',name:'مسجد 0'}},
+   {type:'way',id:0,center:{lat:0.001,lon:0},tags:{building:'mosque',name:'جامع مستقل'}},
+   {type:'relation',id:3,center:{lat:0.002,lon:0},tags:{building:'mosque',name:'جامع الحي','addr:street':'شارع الكنيسة'}}
+  ]})};};
+  await h.w.requestUserLocationAndFindMosques();
+  const query=decodeURIComponent(h.calls.url);
+  assert.match(query,/out body center;/);
+  assert.doesNotMatch(query,/tags 75/);
+  assert.match(query,/nwr/);
+  const cache=JSON.parse(h.w.localStorage.getItem('zad_mosques_cache_v1'));
+  assert.equal(cache[0].list.length,102);
+  assert.match(h.w.document.getElementById('mosques-results-list').textContent,/جامع الحي/);
+ } finally {h.dom.window.close();}
+});
+
+test('forced refresh offline retains saved results instead of erasing them',async()=>{
+ const h=setup({saved:{lat:0,lng:0}});
+ try {
+  await h.w.requestUserLocationAndFindMosques();
+  Object.defineProperty(h.w.navigator,'onLine',{value:false});
+  await h.w.requestUserLocationAndFindMosques(false,true);
+  assert.match(h.w.document.getElementById('mosques-results-list').textContent,/مسجد قريب/);
+  assert.equal(h.calls.fetch,1);
+ } finally {h.dom.window.close();}
+});
+
+test('fallback keeps successful terms when another term fails and labels limited coverage',async()=>{
+ const h=setup({saved:{lat:0,lng:0}});
+ try {
+  h.w.fetch=async url=>{
+   if(!decodeURIComponent(url).includes('q=جامع')) throw Error('unavailable');
+   return {ok:true,json:async()=>({features:[{geometry:{coordinates:[0.001,0]},properties:{osm_type:'N',osm_id:77,osm_value:'place_of_worship',name:'جامع بديل'}}]})};
+  };
+  await h.w.requestUserLocationAndFindMosques();
+  assert.match(h.w.document.getElementById('mosques-results-list').textContent,/جامع بديل/);
+  assert.match(h.w.document.getElementById('mosques-status-box').textContent,/محدودة/);
+ } finally {h.dom.window.close();}
 });

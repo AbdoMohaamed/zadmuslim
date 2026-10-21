@@ -1807,7 +1807,12 @@ async function fetchPrayerTimes(cityKey) {
     window.zadPrayerVerified = false;
     if (prayerTimerInterval) clearInterval(prayerTimerInterval);
     navigator.serviceWorker?.controller?.postMessage({ type: "SCHEDULE_PRAYERS", schedule: [] });
-    await window.NativeAdhanService?.cancelPrayerAlarms?.();
+    let previous;
+    try { previous=JSON.parse(localStorage.getItem('zad_prayer_verified')||'null'); } catch {}
+    let storedSchedule;
+    try { storedSchedule=JSON.parse(localStorage.getItem('zad_alarm_days')||'null'); } catch {}
+    const scheduleSignature=JSON.stringify([cityKey,localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]);
+    if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0')) await window.NativeAdhanService?.cancelPrayerAlarms?.();
     if (requestVersion !== prayerRequestVersion) return;
     let url;
     let cacheKey;
@@ -1850,6 +1855,7 @@ async function fetchPrayerTimes(cityKey) {
     const school = localStorage.getItem('zad_prayer_school') === '1' ? '1' : '0';
     url += '&school=' + school;
     cacheKey += '_' + methodOverride + '_' + school + '_' + userTz;
+    window.zadPrayerApiSource = url;
     const markVerified = () => {
         window.zadPrayerVerified = true;
         localStorage.setItem('zad_prayer_verified', JSON.stringify({ date: new Date().toLocaleDateString('en-CA'), city: cityKey, method: methodOverride, school }));

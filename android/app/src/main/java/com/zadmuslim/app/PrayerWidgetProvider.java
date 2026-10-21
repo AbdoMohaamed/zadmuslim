@@ -191,7 +191,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
 
     private static void highlightActivePrayerColumn(RemoteViews views, String prayerKey) {
         int activeBg = R.drawable.widget_prayer_col_active;
-        int activeGoldColor = 0xFFFFD4AF37;
+        int activeGoldColor = 0xFFD4AF37;
 
         if ("fajr".equalsIgnoreCase(prayerKey)) {
             views.setInt(R.id.col_fajr, "setBackgroundResource", activeBg);

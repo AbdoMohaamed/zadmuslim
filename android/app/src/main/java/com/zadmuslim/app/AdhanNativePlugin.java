@@ -31,6 +31,34 @@ public class AdhanNativePlugin extends Plugin {
     public static final int STICKY_NOTIF_ID = 10099;
 
     @PluginMethod
+    public void scheduleReminders(PluginCall call) {
+        try {
+            BackgroundReminderReceiver.replace(getContext(),call.getArray("reminders",new com.getcapacitor.JSArray()));
+            JSObject result=new JSObject();result.put("success",true);call.resolve(result);
+        } catch(Exception e) { call.reject("Could not schedule reminders",e); }
+    }
+
+    private static int restorePrepared(Context context, org.json.JSONArray alarms) throws org.json.JSONException {
+        AlarmManager manager=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        int count=0;
+        for(int i=0;i<alarms.length() && i<300;i++) {
+            JSONObject alarm=alarms.getJSONObject(i);
+            long at=alarm.getLong("at");
+            if(at<=System.currentTimeMillis()+1000) continue;
+            Intent intent=new Intent(context,AdhanAlarmReceiver.class).setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
+            intent.putExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT,alarm.optBoolean("isPreAlert"));
+            intent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY,alarm.getString("prayerKey"));
+            intent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME,alarm.getString("prayerName"));
+            intent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN,alarm.optString("muazzin","qatami"));
+            intent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL,alarm.optInt("preAlertInterval",5));
+            intent.putExtra("scheduled_time",at);
+            scheduleExactAlarmStatic(context,manager,at,PendingIntent.getBroadcast(context,60000+i,intent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
+            count++;
+        }
+        return count;
+    }
+
+    @PluginMethod
     public void schedulePrayerAlarms(PluginCall call) {
         JSObject timingsObj = call.getObject("timings");
         if (timingsObj == null) {
@@ -76,6 +104,19 @@ public class AdhanNativePlugin extends Plugin {
         // إلغاء الجدولة القديمة أولاً
         cancelExistingAlarms(context, alarmManager);
 
+        if (call.getArray("alarmSchedule") != null) {
+            try {
+                org.json.JSONArray alarms=call.getArray("alarmSchedule");
+                prefs.edit().putString("prepared_alarms",alarms.toString()).apply();
+                int count=restorePrepared(context,alarms);
+                schedulePeriodicBroadcastCheck(context,alarmManager);
+                PrayerWidgetProvider.updateAllWidgets(context);
+                updateStickyNotificationInternal(context);
+                JSObject result=new JSObject();result.put("success",true);result.put("scheduledCount",count);call.resolve(result);
+            } catch(Exception e) { call.reject("Could not schedule prayer calendar",e); }
+            return;
+        }
+        prefs.edit().remove("prepared_alarms").apply();
         String[] prayerKeys = {"fajr", "dhuhr", "asr", "maghrib", "isha"};
         String[] prayerNames = {"صلاة الفجر", "صلاة الظهر", "صلاة العصر", "صلاة المغرب", "صلاة العشاء"};
         String[] timingKeys = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"};
@@ -315,6 +356,8 @@ public class AdhanNativePlugin extends Plugin {
     public static void rescheduleAlarmsFromPrefs(Context context) {
         try {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            String prepared=prefs.getString("prepared_alarms",null);
+            if(prepared!=null) { restorePrepared(context,new org.json.JSONArray(prepared)); return; }
             String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(new java.util.Date());
             if (!today.equals(prefs.getString("timings_date", ""))) return;
             String jsonStr = prefs.getString("last_timings_json", null);
@@ -460,6 +503,7 @@ public class AdhanNativePlugin extends Plugin {
             }
         } catch (Exception e3) {
             Log.e(TAG, "All alarm scheduling methods failed", e3);
+            throw new IllegalStateException("Could not schedule alarm",e3);
         }
     }
 
@@ -468,6 +512,11 @@ public class AdhanNativePlugin extends Plugin {
     }
 
     public static void cancelExistingAlarmsStatic(Context context, AlarmManager alarmManager) {
+        for(int i=0;i<300;i++) {
+            Intent intent=new Intent(context,AdhanAlarmReceiver.class).setAction(AdhanAlarmReceiver.ACTION_PRAYER_ALARM);
+            PendingIntent pending=PendingIntent.getBroadcast(context,60000+i,intent,PendingIntent.FLAG_NO_CREATE|PendingIntent.FLAG_IMMUTABLE);
+            if(pending!=null) { alarmManager.cancel(pending); pending.cancel(); }
+        }
         for (int dayOffset = 0; dayOffset <= 4; dayOffset++) {
             for (int i = 0; i < 5; i++) {
                 // إلغاء Pre-alert
@@ -525,6 +574,7 @@ public class AdhanNativePlugin extends Plugin {
 
     @PluginMethod
     public void cancelAllAlarms(PluginCall call) {
+        getContext().getSharedPreferences(PREFS_NAME,0).edit().remove("prepared_alarms").remove("last_timings_json").putBoolean("adhan_enabled",false).putBoolean("pre_alert_enabled",false).apply();
         Context context = getContext();
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
