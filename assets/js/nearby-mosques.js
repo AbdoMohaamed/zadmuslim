@@ -2,7 +2,7 @@
  * ZadMuslim V4 — Nearby Mosques Engine (مساجد قريبة منك)
  * نظام متكامل وموثوق لجلب المساجد الحقيقية القريبة من موقع المستخدم بدقة وسرعة
  * يعتمد على خريطة العالم OpenStreetMap عبر محركات Photon و Overpass و Nominatim
- * مع دعم بلجن الموبايل الأصلي (Capacitor) والموقع التقريبي وحفظ الخصوصية 100%
+ * الموقع يُطلب عند استخدام الزر فقط، والنتائج تُحفظ على الجهاز.
  */
 
 (function () {
@@ -13,17 +13,20 @@
     let mosquesList = [];
     let leafletMapInstance = null;
     let markersGroup = null;
+    let busy = false;
+    const CACHE_KEY = 'zad_mosques_cache_v1';
+    const valid = (lat, lon) => window.ZadLocation.valid(lat, lon);
     let activeViewMode = 'list'; // 'list' or 'map'
 
     const OVERPASS_ENDPOINTS = [
         'https://overpass-api.de/api/interpreter',
-        'https://lz4.overpass-api.de/api/interpreter',
-        'https://overpass.kumi.systems/api/interpreter'
+        'https://overpass.private.coffee/api/interpreter'
     ];
 
     function initNearbyMosques() {
         const section = document.getElementById('nearby-mosques-section');
-        if (!section) return;
+        if (!section || section.dataset.mosquesInitialized) return;
+        section.dataset.mosquesInitialized = 'true';
 
         setupSearchButton();
         setupViewSwitchers();
@@ -31,21 +34,56 @@
         setupRadiusFilter();
     }
 
+    async function runTask(task) {
+        if (busy) return;
+        busy = true;
+        const controls = document.querySelectorAll('#nearby-mosques-section button, #nearby-mosques-section input');
+        controls.forEach(el => el.disabled = true);
+        try { return await task(); }
+        catch (error) { handleLocationError(error.message || 'تعذّر البحث. حاول مجددًا.'); }
+        finally { busy = false; controls.forEach(el => el.disabled = false); }
+    }
     function setupSearchButton() {
-        const btnLocate = document.getElementById('btn-find-nearby-mosques');
-        if (btnLocate) {
-            btnLocate.addEventListener('click', async () => {
-                const originalHtml = btnLocate.innerHTML;
-                btnLocate.disabled = true;
-                btnLocate.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-gold"></i> <span>جاري البحث وتحديد أقرب المساجد...</span>';
-                try {
-                    await requestUserLocationAndFind();
-                } finally {
-                    btnLocate.disabled = false;
-                    btnLocate.innerHTML = originalHtml;
-                }
-            });
+        const btn = document.getElementById('btn-find-nearby-mosques');
+        if (!btn || btn.dataset.bound) return;
+        btn.dataset.bound = 'true';
+        btn.removeAttribute('onclick');
+        btn.onclick = () => runTask(() => requestUserLocationAndFind());
+        const refresh = document.createElement('button');
+        refresh.type = 'button'; refresh.className = 'btn outline'; refresh.id = 'btn-refresh-mosques-location';
+        refresh.textContent = 'تحديث موقعي';
+        refresh.onclick = () => runTask(() => requestUserLocationAndFind(true));
+        const reload = document.createElement('button');
+        reload.type = 'button'; reload.className = 'btn outline'; reload.id = 'btn-refresh-mosques-results';
+        reload.textContent = 'تحديث المساجد بالإنترنت';
+        reload.onclick = () => runTask(async () => {
+            if (!valid(currentLat, currentLon)) return requestUserLocationAndFind(false, true);
+            return fetchMosquesAround(currentLat, currentLon, currentRadius, true);
+        });
+        btn.after(refresh, reload);
+        const saved = readCache().at(-1);
+        if (saved && valid(saved.lat, saved.lon)) {
+            currentLat = saved.lat; currentLon = saved.lon; currentRadius = saved.radius;
+            applyMosquesData(saved.list, currentLat, currentLon);
+            cachedStatus(saved);
+            document.querySelectorAll('.mosques-radius-pill').forEach(b => b.classList.toggle('active', Number(b.dataset.radius) === currentRadius));
         }
+    }
+    function readCache() {
+        try { const list = JSON.parse(localStorage.getItem(CACHE_KEY)); return Array.isArray(list) ? list.filter(e => valid(e.lat,e.lon) && Array.isArray(e.list) && e.list.every(m => valid(m.lat,m.lon) && Number.isFinite(m.distanceKm))) : []; }
+        catch { return []; }
+    }
+    function cachedStatus(entry) {
+        updateStatusBox('<div>نتائج محفوظة للموقع المعروض بتاريخ ' + escapeHtml(new Date(entry.time).toLocaleDateString('ar')) + '. معروضة من تخزين الجهاز. استخدم زر التحديث عند الحاجة.</div>');
+    }
+    async function fetchJSON(url, timeout = 12000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        try {
+            const response = await fetch(url, { cache: 'no-store', signal: controller.signal, headers: { Accept: 'application/json' } });
+            if (!response.ok) throw Error('الخدمة غير متاحة حاليًا.');
+            return await response.json();
+        } finally { clearTimeout(timer); }
     }
 
     function setupViewSwitchers() {
@@ -85,7 +123,7 @@
         const doSearch = () => {
             const query = input ? input.value.trim() : '';
             if (!query) return;
-            searchMosquesByCityName(query);
+            runTask(() => searchMosquesByCityName(query));
         };
 
         if (btnSearch) {
@@ -113,193 +151,23 @@
     /**
      * طلب إذن وتحديد الموقع الجغرافي بعدة طبقات أمان لضمان النجاح دائماً
      */
-    async function requestUserLocationAndFind() {
-        updateStatusBox(`
-            <div class="mosques-loading">
-                <i class="fa-solid fa-spinner fa-spin text-gold"></i>
-                <span>جاري تحديد موقعك الجغرافي بدقة... 📍</span>
-            </div>
-        `);
-
-        // 1. أولاً: فحص الإحداثيات المحفوظة في التطبيق مسبقاً (سريعة جداً)
-        let hasSavedLocation = false;
+    async function requestUserLocationAndFind(refresh = false, force = false) {
+        updateStatusBox('<div>جاري استخدام الموقع المحفوظ أو تحديد موقعك عند الحاجة...</div>');
         try {
-            const savedGps = localStorage.getItem('gps_prayer_coords');
-            if (savedGps) {
-                const parsed = JSON.parse(savedGps);
-                if (parsed && (parsed.lat || parsed.latitude) && (parsed.lng || parsed.longitude)) {
-                    currentLat = Number(parsed.lat || parsed.latitude);
-                    currentLon = Number(parsed.lng || parsed.longitude);
-                    if (!isNaN(currentLat) && !isNaN(currentLon) && currentLat !== 0) {
-                        hasSavedLocation = true;
-                    }
-                }
-            }
-        } catch (e) {}
-
-        // 2. تجربة بلجن الموقع الأصلي للموبايل (Capacitor Geolocation)
-        if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
-            const Geolocation = window.Capacitor.Plugins ? window.Capacitor.Plugins.Geolocation : null;
-            if (Geolocation) {
-                try {
-                    let perm = await Geolocation.checkPermissions();
-                    if (perm.location !== 'granted' && perm.coarseLocation !== 'granted') {
-                        perm = await Geolocation.requestPermissions();
-                    }
-
-                    if (perm.location === 'granted' || perm.coarseLocation === 'granted') {
-                        let pos = null;
-                        try {
-                            pos = await Geolocation.getCurrentPosition({
-                                enableHighAccuracy: true,
-                                timeout: 10000,
-                                maximumAge: 300000
-                            });
-                        } catch (highErr) {
-                            pos = await Geolocation.getCurrentPosition({
-                                enableHighAccuracy: false,
-                                timeout: 8000,
-                                maximumAge: 600000
-                            });
-                        }
-
-                        if (pos && pos.coords && pos.coords.latitude && pos.coords.longitude) {
-                            currentLat = pos.coords.latitude;
-                            currentLon = pos.coords.longitude;
-                            try {
-                                localStorage.setItem('gps_prayer_coords', JSON.stringify({ lat: currentLat, lng: currentLon }));
-                            } catch(e) {}
-                            fetchMosquesAround(currentLat, currentLon, currentRadius);
-                            return;
-                        }
-                    }
-                } catch (nativeErr) {
-                    console.warn('Native Capacitor Geolocation notice:', nativeErr);
-                }
-            }
-        }
-
-        // 3. تجربة المتصفح عبر Web Geolocation API
-        if (navigator.geolocation) {
-            try {
-                const browserPos = await getBrowserCoordinates();
-                if (browserPos) {
-                    currentLat = browserPos.latitude;
-                    currentLon = browserPos.longitude;
-                    try {
-                        localStorage.setItem('gps_prayer_coords', JSON.stringify({ lat: currentLat, lng: currentLon }));
-                    } catch(e) {}
-                    fetchMosquesAround(currentLat, currentLon, currentRadius);
-                    return;
-                }
-            } catch (geoErr) {
-                console.warn('Browser geolocation notice:', geoErr);
-            }
-        }
-
-        // 4. إذا كانت هناك إحداثيات صلاة محفوظة مسبقاً، نعتمدها
-        if (hasSavedLocation && currentLat && currentLon) {
-            updateStatusBox(`
-                <div class="mosques-alert mosques-alert-info">
-                    <i class="fa-solid fa-location-dot text-gold"></i>
-                    <div>تم اعتماد موقعك الجغرافي المحفوظ بنجاح، جاري جلب أقرب المساجد... 🕌</div>
-                </div>
-            `);
-            fetchMosquesAround(currentLat, currentLon, currentRadius);
+            const coords = await window.ZadLocation.get({ refresh });
+            currentLat = coords.lat; currentLon = coords.lng;
+        } catch (error) {
+            handleLocationError(window.ZadLocation.errorMessage(error));
             return;
         }
-
-        // 5. البديل الذكي: التحديد التقريبي عبر شبكة الإنترنت (IP Geolocation)
-        try {
-            updateStatusBox(`
-                <div class="mosques-loading">
-                    <i class="fa-solid fa-spinner fa-spin text-gold"></i>
-                    <span>جاري تحديد موقعك التقريبي عبر شبكة الإنترنت... 🌐</span>
-                </div>
-            `);
-            const ipData = await getIpLocation();
-            if (ipData && ipData.lat && ipData.lon) {
-                currentLat = ipData.lat;
-                currentLon = ipData.lon;
-                fetchMosquesAround(currentLat, currentLon, currentRadius);
-                return;
-            }
-        } catch (ipErr) {
-            console.warn('IP geocoding fallback error:', ipErr);
-        }
-
-        // 6. في حال تعذر جميع الطرق: استخدام مدينة افتراضية معروفة مع حقل البحث
-        const defaultCity = detectDefaultCityCoords();
-        currentLat = defaultCity.lat;
-        currentLon = defaultCity.lon;
-        fetchMosquesAround(currentLat, currentLon, currentRadius);
-        handleLocationError(`تعذر تحديد موقع GPS بدقة. تم عرض مساجد (${defaultCity.name})، ويمكنك كتابة اسم مدينتك أو حيك في الحقل أدناه.`);
-    }
-
-    function getBrowserCoordinates() {
-        return new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => resolve(pos.coords),
-                (err1) => {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos2) => resolve(pos2.coords),
-                        (err2) => reject(err2 || err1),
-                        { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
-                    );
-                },
-                { enableHighAccuracy: true, timeout: 12000, maximumAge: 300000 }
-            );
-        });
-    }
-
-    async function getIpLocation() {
-        try {
-            const res = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client', { signal: AbortSignal.timeout(4000) });
-            if (res.ok) {
-                const data = await res.json();
-                if (typeof data.latitude === 'number' && typeof data.longitude === 'number') {
-                    return { lat: data.latitude, lon: data.longitude };
-                }
-            }
-        } catch(e) {}
-
-        try {
-            const res2 = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(4000) });
-            if (res2.ok) {
-                const data2 = await res2.json();
-                if (data2 && data2.success && data2.latitude && data2.longitude) {
-                    return { lat: data2.latitude, lon: data2.longitude };
-                }
-            }
-        } catch(e) {}
-
-        return null;
-    }
-
-    function detectDefaultCityCoords() {
-        try {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-            if (tz.includes("Riyadh") || tz.includes("Saudi") || tz.includes("Qatar") || tz.includes("Kuwait")) {
-                return { name: "الرياض", lat: 24.7136, lon: 46.6753 };
-            }
-            if (tz.includes("Dubai") || tz.includes("Muscat")) {
-                return { name: "دبي", lat: 25.2048, lon: 55.2708 };
-            }
-            if (tz.includes("Amman") || tz.includes("Jerusalem") || tz.includes("Damascus") || tz.includes("Beirut")) {
-                return { name: "القدس الشريف", lat: 31.7683, lon: 35.2137 };
-            }
-            if (tz.includes("Baghdad")) {
-                return { name: "بغداد", lat: 33.3152, lon: 44.3661 };
-            }
-        } catch(e) {}
-        return { name: "القاهرة", lat: 30.0444, lon: 31.2357 };
+        return fetchMosquesAround(currentLat, currentLon, currentRadius, force || refresh);
     }
 
     function handleLocationError(msg) {
         updateStatusBox(`
             <div class="mosques-alert mosques-alert-warning">
                 <i class="fa-solid fa-location-crosshairs"></i>
-                <div>${msg}</div>
+                <div>${escapeHtml(msg)}</div>
             </div>
         `, true);
     }
@@ -315,8 +183,8 @@
                 const rad = parseInt(btn.getAttribute('data-radius'), 10);
                 if (rad && rad > 0) {
                     currentRadius = rad;
-                    if (currentLat && currentLon) {
-                        fetchMosquesAround(currentLat, currentLon, currentRadius);
+                    if (valid(currentLat, currentLon)) {
+                        runTask(() => fetchMosquesAround(currentLat, currentLon, currentRadius));
                     }
                 }
             });
@@ -326,62 +194,30 @@
     /**
      * جلب المساجد القريبة عبر خريطة العالم OpenStreetMap مع دمج متزامن لأدق المحركات (Photon + Nominatim)
      */
-    async function fetchMosquesAround(lat, lon, radiusMeters) {
-        const rad = radiusMeters || currentRadius || 5000;
-        const radKm = (rad / 1000).toFixed(0);
-
-        updateStatusBox(`
-            <div class="mosques-loading">
-                <i class="fa-solid fa-spinner fa-spin text-gold"></i>
-                <span>جاري البحث الشامل عن جميع المساجد والجوامع القريبة (نطاق ${radKm} كم)... 🕌</span>
-            </div>
-        `);
-
-        // محرك Photon الفوري فائق السرعة والموثوقية + Nominatim بالتوازي
-        const [photonRes, nominatimRes] = await Promise.allSettled([
-            fetchMosquesViaPhoton(lat, lon, rad),
-            fetchMosquesViaNominatim(lat, lon, rad)
-        ]);
-
-        let combined = [];
-        if (photonRes.status === 'fulfilled' && Array.isArray(photonRes.value)) {
-            combined = combined.concat(photonRes.value);
+    async function fetchMosquesAround(lat, lon, radiusMeters, force = false) {
+        const rad = radiusMeters || currentRadius;
+        const key = lat.toFixed(4) + ',' + lon.toFixed(4) + ',' + rad;
+        const saved = readCache().find(e => e.key === key);
+        if (saved && !force) { applyMosquesData(saved.list, lat, lon); cachedStatus(saved); return; }
+        if (navigator.onLine === false) {
+            if (saved) { applyMosquesData(saved.list, lat, lon); cachedStatus(saved); }
+            else { mosquesList = []; renderMosquesList([]); renderMapMarkers(); handleLocationError('لا توجد نتائج محفوظة لهذا الموقع والنطاق. اتصل بالإنترنت مرة واحدة لتحميل المساجد.'); }
+            return;
         }
-        if (nominatimRes.status === 'fulfilled' && Array.isArray(nominatimRes.value)) {
-            combined = combined.concat(nominatimRes.value);
-        }
-
-        // دمج النتائج وحذف التكرار الجغرافي والفرز الأقرب فالأقرب
-        const deduplicated = deduplicateAndCleanMosques(combined, lat, lon, rad);
-
-        if (deduplicated && deduplicated.length > 0) {
-            applyMosquesData(deduplicated, lat, lon);
-        } else {
-            // محاولة توسيع النطاق تلقائياً إن لم نجد مساجد في نطاق ضيق
-            if (rad < 15000) {
-                updateStatusBox(`
-                    <div class="mosques-loading">
-                        <i class="fa-solid fa-spinner fa-spin text-gold"></i>
-                        <span>لم نجد مساجد مسجلة في نطاق ${radKm} كم، جاري توسيع نطاق البحث إلى 15 كم تلقائياً... 🔍</span>
-                    </div>
-                `);
-                fetchMosquesAround(lat, lon, 15000);
-                return;
-            }
-
-            updateStatusBox(`
-                <div class="mosques-alert mosques-alert-warning">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <div>لم يتم العثور على مساجد مسجلة في هذا النطاق، يمكنك توسيع نطاق البحث إلى 10 كم أو 20 كم أو البحث باسم المدينة أو الحي أدناه.</div>
-                </div>
-            `, true);
-            renderMosquesList([]);
+        updateStatusBox('<div>جاري البحث عن المساجد في نطاق ' + rad / 1000 + ' كم...</div>');
+        try {
+            const data = await fetchMosquesViaOverpass(lat, lon, rad);
+            const list = deduplicateAndCleanMosques(data, lat, lon, rad);
+            applyMosquesData(list, lat, lon);
+            const entry = { key, lat, lon, radius: rad, time: Date.now(), list };
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify([...readCache().filter(e => e.key !== key), entry].slice(-5))); } catch {}
+            if (!list.length) handleLocationError('لا توجد مساجد مسجلة في هذا النطاق. اختر نطاقًا أوسع أو ابحث باسم المدينة.');
+        } catch (error) {
+            if (saved) { applyMosquesData(saved.list, lat, lon); cachedStatus(saved); }
+            else { mosquesList = []; renderMosquesList([]); renderMapMarkers(); handleLocationError('تعذّر الاتصال بخدمة المساجد. تحقق من الإنترنت وحاول مجددًا؛ لا يعني ذلك عدم وجود مساجد.'); }
         }
     }
 
-    /**
-     * تنسيق وتحويل أسماء المساجد إلى العربية الفصحى الواضحة وإثراء الأسماء العامة باسم الشارع أو الحي
-     */
     function formatArabicMosqueName(name, street, district, tags) {
         tags = tags || {};
         let n = (name || '').trim();
@@ -432,7 +268,7 @@
      */
     function deduplicateAndCleanMosques(list, userLat, userLon, maxRadiusMeters) {
         const unique = [];
-        const maxKm = (maxRadiusMeters ? maxRadiusMeters / 1000 : 25) * 1.25;
+        const maxKm = (maxRadiusMeters ? maxRadiusMeters / 1000 : 25);
 
         list.forEach(item => {
             if (!item || typeof item.lat !== 'number' || typeof item.lon !== 'number') return;
@@ -491,84 +327,9 @@
     /**
      * 1. جلب المساجد عبر Photon OSM بكلمات بحث متعددة بالتوازي
      */
-    async function fetchMosquesViaPhoton(lat, lon, radiusMeters) {
-        try {
-            const list = [];
-            const seen = new Set();
-            const radiusKm = radiusMeters ? radiusMeters / 1000 : 10;
-
-            const urls = [
-                `https://photon.komoot.io/api/?q=%D9%85%D8%B3%D8%AC%D8%AF&lat=${lat}&lon=${lon}&limit=100`,
-                `https://photon.komoot.io/api/?q=%D8%AC%D8%A7%D9%85%D8%B9&lat=${lat}&lon=${lon}&limit=100`,
-                `https://photon.komoot.io/api/?q=mosque&lat=${lat}&lon=${lon}&limit=100`,
-                `https://photon.komoot.io/api/?q=%D9%85%D8%B5%D9%84%D9%89&lat=${lat}&lon=${lon}&limit=50`,
-                `https://photon.komoot.io/api/?q=%D8%B2%D8%A7%D9%88%D9%8A%D8%A9&lat=${lat}&lon=${lon}&limit=50`,
-                `https://photon.komoot.io/api/?q=masjid&lat=${lat}&lon=${lon}&limit=50`
-            ];
-
-            const fetchPromises = urls.map(url =>
-                fetch(url, { signal: AbortSignal.timeout(6500) })
-                    .then(r => r.ok ? r.json() : null)
-                    .catch(() => null)
-            );
-
-            const results = await Promise.all(fetchPromises);
-            results.forEach(data => {
-                if (data && data.features) {
-                    parsePhotonFeatures(data.features, lat, lon, list, seen, radiusKm);
-                }
-            });
-
-            return list;
-        } catch (err) {
-            console.warn('Photon fetch notice:', err);
-            return [];
-        }
-    }
-
-    function parsePhotonFeatures(features, userLat, userLon, list, seen, maxRadiusKm) {
-        features.forEach(f => {
-            if (!f.geometry || !f.geometry.coordinates) return;
-            const lon = f.geometry.coordinates[0];
-            const lat = f.geometry.coordinates[1];
-            if (!lat || !lon) return;
-
-            const distKm = calculateDistanceKm(userLat, userLon, lat, lon);
-            if (maxRadiusKm && distKm > maxRadiusKm * 1.3) return;
-
-            const props = f.properties || {};
-            const key = props.osm_id || `${lat.toFixed(4)},${lon.toFixed(4)}`;
-            if (seen.has(key)) return;
-            seen.add(key);
-
-            const street = props.street || '';
-            const district = props.district || props.locality || props.suburb || '';
-            const city = props.city || props.county || props.state || '';
-            const rawName = props.name || '';
-
-            const name = formatArabicMosqueName(rawName, street, district, props);
-
-            const addressParts = [street, district, city].filter(Boolean);
-            const address = addressParts.join('، ') || 'الموقع محدد على الخريطة بدقة';
-
-            list.push({
-                id: props.osm_id || Math.random().toString(36).substring(2),
-                name: name,
-                lat: lat,
-                lon: lon,
-                distanceKm: distKm,
-                address: address,
-                tags: props
-            });
-        });
-    }
-
-    /**
-     * 2. جلب المساجد عبر Overpass API الفضائي الجغرافي بأشمل الكويريز
-     */
     async function fetchMosquesViaOverpass(lat, lon, radiusMeters) {
         const rad = Math.min(radiusMeters || 5000, 20000);
-        const query = `[out:json][timeout:8];(
+        const query = `[out:json][timeout:15];(
   node["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${lat},${lon});
   way["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${lat},${lon});
   relation["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${lat},${lon});
@@ -579,33 +340,32 @@
 );
 out center 65;`;
 
-        for (const endpoint of OVERPASS_ENDPOINTS) {
+        for (const endpoint of OVERPASS_ENDPOINTS.slice(0, 1)) {
             try {
-                const url = `${endpoint}?data=${encodeURIComponent(query)}`;
-                const response = await fetch(url, {
-                    headers: { 'Accept': 'application/json' },
-                    signal: AbortSignal.timeout(7500)
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.elements && data.elements.length > 0) {
-                        return parseOverpassElements(data.elements, lat, lon);
-                    }
-                }
-            } catch (err) {
-                console.warn(`Overpass endpoint ${endpoint} failed:`, err);
-            }
+                const data = await fetchJSON(endpoint + '?data=' + encodeURIComponent(query), 12000);
+                if (!Array.isArray(data.elements) || data.remark) throw Error('Incomplete result');
+                return parseOverpassElements(data.elements, lat, lon);
+            } catch (error) { /* Try the second endpoint once. */ }
         }
-        return [];
+        const data = await fetchJSON('https://photon.komoot.io/api/?q=' + encodeURIComponent('مسجد') + '&lat=' + lat + '&lon=' + lon + '&limit=50', 10000);
+        if (!Array.isArray(data.features)) throw Error('تعذّر الاتصال بخدمة المساجد.');
+        return data.features.flatMap(feature => {
+            const [lng, latitude] = feature.geometry?.coordinates || [];
+            const tags = feature.properties || {};
+            if (!valid(latitude, lng) || !['place_of_worship','mosque'].includes(tags.osm_value)) return [];
+            const name = formatArabicMosqueName(tags.name, tags.street, tags.district, tags);
+            return [{ id: tags.osm_id, lat: latitude, lon: lng, name, tags,
+                address: [tags.street, tags.city, tags.country].filter(Boolean).join('، '),
+                distanceKm: calculateDistanceKm(lat, lon, latitude, lng) }];
+        });
     }
 
     function parseOverpassElements(elements, userLat, userLon) {
         const list = [];
         elements.forEach(el => {
-            const lat = el.lat || (el.center ? el.center.lat : null);
-            const lon = el.lon || (el.center ? el.center.lon : null);
-            if (!lat || !lon) return;
+            const lat = el.lat ?? el.center?.lat;
+            const lon = el.lon ?? el.center?.lon;
+            if (!valid(lat, lon)) return;
 
             const tags = el.tags || {};
             // استبعاد غير المسلمين إن وجد
@@ -637,65 +397,6 @@ out center 65;`;
 
     /**
      * 3. جلب المساجد عبر Nominatim Bounding Box باللغة العربية كبديل ومصدر إضافي
-     */
-    async function fetchMosquesViaNominatim(lat, lon, radiusMeters) {
-        try {
-            const delta = Math.max(0.045, (radiusMeters || 5000) / 111000);
-            const viewbox = `${lon - delta},${lat + delta},${lon + delta},${lat - delta}`;
-            const urls = [
-                `https://nominatim.openstreetmap.org/search?format=json&q=%D9%85%D8%B3%D8%AC%D8%AF&bounded=1&viewbox=${viewbox}&limit=50&addressdetails=1&accept-language=ar`,
-                `https://nominatim.openstreetmap.org/search?format=json&q=%D8%AC%D8%A7%D9%85%D8%B9&bounded=1&viewbox=${viewbox}&limit=50&addressdetails=1&accept-language=ar`
-            ];
-
-            const fetchPromises = urls.map(url =>
-                fetch(url, {
-                    headers: { 'Accept': 'application/json' },
-                    signal: AbortSignal.timeout(6000)
-                }).then(r => r.ok ? r.json() : []).catch(() => [])
-            );
-
-            const allResults = await Promise.all(fetchPromises);
-            const list = [];
-            const seen = new Set();
-
-            allResults.flat().forEach(item => {
-                const itemLat = parseFloat(item.lat);
-                const itemLon = parseFloat(item.lon);
-                if (!itemLat || !itemLon) return;
-
-                const key = item.osm_id || `${itemLat.toFixed(4)},${itemLon.toFixed(4)}`;
-                if (seen.has(key)) return;
-                seen.add(key);
-
-                const rawName = item.name || (item.display_name ? item.display_name.split('،')[0].split(',')[0] : '');
-                const addr = item.address || {};
-                const street = addr.road || addr.street || '';
-                const district = addr.suburb || addr.neighbourhood || addr.city_district || '';
-                const name = formatArabicMosqueName(rawName, street, district, item);
-
-                const address = item.display_name || 'الموقع محدد على الخريطة';
-                const distKm = calculateDistanceKm(lat, lon, itemLat, itemLon);
-
-                list.push({
-                    id: item.osm_id || item.place_id,
-                    name: name,
-                    lat: itemLat,
-                    lon: itemLon,
-                    distanceKm: distKm,
-                    address: address,
-                    tags: item
-                });
-            });
-
-            return list;
-        } catch (e) {
-            console.warn('Nominatim fallback notice:', e);
-        }
-        return [];
-    }
-
-    /**
-     * حساب المسافة بالهافرساين (Haversine Formula) بالكيلومتر
      */
     function calculateDistanceKm(lat1, lon1, lat2, lon2) {
         const R = 6371; // نصف قطر الأرض بالكيلومتر
@@ -763,7 +464,7 @@ out center 65;`;
                         </div>
                     </div>
                     <div class="mosque-actions">
-                        <button type="button" class="btn btn-sm btn-gold btn-directions" onclick="openMosqueDirections(${m.lat}, ${m.lon}, '${escapeSingleQuote(m.name)}')">
+                        <button type="button" class="btn btn-sm btn-gold btn-directions" onclick="openMosqueDirections(${m.lat}, ${m.lon}, '')">
                             <i class="fa-solid fa-diamond-turn-right"></i>
                             <span>الاتجاهات</span>
                         </button>
@@ -802,69 +503,31 @@ out center 65;`;
      * البحث الاحتياطي باسم المدينة
      */
     async function searchMosquesByCityName(cityName) {
-        updateStatusBox(`
-            <div class="mosques-loading">
-                <i class="fa-solid fa-spinner fa-spin text-gold"></i>
-                <span>جاري البحث عن موقع "${escapeHtml(cityName)}"...</span>
-            </div>
-        `);
-
+        if (navigator.onLine === false) return handleLocationError('البحث عن مدينة جديدة يحتاج الإنترنت. يمكنك عرض النتائج المحفوظة.');
+        updateStatusBox('<div>جاري البحث عن ' + escapeHtml(cityName) + '...</div>');
         try {
-            // محاولة Photon أولاً
-            let foundLat = null;
-            let foundLon = null;
-
+            let lat, lon;
             try {
-                const photonRes = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(cityName)}&limit=1`, {
-                    signal: AbortSignal.timeout(5000)
-                });
-                if (photonRes.ok) {
-                    const data = await photonRes.json();
-                    if (data && data.features && data.features.length > 0) {
-                        foundLon = data.features[0].geometry.coordinates[0];
-                        foundLat = data.features[0].geometry.coordinates[1];
-                    }
-                }
-            } catch (e1) {}
-
-            // محاولة Nominatim ثانياً
-            if (!foundLat || !foundLon) {
-                try {
-                    const nomRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`, {
-                        headers: { 'Accept': 'application/json' },
-                        signal: AbortSignal.timeout(5000)
-                    });
-                    if (nomRes.ok) {
-                        const data = await nomRes.json();
-                        if (data && data.length > 0) {
-                            foundLat = parseFloat(data[0].lat);
-                            foundLon = parseFloat(data[0].lon);
-                        }
-                    }
-                } catch (e2) {}
+                const data = await fetchJSON('https://photon.komoot.io/api/?q=' + encodeURIComponent(cityName) + '&limit=1');
+                [lon, lat] = data.features?.[0]?.geometry?.coordinates || [];
+            } catch {}
+            if (!valid(lat, lon)) {
+                const data = await fetchJSON('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(cityName) + '&limit=1&accept-language=ar');
+                lat = Number(data[0]?.lat); lon = Number(data[0]?.lon);
             }
-
-            if (foundLat && foundLon) {
-                currentLat = foundLat;
-                currentLon = foundLon;
-                fetchMosquesAround(foundLat, foundLon, 7000);
-            } else {
-                handleLocationError(`لم نتمكن من العثور على موقع "${cityName}". يرجى كتابة اسم مدينة معروف مثل: القاهرة، مكة، الرياض.`);
-            }
-        } catch (e) {
-            handleLocationError('حدث خطأ أثناء البحث، يرجى إعادة المحاولة.');
-        }
+            if (!valid(lat, lon)) return handleLocationError('لم نعثر على المدينة. اكتب اسم المدينة والدولة.');
+            currentLat = lat; currentLon = lon;
+            return await fetchMosquesAround(lat, lon, currentRadius);
+        } catch { handleLocationError('تعذّر البحث عن المدينة. تحقق من الإنترنت وحاول مجددًا.'); }
     }
 
-    /**
-     * إعداد خريطة Leaflet وعرض العلامات التفاعلية
-     */
     function ensureLeafletMapLoaded() {
         const mapDiv = document.getElementById('mosques-leaflet-map');
-        if (!mapDiv || typeof L === 'undefined') return;
+        if (!mapDiv) return;
+        if (typeof L === 'undefined' || navigator.onLine === false) { mapDiv.textContent = 'عرض الخريطة يحتاج الإنترنت. يمكنك استخدام قائمة المساجد المحفوظة.'; return; }
 
-        const defaultLat = currentLat || 21.4225; // مكة المكرمة كافتراضي
-        const defaultLon = currentLon || 39.8262;
+        const defaultLat = currentLat ?? 21.4225; // مكة المكرمة كافتراضي
+        const defaultLon = currentLon ?? 39.8262;
 
         if (!leafletMapInstance) {
             leafletMapInstance = L.map('mosques-leaflet-map').setView([defaultLat, defaultLon], 14);
@@ -877,7 +540,7 @@ out center 65;`;
             markersGroup = L.layerGroup().addTo(leafletMapInstance);
         } else {
             leafletMapInstance.invalidateSize();
-            if (currentLat && currentLon) {
+            if (valid(currentLat, currentLon)) {
                 leafletMapInstance.setView([currentLat, currentLon], 14);
             }
         }
@@ -891,7 +554,7 @@ out center 65;`;
         markersGroup.clearLayers();
 
         // علامة موقع المستخدم
-        if (currentLat && currentLon) {
+        if (valid(currentLat, currentLon)) {
             const userIcon = L.divIcon({
                 className: 'user-location-marker',
                 html: '<div style="background:#10b981; width:18px; height:18px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>',
@@ -917,7 +580,7 @@ out center 65;`;
                     <div style="font-size:12px; color:#666; margin:4px 0;">${escapeHtml(m.address)}</div>
                     <div style="font-size:12px; font-weight:bold; color:#d4af37;">المسافة: ${(m.distanceKm < 1 ? Math.round(m.distanceKm * 1000) + ' متر' : m.distanceKm.toFixed(1) + ' كم')}</div>
                     <div style="margin-top:8px;">
-                        <button onclick="openMosqueDirections(${m.lat}, ${m.lon}, '${escapeSingleQuote(m.name)}')" style="background:#064034; color:white; border:none; padding:4px 10px; border-radius:6px; font-size:12px; cursor:pointer;">
+                        <button onclick="openMosqueDirections(${m.lat}, ${m.lon}, '')" style="background:#064034; color:white; border:none; padding:4px 10px; border-radius:6px; font-size:12px; cursor:pointer;">
                             الاتجاهات ↗
                         </button>
                     </div>
@@ -926,13 +589,13 @@ out center 65;`;
             marker.addTo(markersGroup);
         });
 
-        if (mosquesList.length > 0 && currentLat && currentLon) {
+        if (mosquesList.length > 0 && valid(currentLat, currentLon)) {
             leafletMapInstance.setView([currentLat, currentLon], 14);
         }
     }
 
     window.initNearbyMosques = initNearbyMosques;
-    window.requestUserLocationAndFindMosques = requestUserLocationAndFind;
+    window.requestUserLocationAndFindMosques = () => runTask(() => requestUserLocationAndFind());
 
     document.addEventListener('DOMContentLoaded', () => {
         initNearbyMosques();

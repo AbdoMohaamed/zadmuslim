@@ -125,4 +125,4 @@ function updateHtmlFile(filePath) {
 }
 
 updateHtmlFile(path.join(__dirname, '..', 'services.html'));
-updateHtmlFile(path.join(__dirname, '..', 'app.html'));
+// The canonical Quran reader is in services.html.

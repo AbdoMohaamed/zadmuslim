@@ -4,9 +4,10 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v57";
+const CACHE_NAME = "zad-muslim-v60";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
+  "./assets/js/location-service.js?v=1",
   "./assets/css/style.css?v=96",
   "./assets/js/theme-controller.js",
   "./assets/css/user-tools.css?v=3",
@@ -20,28 +21,27 @@ const ASSETS_TO_CACHE = [
   "./assets/js/islamic-stories-data.js?v=3",
   "./assets/js/media-data.js?v=2",
   "./assets/js/firebase-config.js",
-  "./assets/js/native-adhan-service.js?v=5",
+  "./assets/js/native-adhan-service.js?v=6",
   "./assets/js/onesignal-service.js?v=1",
-  "./assets/js/app.js?v=18",
+  "./assets/js/app.js?v=19",
   "./assets/js/quran.js?v=26",
-  "./assets/js/extended-modules.js?v=28",
+  "./assets/js/extended-modules.js?v=30",
   "./assets/js/smart-khatma.js?v=1",
   "./assets/js/share-card-generator.js?v=1",
   "./assets/js/mood-compass.js?v=1",
   "./assets/js/smart-tasbih.js?v=1",
   "./assets/js/prayer-guide.js?v=1",
-  "./assets/js/user-tools.js?v=3",
+  "./assets/js/user-tools.js?v=5",
   "./assets/js/zakat-calculator.js?v=1",
-  "./assets/js/nearby-mosques.js?v=7",
+  "./assets/js/nearby-mosques.js?v=8",
   "./assets/js/wall-of-duas.js?v=1",
   "./",
   "./index.html",
   "./services.html",
-  "./app.html",
   "./settings.html",
   "./assets/js/prayer-cities.js?v=1",
   "./privacy.html",
-  "./assets/js/user-tools.js?v=3",
+  "./assets/js/user-tools.js?v=5",
   "./assets/css/user-tools.css?v=3",
   "./assets/css/style.css",
   "./assets/images/logo.png",
@@ -148,6 +148,8 @@ self.addEventListener("fetch", (event) => {
   const url = event.request.url;
   // Private APIs and live prayer data must never be returned from an old cache.
   const parsedUrl = new URL(url);
+  // Mosque results have their own bounded, user-refreshable local cache.
+  if (['overpass-api.de', 'overpass.private.coffee', 'photon.komoot.io', 'nominatim.openstreetmap.org'].includes(parsedUrl.hostname)) return;
   if (event.request.method !== 'GET' || parsedUrl.pathname.startsWith('/api/') || url.includes('api.aladhan.com') || parsedUrl.pathname.endsWith('/admin.html') || url.includes('identitytoolkit.googleapis.com') || url.includes('securetoken.googleapis.com')) return;
   const managed = url.includes('/assets/quran-pages/') || url.includes('api.alquran.cloud/v1/page/') || url.includes('server8.mp3quran.net/afs/');
   if (managed) {

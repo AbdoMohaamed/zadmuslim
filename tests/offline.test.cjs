@@ -25,7 +25,7 @@ test('offline downloaded audio supports byte-range playback and rejects invalid 
 });
 test('private APIs, live prayer requests and admin HTML never enter service worker cache',()=>{
     const handlers=worker(new Response('stale'));
-    for(const url of ['https://zad.test/api/send-push','https://zad.test/admin.html','https://api.aladhan.com/v1/timings']){
+    for(const url of ['https://zad.test/api/send-push','https://zad.test/admin.html','https://api.aladhan.com/v1/timings','https://photon.komoot.io/api/?q=mosque','https://overpass-api.de/api/interpreter']){
         let intercepted=false;
         handlers.fetch({request:new Request(url),respondWith(){intercepted=true;}});
         assert.equal(intercepted,false,url);

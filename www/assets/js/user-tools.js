@@ -85,25 +85,16 @@
 
     function go(id) {
         close();
-        if (typeof root.switchAppTab === 'function') {
-            if (id === 'quran-khatma') root.switchAppTab('quran');
-            else if (id === 'azkar') root.switchAppTab('daily');
-            else if (id === 'islamic-media') root.switchAppTab('media');
-            else if (id === 'tasbeeh') root.openServiceInApp('tasbeeh');
-            else if (id === 'sadaqa') root.showModal?.('sadaqa');
-            else root.openServiceInApp(id);
+        if (id === 'tasbeeh') {
+            const el = document.getElementById('smart-dhikr-panel');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            else location.href = 'index.html#smart-dhikr-panel';
+        } else if (id === 'sadaqa') {
+            const el = document.getElementById('sadaqa');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            else location.href = 'index.html#sadaqa';
         } else {
-            if (id === 'tasbeeh') {
-                const el = document.getElementById('smart-dhikr-panel');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                else location.href = 'index.html#smart-dhikr-panel';
-            } else if (id === 'sadaqa') {
-                const el = document.getElementById('sadaqa');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                else location.href = 'index.html#sadaqa';
-            } else {
-                location.href = 'services.html#' + id;
-            }
+            location.href = 'services.html#' + id;
         }
     }
 
@@ -354,29 +345,6 @@
         const listToRender = activeServices.length ? activeServices : services.slice(0, 5);
 
         // 1. تحديث شبكة اختصارات الصفحة الرئيسية في التطبيق
-        const quickGrid = document.querySelector('.app-quick-tools-grid');
-        if (quickGrid) {
-            quickGrid.style.gridTemplateColumns = `repeat(${Math.min(listToRender.length, 6)}, 1fr)`;
-            quickGrid.replaceChildren();
-            listToRender.forEach(([id, name, icon]) => {
-                const btn = document.createElement('button');
-                btn.className = 'app-quick-tool-btn';
-                btn.type = 'button';
-                btn.setAttribute('data-service', id);
-                btn.onclick = (e) => { e.preventDefault(); go(id); };
-                const circle = document.createElement('div');
-                circle.className = 'app-tool-icon-circle';
-                const glyph = document.createElement('i');
-                glyph.className = 'fa-solid fa-' + icon + (icon === 'circle-play' ? ' text-gold' : '');
-                circle.appendChild(glyph);
-                const span = document.createElement('span');
-                span.textContent = name === 'القرآن' ? 'المصحف' : (name === 'الأذكار' ? 'أذكاري' : name);
-                btn.append(circle, span);
-                quickGrid.appendChild(btn);
-            });
-        }
-
-        // 2. تحديث شبكة الوصول السريع في الصفحة الرئيسية للموقع (index.html)
         const webGrid = document.querySelector('.features.quick-access-grid');
         if (webGrid) {
             webGrid.replaceChildren();
@@ -386,7 +354,7 @@
                 const card = document.createElement('a');
                 card.className = 'feature';
                 card.href = id === 'tasbeeh' ? '#smart-dhikr-panel' : (id === 'sadaqa' ? '#sadaqa' : 'services.html#' + id);
-                card.onclick = (e) => { e.preventDefault(); go(id); };
+                card.dataset.service = id;
                 card.innerHTML = `
                     <div class="fi">${meta.fi}</div>
                     <h3>${meta.title}</h3>
@@ -420,11 +388,19 @@
                 navigator.serviceWorker.register('./sw.js').catch(() => status('تعذّر تجهيز القراءة بدون إنترنت؛ أعد المحاولة عند الاتصال.'));
             }
             let destination = 'index.html';
+            let destTitle = 'الرئيسية';
             try {
                 const ref = new URL(document.referrer);
-                if (ref.origin === location.origin && /\/(app|index|services)\.html$/.test(ref.pathname)) destination = ref.pathname.split('/').pop();
+                if (ref.origin === location.origin && /\/(index|services)\.html$/.test(ref.pathname)) {
+                    destination = ref.pathname.split('/').pop();
+                    if (destination === 'services.html') destTitle = 'الخدمات';
+                }
             } catch {}
-            if ($('btn-settings-back')) $('btn-settings-back').href = destination;
+            if ($('btn-settings-back')) {
+                $('btn-settings-back').href = destination;
+                const label = $('btn-settings-back').querySelector('span');
+                if (label) label.textContent = destTitle;
+            }
             if ($('settings-open-notifications')) $('settings-open-notifications').href = destination + '?panel=notifications';
         }
 
@@ -861,26 +837,6 @@
         }
 
         // إضافة لوحة إعدادات تاب المزيد في التطبيق
-        const host = $('pane-more')?.querySelector('.app-container');
-        if (host && !host.querySelector('.zad-personal-panel')) {
-            const panel = document.createElement('section'); panel.className = 'panel zad-personal-panel';
-            panel.innerHTML = `
-                <div class="zad-personal-panel-header">
-                    <div>
-                        <h3><i class="fa-solid fa-sliders text-gold"></i> إعداداتك وبياناتك</h3>
-                        <p>تخصيص المواقيت، الخطوط، التنزيلات بدون إنترنت، والنسخ الاحتياطي</p>
-                    </div>
-                </div>
-                <div class="zad-personal-panel-actions">
-                    <button type="button" class="btn btn-gold zad-open-tools"><i class="fa-solid fa-gear"></i> ضبط الإعدادات</button>
-                    <a href="settings.html" class="btn btn-outline" style="text-decoration: none;"><i class="fa-solid fa-sliders"></i> صفحة الإعدادات الشاملة ↗</a>
-                    <button type="button" class="btn btn-outline zad-open-downloads"><i class="fa-solid fa-cloud-arrow-down"></i> التنزيلات أوفلاين</button>
-                </div>
-                <div class="zad-favorite-links"></div>
-            `;
-            host.prepend(panel);
-        }
-
         document.querySelectorAll('.zad-open-tools').forEach(btn => btn.onclick = () => open().catch(e => status(e.message)));
         document.querySelectorAll('.zad-open-downloads').forEach(btn => btn.onclick = () => open('downloads').catch(e => status(e.message)));
 

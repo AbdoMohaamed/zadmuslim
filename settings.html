@@ -371,9 +371,14 @@
                     <span>الإعدادات والتخصيص</span>
                 </h1>
             </div>
-            <button class="settings-theme-btn btn-theme-toggle" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر">
-                <i class="fa-solid fa-moon"></i>
-            </button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <a href="services.html" class="settings-theme-btn" id="btn-settings-services" title="تصفح جميع الخدمات والعبادات" aria-label="الخدمات والعبادات" style="text-decoration: none; display: grid; place-items: center;">
+                    <i class="fa-solid fa-shapes text-gold" style="font-size: 0.95rem;"></i>
+                </a>
+                <button class="settings-theme-btn btn-theme-toggle" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
         </header>
 
         <!-- شريط التنقل السريع بين أقسام الإعدادات -->
@@ -882,8 +887,8 @@
     <audio id="audio-salawat-preview" preload="none"></audio>
 
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/native-adhan-service.js?v=1"></script>
-    <script src="assets/js/user-tools.js?v=3"></script>
+    <script src="assets/js/native-adhan-service.js?v=6"></script>
+    <script src="assets/js/user-tools.js?v=5"></script>
 
     <!-- سكربت التحكم في إعدادات التنبيهات والأذان والمعاينة الصوتية -->
     <script>

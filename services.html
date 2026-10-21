@@ -1002,7 +1002,7 @@
             <div class="mosques-container-card">
                 <!-- شريط البحث والتحكم والتبديل بين القائمة والخريطة -->
                 <div class="mosques-top-bar">
-                    <button type="button" class="btn btn-gold" id="btn-find-nearby-mosques" onclick="if(window.requestUserLocationAndFindMosques) window.requestUserLocationAndFindMosques();">
+                    <button type="button" class="btn btn-gold" id="btn-find-nearby-mosques">
                         <i class="fa-solid fa-location-crosshairs"></i>
                         <span>تحديد موقعي والبحث عن المساجد 📍</span>
                     </button>
@@ -3610,6 +3610,12 @@
                 <p style="font-size: 13px; color: var(--muted); margin: 0 0 10px;">
                     زاد المسلم • رفيق طاعاتك اليومية وصدقة جارية مستمرة بإذن الله.
                 </p>
+                <div style="display: flex; justify-content: center; gap: 16px; margin: 10px 0 14px; flex-wrap: wrap;">
+                    <a href="index.html" style="color: var(--text-primary); font-size: 13px; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-house text-gold"></i> الرئيسية</a>
+                    <a href="services.html" style="color: var(--gold-400); font-size: 13px; text-decoration: none; font-weight: 700;"><i class="fa-solid fa-shapes"></i> فهرس الخدمات والعبادات</a>
+                    <a href="settings.html" style="color: var(--text-primary); font-size: 13px; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-sliders text-gold"></i> الإعدادات والتخصيص</a>
+                    <a href="privacy.html" style="color: var(--muted); font-size: 13px; text-decoration: none;"><i class="fa-solid fa-shield-halved"></i> الخصوصية</a>
+                </div>
                 <div style="font-size: 11.5px; color: var(--muted);">
                     زاد المسلم © 2026 • نسأل الله القبول
                 </div>
@@ -3665,19 +3671,20 @@
         <script src="assets/js/media-data.js?v=2"></script>
         <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
-        <script src="assets/js/native-adhan-service.js?v=5"></script>
+        <script src="assets/js/native-adhan-service.js?v=6"></script>
         <script src="assets/js/onesignal-service.js?v=1"></script>
-        <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=18"></script>
+        <script src="assets/js/location-service.js?v=1"></script>
+    <script src="assets/js/prayer-cities.js?v=1"></script>
+    <script src="assets/js/app.js?v=19"></script>
         <script src="assets/js/quran.js?v=26"></script>
-        <script src="assets/js/extended-modules.js?v=28"></script>
+        <script src="assets/js/extended-modules.js?v=30"></script>
         <script src="assets/js/smart-khatma.js?v=1"></script>
         <script src="assets/js/share-card-generator.js?v=1"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
         <script src="assets/js/smart-tasbih.js?v=1"></script>
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
         <script src="assets/js/zakat-calculator.js?v=1"></script>
-        <script src="assets/js/nearby-mosques.js?v=7"></script>
+        <script src="assets/js/nearby-mosques.js?v=8"></script>
         <script src="assets/js/wall-of-duas.js?v=1"></script>
         <script src="assets/js/prayer-guide.js?v=1"></script>
 
@@ -3936,6 +3943,6 @@
             });
         </script>
 
-    <script src="assets/js/user-tools.js?v=3"></script>
+    <script src="assets/js/user-tools.js?v=5"></script>
 </body>
 </html>

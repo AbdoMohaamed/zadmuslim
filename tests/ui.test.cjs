@@ -46,16 +46,14 @@ async function load(file, options = {}) {
     await new Promise(resolve=>setTimeout(resolve,30));
     return {dom,errors};
 }
-test('app renders settings, saves choices, preserves navigation and handles offline timings',async()=>{
-    const {dom,errors}=await load('app.html');
+test('services renders settings, saves choices and handles offline timings',async()=>{
+    const {dom,errors}=await load('services.html');
     try {
         const w=dom.window,d=w.document;
         assert.deepEqual(errors,[]);
-        assert.equal(d.querySelectorAll('.app-bottom-nav .app-nav-tab').length,5);
-        assert.equal(d.querySelector('#pane-home .zad-personal-panel, #pane-home .zad-home-shortcuts'),null);
-        assert.ok(d.querySelector('#pane-home .app-quick-tools-grid'));
-        w.switchAppTab('more');
-        d.querySelector('#pane-more .zad-open-tools').click();
+        assert.ok(d.getElementById('prayer-times'));
+        assert.ok(d.querySelector('a[href="settings.html"]'));
+        d.querySelector('#notifications-modal .zad-open-tools').click();
         await new Promise(r=>setTimeout(r,0));
         assert.equal(d.getElementById('notifications-modal').classList.contains('open'),true);
         assert.equal(d.getElementById('notif-view-settings').style.display,'block');
@@ -69,14 +67,9 @@ test('app renders settings, saves choices, preserves navigation and handles offl
         assert.match(d.getElementById('zad-tools-status').textContent,/تم حفظ/);
         d.getElementById('btn-close-notifications-modal').click();
         assert.equal(d.getElementById('notifications-modal').classList.contains('open'),false);
-        w.switchAppTab('quran');
-        assert.ok(d.getElementById('pane-quran').classList.contains('active-pane'));
         assert.equal(w.zadPrayerVerified,false);
         assert.equal(w.getPrayerTimings(),null);
-        w.openServiceInApp('prayer-times');
-        w.openServiceInApp('zakat-calculator-section');
-        w.openServiceInApp('prayer-times');
-        assert.ok(d.getElementById('app-services-active-view').contains(d.getElementById('prayer-times')));
+        assert.ok(d.getElementById('quran-khatma'));
         assert.ok(d.getElementById('zakat-calculator-section'));
         await new Promise(r=>setTimeout(r,100));
     } finally {dom.window.close();}
@@ -94,7 +87,7 @@ test('web home and services expose personal tools without JavaScript exceptions'
 });
 
 test('standalone settings persist shortcuts independently of Save, theme, and prayer preferences',async()=>{
-    const {dom,errors}=await load('settings.html',{referrer:'http://localhost:4173/app.html',storage:{'zadmuslim-theme':'light'}});
+    const {dom,errors}=await load('settings.html',{referrer:'http://localhost:4173/services.html',storage:{'zadmuslim-theme':'light'}});
     let saved;
     try {
         const w=dom.window,d=w.document;
@@ -118,7 +111,7 @@ test('standalone settings persist shortcuts independently of Save, theme, and pr
         assert.equal(w.localStorage.getItem('zad_favorites'),favorites);
         assert.equal(w.localStorage.getItem('selected_prayer_city'),'London');
         assert.equal(d.documentElement.dataset.readingSize,'larger');
-        assert.equal(new URL(d.getElementById('btn-settings-back').href).pathname,'/app.html');
+        assert.equal(new URL(d.getElementById('btn-settings-back').href).pathname,'/services.html');
         assert.equal(new URL(d.getElementById('settings-open-notifications').href).search,'?panel=notifications');
         saved=Object.fromEntries(Object.keys(w.localStorage).map(k=>[k,w.localStorage.getItem(k)]));
     }finally{dom.window.close();}
@@ -133,34 +126,30 @@ test('standalone settings persist shortcuts independently of Save, theme, and pr
     }finally{again.dom.window.close();}
 });
 
-test('every app favorite opens its destination and notifications deep link opens alerts',async()=>{
+test('home shortcuts resolve to real sections and notifications deep link opens alerts',async()=>{
     const ids=['quran-khatma','azkar','prayer-times','tasbeeh','islamic-media','zakat-calculator-section','sadaqa'];
-    const {dom,errors}=await load('app.html',{url:'http://localhost:4173/app.html?panel=notifications',storage:{zad_favorites:JSON.stringify(ids)}});
+    const {dom,errors}=await load('index.html',{url:'http://localhost:4173/index.html?panel=notifications',storage:{zad_favorites:JSON.stringify(ids)}});
     try{
-        const w=dom.window,d=w.document;
+        const d=dom.window.document;
         assert.deepEqual(errors,[]);
         assert.ok(d.getElementById('notifications-modal').classList.contains('open'));
         assert.equal(d.getElementById('notif-view-alerts').style.display,'block');
         for(const id of ids){
-            w.switchAppTab('home');
-            d.querySelector('.app-quick-tools-grid [data-service="'+id+'"]').click();
-            const tab={'quran-khatma':'quran',azkar:'daily','islamic-media':'media'}[id];
-            if(tab) assert.ok(d.getElementById('pane-'+tab).classList.contains('active-pane'),id);
-            else if(id==='tasbeeh') {
-                assert.ok(d.getElementById('pane-home').classList.contains('active-pane'));
-                assert.ok(d.querySelector('#pane-home .panel.dhikr'));
-            } else if(id==='sadaqa') {
-                assert.ok(d.getElementById('overlay').classList.contains('show'));
-                assert.ok(d.getElementById('deceased'));
-            } else assert.ok(d.getElementById('app-services-active-view').contains(d.getElementById(id)),id);
+            const link=d.querySelector('.quick-access-grid [data-service="'+id+'"]');
+            assert.ok(link,id);
+            const target=new URL(link.href);
+            assert.ok(['/index.html','/services.html'].includes(target.pathname));
+            const html=fs.readFileSync(path.join(root,target.pathname),'utf8');
+            assert.ok(html.includes('id="'+target.hash.slice(1)+'"'),id+' destination exists');
+            assert.equal(link.onclick,null,'normal links support native browser navigation');
         }
-        assert.deepEqual(errors,[]);
+        assert.equal(d.querySelector('a[href*="app.html"]'),null);
     }finally{dom.window.close();}
 });
 
 test('configured cities and prayer calculation choices reach the timings request',async()=>{
     const calls=[];
-    const {dom,errors}=await load('app.html',{storage:{selected_prayer_city:'New York',zad_prayer_method:'3',zad_prayer_school:'1'},setup(w){
+    const {dom,errors}=await load('services.html',{storage:{selected_prayer_city:'New York',zad_prayer_method:'3',zad_prayer_school:'1'},setup(w){
         w.fetch=async url=>{calls.push(String(url));throw Error('offline');};
     }});
     try{
@@ -239,6 +228,48 @@ test('settings retain the final shortcut, reject empty reports, and show downloa
         assert.match(d.getElementById('zad-tools-status').textContent,/اكتب تفاصيل/);
         await d.querySelector('[data-download="audio"]').onclick();
         assert.match(d.getElementById('zad-tools-status').textContent,/التنزيل يحتاج/);
+        assert.deepEqual(errors,[]);
+    }finally{dom.window.close();}
+});
+
+test('opening the app never prompts for location or calls IP geolocation automatically',async()=>{
+    let gpsCalls=0; const urls=[];
+    const {dom,errors}=await load('services.html',{setup(w){
+        w.localStorage.removeItem('user_manually_selected_city');
+        w.navigator.geolocation={getCurrentPosition(){gpsCalls++;}};
+        w.fetch=async url=>{urls.push(String(url));throw Error('offline');};
+    }});
+    try{
+        await new Promise(r=>setTimeout(r,900));
+        assert.equal(gpsCalls,0);
+        assert.ok(!urls.some(u=>/bigdatacloud|ipwho/.test(u)));
+        assert.deepEqual(errors,[]);
+    }finally{dom.window.close();}
+});
+
+test('notification enable keeps the dialog open and reports cloud registration failure',async()=>{
+    const {dom,errors}=await load('index.html');
+    try{
+        const w=dom.window,d=w.document;
+        w.Notification={permission:'granted'};
+        let message='';w.showToast=text=>{message=text;};
+        w.registerPushSubscriberInFirebase=async()=>({status:'configuration-required',message:'إعداد الإشعارات السحابية غير مكتمل'});
+        d.getElementById('notify-adhan-calls').checked=true;
+        w.openNotificationsModal();
+        d.getElementById('btn-request-notification-perm').click();
+        await new Promise(r=>setTimeout(r,0));
+        assert.match(message,/غير مكتمل/);
+        assert.ok(d.getElementById('notifications-modal').classList.contains('open'));
+        assert.deepEqual(errors,[]);
+    }finally{dom.window.close();}
+});
+
+test('settings never return users to the retired app page',async()=>{
+    const {dom,errors}=await load('settings.html',{referrer:'http://localhost:4173/app.html'});
+    try{
+        const d=dom.window.document;
+        assert.equal(new URL(d.getElementById('btn-settings-back').href).pathname,'/index.html');
+        assert.equal(new URL(d.getElementById('settings-open-notifications').href).pathname,'/index.html');
         assert.deepEqual(errors,[]);
     }finally{dom.window.close();}
 });

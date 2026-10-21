@@ -1086,7 +1086,7 @@ function initSmartNotifications() {
                     console.warn("Native notification permission request:", e);
                 }
                 showToast(scheduling?.success ? "حُفظت التنبيهات في نظام الهاتف. الأذان يحتاج مواقيت اليوم المحدّثة؛ استخدم اختبار الخلفية للتحقق." : (scheduling?.message || "حُفظت التفضيلات، لكن تعذّر تأكيد الجدولة. راجع أذونات الهاتف."));
-                registerPushSubscriberInFirebase();
+                registerPushSubscriberInFirebase({ retry: true });
                 if (modal) modal.classList.remove("open");
                 return;
             }
@@ -1094,16 +1094,16 @@ function initSmartNotifications() {
             // 2. إذا كان متصفح ويب عادي / PWA
             if ("Notification" in window) {
                 if (Notification.permission === "granted") {
-                    showToast("تم حفظ وتفعيل التنبيهات المختارة بنجاح لتصلك في مواعيدها المباركة 🔔✨");
-                    registerPushSubscriberInFirebase();
-                    if (modal) modal.classList.remove("open");
+                    const registration = await registerPushSubscriberInFirebase({ retry: true });
+                    showToast(registration.message || "حُفظت التفضيلات. الإشعارات السحابية غير متاحة في هذا المتصفح.");
+                    if (modal && registration.status === 'registered') modal.classList.remove("open");
                 } else if (Notification.permission !== "denied") {
                     const permission = await Notification.requestPermission();
                     if (permission === "granted") {
-                        showToast("تم تفعيل إشعارات المتصفح بنجاح! جزاكم الله خيراً 🌿");
-                        registerPushSubscriberInFirebase();
+                        const registration = await registerPushSubscriberInFirebase({ retry: true });
+                        showToast(registration.message || "حُفظ إذن المتصفح. تعذّر تأكيد الاشتراك السحابي.");
                         triggerNativeNotification("زاد المسلم • تنبيهات الطاعات", "تم تفعيل التنبيهات التي اخترتها بنجاح لتصلك في مواعيدها المباركة 🤲✨", "./");
-                        if (modal) modal.classList.remove("open");
+                        if (modal && registration.status === 'registered') modal.classList.remove("open");
                     } else {
                         showToast("يرجى السماح بالإشعارات من إعدادات المتصفح لتصلك التنبيهات في الخلفية.");
                     }
@@ -1332,57 +1332,59 @@ function getSafeFirebaseDb() {
 /**
  * تسجيل المشترك في PushManager وقاعدة بيانات فايربيز لاستقبال الإشعارات حتى والتطبيق مغلق
  */
-async function registerPushSubscriberInFirebase() {
-    try {
+let pushRegistrationTask = null;
+let pushRegistrationBlocked = false;
+function setPushRegistrationState(status, message, code = '') {
+    const state = { status, message, code };
+    window.ZadPushRegistrationState = state;
+    const host = document.getElementById('notif-view-alerts') || document.querySelector('#notifications-modal .modal-card');
+    if (host) {
+        let box = document.getElementById('zad-cloud-push-status');
+        if (!box) { box = document.createElement('p'); box.id = 'zad-cloud-push-status'; box.setAttribute('role', 'status'); host.appendChild(box); }
+        box.textContent = message;
+    }
+    return state;
+}
+function registerPushSubscriberInFirebase({ retry = false } = {}) {
+    // Native push belongs to OneSignal. Web registration needs explicit notification permission.
+    if (window.Capacitor?.isNativePlatform?.() || typeof Notification === 'undefined' || Notification.permission !== 'granted' ||
+        !('serviceWorker' in navigator) || !('PushManager' in window) ||
+        typeof ZAD_VAPID_PUBLIC_KEY === 'undefined' || !ZAD_VAPID_PUBLIC_KEY) return Promise.resolve({ status: 'not-applicable' });
+    if (pushRegistrationTask) return pushRegistrationTask;
+    if (pushRegistrationBlocked && !retry) return Promise.resolve(window.ZadPushRegistrationState);
+    if (retry) pushRegistrationBlocked = false;
+    pushRegistrationTask = Promise.resolve().then(async () => {
         const db = getSafeFirebaseDb();
-        if (!db) return;
-
-        if (!firebase.auth) return;
-        if (!firebase.auth().currentUser) await firebase.auth().signInAnonymously();
-        const subscriberId = firebase.auth().currentUser.uid;
-
-        let pushSubscriptionJson = null;
-
-        // الحصول على اشتراك PushManager الفعلي من المتصفح / الهاتف
-        if ("serviceWorker" in navigator && "PushManager" in window) {
-            try {
-                const reg = await navigator.serviceWorker.ready;
-                let subscription = await reg.pushManager.getSubscription();
-                const expectedKey = urlBase64ToUint8Array(ZAD_VAPID_PUBLIC_KEY);
-                const activeKey = subscription?.options?.applicationServerKey;
-                if (subscription && (!activeKey || Array.from(new Uint8Array(activeKey)).join(',') !== Array.from(expectedKey).join(','))) {
-                    await subscription.unsubscribe(); subscription = null;
-                }
-
-                // إذا كان المستخدم وافق على الإشعارات ولم يكن مسجلاً في السيرفر بعد
-                if (!subscription && typeof Notification !== "undefined" && Notification.permission === "granted" && typeof ZAD_VAPID_PUBLIC_KEY !== "undefined" && ZAD_VAPID_PUBLIC_KEY) {
-                    const convertedVapidKey = urlBase64ToUint8Array(ZAD_VAPID_PUBLIC_KEY);
-                    subscription = await reg.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: convertedVapidKey
-                    });
-                }
-
-                if (subscription) {
-                    pushSubscriptionJson = subscription.toJSON();
-                }
-            } catch (swErr) {
-                console.warn("Push subscription acquisition error:", swErr);
-            }
+        if (!db || !firebase.auth) return setPushRegistrationState('unavailable', 'إعدادات الإشعارات السحابية غير مكتملة.');
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (!reg?.active || !reg.pushManager) return setPushRegistrationState('unavailable', 'الإشعارات السحابية لم تجهز بعد؛ أعد تفعيلها بعد اكتمال تحميل الصفحة.');
+        const auth = firebase.auth();
+        const user = auth.currentUser || (await auth.signInAnonymously()).user;
+        if (!user?.uid) throw Error('Firebase user unavailable');
+        let subscription = await reg.pushManager.getSubscription();
+        const expectedKey = urlBase64ToUint8Array(ZAD_VAPID_PUBLIC_KEY);
+        const activeKey = subscription?.options?.applicationServerKey;
+        if (subscription && (!activeKey || Array.from(new Uint8Array(activeKey)).join(',') !== Array.from(expectedKey).join(','))) {
+            await subscription.unsubscribe(); subscription = null;
         }
-
-        const subRef = db.ref("push_subscribers/" + subscriberId);
-        await subRef.set({
-            id: subscriberId,
-            subscription: pushSubscriptionJson || null,
-            userAgent: navigator.userAgent || "Unknown",
-            platform: navigator.platform || "Web",
-            language: navigator.language || "ar",
+        if (!subscription) subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: expectedKey });
+        const data = subscription?.toJSON();
+        if (!data?.endpoint || !data.keys?.auth || !data.keys?.p256dh) throw Error('Invalid push subscription');
+        await db.ref('push_subscribers/' + user.uid).set({
+            id: user.uid, subscription: data, userAgent: navigator.userAgent || 'Unknown',
+            platform: navigator.platform || 'Web', language: navigator.language || 'ar',
             updatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-    } catch (e) {
-        console.warn("Push subscriber registration skipped:", e);
-    }
+        return setPushRegistrationState('registered', 'تم تسجيل الإشعارات السحابية لهذا المتصفح.');
+    }).catch(error => {
+        const code = error?.code || '';
+        if (['auth/configuration-not-found','auth/operation-not-allowed','auth/invalid-api-key','auth/app-not-authorized'].includes(code)) {
+            pushRegistrationBlocked = true;
+            return setPushRegistrationState('configuration-required', 'الإشعارات السحابية غير مفعّلة: يحتاج مسؤول التطبيق إلى ضبط Firebase Authentication وتفعيل Anonymous. تنبيهات الهاتف المحلية مستقلة عنها.', code);
+        }
+        return setPushRegistrationState('failed', 'تعذّر تسجيل الإشعارات السحابية. تحقق من الاتصال وإعدادات الخدمة ثم أعد التفعيل.', code);
+    }).finally(() => { pushRegistrationTask = null; });
+    return pushRegistrationTask;
 }
 
 /**
