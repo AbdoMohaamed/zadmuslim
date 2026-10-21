@@ -22,10 +22,20 @@
             const granted = () => permission.location === 'granted' || permission.coarseLocation === 'granted';
             if (!granted()) permission = await geo.requestPermissions();
             if (!granted()) throw Object.assign(Error('Permission denied'), { code: 1 });
-            pos = await geo.getCurrentPosition({ enableHighAccuracy: permission.location === 'granted', timeout: 15000, maximumAge: 60000 });
+            try {
+                pos = await geo.getCurrentPosition({ enableHighAccuracy: permission.location === 'granted', timeout: 8000, maximumAge: 60000 });
+            } catch (e) {
+                if (e?.code === 1) throw e;
+                pos = await geo.getCurrentPosition({ enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
+            }
         } else {
             if (!navigator.geolocation) throw Error('خدمة الموقع غير متاحة في المتصفح.');
-            pos = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }));
+            try {
+                pos = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }));
+            } catch (e) {
+                if (e?.code === 1) throw e;
+                pos = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }));
+            }
         }
         const lat = pos?.coords?.latitude, lng = pos?.coords?.longitude;
         if (!valid(lat, lng)) throw Error('إحداثيات الموقع غير صالحة.');

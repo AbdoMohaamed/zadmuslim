@@ -306,10 +306,13 @@
 
         resetCurrentRound() {
             currentRoundCount = 0;
+            sessionCount = 0;
+            try { localStorage.setItem("zadCount", "0"); } catch (_) {}
+            if (typeof window.c !== 'undefined') window.c = 0;
             this.updatePanelUI();
             this.triggerHaptic("click");
             if (typeof window.showToast === "function") {
-                window.showToast("تم تصفير دورة التسبيح الحالية 🔄");
+                window.showToast("تم تصفير عداد الذكر بنجاح 🔄");
             }
         },
 
@@ -403,9 +406,11 @@
         },
 
         shareCurrentZkr() {
-            const zkr = PRESET_ATHKAR[activeZkrIndex];
-            if (window.ShareCardGenerator && typeof window.ShareCardGenerator.openShareModal === "function") {
-                window.ShareCardGenerator.openShareModal({
+            const zkr = PRESET_ATHKAR[activeZkrIndex] || PRESET_ATHKAR[0];
+            const gen = window.ShareCardGenerator;
+            if (gen && (typeof gen.openShareModal === "function" || typeof gen.openModal === "function")) {
+                const fn = (gen.openShareModal || gen.openModal).bind(gen);
+                fn({
                     title: "ذكر مبارك • زاد المسلم",
                     text: zkr.text,
                     ref: "رياض الصالحين",

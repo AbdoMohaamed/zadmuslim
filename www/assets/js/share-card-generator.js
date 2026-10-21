@@ -72,6 +72,10 @@
             });
         },
 
+        openShareModal(params) {
+            return this.openModal(params);
+        },
+
         openModal(params) {
             currentCardState = {
                 text: params.text || currentCardState.text,

@@ -79,7 +79,7 @@ test('mosque search falls back to Photon and accepts worship places only',async(
             ]})};
         };
         await h.w.requestUserLocationAndFindMosques();
-        assert.equal(h.calls.fetch,2);
+        assert.ok(h.calls.fetch >= 2, 'fallback to Photon querying both masjid and jami');
         assert.match(h.w.document.getElementById('mosques-results-list').textContent,/مسجد بديل/);
         assert.doesNotMatch(h.w.document.getElementById('mosques-results-list').textContent,/مدرسة مسجد/);
     }finally{h.dom.window.close();}

@@ -248,7 +248,7 @@
                     <button type="button" class="btn-quick-bead" id="btn-quick-bead-tap" onclick="if(window.SmartTasbih){ SmartTasbih.tapBead(event); } else { increment(); }" oncontextmenu="return false;" title="انقر هنا للتسبيح">
                         <span class="quick-bead-number" id="counter">0</span>
                         <span class="quick-bead-target" id="quick-bead-target">الهدف: 33</span>
-                        <span class="quick-bead-label">سبّح الآن ✦</span>
+                        <span class="quick-bead-label">ردّد الذكر</span>
                     </button>
                 </div>
 
@@ -271,7 +271,7 @@
                         <button type="button" class="btn-compact-chip" id="btn-share-dhikr-story" onclick="if(window.SmartTasbih) SmartTasbih.shareCurrentZkr();" title="مشاركة هذا الذكر كستوري">
                             <i class="fa-solid fa-camera-retro text-gold"></i> <span>شارك كستوري 📷</span>
                         </button>
-                        <button type="button" class="btn-compact-chip" onclick="if(window.SmartTasbih) SmartTasbih.resetCurrentRound(); resetCount();" title="تصفير العداد">
+                        <button type="button" class="btn-compact-chip" id="btn-reset-dhikr" onclick="if(window.SmartTasbih){ SmartTasbih.resetCurrentRound(); } if(typeof resetCount==='function'){ resetCount(); }" title="تصفير العداد">
                             <i class="fa-solid fa-rotate-right"></i> <span>تصفير</span>
                         </button>
                     </div>

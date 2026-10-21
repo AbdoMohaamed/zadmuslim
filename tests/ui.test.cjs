@@ -163,9 +163,9 @@ test('configured cities and prayer calculation choices reach the timings request
     }finally{dom.window.close();}
 });
 
-test('settings downloads audio, lists it and removes only downloaded resources',async()=>{
+test('tools modal downloads audio, lists it and removes only downloaded resources',async()=>{
     const entries=new Map();
-    const {dom,errors}=await load('settings.html',{setup(w){
+    const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html?panel=notifications',setup(w){
         w.caches={open:async()=>({
             match:async req=>entries.get(typeof req==='string'?req:req.url)?.clone(),
             put:async(url,response)=>entries.set(url,response.clone()),
@@ -177,6 +177,8 @@ test('settings downloads audio, lists it and removes only downloaded resources',
     try{
         const d=dom.window.document;
         assert.deepEqual(errors,[]);
+        await d.querySelector('.zad-open-tools').onclick();
+        d.querySelector('[data-tab="downloads"]').click();
         await d.querySelector('[data-download="audio"]').onclick();
         assert.equal(entries.size,1);
         assert.match(d.getElementById('zad-tools-status').textContent,/اكتمل/);
@@ -217,7 +219,7 @@ test('native settings cancel outdated prayer alarms and schedule a test notifica
     }finally{dom.window.close();}
 });
 
-test('settings retain the final shortcut, reject empty reports, and show download failures',async()=>{
+test('settings retain the final shortcut and reject empty reports',async()=>{
     const {dom,errors}=await load('settings.html',{storage:{zad_favorites:'["quran-khatma"]'}});
     try{
         const d=dom.window.document;
@@ -226,8 +228,6 @@ test('settings retain the final shortcut, reject empty reports, and show downloa
         assert.match(d.getElementById('zad-tools-status').textContent,/اختصار واحد/);
         d.getElementById('zad-send-report').click();
         assert.match(d.getElementById('zad-tools-status').textContent,/اكتب تفاصيل/);
-        await d.querySelector('[data-download="audio"]').onclick();
-        assert.match(d.getElementById('zad-tools-status').textContent,/التنزيل يحتاج/);
         assert.deepEqual(errors,[]);
     }finally{dom.window.close();}
 });

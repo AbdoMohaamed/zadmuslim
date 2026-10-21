@@ -746,6 +746,18 @@
             });
         }
 
+        const zadHijri = $('zad-hijri-offset');
+        if (zadHijri) {
+            zadHijri.value = store.getItem('zad_hijri_offset') || '0';
+            zadHijri.addEventListener('change', () => {
+                store.setItem('zad_hijri_offset', zadHijri.value);
+                if (typeof root.adjustHijriOffset === 'function') {
+                    root.adjustHijriOffset(0);
+                }
+                status('تم ضبط وتطبيق تعديل التاريخ الهجري فوراً 🌙');
+            });
+        }
+
         // 5. اختصاراتك المفضلة في الصفحة الرئيسية مع التحديث اللحظي
         const selected = getFavorites();
         const chipContainer = $('zad-favorite-choices')?.querySelector('.zad-chips-container') || $('zad-favorite-choices');
@@ -781,6 +793,7 @@
                 if (zadMethod) store.setItem('zad_prayer_method', zadMethod.value);
                 if (zadSchool) store.setItem('zad_prayer_school', zadSchool.value);
                 if (zadFont) store.setItem('zad_font_size', zadFont.value);
+                if (zadHijri) store.setItem('zad_hijri_offset', zadHijri.value);
                 store.setItem('zad_setup_done', '1');
                 applyFont();
                 const changedPrayerPrefs = previousPrayerPrefs !== ['selected_prayer_city', 'zad_prayer_method', 'zad_prayer_school'].map(k => store.getItem(k)).join('|');
@@ -796,8 +809,25 @@
                     } catch { status('حُفظت الإعدادات. افتح لوحة المواقيت لتحديث تنبيهات الهاتف.'); return; }
                 }
                 renderFavorites();
-                status(standalone ? 'تم حفظ اختياراتك. عند العودة للتطبيق تُحدّث المواقيت والتنبيهات حسبها.' : 'تم حفظ اختياراتك.');
+                status(standalone ? 'تم حفظ اختياراتك وتطبيقها بنجاح ✨' : 'تم حفظ اختياراتك.');
                 refreshNotifications();
+            };
+        }
+
+        const resetSettingsBtn = $('zad-reset-settings');
+        if (resetSettingsBtn) {
+            resetSettingsBtn.onclick = () => {
+                if (!confirm('هل تريد استعادة الإعدادات الافتراضية للتطبيق؟ (لن يتم حذف علامات قراءة المصحف أو أذكارك المحفوظة)')) return;
+                store.removeItem('selected_prayer_city');
+                store.removeItem('user_manually_selected_city');
+                store.removeItem('zad_prayer_method');
+                store.removeItem('zad_prayer_school');
+                store.removeItem('zad_font_size');
+                store.removeItem('zad_hijri_offset');
+                store.removeItem('zadmuslim-theme');
+                store.removeItem('zad_favorites');
+                status('تمت استعادة الإعدادات الافتراضية بنجاح.');
+                setTimeout(() => location.reload(), 600);
             };
         }
 
@@ -827,12 +857,50 @@
 
         const sendReportBtn = $('zad-send-report');
         if (sendReportBtn) {
-            sendReportBtn.onclick = () => {
+            sendReportBtn.onclick = async () => {
                 const detail = $('zad-report-text')?.value.trim();
                 if (!detail) return status('اكتب تفاصيل الخطأ أو الملاحظة أولاً.');
-                const loc = $('zad-report-location')?.value || '';
-                const text = `الموضع: ${loc}\nالصفحة: ${location.pathname}${location.hash}\nالتفاصيل: ${detail}`;
-                location.href = 'mailto:abdelrahman.developer@gmail.com?subject=' + encodeURIComponent('بلاغ محتوى — زاد المسلم') + '&body=' + encodeURIComponent(text);
+                const loc = $('zad-report-location')?.value?.trim() || '';
+
+                status('جاري إرسال البلاغ إلى لوحة تحكم المسؤول...');
+                const payload = {
+                    location: loc,
+                    details: detail,
+                    page: location.pathname + location.hash,
+                    platform: (root.Capacitor?.isNativePlatform?.() ? root.Capacitor.getPlatform?.() : 'web') || 'web',
+                    userAgent: navigator.userAgent || '',
+                    createdAt: new Date().toISOString(),
+                    timestamp: Date.now(),
+                    status: 'new'
+                };
+
+                try {
+                    let sent = false;
+                    if (root.firebase?.database) {
+                        try {
+                            await root.firebase.database().ref('user_reports').push({
+                                ...payload,
+                                timestamp: root.firebase.database.ServerValue ? root.firebase.database.ServerValue.TIMESTAMP : Date.now()
+                            });
+                            sent = true;
+                        } catch (_) {}
+                    }
+                    if (!sent) {
+                        const res = await fetch('https://sadqah-jaddi-default-rtdb.firebaseio.com/user_reports.json', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (!res.ok) throw Error('تعذّر الاتصال بخادم البلاغات.');
+                    }
+                    if ($('zad-report-text')) $('zad-report-text').value = '';
+                    if ($('zad-report-location')) $('zad-report-location').value = '';
+                    status('جزاك الله خيراً، تم إرسال البلاغ إلى لوحة تحكم الإدارة بنجاح وستتم مراجعته وتصويبه فوراً ✨');
+                } catch (err) {
+                    const text = `الموضع: ${loc}\nالصفحة: ${location.pathname}${location.hash}\nالتفاصيل: ${detail}`;
+                    location.href = 'mailto:abdelrahman.developer@gmail.com?subject=' + encodeURIComponent('بلاغ محتوى — زاد المسلم') + '&body=' + encodeURIComponent(text);
+                    status('تم تحويل البلاغ إلى تطبيق البريد الإلكتروني.');
+                }
             };
         }
 

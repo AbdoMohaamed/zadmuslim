@@ -1275,6 +1275,11 @@
             <i class="fa-solid fa-film text-gold"></i>
             <span>مرئيات وبودكاست</span>
         </button>
+        <button type="button" class="admin-tab-btn" data-tab="tab-reports">
+            <i class="fa-solid fa-flag text-gold"></i>
+            <span>بلاغات وتصويبات المحتوى</span>
+            <span id="badge-reports-unread" style="display:none; background:#ef4444; color:#fff; font-size:11px; padding:2px 7px; border-radius:999px; margin-right:6px; font-weight:bold;">0</span>
+        </button>
         <button type="button" class="admin-tab-btn" data-tab="tab-analytics">
             <i class="fa-solid fa-chart-pie"></i>
             <span>المشاهدات والإحصائيات</span>
@@ -1925,6 +1930,94 @@
 
         </div>
 
+        <!-- ==========================================
+             TAB 6: USER REPORTS & CORRECTIONS
+             ========================================== -->
+        <div id="tab-reports" class="tab-content">
+            <!-- Header Card -->
+            <div class="section-card" style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <h2 style="font-size: 20px; font-weight: 800; color: var(--gold-light); margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-flag text-gold"></i>
+                            <span>بلاغات وتصويبات المحتوى الواردة من المستخدمين</span>
+                        </h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                            تصلك هنا فوراً جميع الملاحظات والتصويبات المرسلة من المستخدمين حول نصوص الأذكار، المصحف، ومواقيت الصلاة، مع إمكانية تمييز ما تم فحصه وتصويبه.
+                        </p>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-reports" onclick="refreshAdminReports()">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>تحديث القائمة</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon gold">
+                        <i class="fa-solid fa-inbox"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" id="stat-reports-total">0</div>
+                        <div class="stat-label">إجمالي البلاغات</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" id="stat-reports-new" style="color: #ef4444;">0</div>
+                        <div class="stat-label">بلاغات جديدة بانتظار المراجعة</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon emerald">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" id="stat-reports-resolved">0</div>
+                        <div class="stat-label">تمت المراجعة والتصويب</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter & Search Bar -->
+            <div class="section-card" style="margin-bottom: 20px; padding: 14px 18px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);">تصفية الحالة:</span>
+                        <div class="media-category-pills" id="reports-filter-pills" style="margin: 0;">
+                            <button type="button" class="media-cat-pill active" data-report-filter="all" onclick="setAdminReportsFilter('all')">
+                                <i class="fa-solid fa-layer-group"></i> <span>الكل</span>
+                            </button>
+                            <button type="button" class="media-cat-pill" data-report-filter="new" onclick="setAdminReportsFilter('new')">
+                                <i class="fa-solid fa-circle-dot" style="color: #ef4444;"></i> <span>جديدة فقط</span>
+                            </button>
+                            <button type="button" class="media-cat-pill" data-report-filter="resolved" onclick="setAdminReportsFilter('resolved')">
+                                <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> <span>تم تصويبها</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="position: relative; width: 100%; max-width: 300px;">
+                        <input type="text" id="admin-reports-search" class="form-input" placeholder="ابحث في نص البلاغ أو الموضع..." style="padding-left: 35px; font-size: 13px;" oninput="onSearchReports(this.value)">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports List Container -->
+            <div id="admin-reports-list" style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="text-align: center; color: var(--text-muted); padding: 40px 20px;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; color: var(--gold); margin-bottom: 10px;"></i>
+                    <div>جاري تحميل البلاغات...</div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Video Preview Modal for Admin -->
@@ -2041,6 +2134,8 @@
                 } else if (targetTabId === "tab-media") {
                     renderAdminMediaList();
                     updateAdminMediaStats();
+                } else if (targetTabId === "tab-reports") {
+                    renderAdminReports();
                 }
             });
         });
@@ -2192,6 +2287,7 @@
 
                     loadOneSignalConfig();
                     listenToSubscribersAndHistory();
+                    listenToUserReports();
                     loadLiveAnalyticsData();
                     initMediaAdminManager();
                 } else {
@@ -3054,6 +3150,226 @@
             // Firebase sync
             listenToAdminMediaFromFirebase();
         }
+
+        // ==========================================
+        // User Reports & Corrections Management
+        // ==========================================
+        let adminReportsList = [];
+        let adminReportsFilter = "all";
+        let adminReportsSearchQuery = "";
+
+        function listenToUserReports() {
+            if (!db) return;
+            try {
+                db.ref("user_reports").on("value", (snapshot) => {
+                    const list = [];
+                    snapshot.forEach((child) => {
+                        list.push({ id: child.key, ...child.val() });
+                    });
+                    list.sort((a, b) => {
+                        const timeA = a.timestamp || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+                        const timeB = b.timestamp || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+                        return timeB - timeA;
+                    });
+                    adminReportsList = list;
+                    updateAdminReportsStats();
+                    renderAdminReports();
+                }, (err) => {
+                    console.warn("User reports listener warning:", err);
+                });
+            } catch (e) {
+                console.warn("listenToUserReports error:", e);
+            }
+        }
+
+        function updateAdminReportsStats() {
+            const total = adminReportsList.length;
+            const newCount = adminReportsList.filter(r => (r.status || "new") === "new").length;
+            const resolvedCount = adminReportsList.filter(r => r.status === "resolved").length;
+
+            const totalEl = document.getElementById("stat-reports-total");
+            const newEl = document.getElementById("stat-reports-new");
+            const resolvedEl = document.getElementById("stat-reports-resolved");
+            const badgeEl = document.getElementById("badge-reports-unread");
+
+            if (totalEl) totalEl.textContent = total.toLocaleString("ar-EG");
+            if (newEl) newEl.textContent = newCount.toLocaleString("ar-EG");
+            if (resolvedEl) resolvedEl.textContent = resolvedCount.toLocaleString("ar-EG");
+
+            if (badgeEl) {
+                if (newCount > 0) {
+                    badgeEl.textContent = newCount;
+                    badgeEl.style.display = "inline-block";
+                } else {
+                    badgeEl.style.display = "none";
+                }
+            }
+        }
+
+        window.setAdminReportsFilter = function(filter) {
+            adminReportsFilter = filter;
+            document.querySelectorAll("#reports-filter-pills .media-cat-pill").forEach(pill => {
+                if (pill.dataset.reportFilter === filter) {
+                    pill.classList.add("active");
+                } else {
+                    pill.classList.remove("active");
+                }
+            });
+            renderAdminReports();
+        };
+
+        window.onSearchReports = function(val) {
+            adminReportsSearchQuery = (val || "").trim().toLowerCase();
+            renderAdminReports();
+        };
+
+        window.refreshAdminReports = function() {
+            if (!db) {
+                showAdminToast("قاعدة البيانات غير متصلة حالياً", true);
+                return;
+            }
+            db.ref("user_reports").once("value").then(snap => {
+                const list = [];
+                snap.forEach(c => list.push({ id: c.key, ...c.val() }));
+                list.sort((a, b) => {
+                    const timeA = a.timestamp || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+                    const timeB = b.timestamp || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+                    return timeB - timeA;
+                });
+                adminReportsList = list;
+                updateAdminReportsStats();
+                renderAdminReports();
+                showAdminToast("تم تحديث قائمة البلاغات ✨");
+            }).catch(e => {
+                showAdminToast("تعذر تحديث البلاغات: " + e.message, true);
+            });
+        };
+
+        function formatReportTime(ts, createdAt) {
+            const d = ts ? new Date(ts) : (createdAt ? new Date(createdAt) : null);
+            if (!d || isNaN(d.getTime())) return "غير محدد";
+            try {
+                return d.toLocaleString("ar-EG", {
+                    year: "numeric", month: "short", day: "numeric",
+                    hour: "2-digit", minute: "2-digit", hour12: true
+                });
+            } catch (e) {
+                return d.toISOString().slice(0, 16).replace("T", " ");
+            }
+        }
+
+        function renderAdminReports() {
+            const container = document.getElementById("admin-reports-list");
+            if (!container) return;
+
+            let filtered = adminReportsList.filter(r => {
+                const status = r.status || "new";
+                if (adminReportsFilter === "new" && status !== "new") return false;
+                if (adminReportsFilter === "resolved" && status !== "resolved") return false;
+                if (adminReportsSearchQuery) {
+                    const text = `${r.location || ""} ${r.details || ""} ${r.page || ""} ${r.platform || ""}`.toLowerCase();
+                    if (!text.includes(adminReportsSearchQuery)) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="section-card" style="text-align: center; padding: 45px 20px; color: var(--text-muted);">
+                        <i class="fa-solid fa-clipboard-check" style="font-size: 42px; color: var(--gold); opacity: 0.6; margin-bottom: 12px;"></i>
+                        <h3 style="font-size: 16px; color: var(--text-main); margin-bottom: 6px;">لا توجد بلاغات تطابق الفلتر الحالي</h3>
+                        <p style="font-size: 13px; margin: 0;">الحمد لله، لا توجد ملاحظات أو بلاغات معلقة مطابقة لاختيارك.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const isNew = (item.status || "new") === "new";
+                const timeStr = formatReportTime(item.timestamp, item.createdAt);
+                const locEsc = escapeHtml(item.location || "غير محدد");
+                const detailsEsc = escapeHtml(item.details || "");
+                const pageEsc = escapeHtml(item.page || "الرئيسية");
+                const platformEsc = escapeHtml(item.platform || "Web");
+                const uaEsc = escapeHtml(item.userAgent || "");
+
+                return `
+                    <div class="section-card" style="border-right: 4px solid ${isNew ? '#ef4444' : '#10b981'}; transition: all 0.2s ease;">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span class="badge" style="background: ${isNew ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${isNew ? '#ef4444' : '#10b981'}; border: 1px solid ${isNew ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">
+                                    ${isNew ? '<i class="fa-solid fa-circle-dot"></i> جديد بانتظار المراجعة' : '<i class="fa-solid fa-circle-check"></i> تمت المراجعة والتصويب'}
+                                </span>
+                                <span style="font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px;">
+                                    <i class="fa-regular fa-clock"></i> ${timeStr}
+                                </span>
+                                <span class="badge" style="background: rgba(212, 175, 55, 0.1); color: var(--gold-light); border: 1px solid rgba(212, 175, 55, 0.2); font-size: 11px; padding: 3px 8px; border-radius: 6px;">
+                                    <i class="fa-solid fa-mobile-screen"></i> ${platformEsc}
+                                </span>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${isNew ? `
+                                    <button type="button" class="btn btn-outline btn-sm" style="border-color: #10b981; color: #10b981;" onclick="toggleReportStatus('${item.id}', 'resolved')" title="تعليم كـ تم التصويب">
+                                        <i class="fa-solid fa-check"></i>
+                                        <span>تم التصويب</span>
+                                    </button>
+                                ` : `
+                                    <button type="button" class="btn btn-outline btn-sm" style="border-color: var(--gold); color: var(--gold);" onclick="toggleReportStatus('${item.id}', 'new')" title="إعادة فتح كـ جديد">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                        <span>إعادة فتح</span>
+                                    </button>
+                                `}
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteUserReport('${item.id}')" title="حذف البلاغ نهائياً">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    <span>حذف</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;">
+                            <div style="font-size: 12px; font-weight: 700; color: var(--gold-light); margin-bottom: 4px;">
+                                <i class="fa-solid fa-location-dot"></i> موضع الخطأ / الصفحة: <span style="color: #fff; font-weight: 600;">${locEsc}</span>
+                                <span style="color: var(--text-muted); font-size: 11px; margin-right: 8px;">(${pageEsc})</span>
+                            </div>
+                            <div style="font-size: 14px; color: #e2e8f0; line-height: 1.6; white-space: pre-wrap; font-family: inherit; margin-top: 6px;">${detailsEsc}</div>
+                        </div>
+
+                        ${uaEsc ? `
+                            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4; word-break: break-all; opacity: 0.8;">
+                                <i class="fa-solid fa-circle-info"></i> بيئة المستخدم: ${uaEsc}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join("");
+        }
+
+        window.toggleReportStatus = async function(id, nextStatus) {
+            if (!db || !id) return;
+            try {
+                await db.ref("user_reports/" + id).update({
+                    status: nextStatus,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                showAdminToast(nextStatus === 'resolved' ? "تم تمييز البلاغ كـ 'تم التصويب' بنجاح ✅" : "تمت إعادة فتح البلاغ 🔄");
+            } catch (e) {
+                console.error("Error updating report status:", e);
+                showAdminToast("تعذر تحديث الحالة: " + e.message, true);
+            }
+        };
+
+        window.deleteUserReport = async function(id) {
+            if (!db || !id) return;
+            if (!confirm("هل أنت متأكد من حذف هذا البلاغ نهائياً؟")) return;
+            try {
+                await db.ref("user_reports/" + id).remove();
+                showAdminToast("تم حذف البلاغ بنجاح 🗑️");
+            } catch (e) {
+                console.error("Error deleting report:", e);
+                showAdminToast("تعذر حذف البلاغ: " + e.message, true);
+            }
+        };
 
         // ==========================================
         // Security & Login Check

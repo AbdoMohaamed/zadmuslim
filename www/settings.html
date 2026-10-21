@@ -386,7 +386,6 @@
             <a href="#notifications-section" class="settings-nav-chip"><i class="fa-solid fa-bell text-gold"></i> التنبيهات والأذان</a>
             <a href="#settings-shortcuts-section" class="settings-nav-chip"><i class="fa-solid fa-star text-gold"></i> الاختصارات المفضلة</a>
             <a href="#settings-prayer-timing-section" class="settings-nav-chip"><i class="fa-solid fa-mosque text-gold"></i> المواقيت والخط</a>
-            <a href="#zad-downloads" class="settings-nav-chip"><i class="fa-solid fa-cloud-arrow-down text-gold"></i> التنزيلات أوفلاين</a>
             <a href="#zad-backup-section" class="settings-nav-chip"><i class="fa-solid fa-database text-gold"></i> النسخ والاحتياط</a>
             <a href="#zad-report-section" class="settings-nav-chip"><i class="fa-solid fa-flag text-gold"></i> تصويب خطأ</a>
         </nav>
@@ -411,16 +410,15 @@
                         <i class="fa-solid fa-key text-gold"></i> طلب إذن التنبيهات
                     </button>
                 </div>
-                <p id="zad-notification-state" style="font-size: 0.82rem; margin: 6px 0 10px; color: var(--text-muted); line-height: 1.5;"></p>
+                <div style="background: rgba(0, 0, 0, 0.14); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); margin: 8px 0 10px;">
+                    <p id="zad-notification-state" style="font-size: 0.82rem; margin: 0; color: var(--text-primary); line-height: 1.5;"></p>
+                </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button type="button" class="btn outline" id="zad-test-notification" style="font-size: 0.78rem; padding: 4px 12px;">
                         <i class="fa-solid fa-flask text-gold"></i> تجربة إرسال تنبيه
                     </button>
                     <button type="button" class="btn outline" id="zad-refresh-notifications" style="font-size: 0.78rem; padding: 4px 12px;">
                         <i class="fa-solid fa-arrows-rotate text-gold"></i> تحديث الحالة
-                    </button>
-                    <button type="button" class="btn outline" id="btn-open-os-battery-settings" style="font-size: 0.78rem; padding: 4px 12px;">
-                        <i class="fa-solid fa-battery-full text-gold"></i> إعدادات البطارية وDoze
                     </button>
                     <a id="settings-open-notifications" href="index.html?panel=notifications" hidden aria-hidden="true" style="display: none;"></a>
                 </div>
@@ -719,6 +717,17 @@
                         <option value="larger">كبير جدًا (قراءة واضحة)</option>
                     </select>
                 </div>
+
+                <div class="zad-form-group">
+                    <label for="zad-hijri-offset"><i class="fa-solid fa-moon text-gold"></i> تعديل التاريخ الهجري (رؤية الهلال):</label>
+                    <select id="zad-hijri-offset">
+                        <option value="-2">تأخير يومين (-2)</option>
+                        <option value="-1">تأخير يوم واحد (-1)</option>
+                        <option value="0" selected>تلقائي (حسب تقويم أم القرى)</option>
+                        <option value="1">تقديم يوم واحد (+1)</option>
+                        <option value="2">تقديم يومين (+2)</option>
+                    </select>
+                </div>
             </div>
 
             <p id="zad-tools-status" role="status" aria-live="polite" style="margin-top: 10px;"></p>
@@ -731,71 +740,7 @@
         </section>
 
         <!-- ==========================================
-        4. قسم التنزيلات بدون إنترنت
-        ========================================== -->
-        <section class="settings-section-card" id="zad-downloads">
-            <div class="settings-section-title">
-                <i class="fa-solid fa-cloud-arrow-down text-gold"></i>
-                <span>التنزيلات والاستخدام بدون إنترنت (Offline)</span>
-            </div>
-            <p class="settings-section-desc">
-                نزّل ما تحتاجه للقراءة والاستماع بدون إنترنت. البث المباشر والخدمات السحابية تحتاج اتصالاً:
-            </p>
-
-            <div class="zad-feature-card" style="background: rgba(14, 102, 84, 0.18); border-color: rgba(115, 211, 171, 0.35);">
-                <div class="zad-feature-card-header">
-                    <span class="zad-feature-card-title"><i class="fa-solid fa-circle-check text-gold" style="color: #10B981;"></i> المصحف الشريف (٦٠٤ صفحة)</span>
-                    <span style="background: rgba(16, 185, 129, 0.2); color: #73D3AB; border: 1px solid rgba(16, 185, 129, 0.4); padding: 3px 10px; border-radius: 9999px; font-size: 0.74rem; font-weight: 700;">مضمّن في نسخة الهاتف؛ نزّله أولاً على الويب</span>
-                </div>
-                <p class="zad-feature-card-desc" style="color: var(--text-primary, #F3F8F4);">صفحات المصحف مضمّنة في نسخة الهاتف. في المتصفح استخدم زر التنزيل قبل القراءة بدون إنترنت.</p>
-                <button type="button" class="btn outline" data-download="pages">تنزيل صفحات المصحف</button>
-            </div>
-
-            <div class="zad-feature-card">
-                <div class="zad-feature-card-header">
-                    <span class="zad-feature-card-title"><i class="fa-solid fa-book-open text-gold"></i> التفسير الميسر</span>
-                    <button type="button" class="btn outline" data-download="tafsir"><i class="fa-solid fa-download"></i> تنزيل التفسير</button>
-                </div>
-                <p class="zad-feature-card-desc">تنزيل تفسير آيات القرآن الكريم الميسر لجميع الصفحات للتصفح أوفلاين.</p>
-            </div>
-
-            <div class="zad-feature-card">
-                <div class="zad-feature-card-header">
-                    <span class="zad-feature-card-title"><i class="fa-solid fa-headphones text-gold"></i> تلاوة سورة كاملة بصوت العفاسي</span>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <label style="flex: 1; min-width: 140px; margin: 0;">اختر السورة:
-                        <select id="zad-audio-surah" style="margin-top: 4px;">
-                            <option value="1">1. الفاتحة</option>
-                            <option value="18">18. الكهف</option>
-                            <option value="36">36. يس</option>
-                            <option value="55">55. الرحمن</option>
-                            <option value="56">56. الواقعة</option>
-                            <option value="67" selected>67. الملك</option>
-                            <option value="112">112. الإخلاص</option>
-                            <option value="113">113. الفلق</option>
-                            <option value="114">114. الناس</option>
-                        </select>
-                    </label>
-                    <button type="button" class="btn outline" data-download="audio" style="margin-top: auto;">
-                        <i class="fa-solid fa-download"></i> تنزيل السورة
-                    </button>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 6px;">
-                <button type="button" class="btn outline" id="zad-list-downloads">
-                    <i class="fa-solid fa-hard-drive text-gold"></i> عرض الملفات المنزلة والمساحة
-                </button>
-                <button type="button" class="btn btn-danger-outline" id="zad-stop-download" hidden>
-                    <i class="fa-solid fa-stop"></i> إيقاف التنزيل
-                </button>
-            </div>
-            <div id="zad-download-list"></div>
-        </section>
-
-        <!-- ==========================================
-        5. قسم النسخ الاحتياطي واسترجاع البيانات
+        4. قسم النسخ الاحتياطي واسترجاع البيانات
         ========================================== -->
         <section class="settings-section-card" id="zad-backup-section">
             <div class="settings-section-title">
@@ -830,10 +775,21 @@
                     </label>
                 </div>
             </div>
+
+            <!-- إعادة ضبط الإعدادات الافتراضية -->
+            <div class="zad-feature-card" style="border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.05); margin-top: 12px;">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title" style="color: #f87171;"><i class="fa-solid fa-triangle-exclamation"></i> إعادة ضبط الإعدادات</span>
+                    <button type="button" class="btn outline" id="zad-reset-settings" style="border-color: rgba(239, 68, 68, 0.5); color: #f87171; font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> إعادة ضبط
+                    </button>
+                </div>
+                <p class="zad-feature-card-desc">استعادة كافة إعدادات المواقيت، الخط، التنبيهات، والواجهة إلى الوضع الافتراضي مع الحفاظ على محفوظات القرآن والأذكار.</p>
+            </div>
         </section>
 
         <!-- ==========================================
-        6. قسم الإبلاغ عن خطأ أو ملاحظة
+        5. قسم الإبلاغ عن خطأ أو ملاحظة
         ========================================== -->
         <section class="settings-section-card" id="zad-report-section">
             <div class="settings-section-title">
@@ -841,7 +797,7 @@
                 <span>الإبلاغ عن خطأ أو اقتراح تصويب</span>
             </div>
             <p class="settings-section-desc">
-                جزاك الله خيراً على تنبيهنا لأي خطأ طباعي أو لغوي؛ يسعدنا مراجعته وتصويبه فوراً:
+                جزاك الله خيراً على تنبيهنا لأي خطأ طباعي أو لغوي؛ تصل الملاحظات مباشرة إلى لوحة تحكم الإدارة لمراجعتها وتصويبها فوراً:
             </p>
 
             <label for="zad-report-location" style="display: block; margin-bottom: 10px;">
@@ -855,7 +811,7 @@
             </label>
 
             <button type="button" class="btn solid btn-block" id="zad-send-report" style="width: 100%; font-size: 0.95rem; padding: 10px;">
-                <i class="fa-solid fa-envelope"></i> فتح البلاغ في تطبيق البريد للإرسال
+                <i class="fa-solid fa-paper-plane"></i> إرسال البلاغ للإدارة فوراً ✨
             </button>
         </section>
 
@@ -1147,23 +1103,6 @@
                     if (window.ZadUserTools && typeof window.ZadUserTools.open === 'function') {
                         const refreshBtn = document.getElementById('zad-refresh-notifications');
                         if (refreshBtn) refreshBtn.click();
-                    }
-                };
-            }
-
-            // زر البطارية
-            const btnBattery = document.getElementById('btn-open-os-battery-settings');
-            if (btnBattery) {
-                btnBattery.onclick = () => {
-                    if (window.NativeAdhanService && typeof window.NativeAdhanService.openBatterySettings === 'function') {
-                        window.NativeAdhanService.openBatterySettings();
-                    } else {
-                        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                        if (isIOS) {
-                            alert('على أجهزة iPhone: لضمان دقة التنبيهات، تأكد من تفعيل (تحديث التطبيقات في الخلفية Background App Refresh) والسماح بالإشعارات من إعدادات iOS.');
-                        } else {
-                            alert('إعدادات تحسين البطارية (Doze) متاحة في تطبيق الأندرويد لضمان استمرار عمل الأذان والتنبيهات بدقة.');
-                        }
                     }
                 };
             }
