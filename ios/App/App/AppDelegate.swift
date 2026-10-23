@@ -26,6 +26,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         UNUserNotificationCenter.current().delegate = self
 
+        // Enable native back/forward swipe gesture in iOS WKWebView
+        DispatchQueue.main.async {
+            if let bridgeVC = self.window?.rootViewController as? CAPBridgeViewController {
+                bridgeVC.webView?.allowsBackForwardNavigationGestures = true
+            }
+        }
+
         // Check for latest admin broadcasts immediately on app launch
         checkCloudBroadcastsInBackground { _ in }
 

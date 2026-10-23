@@ -4297,6 +4297,8 @@ function playTasbeehClickTone() {
 
 /* ==========================================================================
    التعامل الذكي مع زر الرجوع لنظام الأندرويد (Android Hardware Back Button)
+/* ==========================================================================
+   التعامل الذكي مع زر وإيماءات الرجوع لنظام الأندرويد والآيفون (Native App Back Navigation)
    ========================================================================== */
 function initAndroidBackButton() {
     function handleBackNavigation() {
@@ -4322,18 +4324,33 @@ function initAndroidBackButton() {
             return true;
         }
 
-        // 3. هل هناك أي نافذة منبثقة (Modal) مفتوحة؟
-        const openModals = document.querySelectorAll(".modal-overlay.open, .modal-overlay.active");
+        // 3. نوافذ المصحف الذهبي (فهرس السور، نافذة التكرار والحفظ، تفسير الآية)
+        const goldenModals = document.querySelectorAll(".golden-index-modal.active, .golden-memorize-modal.active, .golden-ayah-modal.active");
+        if (goldenModals.length > 0) {
+            goldenModals.forEach(m => m.classList.remove("active"));
+            return true;
+        }
+
+        // 4. النافذة العامة المنبثقة (overlay.show في services.html و index.html)
+        const overlay = document.getElementById("overlay");
+        if (overlay && overlay.classList.contains("show")) {
+            if (typeof closeModal === "function") closeModal();
+            else overlay.classList.remove("show");
+            return true;
+        }
+
+        // 5. هل هناك أي نافذة منبثقة (Modal) مفتوحة؟
+        const openModals = document.querySelectorAll(".modal-overlay.open, .modal-overlay.active, .modal-overlay.show, .modal-wall-dua-overlay.active");
         if (openModals.length > 0) {
             openModals.forEach(m => {
-                const closeBtn = m.querySelector(".modal-close-btn");
+                const closeBtn = m.querySelector(".modal-close-btn, .modal-close-circle-btn, .close-btn");
                 if (closeBtn) closeBtn.click();
-                else m.classList.remove("open", "active");
+                else m.classList.remove("open", "active", "show");
             });
             return true;
         }
 
-        // 4. هل المصحف في وضع الشاشة الكاملة؟
+        // 6. هل المصحف في وضع الشاشة الكاملة؟
         const mushafCard = document.querySelector(".real-mushaf-card.mushaf-fullscreen-mode");
         if (mushafCard) {
             const exitFullscreenBtn = document.getElementById("btn-exit-mushaf-fullscreen");
@@ -4342,8 +4359,26 @@ function initAndroidBackButton() {
             return true;
         }
 
+        // 7. إذا كان المستخدم في صفحة الخدمات (services.html) أو الإعدادات (settings.html)، الرجوع للصفحة الرئيسية
+        const pathname = (window.location.pathname || "").toLowerCase();
+        const isServicesPage = pathname.includes("services.html");
+        const isSettingsPage = pathname.includes("settings.html");
+        if (isServicesPage || isSettingsPage) {
+            try {
+                if (window.history.length > 1 && document.referrer && new URL(document.referrer, window.location.href).origin === window.location.origin) {
+                    window.history.back();
+                    return true;
+                }
+            } catch (_) {}
+            window.location.href = "index.html#home";
+            return true;
+        }
+
         return false;
     }
+
+    // إتاحة الدالة للنظام الأصلي في أندرويد عبر WebView
+    window.__zadHandleBack = handleBackNavigation;
 
     // دعم تطبيق Capacitor على أجهزة الأندرويد
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
@@ -4366,6 +4401,72 @@ function initAndroidBackButton() {
     window.addEventListener("popstate", () => {
         handleBackNavigation();
     });
+
+    // تفعيل إيماءة السحب السلس من الحافة لأجهزة الآيفون والأندرويد (Edge Swipe Back)
+    initNativeEdgeSwipeBack();
+}
+
+/**
+ * دعم إيماءة السحب من حافة الشاشة (Edge Swipe Gesture) في الآيفون والأندرويد
+ */
+function initNativeEdgeSwipeBack() {
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+    let tracking = false;
+
+    window.addEventListener('touchstart', (e) => {
+        if (!e.touches || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const screenWidth = window.innerWidth;
+        const isRTL = document.documentElement.dir === 'rtl' || document.dir === 'rtl';
+
+        // في الواجهة العربية (RTL): يبدأ السحب من الحافة اليمنى للشاشة (ضمن مسافة 35px من اليمين)
+        // في الواجهة غير العربية (LTR): يبدأ السحب من الحافة اليسرى (ضمن مسافة 35px من اليسار)
+        const isNearEdge = isRTL 
+            ? (touch.clientX >= screenWidth - 35) 
+            : (touch.clientX <= 35);
+
+        if (isNearEdge) {
+            startX = touch.clientX;
+            startY = touch.clientY;
+            startTime = Date.now();
+            tracking = true;
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (!tracking || !e.touches || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const deltaY = Math.abs(touch.clientY - startY);
+        // إلغاء التتبع إذا كان المستخدم يقوم بالتمرير الرأسي الطبيعي
+        if (deltaY > 40 && Math.abs(touch.clientX - startX) < deltaY) {
+            tracking = false;
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        if (!tracking || !e.changedTouches || e.changedTouches.length === 0) return;
+        tracking = false;
+        const touch = e.changedTouches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = Math.abs(touch.clientY - startY);
+        const elapsed = Date.now() - startTime;
+        const isRTL = document.documentElement.dir === 'rtl' || document.dir === 'rtl';
+
+        // في العربية (RTL): السحب من اليمين باتجاه اليسار deltaX < -65px
+        // في LTR: السحب من اليسار باتجاه اليمين deltaX > 65px
+        const isBackSwipe = isRTL ? (deltaX < -65) : (deltaX > 65);
+
+        if (isBackSwipe && deltaY < 60 && elapsed < 650) {
+            try {
+                if (navigator.vibrate) navigator.vibrate(15);
+            } catch (_) {}
+            if (typeof window.__zadHandleBack === 'function') {
+                window.__zadHandleBack();
+            }
+        }
+    }, { passive: true });
 }
 
 

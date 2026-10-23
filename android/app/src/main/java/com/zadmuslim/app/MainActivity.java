@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -22,6 +23,34 @@ public class MainActivity extends BridgeActivity {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
             view.setPadding(0, insets.top, 0, 0);
             return windowInsets;
+        });
+
+        // التعامل الذكي مع زر الرجوع وإيماءات السحب لنظام الأندرويد (Hardware Back & Predictive Back Gesture)
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (bridge != null && bridge.getWebView() != null) {
+                    android.webkit.WebView webView = bridge.getWebView();
+                    webView.evaluateJavascript(
+                        "(function(){ return (typeof window.__zadHandleBack === 'function' ? window.__zadHandleBack() : false); })()",
+                        value -> {
+                            if (!"true".equals(value)) {
+                                if (webView.canGoBack()) {
+                                    webView.goBack();
+                                } else {
+                                    setEnabled(false);
+                                    getOnBackPressedDispatcher().onBackPressed();
+                                    setEnabled(true);
+                                }
+                            }
+                        }
+                    );
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                    setEnabled(true);
+                }
+            }
         });
 
         // LocalNotifications owns the runtime permission request and its completion.
