@@ -179,7 +179,8 @@ const NativeAdhanService = {
         if (window.Capacitor?.getPlatform?.() === 'android') {
             const plugin = window.Capacitor.Plugins.AdhanNative;
             if (!plugin?.scheduleReminders) throw new Error('حدّث تطبيق الهاتف لتفعيل التذكيرات المستمرة');
-            await plugin.scheduleReminders({reminders:list});
+            const scheduled = await plugin.scheduleReminders({reminders:list});
+            if (scheduled?.success === false) throw new Error('تعذّرت جدولة تذكيرات أندرويد');
             return [];
         }
         return list;
@@ -364,6 +365,7 @@ const NativeAdhanService = {
                         gregorianDateStr = gregFormatter.format(new Date()) + " م";
                     } catch(e) {}
 
+                    await window.Capacitor.Plugins.AdhanNative.setAdhanVolume?.({volume:Math.max(0.1,Math.min(1,Number(localStorage.getItem('zad_adhan_volume') || 1)))});
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
                         alarmSchedule: notificationsToSchedule.filter(n => n.id < 70000).map(n => ({at:n.schedule.at.getTime(),prayerKey:n.extra.prayerKey,prayerName:n.extra.prayerName,isPreAlert:n.extra.type==='pre_prayer_alert',muazzin:selectedMuazzin,preAlertInterval:preInterval})),
                         timings: prayersTimings,
@@ -404,6 +406,9 @@ const NativeAdhanService = {
                 // جدولة الإشعارات الكاملة في نظام التشغيل (يدعم نظام iOS وأندرويد)
                 await LocalNotifications.schedule({ notifications: notificationsForLocal });
                 console.log(`✅ Native Adhan Service: Scheduled ${notificationsForLocal.length} notifications via LocalNotifications directly into OS.`);
+            }
+            if (isAndroid && !hasNativePlugin && (notifySettings.adhan !== false || notifySettings.prePrayer !== false)) {
+                return {success:false, remindersScheduled:true, message:'تم حفظ التذكيرات، لكن تعذّر تفعيل تشغيل الأذان الكامل في أندرويد. أعد التفعيل بعد مراجعة الأذونات.'};
             }
             const prayerRequests = notificationsToSchedule.filter(n=>n.id<70000);
             const actualRequests = isAndroid && hasNativePlugin ? prayerRequests : notificationsForLocal.filter(n=>n.id<70000);
@@ -479,7 +484,9 @@ const NativeAdhanService = {
                 await LocalNotifications.schedule({ notifications: recurring });
             }
 
-            // إذا كانت الصلوات مفعّلة ومتاحة، نحدّث جدول الصلوات أيضاً
+            if ((notifySettings.adhan !== false || notifySettings.prePrayer !== false)) {
+                return {success:false, remindersScheduled:true, message:'تم حفظ الأذكار والصلاة على النبي، لكن الأذان لم يُجدول لعدم توفر مواقيت مؤكدة. افتح الرئيسية وحدّث مواقيت الصلاة لموقعك ثم أعد التفعيل.'};
+            }
             return { success: true };
         } catch (e) {
             console.warn("NativeAdhanService.scheduleLocalNotifications error:", e);

@@ -2511,7 +2511,17 @@
             const response = await fetch(path, { method: body ? 'POST' : 'GET',
                 headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await user.getIdToken() },
                 ...(body ? { body: JSON.stringify(body) } : {}) });
-            const result = await response.json();
+            const contentType = response.headers.get('content-type') || '';
+            let result;
+            if (contentType.includes('application/json')) {
+                result = await response.json();
+            } else {
+                const text = await response.text();
+                if (text.trim().startsWith('<')) {
+                    throw new Error('واجهات برمجة لوحة التحكم (APIs) تعمل على خادم الاستضافة فقط. يرجى فتح اللوحة من رابط موقعك المنشور على Vercel وليس كملف محلي أو Live Server.');
+                }
+                throw new Error(text || 'تعذّر تنفيذ الطلب');
+            }
             if (!response.ok) throw new Error(result.error || 'تعذّر تنفيذ الطلب');
             return result;
         }

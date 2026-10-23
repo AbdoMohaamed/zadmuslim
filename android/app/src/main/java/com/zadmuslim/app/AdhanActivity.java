@@ -108,7 +108,7 @@ public class AdhanActivity extends Activity {
 
         // تلميح أزرار الصوت وزر القفل
         TextView hintView = new TextView(this);
-        hintView.setText("🔕 يمكنك أيضاً إيقاف الأذان بالضغط على أي من أزرار الصوت أو زر القفل");
+        hintView.setText("🔕 يمكنك أيضاً إيقاف الأذان بالضغط على أي من أزرار الصوت");
         hintView.setTextSize(13);
         hintView.setTextColor(0xFFA0AEC0);
         hintView.setGravity(Gravity.CENTER);
@@ -124,7 +124,7 @@ public class AdhanActivity extends Activity {
                 finish();
             }
         };
-        registerReceiver(dismissReceiver, new IntentFilter(ACTION_DISMISS_ADHAN_ACTIVITY));
+        androidx.core.content.ContextCompat.registerReceiver(this, dismissReceiver, new IntentFilter(ACTION_DISMISS_ADHAN_ACTIVITY), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     /**
@@ -135,8 +135,7 @@ public class AdhanActivity extends Activity {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             int keyCode = event.getKeyCode();
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
-                keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
-                keyCode == KeyEvent.KEYCODE_POWER) {
+                keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                 stopAdhanAndFinish();
                 return true;
             }

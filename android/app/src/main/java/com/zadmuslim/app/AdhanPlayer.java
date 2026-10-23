@@ -31,7 +31,7 @@ public class AdhanPlayer {
     private static volatile boolean isPlaying = false;
 
     public static synchronized void play(Context context, String prayerName, String prayerKey, String muazzin) {
-        stop();
+        releasePlayback(false);
         if (context == null) return;
         appContext = context.getApplicationContext();
 
@@ -50,7 +50,7 @@ public class AdhanPlayer {
             requestAudioFocus();
 
             // 3. التأكد من أن مستوى صوت المنبه مسموع
-            ensureAudibleAlarmVolume();
+            // Respect the system alarm volume; the in-app slider scales this playback.
 
             // 4. جلب ملف الصوت من res/raw عبر AssetFileDescriptor لضمان عدم حدوث أي خطأ في فتح الملف
             int soundResId = getSoundResourceId(appContext, prayerKey, muazzin);
@@ -73,7 +73,8 @@ public class AdhanPlayer {
                     .build();
             mediaPlayer.setAudioAttributes(audioAttributes);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-            mediaPlayer.setVolume(1.0f, 1.0f);
+            float chosenVolume = appContext.getSharedPreferences(AdhanNativePlugin.PREFS_NAME,0).getFloat("adhan_volume",1.0f);
+            mediaPlayer.setVolume(chosenVolume, chosenVolume);
 
             if (afd != null) {
                 mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
@@ -157,49 +158,19 @@ public class AdhanPlayer {
     private static void registerHardwareStopListeners(Context context) {
         unregisterHardwareStopListeners(context);
 
-        // 1. استقبال حدث قفل الشاشة (زر الباور Power / Lock button) وتغيير الصوت (Volume buttons)
+        // Screen locking and unrelated settings changes must not stop the adhan.
+        final AudioManager manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        final int[] volume = {manager == null ? -1 : manager.getStreamVolume(AudioManager.STREAM_ALARM)};
         hardwareKeysReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context ctx, Intent intent) {
-                if (intent == null) return;
-                String action = intent.getAction();
-                Log.d(TAG, "Hardware stop event triggered: " + action);
-
-                if (Intent.ACTION_SCREEN_OFF.equals(action) ||
-                    "android.media.VOLUME_CHANGED_ACTION".equals(action)) {
-                    Log.d(TAG, "Adhan stopped by hardware key (Power / Volume)");
-                    stop();
-                }
+            @Override public void onReceive(Context ctx, Intent intent) {
+                if (manager == null || intent == null || !"android.media.VOLUME_CHANGED_ACTION".equals(intent.getAction())) return;
+                int current = manager.getStreamVolume(AudioManager.STREAM_ALARM);
+                if (isPlaying && current != volume[0]) stop();
+                volume[0] = current;
             }
         };
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_OFF); // زر القفل
-        filter.addAction("android.media.VOLUME_CHANGED_ACTION"); // زر تعلية أو توطية الصوت
-        try {
-            context.registerReceiver(hardwareKeysReceiver, filter);
-        } catch (Exception e) {
-            Log.w(TAG, "Failed to register hardwareKeysReceiver", e);
-        }
-
-        // 2. مراقبة تغيير مستوى الصوت عبر ContentObserver للتأكيد على أزرار الصوت في كافة الأجهزة
-        try {
-            volumeContentObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
-                @Override
-                public void onChange(boolean selfChange) {
-                    super.onChange(selfChange);
-                    if (isPlaying) {
-                        Log.d(TAG, "Adhan stopped by volume key change (ContentObserver)");
-                        stop();
-                    }
-                }
-            };
-            context.getContentResolver().registerContentObserver(
-                    Settings.System.CONTENT_URI, true, volumeContentObserver
-            );
-        } catch (Exception e) {
-            Log.w(TAG, "Failed to register volume ContentObserver", e);
-        }
+        androidx.core.content.ContextCompat.registerReceiver(context, hardwareKeysReceiver,
+            new IntentFilter("android.media.VOLUME_CHANGED_ACTION"), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     private static void unregisterHardwareStopListeners(Context context) {
@@ -219,6 +190,10 @@ public class AdhanPlayer {
     }
 
     public static synchronized void stop() {
+        releasePlayback(true);
+    }
+
+    private static synchronized void releasePlayback(boolean stopService) {
         isPlaying = false;
 
         if (mediaPlayer != null) {
@@ -251,12 +226,10 @@ public class AdhanPlayer {
             wakeLock = null;
         }
 
-        // إغلاق خدمة AdhanService إن كانت نشطة
-        if (appContext != null) {
+        // Do not stop the foreground service when replacing its audio.
+        if (stopService && appContext != null) {
             try {
-                Intent stopService = new Intent(appContext, AdhanService.class);
-                stopService.setAction(AdhanService.ACTION_STOP_ADHAN);
-                appContext.startService(stopService);
+                appContext.stopService(new Intent(appContext, AdhanService.class));
             } catch (Exception ignored) {}
 
             // مسح إشعار الأذان من شريط الإشعارات
@@ -271,6 +244,7 @@ public class AdhanPlayer {
             // إرسال برودكاست لإغلاق شاشة AdhanActivity إن كانت مفتوحة
             try {
                 Intent closeActivity = new Intent(AdhanActivity.ACTION_DISMISS_ADHAN_ACTIVITY);
+                closeActivity.setPackage(appContext.getPackageName());
                 appContext.sendBroadcast(closeActivity);
             } catch (Exception ignored) {}
         }
@@ -293,11 +267,13 @@ public class AdhanPlayer {
     }
 
     public static synchronized void playPrePrayerVoice(Context context, String prayerKey) {
-        stop();
+        releasePlayback(false);
         if (context == null) return;
         appContext = context.getApplicationContext();
 
         try {
+            audioManager = (AudioManager) appContext.getSystemService(Context.AUDIO_SERVICE);
+            requestAudioFocus();
             PowerManager pm = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
             if (pm != null) {
                 wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zadmuslim:pre_prayer_audio_wakelock");

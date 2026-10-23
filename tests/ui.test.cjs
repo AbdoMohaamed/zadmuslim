@@ -308,3 +308,38 @@ test('home section toggles in settings persist and control visibility on index.h
         assert.notEqual(hd.getElementById('daily-journey-panel').style.display,'none');
     }finally{home.dom.window.close();}
 });
+
+
+test('settings groups expand from navigation and reading settings are separated',async()=>{
+ const {dom,errors}=await load('settings.html');
+ try {
+  const d=dom.window.document;
+  assert.equal(d.querySelector('#notifications-section details').open,true);
+  assert.equal(d.querySelector('#settings-reading-section details').open,false);
+  d.querySelector('a[href="#settings-reading-section"]').click();
+  assert.equal(d.querySelector('#settings-reading-section details').open,true);
+  assert.ok(d.querySelector('#settings-reading-section #zad-font'));
+  assert.equal(d.getElementById('zad-save-settings').hidden,true);
+  assert.deepEqual(errors,[]);
+ } finally {dom.window.close();}
+});
+
+test('Android settings show actual prayer coverage and synchronize volume before scheduling',async()=>{
+ const volumeCalls=[];
+ const {dom,errors}=await load('settings.html',{setup(w){
+  w.Capacitor={isNativePlatform:()=>true,getPlatform:()=> 'android',Plugins:{
+   AdhanNative:{setAdhanVolume:async o=>volumeCalls.push(o.volume),checkAlarmPermissions:async()=>({notificationsGranted:true,exactAlarmsGranted:false,batteryOptimizationsIgnored:false}),getPrayerScheduleStatus:async()=>({count:5,next:Date.now()+60000,until:Date.now()+86400000})},
+   LocalNotifications:{checkPermissions:async()=>({display:'granted'}),getPending:async()=>({notifications:[]}),createChannel:async()=>{},addListener:()=>{}}
+  }};
+ }});
+ try {
+  const w=dom.window,d=w.document;
+  w.NativeAdhanService.scheduleLocalNotifications=async()=>({success:true,message:'تم التطبيق'});
+  const slider=d.getElementById('slider-adhan-volume');slider.value='0.35';slider.dispatchEvent(new w.Event('change'));
+  await new Promise(r=>setTimeout(r,20));
+  assert.equal(volumeCalls.at(-1),0.35);
+  assert.match(d.querySelector('.settings-delivery-status').textContent,/المواعيد محفوظة حتى/);
+  assert.equal(d.getElementById('btn-save-notif-settings').hidden,true);
+  assert.deepEqual(errors,[]);
+ } finally {dom.window.close();}
+});

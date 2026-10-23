@@ -41,25 +41,6 @@ public class AdhanService extends Service {
             wakeLock.acquire(5 * 60 * 1000L); // 5 دقائق كحد أقصى للأذان
         }
 
-        // تسجيل مستمع أزرار الصوت وزر القفل لإيقاف الخدمة فوراً
-        stopKeysReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent == null) return;
-                String action = intent.getAction();
-                if (Intent.ACTION_SCREEN_OFF.equals(action) || "android.media.VOLUME_CHANGED_ACTION".equals(action)) {
-                    Log.d(TAG, "AdhanService stopped by hardware key (Screen off / Volume change)");
-                    stopAdhanAndSelf();
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction("android.media.VOLUME_CHANGED_ACTION");
-        try {
-            registerReceiver(stopKeysReceiver, filter);
-        } catch (Exception ignored) {}
     }
 
     @Override
@@ -81,7 +62,10 @@ public class AdhanService extends Service {
         }
 
         // إظهار إشعار Foreground الموحد
-        Notification notification = AdhanAlarmReceiver.buildAdhanAlarmNotification(this, prayerName, prayerKey);
+        boolean preAlert = intent != null && intent.getBooleanExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
+        Notification notification = preAlert
+            ? AdhanAlarmReceiver.buildPrePrayerNotification(this, prayerName, prayerKey, intent.getIntExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, 5))
+            : AdhanAlarmReceiver.buildAdhanAlarmNotification(this, prayerName, prayerKey);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
@@ -92,14 +76,19 @@ public class AdhanService extends Service {
             Log.w(TAG, "Could not startForeground with mediaPlayback type, falling back", e);
             try {
                 startForeground(NOTIFICATION_ID, notification);
-            } catch (Exception ignored) {}
+            } catch (Exception foregroundError) {
+                Log.e(TAG, "Cannot start foreground adhan playback", foregroundError);
+                stopAdhanAndSelf();
+                return START_NOT_STICKY;
+            }
         }
 
         isPlaying = true;
 
         // التأكد من أن الصوت يعمل عبر AdhanPlayer
         if (!AdhanPlayer.isPlaying()) {
-            AdhanPlayer.play(this, prayerName, prayerKey, muazzin);
+            if (preAlert) AdhanPlayer.playPrePrayerVoice(this, prayerKey);
+            else AdhanPlayer.play(this, prayerName, prayerKey, muazzin);
         }
 
         return START_NOT_STICKY;

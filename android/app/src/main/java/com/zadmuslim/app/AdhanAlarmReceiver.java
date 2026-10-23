@@ -1,5 +1,6 @@
 package com.zadmuslim.app;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -59,7 +60,8 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         }
 
         // 2. إعادة جدولة المنبهات عند إعادة تشغيل الهاتف أو تحديث التطبيق أو تغيير الوقت والمنطقة الزمنية
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action) ||
+        if (AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED.equals(action) ||
+            Intent.ACTION_BOOT_COMPLETED.equals(action) ||
             "android.intent.action.QUICKBOOT_POWERON".equals(action) ||
             "com.htc.intent.action.QUICKBOOT_POWERON".equals(action) ||
             Intent.ACTION_MY_PACKAGE_REPLACED.equals(action) ||
@@ -136,14 +138,26 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             if (isPreAlert) {
                 // 1. تنبيه اقتراب موعد الصلاة بصوت ناطق
                 Log.d(TAG, "Pre-alert alarm triggered for: " + prayerName + " (Interval: " + preAlertInterval + "m)");
-                AdhanPlayer.playPrePrayerVoice(context, prayerKey);
-                showPrePrayerNotification(context, prayerName, prayerKey, preAlertInterval);
+                Intent serviceIntent = new Intent(context, AdhanService.class);
+                serviceIntent.setAction(AdhanService.ACTION_START_ADHAN);
+                serviceIntent.putExtra(EXTRA_IS_PRE_ALERT, true);
+                serviceIntent.putExtra(EXTRA_PRAYER_NAME, prayerName);
+                serviceIntent.putExtra(EXTRA_PRAYER_KEY, prayerKey);
+                serviceIntent.putExtra(EXTRA_PRE_ALERT_INTERVAL, preAlertInterval);
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(serviceIntent);
+                    else context.startService(serviceIntent);
+                } catch (Exception e) {
+                    Log.e(TAG, "Cannot start pre-prayer audio service", e);
+                    ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(
+                        88800, buildPrePrayerNotification(context, prayerName, prayerKey, preAlertInterval));
+                }
             } else {
                 // 2. موعد الأذان الفعلي: تشغيل الصوت فوراً وبأعلى أولوية
                 Log.d(TAG, "Main Adhan alarm triggered for: " + prayerName + " with muazzin: " + muazzin);
 
                 // أ. تشغيل الصوت فوراً عبر AdhanPlayer (يعمل على STREAM_ALARM بحجم كامل)
-                AdhanPlayer.play(context, prayerName, prayerKey, muazzin);
+                // Service enters foreground before starting audio and requesting audio focus.
 
                 // ب. إظهار إشعار شاشة القفل التفاعلي مع FullScreenIntent
                 showAdhanAlarmNotification(context, prayerName, prayerKey);
@@ -267,9 +281,9 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         }
     }
 
-    private void showPrePrayerNotification(Context context, String prayerName, String prayerKey, int intervalMinutes) {
+    public static Notification buildPrePrayerNotification(Context context, String prayerName, String prayerKey, int intervalMinutes) {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nm == null) return;
+        if (nm == null) throw new IllegalStateException("NotificationManager unavailable");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
@@ -305,8 +319,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setColor(0xFFD4AF37);
 
-        int notifId = 88800 + (prayerKey != null ? Math.abs(prayerKey.hashCode() % 100) : 1);
-        nm.notify(notifId, builder.build());
+        return builder.build();
     }
 
     public static void triggerImmediateBroadcastCheck(Context context) {

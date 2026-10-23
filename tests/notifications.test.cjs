@@ -179,3 +179,39 @@ test('calendar failure does not invent future prayers and settings changed durin
     assert.equal((await h.service.schedulePrayers()).success,false);
     assert.equal(h.calls.native.length,0);
 });
+
+
+test('Android reports missing prayer timings while still scheduling salawat',async()=>{
+ const h=harness({verified:false,settings:{adhan:true,hourlySalawat:true}});
+ const result=await h.service.scheduleLocalNotifications();
+ assert.equal(result.success,false);
+ assert.equal(result.remindersScheduled,true);
+ assert.equal(h.calls.native.length,0);
+ assert.equal(h.calls.reminders.length,1);
+ assert.match(result.message,/الأذان لم/);
+});
+test('Android native rejection is surfaced without changing iOS recurring scheduling',async()=>{
+ const h=harness({verified:false,settings:{hourlySalawat:true}});
+ h.native.scheduleReminders=async()=>({success:false});
+ assert.equal((await h.service.scheduleLocalNotifications()).success,false);
+ const ios=harness({platform:'ios',verified:false,settings:{hourlySalawat:true}});
+ assert.equal((await ios.service.scheduleLocalNotifications()).success,true);
+ assert.equal(ios.calls.local[0].schedule.every,'minute');
+});
+
+test('iOS missing prayer times reports incomplete setup while keeping recurring reminders',async()=>{
+ const h=harness({platform:'ios',verified:false,settings:{adhan:true,hourlySalawat:true}});
+ const result=await h.service.scheduleLocalNotifications();
+ assert.equal(result.success,false);
+ assert.equal(result.remindersScheduled,true);
+ assert.ok(h.calls.local.some(n=>n.id===80001));
+ assert.ok(h.calls.local.every(n=>n.id>=70000));
+});
+test('Android prayer plugin failure does not claim full adhan delivery',async()=>{
+ const h=harness({settings:{adhan:true,hourlySalawat:true}});
+ h.native.schedulePrayerAlarms=async()=>{throw new Error('native unavailable');};
+ const result=await h.service.schedulePrayers();
+ assert.equal(result.success,false);
+ assert.equal(result.remindersScheduled,true);
+ assert.ok(h.calls.reminders.some(n=>n.id===80001));
+});

@@ -31,6 +31,28 @@ public class AdhanNativePlugin extends Plugin {
     public static final int STICKY_NOTIF_ID = 10099;
 
     @PluginMethod
+    public void setAdhanVolume(PluginCall call) {
+        Double value=call.getDouble("volume",1.0);
+        float volume=(float)Math.max(0.1,Math.min(1.0,Double.isFinite(value)?value:1.0));
+        getContext().getSharedPreferences(PREFS_NAME,0).edit().putFloat("adhan_volume",volume).apply();
+        JSObject result=new JSObject();result.put("success",true);call.resolve(result);
+    }
+
+    @PluginMethod
+    public void getPrayerScheduleStatus(PluginCall call) {
+        try {
+            org.json.JSONArray alarms=new org.json.JSONArray(getContext().getSharedPreferences(PREFS_NAME,0).getString("prepared_alarms","[]"));
+            long next=Long.MAX_VALUE, until=0;int count=0;
+            for(int i=0;i<alarms.length();i++) {
+                JSONObject alarm=alarms.getJSONObject(i);long at=alarm.optLong("at");
+                if(at<=System.currentTimeMillis()) continue;
+                next=Math.min(next,at);until=Math.max(until,at);count++;
+            }
+            JSObject result=new JSObject();result.put("count",count);result.put("next",count>0?next:0);result.put("until",until);call.resolve(result);
+        } catch(Exception e) {call.reject("Could not read prayer schedule",e);}
+    }
+
+    @PluginMethod
     public void scheduleReminders(PluginCall call) {
         try {
             BackgroundReminderReceiver.replace(getContext(),call.getArray("reminders",new com.getcapacitor.JSArray()));

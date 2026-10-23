@@ -24,12 +24,7 @@ public class MainActivity extends BridgeActivity {
             return windowInsets;
         });
 
-        // طلب إذن الإشعارات تلقائياً على نظام أندرويد 13 فما فوق فور تشغيل التطبيق
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
-            }
-        }
+        // LocalNotifications owns the runtime permission request and its completion.
 
         // فحص البث السحابي فوراً عند فتح التطبيق وتفعيل الجدولة الدورية
         AdhanAlarmReceiver.triggerImmediateBroadcastCheck(this);
@@ -49,6 +44,14 @@ public class MainActivity extends BridgeActivity {
                 }
             }
         } catch (Exception ignored) {}
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Recover saved schedules after returning from Android permission settings.
+        BackgroundReminderReceiver.restore(this);
+        AdhanNativePlugin.rescheduleAlarmsFromPrefs(this);
     }
 
     /**

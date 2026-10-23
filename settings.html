@@ -456,6 +456,8 @@
         }
     </style>
     <script src="assets/js/theme-controller.js"></script>
+<link rel="stylesheet" href="assets/css/settings-review.css?v=2">
+<script defer src="assets/js/settings-review.js?v=1"></script>
 </head>
 <body data-settings-page="true">
     <div class="settings-page-wrapper">
@@ -486,7 +488,7 @@
             <a href="#notifications-section" class="settings-nav-chip"><i class="fa-solid fa-bell text-gold"></i> التنبيهات والأذان</a>
             <a href="#settings-home-customization-section" class="settings-nav-chip"><i class="fa-solid fa-table-cells-large text-gold"></i> أقسام الرئيسية</a>
             <a href="#settings-shortcuts-section" class="settings-nav-chip"><i class="fa-solid fa-star text-gold"></i> الاختصارات المفضلة</a>
-            <a href="#settings-prayer-timing-section" class="settings-nav-chip"><i class="fa-solid fa-mosque text-gold"></i> المواقيت والخط</a>
+            <a href="#settings-prayer-timing-section" class="settings-nav-chip"><i class="fa-solid fa-mosque text-gold"></i> مواقيت الصلاة</a>
             <a href="#zad-backup-section" class="settings-nav-chip"><i class="fa-solid fa-database text-gold"></i> النسخ والاحتياط</a>
             <a href="#zad-report-section" class="settings-nav-chip"><i class="fa-solid fa-flag text-gold"></i> تصويب خطأ</a>
         </nav>
@@ -583,14 +585,14 @@
                                 <option value="aqsa">أذان المسجد الأقصى المبارك</option>
                             </select>
                             <button type="button" class="btn outline" id="btn-preview-adhan" style="padding: 6px 12px; font-size: 0.82rem;" title="سماع صوت المؤذن">
-                                <i class="fa-solid fa-volume-high text-gold"></i> <span id="btn-preview-adhan-text">تجربة</span>
+                                <i class="fa-solid fa-volume-high text-gold"></i> <span id="btn-preview-adhan-text">سماع</span>
                             </button>
                         </div>
                     </div>
                     
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 2px;">
                         <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-volume-low"></i> مستوى صوت الأذان:</span>
-                        <input type="range" id="slider-adhan-volume" min="0.1" max="1.0" step="0.05" value="1.0" style="flex: 1; accent-color: var(--gold-400);">
+                        <input type="range" id="slider-adhan-volume" aria-label="مستوى صوت الأذان" min="0.1" max="1.0" step="0.05" value="1.0" style="flex: 1; accent-color: var(--gold-400);">
                         <span id="adhan-volume-label" style="font-size: 0.8rem; font-weight: 700; min-width: 38px;">100%</span>
                     </div>
                 </div>
@@ -741,11 +743,11 @@
 
             <!-- زر الحفظ والتفعيل للتنبيهات -->
             <div style="margin-top: 18px;">
-                <button type="button" class="btn solid btn-block" id="btn-save-notif-settings" style="width: 100%; font-size: 0.95rem; padding: 12px; font-weight: 700;">
-                    <i class="fa-solid fa-check"></i> حفظ وتفعيل إعدادات التنبيهات والأذان ✨
+                <button type="button" class="btn solid btn-block" hidden id="btn-save-notif-settings" style="width: 100%; font-size: 0.95rem; padding: 12px; font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> إعادة محاولة تفعيل التنبيهات
                 </button>
                 <div id="notif-settings-feedback" style="display: none; margin-top: 8px; text-align: center; color: #10B981; font-weight: 700; font-size: 0.85rem;">
-                    تم حفظ وتفعيل التنبيهات بنجاح في جهازك ✨
+                    تُحفظ اختياراتك تلقائيًا.
                 </div>
             </div>
         </section>
@@ -857,8 +859,8 @@
             <p id="zad-tools-status" role="status" aria-live="polite" style="margin-top: 10px;"></p>
 
             <div style="margin-top: 14px;">
-                <button type="button" class="btn solid btn-block" id="zad-save-settings" style="width: 100%; font-size: 0.95rem; padding: 11px;">
-                    <i class="fa-solid fa-check"></i> حفظ التغييرات وتطبيقها ✨
+                <button type="button" class="btn solid btn-block" hidden id="zad-save-settings" style="width: 100%; font-size: 0.95rem; padding: 11px;">
+                    <i class="fa-solid fa-check"></i> إعادة تطبيق الإعدادات
                 </button>
             </div>
         </section>
@@ -967,7 +969,7 @@
     <audio id="audio-salawat-preview" preload="none"></audio>
 
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/native-adhan-service.js?v=7"></script>
+    <script src="assets/js/native-adhan-service.js?v=10"></script>
     <script src="assets/js/user-tools.js?v=5"></script>
 
     <!-- سكربت التحكم في إعدادات التنبيهات والأذان والمعاينة الصوتية -->
@@ -1039,7 +1041,7 @@
 
                 // مستوى الصوت المحفوظ
                 const savedVol = localStorage.getItem('zad_adhan_volume') || '1.0';
-                if (sliderVolume) sliderVolume.value = savedVol;
+                if (sliderVolume) { sliderVolume.value = savedVol; updateVolumeFill(); }
                 if (labelVolume) labelVolume.textContent = Math.round(parseFloat(savedVol) * 100) + '%';
 
                 // مفاتيح الصلوات الفردية
@@ -1091,8 +1093,12 @@
                 localStorage.setItem('zad_enabled_prayers', JSON.stringify(enabledPrayers));
 
                 let scheduling;
+                if(window.Capacitor?.getPlatform?.()==='android') {
+                    try { await window.Capacitor.Plugins.AdhanNative.setAdhanVolume({volume:Number(sliderVolume?.value || 1)}); }
+                    catch { scheduling={success:false,message:'تم حفظ الاختيارات، لكن تعذّر تطبيق مستوى صوت أندرويد. حدّث التطبيق وأعد المحاولة.'}; }
+                }
                 // جدولة التنبيهات فوراً عبر NativeAdhanService
-                if (window.NativeAdhanService) {
+                if (!scheduling && window.NativeAdhanService) {
                     if (typeof window.NativeAdhanService.scheduleLocalNotifications === 'function') {
                         scheduling = await window.NativeAdhanService.scheduleLocalNotifications();
                     } else if (typeof window.NativeAdhanService.schedulePrayers === 'function') {
@@ -1108,7 +1114,9 @@
                 if (feedbackNotif) {
                     feedbackNotif.style.display = 'block';
                     feedbackNotif.textContent = scheduling?.message || (scheduling?.success === false ? 'تم حفظ الاختيارات، لكن تعذّرت جدولة التنبيهات.' : 'تم حفظ إعدادات التنبيهات.');
-                    feedbackTimeout = setTimeout(() => { feedbackNotif.style.display = 'none'; }, isExplicit ? 4000 : 2500);
+                    const retry=document.getElementById('btn-save-notif-settings');
+                    if(retry) retry.hidden=scheduling?.success !== false;
+                    document.dispatchEvent(new Event('zad:notification-saved'));
                 }
             }
 
@@ -1134,7 +1142,7 @@
                     if (!audioAdhan.paused) {
                         audioAdhan.pause();
                         audioAdhan.currentTime = 0;
-                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'تجربة';
+                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'سماع';
                         return;
                     }
                     const muazzin = selectMuazzin.value || 'qatami';
@@ -1146,21 +1154,29 @@
                     const p = audioAdhan.play();
                     if (p && typeof p.then === 'function') {
                         p.then(() => {
-                            if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'إيقاف ⏹';
+                            if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'إيقاف';
                         }).catch(e => {
                             console.warn('Audio play error:', e);
                         });
                     }
                     audioAdhan.onended = () => {
-                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'تجربة';
+                        if (btnPreviewAdhanText) btnPreviewAdhanText.textContent = 'سماع';
                     };
                 };
             }
 
+            function updateVolumeFill() {
+                if (!sliderVolume) return;
+                const min = Number(sliderVolume.min), max = Number(sliderVolume.max);
+                const fill = (Number(sliderVolume.value) - min) / (max - min) * 100;
+                sliderVolume.style.setProperty('--volume-fill', Math.max(0, Math.min(100, fill)) + '%');
+                sliderVolume.setAttribute('aria-valuetext', Math.round(Number(sliderVolume.value) * 100) + '%');
+            }
             // مستوى الصوت
             if (sliderVolume) {
                 sliderVolume.oninput = () => {
                     const vol = sliderVolume.value;
+                    updateVolumeFill();
                     if (labelVolume) labelVolume.textContent = Math.round(parseFloat(vol) * 100) + '%';
                     try { if (audioAdhan) audioAdhan.volume = parseFloat(vol); } catch (_) {}
                     localStorage.setItem('zad_adhan_volume', vol);

@@ -17,14 +17,42 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
     public static void replace(Context c, JSONArray rules) throws JSONException {
         AlarmManager manager=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
         for(int id:IDS) manager.cancel(intent(c,id));
+        SharedPreferences.Editor reset=c.getSharedPreferences(PREFS,0).edit();
+        JSONArray previous=new JSONArray(c.getSharedPreferences(PREFS,0).getString("rules","[]"));
+        for(int id:IDS) {
+            JSONObject oldRule=null, newRule=null;
+            for(int i=0;i<previous.length();i++) if(previous.getJSONObject(i).optInt("id")==id) oldRule=previous.getJSONObject(i);
+            for(int i=0;i<rules.length();i++) if(rules.getJSONObject(i).optInt("id")==id) newRule=rules.getJSONObject(i);
+            if(oldRule==null || newRule==null || !oldRule.getJSONObject("schedule").toString().equals(newRule.getJSONObject("schedule").toString())) reset.remove("next_"+id);
+        }
+        reset.apply();
         c.getSharedPreferences(PREFS,0).edit().putString("rules",rules.toString()).apply();
-        restore(c);
+        ensureChannels(c);
+        for(int i=0;i<rules.length();i++) arm(c,rules.getJSONObject(i));
     }
     public static void restore(Context c) {
         try {
             JSONArray rules=new JSONArray(c.getSharedPreferences(PREFS,0).getString("rules","[]"));
-            for(int i=0;i<rules.length();i++) arm(c,rules.getJSONObject(i));
+            ensureChannels(c);
+            for(int i=0;i<rules.length();i++) {
+                try { arm(c,rules.getJSONObject(i)); }
+                catch(Exception e) { android.util.Log.e("ZadReminders","Cannot restore reminder",e); }
+            }
         } catch(Exception e) { android.util.Log.e("ZadReminders","Cannot restore reminders",e); }
+    }
+    private static void ensureChannels(Context c) {
+        if(Build.VERSION.SDK_INT < 26) return;
+        NotificationManager manager=(NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE);
+        String[] ids={"daily_adhkar","hourly_salawat","hourly_salawat_silent"};
+        String[] names={"أذكار وتذكيرات يومية","الصلاة على النبي ﷺ","الصلاة على النبي ﷺ بدون صوت"};
+        for(int i=0;i<ids.length;i++) {
+            if(manager.getNotificationChannel(ids[i])!=null) continue;
+            NotificationChannel channel=new NotificationChannel(ids[i],names[i],NotificationManager.IMPORTANCE_HIGH);
+            channel.enableVibration(true);
+            channel.setSound(i==1 ? android.net.Uri.parse("android.resource://"+c.getPackageName()+"/raw/salawat") : null,
+                new android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION).build());
+            manager.createNotificationChannel(channel);
+        }
     }
     private static void arm(Context c,JSONObject rule) throws JSONException {
         JSONObject schedule=rule.getJSONObject("schedule");
@@ -36,11 +64,15 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
             date.set(Calendar.HOUR_OF_DAY,on.getInt("hour"));date.set(Calendar.MINUTE,on.getInt("minute"));date.set(Calendar.SECOND,0);date.set(Calendar.MILLISECOND,0);
             while(date.getTimeInMillis()<=now+1000 || (on.has("weekday") && date.get(Calendar.DAY_OF_WEEK)!=on.getInt("weekday"))) date.add(Calendar.DATE,1);
             next=date.getTimeInMillis();
-        } else next=now+Math.max(1,schedule.optInt("count",60))*60000L;
+        } else {
+            long saved=c.getSharedPreferences(PREFS,0).getLong("next_"+rule.getInt("id"),0);
+            next=saved>now+1000 ? saved : now+Math.max(1,schedule.optInt("count",60))*60000L;
+        }
         AlarmManager manager=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pending=intent(c,rule.getInt("id"));
         if(Build.VERSION.SDK_INT<31 || manager.canScheduleExactAlarms()) manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,next,pending);
         else manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,next,pending);
+        c.getSharedPreferences(PREFS,0).edit().putLong("next_"+rule.getInt("id"),next).apply();
     }
     @Override public void onReceive(Context c,Intent intent) {
         try {
@@ -48,7 +80,9 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
             for(int i=0;i<rules.length();i++) {
                 JSONObject rule=rules.getJSONObject(i);
                 if(rule.getInt("id")!=intent.getIntExtra("id",-1)) continue;
-                arm(c,rule);
+                c.getSharedPreferences(PREFS,0).edit().remove("next_"+rule.getInt("id")).apply();
+                try { arm(c,rule); } catch(Exception e) { android.util.Log.e("ZadReminders","Next reminder scheduling failed",e); }
+                ensureChannels(c);
                 Intent launch=c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
                 NotificationCompat.Builder builder=new NotificationCompat.Builder(c,rule.optString("channelId","daily_adhkar"))
                     .setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(rule.getString("title")).setContentText(rule.getString("body"))
