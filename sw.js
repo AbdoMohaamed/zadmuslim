@@ -4,9 +4,19 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v67";
+const CACHE_NAME = "zad-muslim-v72";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
+  "./assets/js/brand-intro.js?v=1",
+  "./assets/css/brand-intro.css?v=1",
+  "./assets/branding/intro-logo.png",
+  "./assets/icon-192.png?v=2",
+  "./assets/icon-512.png?v=2",
+  "./assets/icon.svg?v=2",
+  "./assets/js/radio-widget.js?v=1",
+  "./assets/js/radio-navigation.js?v=1",
+  "./assets/css/radio-player.css?v=3",
+  "./assets/js/radio-player.js?v=1",
   "./assets/js/location-service.js?v=1",
   "./assets/css/style.css?v=96",
   "./assets/js/theme-controller.js",
@@ -16,22 +26,22 @@ const ASSETS_TO_CACHE = [
   "./assets/js/asmaa-allah-data.js?v=1",
   "./assets/js/islamic-guide-data.js?v=1",
   "./assets/js/daily-message-data.js?v=2",
-  "./assets/js/radio-stations-data.js?v=4",
+  "./assets/js/radio-stations-data.js?v=5",
   "./assets/js/quiz-data.js?v=2",
   "./assets/js/islamic-stories-data.js?v=3",
   "./assets/js/media-data.js?v=2",
   "./assets/js/firebase-config.js",
   "./assets/js/native-adhan-service.js?v=10",
   "./assets/js/onesignal-service.js?v=1",
-  "./assets/js/app.js?v=20",
+  "./assets/js/app.js?v=21",
   "./assets/js/quran.js?v=26",
-  "./assets/js/extended-modules.js?v=30",
-  "./assets/js/smart-khatma.js?v=1",
+  "./assets/js/extended-modules.js?v=32",
+  "./assets/js/smart-khatma.js?v=2",
   "./assets/js/share-card-generator.js?v=1",
   "./assets/js/mood-compass.js?v=1",
   "./assets/js/smart-tasbih.js?v=1",
   "./assets/js/prayer-guide.js?v=1",
-  "./assets/js/user-tools.js?v=5",
+  "./assets/js/user-tools.js?v=6",
   "./assets/js/zakat-calculator.js?v=1",
   "./assets/js/nearby-mosques.js?v=9",
   "./assets/js/wall-of-duas.js?v=1",
@@ -43,7 +53,7 @@ const ASSETS_TO_CACHE = [
   "./assets/css/settings-review.css?v=2",
   "./assets/js/prayer-cities.js?v=1",
   "./privacy.html",
-  "./assets/js/user-tools.js?v=5",
+  "./assets/js/user-tools.js?v=6",
   "./assets/css/user-tools.css?v=3",
   "./assets/css/style.css",
   "./assets/images/logo.png",
@@ -174,6 +184,8 @@ self.addEventListener("fetch", (event) => {
     })());
     return;
   }
+
+  if (new URL(event.request.url).pathname.endsWith("/assets/branding/intro.mp4")) return;
 
   // تجاهل طلبات الفيربيز والبث المباشر والصوتيات الكبيرة
   if (

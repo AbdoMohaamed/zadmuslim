@@ -1,0 +1,57 @@
+/* One selected station, one playback intent, bounded reconnect attempts. */
+(function(global){
+'use strict';
+class RadioPlayer {
+ constructor(audio, notify=()=>{}) {
+  this.audio=audio;this.notify=notify;this.wanted=false;this.generation=0;this.attempt=0;this.state='paused';
+  this.online=()=>navigator.onLine!==false;
+  audio.addEventListener('playing',()=>{if(!this.wanted){audio.pause();return;}this.clear();this.setState('playing');this.stable=setTimeout(()=>{this.attempt=0;},30000);});
+  for(const event of ['waiting','stalled'])audio.addEventListener(event,()=>{if(this.wanted&&!this.retry){this.setState('buffering');this.watch();}});
+  for(const event of ['error','ended'])audio.addEventListener(event,()=>this.reconnect());
+  audio.addEventListener('pause',()=>{if(this.wanted&&!this.retry&&this.state==='playing'){this.wanted=false;this.clear();this.setState('paused');}});
+  global.addEventListener('offline',()=>{if(this.wanted){this.generation++;this.clear();this.setState('offline');audio.pause();}});
+  global.addEventListener('online',()=>{if(this.wanted){this.attempt=0;this.connect();}});
+ }
+ setState(state){this.state=state;this.notify({state,station:this.station,wanted:this.wanted,attempt:this.attempt});}
+ clear(){clearTimeout(this.retry);clearTimeout(this.watchdog);clearTimeout(this.stable);this.retry=this.watchdog=this.stable=null;}
+ watch(){if(!this.watchdog)this.watchdog=setTimeout(()=>{this.watchdog=null;this.reconnect();},18000);}
+ select(station,play=this.wanted){this.stop();this.station=station;this.attempt=0;if(play)this.play();else this.setState('paused');}
+ play(){if(!this.station)return;this.wanted=true;this.attempt=0;this.connect();}
+ stop(){this.wanted=false;this.generation++;this.clear();this.setState('paused');this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
+ async connect(){
+  if(!this.wanted)return;
+  const generation=++this.generation;this.clear();
+  if(!this.online()){this.setState('offline');return;}
+  this.setState('connecting');
+  const urls=[this.station.url,...(this.station.backupUrl?[this.station.backupUrl]:[])];
+  this.audio.src=urls[this.attempt%urls.length];this.audio.load();this.watch();
+  try{await this.audio.play();}catch(error){
+   if(generation!==this.generation||!this.wanted)return;
+   if(error.name==='NotAllowedError'){this.wanted=false;this.clear();this.setState('blocked');}
+   else this.reconnect();
+  }
+ }
+ reconnect(){
+  if(!this.wanted||this.retry)return;
+  this.generation++;this.clear();
+  if(!this.online()){this.setState('offline');this.audio.pause();return;}
+  if(this.attempt>=6){this.wanted=false;this.setState('failed');this.audio.pause();return;}
+  const delay=Math.min(1000*2**this.attempt,30000);this.attempt++;
+  this.setState('retrying');this.retry=setTimeout(()=>{this.retry=null;this.connect();},delay);
+ }
+}
+class NativeRadioPlayer {
+ constructor(audio,notify,stations){this.audio=audio;this.notify=notify;this.stations=stations;this.wanted=false;this.chain=Promise.resolve();this.state='paused';this.plugin=global.Capacitor.Plugins.RadioNative;
+ this.poll=async()=>{if(document.hidden||this.busy)return;try{const result=await this.plugin.getState();if(this.busy)return;if(result.wanted)this.station=this.stations.find(s=>s.id===result.id)||this.station;this.wanted=result.wanted;this.state=result.state;this.notify({...result,station:this.station});}catch{}};
+ this.interval=setInterval(this.poll,1500);document.addEventListener('visibilitychange',this.poll);this.poll();
+ }
+ command(fn){this.pending=(this.pending||0)+1;this.busy=true;this.chain=this.chain.then(fn).catch(()=>{this.wanted=false;this.state='failed';this.notify({state:'failed',wanted:false,station:this.station});}).finally(()=>{this.pending--;this.busy=this.pending>0;});return this.chain;}
+ select(station,play=this.wanted){if(this.station)this.stop();this.station=station;if(play)this.play();else this.notify({state:'paused',wanted:false,station});}
+ play(){this.wanted=true;const station=this.station;this.notify({state:'connecting',wanted:true,station});this.command(async()=>{await this.plugin.play({...station,volume:this.audio.volume});if(this.deadline)await this.plugin.setSleepTimer({at:this.deadline});});}
+ stop(){this.wanted=false;this.notify({state:'paused',wanted:false,station:this.station});this.command(()=>this.plugin.stop());}
+ setVolume(volume){this.command(()=>this.plugin.setVolume({volume}));}
+ setSleepTimer(at){this.deadline=at;this.command(()=>this.plugin.setSleepTimer({at}));}
+}
+global.ZadNativeRadioPlayer=NativeRadioPlayer;
+global.ZadRadioPlayer=RadioPlayer;
+})(window);

@@ -1,6 +1,6 @@
 /**
  * قائمة إذاعات القرآن الكريم المباشرة 24/7 والتلاوات الخاشعة
- * روابط بث صوتي مباشرة ومستقرة وسريعة تعمل عالمياً دون انقطاع
+ * روابط بث صوتي مباشرة؛ التوفر يعتمد على مصدر البث والاتصال
  */
 
 const RADIO_STATIONS_LIST = [
@@ -97,18 +97,16 @@ const RADIO_STATIONS_LIST = [
     {
         id: "cairo",
         name: "إذاعة القرآن الكريم من القاهرة",
-        desc: "بث مباشر رسمي ومستمر على مدار 24 ساعة (مع تحويل بديل تلقائي)",
+        desc: "بث إذاعة القرآن الكريم من القاهرة — إعادة اتصال بنفس المحطة عند الانقطاع",
         url: "https://stream.radiojar.com/8s5u5tpdtwzuv",
-        backupUrl: "https://qurango.net/radio/mix",
         icon: "fa-solid fa-tower-broadcast",
         badge: "القاهرة"
     },
     {
         id: "makkah",
         name: "إذاعة القرآن الكريم من مكة المكرمة",
-        desc: "بث مباشر رسمي لتلاوات الحرم المكي والمسجد النبوي",
+        desc: "بث تلاوات من الحرم المكي والمسجد النبوي",
         url: "https://stream.radiojar.com/0tpy1h0kxtzuv",
-        backupUrl: "https://qurango.net/radio/mix",
         icon: "fa-solid fa-kaaba",
         badge: "مكة المكرمة"
     },

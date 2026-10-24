@@ -88,13 +88,13 @@
         if (id === 'tasbeeh') {
             const el = document.getElementById('smart-dhikr-panel');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
-            else location.href = 'index.html#smart-dhikr-panel';
+            else (window.zadNavigate || location.assign.bind(location))('index.html#smart-dhikr-panel');
         } else if (id === 'sadaqa') {
             const el = document.getElementById('sadaqa');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
-            else location.href = 'index.html#sadaqa';
+            else (window.zadNavigate || location.assign.bind(location))('index.html#sadaqa');
         } else {
-            location.href = 'services.html#' + id;
+            (window.zadNavigate || location.assign.bind(location))('services.html#' + id);
         }
     }
 

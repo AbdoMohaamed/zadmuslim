@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة تحكم زاد المسلم • الإشعارات والإحصائيات</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1242,7 +1242,7 @@
     <!-- Admin Navigation Bar -->
     <nav class="admin-nav">
         <a href="index.html" class="nav-brand" title="العودة للتطبيق">
-            <img src="assets/icon.svg" alt="زاد المسلم">
+            <img src="assets/icon.svg?v=2" alt="زاد المسلم">
             <div>
                 <h1>زاد المسلم</h1>
             </div>
@@ -1481,7 +1481,7 @@
                         <div class="push-preview-card">
                             <div class="preview-header">
                                 <div class="preview-app-info">
-                                    <img src="assets/icon.svg" class="preview-app-icon" alt="icon">
+                                    <img src="assets/icon.svg?v=2" class="preview-app-icon" alt="icon">
                                     <span class="preview-app-name">زاد المسلم • الآن</span>
                                 </div>
                                 <span class="preview-time">الآن</span>
@@ -1838,7 +1838,7 @@
                         <div>
                             <label class="form-label">معاينة الصورة المصغرة</label>
                             <div class="media-preview-box" id="media-live-preview-box">
-                                <img src="assets/icon.svg" id="media-preview-img" class="media-preview-thumb" alt="معاينة الصورة" onerror="this.src='assets/icon.svg'">
+                                <img src="assets/icon.svg?v=2" id="media-preview-img" class="media-preview-thumb" alt="معاينة الصورة" onerror="this.src='assets/icon.svg?v=2'">
                                 <div id="media-preview-placeholder" style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
                                     الصورة المصغرة ستظهر هنا تلقائياً بمجرد إدخال الرابط ⚡
                                 </div>
@@ -2255,18 +2255,18 @@
                         navigator.serviceWorker.ready.then(reg => {
                             reg.showNotification(title, {
                                 body: body,
-                                icon: "assets/icon.svg",
-                                badge: "assets/icon.svg",
+                                icon: "assets/icon.svg?v=2",
+                                badge: "assets/icon.svg?v=2",
                                 vibrate: [120, 80, 120, 80, 300],
                                 data: { url: url }
                             });
                         }).catch(() => {
                             try {
-                                new Notification(title, { body: body, icon: "assets/icon.svg" });
+                                new Notification(title, { body: body, icon: "assets/icon.svg?v=2" });
                             } catch(e) {}
                         });
                     } else {
-                        new Notification(title, { body: body, icon: "assets/icon.svg" });
+                        new Notification(title, { body: body, icon: "assets/icon.svg?v=2" });
                     }
                 }
             } catch(e) {
@@ -2736,7 +2736,7 @@
                 return `
                     <div class="media-admin-card" data-id="${escapeHtml(item.id)}">
                         <div class="media-admin-card-thumb-wrap">
-                            <img src="${thumb}" alt="${escapeHtml(item.title)}" class="media-admin-card-thumb" loading="lazy" onerror="this.src='assets/icon.svg'">
+                            <img src="${thumb}" alt="${escapeHtml(item.title)}" class="media-admin-card-thumb" loading="lazy" onerror="this.src='assets/icon.svg?v=2'">
                             <span class="media-admin-card-duration">${escapeHtml(item.duration || "غير محدد")}</span>
                             <span class="media-admin-card-cat-badge">
                                 <i class="${cat.icon}"></i> ${cat.label}
@@ -2848,7 +2848,7 @@
             document.getElementById("btn-save-media-text").textContent = "حفظ ونشر المقطع في زاد المسلم 🚀";
             document.getElementById("btn-cancel-edit-media").style.display = "none";
             document.getElementById("media-url-status").textContent = "";
-            document.getElementById("media-preview-img").src = "assets/icon.svg";
+            document.getElementById("media-preview-img").src = "assets/icon.svg?v=2";
             document.getElementById("btn-test-live-preview").style.display = "none";
         }
 
@@ -3049,7 +3049,7 @@
                     statusEl.textContent = urlInput.value.trim() ? "رابط غير معروف ⚠️" : "";
                     statusEl.style.color = "var(--danger)";
                 }
-                if (previewImg) previewImg.src = "assets/icon.svg";
+                if (previewImg) previewImg.src = "assets/icon.svg?v=2";
                 if (btnTest) btnTest.style.display = "none";
             }
         }

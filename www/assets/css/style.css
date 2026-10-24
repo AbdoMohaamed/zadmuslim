@@ -4357,9 +4357,9 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .btn-radio-play.is-loading {
-  opacity: 0.9;
-  border-color: #fbbf24 !important;
-  color: #fbbf24 !important;
+    opacity: 0.9;
+    border-color: #fbbf24 !important;
+    color: #062820 !important;
 }
 
 @keyframes pulseRadio {
@@ -16122,7 +16122,7 @@ html[data-theme="light"] .btn-modern-outline {
   }
 
   .radio-panel {
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(55px + env(safe-area-inset-bottom, 0px)) !important;
     left: 14px !important;
     max-width: calc(100vw - 28px) !important;
   }
@@ -16635,7 +16635,7 @@ html {
 
     .nav .btn {
         padding: 6px 9px !important;
-        font-size: 11px !important;
+        font-size: 15px !important;
         white-space: nowrap !important;
         border-radius: 9px !important;
     }

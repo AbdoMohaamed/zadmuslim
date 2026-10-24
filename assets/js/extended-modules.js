@@ -2735,383 +2735,62 @@ function initIslamicQuiz() {
    10. ويدجت إذاعة القرآن الكريم ومؤقت النوم الذكي (Live Radio & Sleep Timer)
    ========================================================================== */
 function initLiveRadioWidgetWithSleepTimer() {
-    const radioAudio = document.getElementById("live-radio-audio");
-    const fabBtn = document.getElementById("radio-fab-btn");
-    const navBtn = document.getElementById("btn-toggle-radio-nav");
-    const panel = document.getElementById("radio-panel");
-    const closeBtn = document.getElementById("btn-close-radio");
-    const playBtn = document.getElementById("btn-radio-play");
-    const playIcon = document.getElementById("radio-play-icon");
-    const select = document.getElementById("radio-station-select");
-    const volumeSlider = document.getElementById("radio-volume-slider");
-    const muteBtn = document.getElementById("btn-radio-mute");
-    const volumeIcon = document.getElementById("radio-volume-icon");
-    const nameEl = document.getElementById("current-station-name");
-    const descEl = document.getElementById("current-station-desc");
-    const badgeEl = document.getElementById("current-station-badge");
-    const sleepSelect = document.getElementById("radio-sleep-timer-select");
-    const countdownEl = document.getElementById("radio-timer-countdown");
-    const remTimeEl = document.getElementById("radio-timer-rem-time");
-    const wavesEl = document.getElementById("radio-waves");
+ if(window.ZadRadioEmbedded)return;
+ const $=id=>document.getElementById(id), audio=$('live-radio-audio'),panel=$('radio-panel'),fab=$('radio-fab-btn');
+ if(!audio||!panel||!fab||panel.dataset.ready||!window.ZadRadioPlayer)return;
+ panel.dataset.ready='true';
+ const stations=[...(typeof RADIO_STATIONS_LIST!=='undefined'?RADIO_STATIONS_LIST:[])].sort((a,b)=>(b.id==='cairo')-(a.id==='cairo'));
+ if(!stations.length)return;
+ const select=$('radio-station-select'), play=$('btn-radio-play'), icon=$('radio-play-icon'),vol=$('radio-volume-slider');
+ const read=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}};
+ const save=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
+ const status=panel.querySelector('.radio-live-status-badge');if(status){status.setAttribute('role','status');status.setAttribute('aria-live','polite');}
+ const labels={paused:'متوقف',playing:'يعمل الآن',connecting:'جاري الاتصال',buffering:'جاري تحميل الصوت',retrying:'إعادة الاتصال',offline:'الإنترنت غير متاح',failed:'البث غير متاح — اضغط لإعادة المحاولة',blocked:'اضغط تشغيل للسماح بالصوت',interrupted:'متوقف مؤقتًا للمكالمة أو الأذان'};
+ let sleepDeadline=0, sleepInterval, previousVolume=.8;
+ const nativeRadio=window.Capacitor?.getPlatform?.()==='android' && window.Capacitor?.isPluginAvailable?.('RadioNative');
+ const Player=nativeRadio?window.ZadNativeRadioPlayer:window.ZadRadioPlayer;
+ const player=new Player(audio,({state,station,wanted})=>{
+  if(status)status.textContent=labels[state]||state;
+  if(icon)icon.className=wanted?'fa-solid fa-stop':'fa-solid fa-play';
+  if(play){play.title= wanted?'إيقاف':'سماع';play.setAttribute('aria-label',play.title);play.setAttribute('aria-pressed',String(wanted));}
+  for(const element of [panel,fab,$('btn-toggle-radio-nav')])element?.classList.toggle('is-playing',state==='playing');
+  if($('radio-waves'))$('radio-waves').style.display=state==='playing'?'flex':'none';
+  if(station){$('current-station-name').textContent=station.name;$('current-station-desc').textContent=station.desc;if(select)select.value=station.id;}
+  if(!nativeRadio&&'mediaSession' in navigator){
+   navigator.mediaSession.playbackState=state==='playing'?'playing':'paused';
+   if(station&&window.MediaMetadata)navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:'زاد المسلم',album:'بث إذاعي مباشر'});
+  }
+ },stations);
+ window.ZadRadioHost?.attach(player);
+ const setStation=(station,autoplay)=>{save('zadmuslim_active_radio_station',station.id);player.select(station,autoplay);};
+ if(select){select.replaceChildren();for(const station of stations){const option=document.createElement('option');option.value=station.id;option.textContent=station.name;select.append(option);}select.onchange=()=>setStation(stations.find(s=>s.id===select.value),player.wanted);}
+ setStation(stations.find(s=>s.id===read('zadmuslim_active_radio_station','cairo'))||stations[0],false);
+ const start=()=>{document.querySelectorAll('audio,video').forEach(other=>{if(other!==audio&&!other.paused)other.pause();});player.play();};
+ play.onclick=()=>player.wanted?player.stop():start();
+ document.addEventListener('play',event=>{if(event.target!==audio&&['AUDIO','VIDEO'].includes(event.target.tagName)&&player.wanted)player.stop();},true);
+ if(!nativeRadio&&'mediaSession' in navigator)for(const [action,handler] of Object.entries({play:start,pause:()=>player.stop(),stop:()=>player.stop()})){try{navigator.mediaSession.setActionHandler(action,handler);}catch{}}
+ const updateVolume=value=>{value=Math.max(0,Math.min(1,value));audio.volume=value;player.setVolume?.(value);if(vol)vol.value=value;save('zadmuslim_radio_volume',value);if(value>0)previousVolume=value;const vi=$('radio-volume-icon');if(vi)vi.className=value===0?'fa-solid fa-volume-xmark':value<.5?'fa-solid fa-volume-low':'fa-solid fa-volume-high';};
+ const savedVolume=Number(read('zadmuslim_radio_volume','.8'));updateVolume(Number.isFinite(savedVolume)?savedVolume:.8);
+ if(vol)vol.oninput=()=>updateVolume(Number(vol.value));
+ if($('btn-radio-mute'))$('btn-radio-mute').onclick=()=>updateVolume(audio.volume?0:previousVolume);
+ const open=()=>{panel.classList.toggle('open');fab.setAttribute('aria-expanded',String(panel.classList.contains('open')));};
+ fab.onclick=event=>{event.stopPropagation();open();};
+ if($('btn-toggle-radio-nav'))$('btn-toggle-radio-nav').onclick=event=>{event.stopPropagation();open();};
+ $('btn-close-radio').onclick=()=>{panel.classList.remove('open');fab.setAttribute('aria-expanded','false');fab.focus();};
+ panel.addEventListener('click',event=>event.stopPropagation());
+ document.addEventListener('click',()=>{panel.classList.remove('open');fab.setAttribute('aria-expanded','false');});
+ panel.addEventListener('keydown',event=>{if(event.key==='Escape')$('btn-close-radio').click();});
+ const quick=document.createElement('button');quick.type='button';quick.className='btn outline radio-cairo-shortcut';quick.textContent='سماع إذاعة القرآن الكريم من القاهرة';quick.onclick=()=>{const cairo=stations.find(s=>s.id==='cairo');if(cairo){setStation(cairo,false);start();}};panel.querySelector('.radio-station-info').after(quick);
+ const favorite=document.createElement('button');favorite.type='button';favorite.className='btn outline';
+ let favorites;try{favorites=JSON.parse(read('zadmuslim_radio_favorites','[]'));if(!Array.isArray(favorites))favorites=[];}catch{favorites=[];}
+ const refreshFavorites=()=>{for(const option of select?.options||[]){const station=stations.find(s=>s.id===option.value);option.textContent=(favorites.includes(station.id)?'★ ':'')+station.name;}favorite.textContent=favorites.includes(player.station?.id)?'★ إزالة من المفضلة':'☆ إضافة للمفضلة';favorite.setAttribute('aria-pressed',String(favorites.includes(player.station?.id)));};
+ favorite.onclick=()=>{const id=player.station?.id;if(!id)return;favorites=favorites.includes(id)?favorites.filter(v=>v!==id):[...favorites,id];save('zadmuslim_radio_favorites',JSON.stringify(favorites));refreshFavorites();};quick.after(favorite);select?.addEventListener('change',refreshFavorites);quick.addEventListener('click',refreshFavorites);refreshFavorites();
+ const timer=$('radio-sleep-timer-select'), countdown=$('radio-timer-countdown');
+ const updateTimer=()=>{if(!sleepDeadline)return;const remaining=sleepDeadline-Date.now();if(remaining<=0){sleepDeadline=0;clearInterval(sleepInterval);timer.value='0';countdown.style.display='none';player.stop();return;}const seconds=Math.ceil(remaining/1000);$('radio-timer-rem-time').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');};
+ if(timer)timer.onchange=()=>{clearInterval(sleepInterval);const minutes=Number(timer.value);sleepDeadline=minutes>0?Date.now()+minutes*60000:0;player.setSleepTimer?.(sleepDeadline);countdown.style.display=sleepDeadline?'flex':'none';if(sleepDeadline){updateTimer();sleepInterval=setInterval(updateTimer,1000);}};
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateTimer();});
+ const sleepGroup=panel.querySelector('.radio-sleep-timer-group');if(sleepGroup){const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='مؤقت النوم';details.className='radio-sleep-details';details.append(summary);sleepGroup.before(details);details.append(sleepGroup);}
 
-    if (!radioAudio || !panel || !fabBtn) return;
-
-    const stations = (typeof RADIO_STATIONS_LIST !== "undefined" && RADIO_STATIONS_LIST.length > 0)
-        ? RADIO_STATIONS_LIST
-        : (typeof RADIO_STATIONS !== "undefined" ? RADIO_STATIONS : []);
-
-    if (stations.length === 0) return;
-
-    let isPlaying = false;
-    let sleepTimerInterval = null;
-    let previousVolume = 0.8;
-    let fallbackAttempts = 0;
-
-    // 1. ملء قائمة المحطات واختيار المحطة النشطة
-    if (select) {
-        select.innerHTML = "";
-        stations.forEach(st => {
-            const opt = document.createElement("option");
-            opt.value = st.id;
-            opt.textContent = st.name;
-            select.appendChild(opt);
-        });
-    }
-
-    // استرجاع المحطة المحفوظة أو البدء بالإذاعة العامة المستقرة 100%
-    let savedStationId = null;
-    try {
-        savedStationId = localStorage.getItem("zadmuslim_active_radio_station");
-    } catch(e) {}
-
-    let currentStation = stations.find(s => s.id === savedStationId);
-    if (!currentStation) {
-        // افتراضياً الإذاعة العامة المضمونة أو الشيخ علي جابر
-        currentStation = stations.find(s => s.id === "general") || stations.find(s => s.id === "ali_jaber") || stations[0];
-    }
-
-    const applyStationUI = (st) => {
-        if (!st) return;
-        if (nameEl) nameEl.textContent = st.name;
-        if (descEl) descEl.textContent = st.desc;
-        if (select) select.value = st.id;
-        if (badgeEl && st.icon) {
-            badgeEl.innerHTML = `<i class="${st.icon}"></i>`;
-        }
-    };
-
-    let isLoadingStream = false;
-
-    const setLoadingState = (loading, message = "جاري الاتصال بالبث المباشر... ⏳") => {
-        isLoadingStream = loading;
-        if (loading) {
-            if (playIcon) playIcon.className = "fa-solid fa-spinner fa-spin";
-            if (playBtn) {
-                playBtn.classList.add("is-loading");
-                playBtn.setAttribute("title", message);
-            }
-            if (fabBtn) fabBtn.classList.add("is-loading");
-            if (descEl) descEl.innerHTML = `<span style="color: #ffd875; font-weight: 700;"><i class="fa-solid fa-spinner fa-spin"></i> ${message}</span>`;
-        } else {
-            if (playBtn) {
-                playBtn.classList.remove("is-loading");
-                playBtn.setAttribute("title", isPlaying ? "إيقاف مؤقت" : "تشغيل البث");
-            }
-            if (fabBtn) fabBtn.classList.remove("is-loading");
-            if (descEl && currentStation) descEl.textContent = currentStation.desc;
-        }
-    };
-
-    const setStation = (st, autoPlay = false) => {
-        if (!st) return;
-        currentStation = st;
-        try {
-            localStorage.setItem("zadmuslim_active_radio_station", st.id);
-        } catch(e) {}
-        applyStationUI(st);
-        radioAudio.src = st.url;
-        if (autoPlay || isPlaying) {
-            setLoadingState(true, `جاري تشغيل «${st.name}»... ⏳`);
-            radioAudio.play().then(() => {
-                fallbackAttempts = 0;
-                setLoadingState(false);
-                updatePlayState(true);
-            }).catch(e => {
-                console.warn("Radio playback error, trying fallback:", e);
-                triggerStreamFallback(st);
-            });
-        }
-    };
-
-    applyStationUI(currentStation);
-    radioAudio.src = currentStation.url;
-
-    if (select) {
-        select.addEventListener("change", () => {
-            const st = stations.find(s => s.id === select.value) || stations[0];
-            fallbackAttempts = 0;
-            setStation(st, isPlaying);
-        });
-    }
-
-    // التحويل التلقائي الذكي للبث البديل في حال تعثر أي إذاعة لضمان عدم انقطاع التلاوة
-    const triggerStreamFallback = (failedStation) => {
-        setLoadingState(false);
-        fallbackAttempts++;
-        if (fallbackAttempts > 4) {
-            fallbackAttempts = 0;
-            updatePlayState(false);
-            if (typeof showToast === "function") {
-                showToast("تعذر الاتصال بالبث حالياً، يرجى اختيار إذاعة أخرى من القائمة 📻");
-            }
-            return;
-        }
-
-        // إذا كانت المحطة تحتوي على رابط احتياطي
-        if (failedStation && failedStation.backupUrl && radioAudio.src !== failedStation.backupUrl) {
-            console.warn("Switching to backup stream URL:", failedStation.backupUrl);
-            radioAudio.src = failedStation.backupUrl;
-            if (isPlaying) {
-                setLoadingState(true, "جاري الانتقال للتردد الاحتياطي... ⏳");
-                radioAudio.play().then(() => {
-                    setLoadingState(false);
-                    updatePlayState(true);
-                }).catch(() => triggerStreamFallback(null));
-            }
-            return;
-        }
-
-        // الانتقال الفوري لمحطة بديلة فائقة الاستقرار (الإذاعة العامة أو الشيخ علي جابر أو المنشاوي)
-        const reliable = stations.find(s => s.id === "general" && s.id !== failedStation?.id)
-                      || stations.find(s => s.id === "ali_jaber" && s.id !== failedStation?.id)
-                      || stations.find(s => s.id === "minshawi")
-                      || stations[0];
-
-        if (reliable && reliable.id !== failedStation?.id) {
-            console.warn("Switching to reliable station:", reliable.name);
-            setStation(reliable, isPlaying);
-            if (typeof showToast === "function") {
-                showToast(`تم التحويل تلقائياً إلى «${reliable.name}» لضمان استمرار البث 📻✨`);
-            }
-        }
-    };
-
-    // مراقبة أحداث الصوت وإظهار اللودينج أثناء التحميل والبفرينج
-    radioAudio.addEventListener("loadstart", () => {
-        if (!radioAudio.paused) setLoadingState(true, "جاري تهيئة البث المباشر... ⏳");
-    });
-    radioAudio.addEventListener("waiting", () => {
-        setLoadingState(true, "جاري تحضير البث المباشر والاتصال بالسيرفر... ⏳");
-    });
-    radioAudio.addEventListener("canplay", () => {
-        setLoadingState(false);
-    });
-    radioAudio.addEventListener("playing", () => {
-        setLoadingState(false);
-        updatePlayState(true);
-    });
-    radioAudio.addEventListener("pause", () => {
-        setLoadingState(false);
-        updatePlayState(false);
-    });
-    radioAudio.addEventListener("error", () => {
-        setLoadingState(false);
-        console.warn("Radio stream error event fired, attempting fallback...");
-        triggerStreamFallback(currentStation);
-    });
-
-    // 2. تحديث حالة التشغيل والمظهر
-    const updatePlayState = (playing) => {
-        isPlaying = playing;
-        if (!isLoadingStream && playIcon) {
-            playIcon.className = playing ? "fa-solid fa-pause" : "fa-solid fa-play";
-        }
-        if (fabBtn) {
-            if (playing) {
-                fabBtn.classList.add("is-playing");
-            } else {
-                fabBtn.classList.remove("is-playing");
-            }
-        }
-        if (navBtn) {
-            if (playing) {
-                navBtn.classList.add("active");
-            } else {
-                navBtn.classList.remove("active");
-            }
-        }
-        if (panel) {
-            if (playing) {
-                panel.classList.add("is-playing");
-            } else {
-                panel.classList.remove("is-playing");
-            }
-        }
-        if (wavesEl) {
-            wavesEl.style.display = playing ? "flex" : "none";
-        }
-    };
-
-    const toggleRadioPlayback = () => {
-        if (isPlaying) {
-            setLoadingState(false);
-            radioAudio.pause();
-            updatePlayState(false);
-            if (typeof showToast === "function") showToast("تم إيقاف إذاعة القرآن الكريم ⏸️");
-        } else {
-            // إيقاف مشغلات الصوت الأخرى لمنع التداخل
-            const legacyAudio = document.getElementById("quran-audio");
-            if (legacyAudio && !legacyAudio.paused) {
-                legacyAudio.pause();
-                const btnToggleAudio = document.getElementById("btn-toggle-audio");
-                if (btnToggleAudio) btnToggleAudio.classList.remove("active");
-            }
-
-            setLoadingState(true, "جاري الاتصال بالبث المباشر... ⏳");
-
-            radioAudio.play().then(() => {
-                fallbackAttempts = 0;
-                setLoadingState(false);
-                updatePlayState(true);
-                if (typeof showToast === "function") showToast("جاري الاستماع لإذاعة القرآن الكريم 📻🌿");
-            }).catch(e => {
-                console.warn("Radio stream play error:", e);
-                triggerStreamFallback(currentStation);
-            });
-        }
-    };
-
-    if (playBtn) {
-        playBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggleRadioPlayback();
-        });
-    }
-
-    // التحكم بالصوت وزر الكتم
-    const updateVolumeUI = (vol) => {
-        if (volumeIcon) {
-            if (vol <= 0) {
-                volumeIcon.className = "fa-solid fa-volume-xmark";
-            } else if (vol < 0.5) {
-                volumeIcon.className = "fa-solid fa-volume-low";
-            } else {
-                volumeIcon.className = "fa-solid fa-volume-high";
-            }
-        }
-    };
-
-    if (volumeSlider) {
-        radioAudio.volume = parseFloat(volumeSlider.value) || 0.8;
-        previousVolume = radioAudio.volume;
-        updateVolumeUI(radioAudio.volume);
-
-        volumeSlider.addEventListener("input", () => {
-            const val = parseFloat(volumeSlider.value);
-            radioAudio.volume = val;
-            if (val > 0) previousVolume = val;
-            updateVolumeUI(val);
-        });
-    }
-
-    if (muteBtn) {
-        muteBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (radioAudio.volume > 0) {
-                previousVolume = radioAudio.volume || 0.8;
-                radioAudio.volume = 0;
-                if (volumeSlider) volumeSlider.value = 0;
-                updateVolumeUI(0);
-            } else {
-                const restore = previousVolume > 0 ? previousVolume : 0.8;
-                radioAudio.volume = restore;
-                if (volumeSlider) volumeSlider.value = restore;
-                updateVolumeUI(restore);
-            }
-        });
-    }
-
-    // 3. فتح وإغلاق النافذة المنبثقة للراديو
-    fabBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        panel.classList.toggle("open");
-    });
-
-    if (closeBtn) {
-        closeBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            panel.classList.remove("open");
-        });
-    }
-
-    if (navBtn) {
-        navBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            panel.classList.toggle("open");
-            if (!isPlaying) {
-                toggleRadioPlayback();
-            }
-        });
-    }
-
-    // منع إغلاق النافذة عند النقر بداخلها
-    panel.addEventListener("click", (e) => {
-        e.stopPropagation();
-    });
-
-    // إغلاق النافذة عند النقر خارجها
-    document.addEventListener("click", (e) => {
-        if (panel.classList.contains("open") && !panel.contains(e.target) && e.target !== fabBtn && !fabBtn.contains(e.target)) {
-            panel.classList.remove("open");
-        }
-    });
-
-    // 4. التحكم بمؤقت النوم الذكي (Sleep Timer)
-    if (sleepSelect) {
-        sleepSelect.addEventListener("change", () => {
-            if (sleepTimerInterval) {
-                clearInterval(sleepTimerInterval);
-                sleepTimerInterval = null;
-            }
-
-            const minutes = parseInt(sleepSelect.value, 10);
-            if (minutes > 0) {
-                const targetTime = Date.now() + minutes * 60 * 1000;
-                if (countdownEl) countdownEl.style.display = "flex";
-
-                const updateTimer = () => {
-                    const remMs = targetTime - Date.now();
-                    if (remMs <= 0) {
-                        clearInterval(sleepTimerInterval);
-                        sleepTimerInterval = null;
-                        if (countdownEl) countdownEl.style.display = "none";
-                        sleepSelect.value = "0";
-                        radioAudio.pause();
-                        updatePlayState(false);
-                        if (typeof showToast === "function") {
-                            showToast("تم إيقاف تلاوة القرآن الكريم بموجب مؤقت النوم 🌙 تقبل الله طاعتكم");
-                        }
-                        return;
-                    }
-
-                    const totalSec = Math.floor(remMs / 1000);
-                    const m = Math.floor(totalSec / 60);
-                    const s = totalSec % 60;
-                    if (remTimeEl) {
-                        remTimeEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                    }
-                };
-
-                updateTimer();
-                sleepTimerInterval = setInterval(updateTimer, 1000);
-                if (typeof showToast === "function") {
-                    showToast(`تم ضبط مؤقت إيقاف التلاوة بعد ${minutes} دقيقة ⏱️`);
-                }
-            } else {
-                if (countdownEl) countdownEl.style.display = "none";
-            }
-        });
-    }
 }
 
 /* ==========================================================================
@@ -3408,7 +3087,7 @@ function initSmartTimelyReminders() {
                     quranSec.scrollIntoView({ behavior: "smooth" });
                 } else {
                     sessionStorage.setItem("target_mushaf_page", JSON.stringify({ page: 293, surah: 18 }));
-                    window.location.href = "services.html#quran-khatma";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma");
                 }
             }
         };
@@ -3427,7 +3106,7 @@ function initSmartTimelyReminders() {
                 if (fastingSec) {
                     fastingSec.scrollIntoView({ behavior: "smooth" });
                 } else {
-                    window.location.href = "services.html#fasting-tracker";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#fasting-tracker");
                 }
             }
         };
@@ -3446,7 +3125,7 @@ function initSmartTimelyReminders() {
                 if (azkarSec) {
                     azkarSec.scrollIntoView({ behavior: "smooth" });
                 } else {
-                    window.location.href = "services.html#azkar";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#azkar");
                 }
             }
         };
@@ -3464,7 +3143,7 @@ function initSmartTimelyReminders() {
                 if (duaaSec) {
                     duaaSec.scrollIntoView({ behavior: "smooth" });
                 } else {
-                    window.location.href = "services.html#daily-duas";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#daily-duas");
                 }
             }
         };
@@ -3485,7 +3164,7 @@ function initSmartTimelyReminders() {
                     azkarSec.scrollIntoView({ behavior: "smooth" });
                 } else {
                     sessionStorage.setItem("target_azkar_tab", "tab-morning");
-                    window.location.href = "services.html#azkar";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#azkar");
                 }
             }
         };
@@ -3503,7 +3182,7 @@ function initSmartTimelyReminders() {
                 if (prayersSec) {
                     prayersSec.scrollIntoView({ behavior: "smooth" });
                 } else {
-                    window.location.href = "services.html#prayer-times";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#prayer-times");
                 }
             }
         };
@@ -3521,7 +3200,7 @@ function initSmartTimelyReminders() {
                 if (quranSec) {
                     quranSec.scrollIntoView({ behavior: "smooth" });
                 } else {
-                    window.location.href = "services.html#quran-khatma";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma");
                 }
             }
         };
@@ -3542,7 +3221,7 @@ function initSmartTimelyReminders() {
                     azkarSec.scrollIntoView({ behavior: "smooth" });
                 } else {
                     sessionStorage.setItem("target_azkar_tab", "tab-evening");
-                    window.location.href = "services.html#azkar";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#azkar");
                 }
             }
         };
@@ -3560,7 +3239,7 @@ function initSmartTimelyReminders() {
                 if (sebhaSec) {
                     sebhaSec.scrollIntoView({ behavior: "smooth" });
                 } else {
-                    window.location.href = "services.html#sebha";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#sebha");
                 }
             }
         };
@@ -3580,7 +3259,7 @@ function initSmartTimelyReminders() {
                     quranSec.scrollIntoView({ behavior: "smooth" });
                 } else {
                     sessionStorage.setItem("target_mushaf_page", JSON.stringify({ page: 562, surah: 67 }));
-                    window.location.href = "services.html#quran-khatma";
+                    (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma");
                 }
             }
         };
@@ -4518,7 +4197,7 @@ function initDailyFeaturedMediaClip() {
                     window.openIslamicMediaPlayer(item, null, audioOnly);
                 }
             } else {
-                window.location.href = `services.html#islamic-media`;
+                (window.zadNavigate || location.assign.bind(location))(`services.html#islamic-media`);
             }
         }
     };

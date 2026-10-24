@@ -1,0 +1,6 @@
+#zad-brand-intro { box-sizing:border-box; position:fixed; inset:0; width:100vw; max-width:none; height:100vh; height:100dvh; max-height:none; margin:0; padding:0; border:0; background:#fff; color:#144d40; z-index:2147483647; overflow:hidden; }
+#zad-brand-intro::backdrop { background:#fff; }
+#zad-brand-intro video { display:block; width:100%; height:100%; object-fit:contain; }
+#zad-brand-intro .brand-intro-actions { position:absolute; inset:auto max(16px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px)); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+#zad-brand-intro button { min-height:48px; padding:10px 22px; border:1px solid #c99a42; border-radius:999px; background:#144d40; color:white; font:600 16px/1.5 system-ui,sans-serif; cursor:pointer; }
+#zad-brand-intro button:focus-visible { outline:3px solid #c99a42; outline-offset:3px; }

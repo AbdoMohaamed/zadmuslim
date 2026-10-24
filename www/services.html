@@ -7,7 +7,7 @@
     <title>اكتشف خدمات زاد المسلم | دليلك الشامل لجميع الأقسام الإيمانية</title>
     <meta name="description" content="فهرس وخدمات منصة زاد المسلم: القرآن الكريم، مواقيت الصلاة، الأذكار والأدعية، الأربعون النووية، أسماء الله الحسنى، قصص الأنبياء، والمسابقات الإسلامية • صدقة جارية.">
     <meta name="theme-color" content="#073f35">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2">
     
     <!-- خط Cairo والأيقونات -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,6 +54,10 @@
     <script src="assets/js/theme-controller.js"></script>
   
     <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
+<link rel="stylesheet" href="assets/css/radio-player.css?v=3">
+<script src="assets/js/radio-navigation.js?v=1"></script>
+<link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
+<script defer src="assets/js/brand-intro.js?v=1"></script>
 </head>
 <body>
 
@@ -61,7 +65,7 @@
     <header class="top">
         <div class="shell container nav">
             <a class="logo" href="index.html#home">
-                <span class="logo-icon"><img src="assets/icon-512.png" /></span>
+                <span class="logo-icon"><img src="assets/icon-512.png?v=2" /></span>
                 <span>زاد المسلم</span>
             </a>
             <nav class="links">
@@ -2766,7 +2770,7 @@
         <!-- بنر تثبيت التطبيق الذكي للهواتف (PWA Install Banner) -->
         <div class="pwa-install-banner" id="pwa-install-banner" style="display: none;">
             <div class="pwa-banner-icon">
-                <img src="assets/icon.svg" alt="أيقونة التطبيق" width="44" height="44">
+                <img src="assets/icon.svg?v=2" alt="أيقونة التطبيق" width="44" height="44">
             </div>
             <div class="pwa-banner-text">
                 <strong>تطبيق زاد المسلم على هاتفك 📱</strong>
@@ -3234,78 +3238,7 @@
         <!-- ==========================================
         ويدجت إذاعة القرآن الكريم المباشرة (24/7 Live Radio)
         ========================================== -->
-        <div class="live-radio-widget" id="live-radio-widget">
-            <!-- الزر العائم المصغر -->
-            <button class="radio-fab-btn" id="radio-fab-btn" title="إذاعة القرآن الكريم">
-                <i class="fa-solid fa-radio radio-icon" id="radio-icon"></i>
-                <span class="radio-pulse"></span>
-                <div class="radio-waves" id="radio-waves">
-                    <span></span><span></span><span></span><span></span>
-                </div>
-            </button>
-
-            <!-- لوحة التحكم المنبثقة -->
-            <div class="radio-panel" id="radio-panel">
-                <div class="radio-panel-header">
-                    <div class="radio-header-title">
-                        <i class="fa-solid fa-tower-broadcast text-gold"></i>
-                        <span>بث إذاعي مباشر 24/7</span>
-                        <span class="radio-live-status-badge"><span class="live-dot"></span> مباشر</span>
-                    </div>
-                    <button class="btn-close-radio" id="btn-close-radio" aria-label="إغلاق">&times;</button>
-                </div>
-
-                <div class="radio-station-info">
-                    <div class="radio-station-header-line">
-                        <span class="station-icon-badge" id="current-station-badge"><i class="fa-solid fa-tower-broadcast"></i></span>
-                        <div class="radio-station-name" id="current-station-name">إذاعة القرآن الكريم العامة</div>
-                    </div>
-                    <div class="radio-station-desc" id="current-station-desc">بث مباشر مستقر 24/7 لنخبة من مشاهير القراء</div>
-                </div>
-
-                <!-- اختيار الإذاعة -->
-                <div class="radio-station-select-group">
-                    <label for="radio-station-select"><i class="fa-solid fa-list-ul"></i> اختر المحطة:</label>
-                    <select id="radio-station-select" class="radio-station-select">
-                        <!-- يُملأ من RADIO_STATIONS_LIST -->
-                    </select>
-                </div>
-
-                <!-- مؤقت النوم الذكي (Sleep Timer) -->
-                <div class="radio-sleep-timer-group">
-                    <label for="radio-sleep-timer-select">
-                        <i class="fa-solid fa-moon text-gold"></i>
-                        <span>مؤقت إيقاف التلاوة (Sleep Timer):</span>
-                    </label>
-                    <select id="radio-sleep-timer-select" class="radio-station-select">
-                        <option value="0">إيقاف المؤقت (تشغيل مستمر)</option>
-                        <option value="15">إيقاف تلقائي بعد 15 دقيقة</option>
-                        <option value="30">إيقاف تلقائي بعد 30 دقيقة</option>
-                        <option value="45">إيقاف تلقائي بعد 45 دقيقة</option>
-                        <option value="60">إيقاف تلقائي بعد 60 دقيقة (ساعة)</option>
-                    </select>
-                    <div id="radio-timer-countdown" style="display: none;">
-                        <i class="fa-solid fa-clock"></i> سيتوقف البث بعد: <strong id="radio-timer-rem-time">00:00</strong>
-                    </div>
-                </div>
-
-                <!-- شريط التحكم بالتشغيل والصوت -->
-                <div class="radio-controls-row">
-                    <button type="button" class="btn-radio-play" id="btn-radio-play" title="تشغيل / إيقاف">
-                        <i class="fa-solid fa-play" id="radio-play-icon"></i>
-                    </button>
-
-                    <div class="radio-volume-group">
-                        <button type="button" class="btn-radio-mute" id="btn-radio-mute" title="كتم / تشغيل الصوت">
-                            <i class="fa-solid fa-volume-high" id="radio-volume-icon"></i>
-                        </button>
-                        <input type="range" id="radio-volume-slider" min="0" max="1" step="0.05" value="0.8" aria-label="مستوى الصوت">
-                    </div>
-                </div>
-
-                <audio id="live-radio-audio" preload="none"></audio>
-            </div>
-        </div>
+        <script src="assets/js/radio-widget.js?v=1"></script>
         <!-- نافذة مشغل المرئيات والبودكاست (Islamic Media Video Modal) -->
         <div class="modal-overlay" id="media-player-modal" role="dialog" aria-modal="true">
             <div class="modal-card modal-card-media-player">
@@ -3665,7 +3598,7 @@
         <script src="assets/js/asmaa-allah-data.js?v=1"></script>
         <script src="assets/js/islamic-guide-data.js?v=1"></script>
         <script src="assets/js/daily-message-data.js?v=2"></script>
-        <script src="assets/js/radio-stations-data.js?v=4"></script>
+        <script src="assets/js/radio-stations-data.js?v=5"></script>
         <script src="assets/js/quiz-data.js?v=2"></script>
         <script src="assets/js/islamic-stories-data.js?v=3"></script>
         <script src="assets/js/media-data.js?v=2"></script>
@@ -3675,10 +3608,11 @@
         <script src="assets/js/onesignal-service.js?v=1"></script>
         <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=20"></script>
+    <script src="assets/js/app.js?v=21"></script>
         <script src="assets/js/quran.js?v=26"></script>
-        <script src="assets/js/extended-modules.js?v=30"></script>
-        <script src="assets/js/smart-khatma.js?v=1"></script>
+        <script src="assets/js/radio-player.js?v=1"></script>
+    <script src="assets/js/extended-modules.js?v=32"></script>
+        <script src="assets/js/smart-khatma.js?v=2"></script>
         <script src="assets/js/share-card-generator.js?v=1"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
         <script src="assets/js/smart-tasbih.js?v=1"></script>
@@ -3943,6 +3877,6 @@
             });
         </script>
 
-    <script src="assets/js/user-tools.js?v=5"></script>
+    <script src="assets/js/user-tools.js?v=6"></script>
 </body>
 </html>

@@ -475,7 +475,7 @@
                 if (sec) sec.scrollIntoView({ behavior: "smooth" });
             } else {
                 // الانتقال إلى services.html
-                window.location.href = `services.html#quran-khatma`;
+                (window.zadNavigate || location.assign.bind(location))(`services.html#quran-khatma`);
             }
         },
 

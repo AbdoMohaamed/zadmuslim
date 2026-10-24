@@ -4370,7 +4370,7 @@ function initAndroidBackButton() {
                     return true;
                 }
             } catch (_) {}
-            window.location.href = "index.html#home";
+            (window.zadNavigate || location.assign.bind(location))("index.html#home");
             return true;
         }
 

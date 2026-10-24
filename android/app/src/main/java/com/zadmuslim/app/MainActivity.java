@@ -16,6 +16,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(AdhanNativePlugin.class);
+        registerPlugin(RadioNativePlugin.class);
         super.onCreate(savedInstanceState);
 
         // حماية رأس التطبيق من تداخل شريط حالة النظام (Status Bar & Display Cutout Insets)
