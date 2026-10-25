@@ -16127,9 +16127,10 @@ html[data-theme="light"] .btn-modern-outline {
   }
 
   .radio-panel {
-    bottom: calc(65px + env(safe-area-inset-bottom, 0px)) !important;
-    left: 14px !important;
-    max-width: calc(100vw - 28px) !important;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+    left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    width: min(326px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))) !important;
+    max-width: 330px !important;
   }
 
   /* شريط التبويبات السفلي للآيفون والأندرويد (Mobile Floating Dock Bar) */

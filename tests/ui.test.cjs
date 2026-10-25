@@ -352,5 +352,8 @@ test('radio starts with Cairo, preserves station on failure, and exposes accessi
  const audio=d.getElementById('live-radio-audio');audio.dispatchEvent(new w.Event('error'));assert.equal(select.value,'cairo');
  button.click();assert.equal(button.getAttribute('aria-label'),'سماع');
  const favorite=[...d.querySelectorAll('#radio-panel button')].find(b=>b.textContent.includes('إضافة للمفضلة'));favorite.click();assert.deepEqual(JSON.parse(w.localStorage.getItem('zadmuslim_radio_favorites')),['cairo']);
+ const fab=d.getElementById('radio-fab-btn');const panel=d.getElementById('radio-panel');
+ fab.click();assert.equal(panel.classList.contains('open'),true);
+ w.pageYOffset=100;w.dispatchEvent(new w.Event('scroll'));assert.equal(panel.classList.contains('open'),false);
  assert.equal(errors.length,0);dom.window.close();
 });

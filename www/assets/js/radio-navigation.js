@@ -9,6 +9,12 @@ if(parentHost){
  window.ZadRadioEmbedded=true;
  window.zadNavigate=href=>parentHost.navigate(new URL(href,location.href).href);
  window.addEventListener('hashchange',()=>parentHost.sync(location.href));
+ window.addEventListener('scroll',()=>{parentHost.closePanel?.();},{passive:true});
+ document.addEventListener('touchmove',event=>{
+  if(!event.target.closest('#radio-panel')&&!event.target.closest('#radio-fab-btn')){
+   parentHost.closePanel?.();
+  }
+ },{passive:true});
  document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('live-radio-widget')?.remove();
   const nav=document.getElementById('btn-toggle-radio-nav');if(nav)nav.addEventListener('click',event=>{event.preventDefault();parentHost.openPanel();});
@@ -25,6 +31,7 @@ if(parentHost){
 const initial=location.href,initialTitle=document.title;
 let frame=null,player=null;
 function openPanel(){document.getElementById('radio-panel')?.classList.add('open');document.getElementById('radio-fab-btn')?.setAttribute('aria-expanded','true');}
+function closePanel(){document.getElementById('radio-panel')?.classList.remove('open');document.getElementById('radio-fab-btn')?.setAttribute('aria-expanded','false');}
 function render(href){
  const url=target(href);if(!url)return;
  const original=new URL(initial);
@@ -36,14 +43,21 @@ function render(href){
  if(!frame){
   frame=document.createElement('iframe');frame.id='zad-radio-page';frame.title='صفحة التطبيق';frame.allow='autoplay; geolocation; accelerometer; gyroscope; magnetometer';
   frame.addEventListener('load',()=>{
-   try{const current=target(frame.contentWindow.location.href);if(current){document.title=frame.contentDocument.title;history.replaceState({...history.state,zadRadioRoute:current.href},'',current.href);}}catch{}
+   try{
+    const current=target(frame.contentWindow.location.href);
+    if(current){document.title=frame.contentDocument.title;history.replaceState({...history.state,zadRadioRoute:current.href},'',current.href);}
+    frame.contentWindow.addEventListener('scroll',closePanel,{passive:true});
+    frame.contentDocument.addEventListener('touchmove',e=>{
+     if(!e.target.closest('#radio-panel')&&!e.target.closest('#radio-fab-btn'))closePanel();
+    },{passive:true});
+   }catch{}
   });document.body.append(frame);
  }
  document.body.classList.add('zad-radio-host');frame.src=url.href;document.getElementById('radio-panel')?.classList.remove('open');
 }
 function navigate(href){const url=target(href);if(!url)return;if(!frame)history.replaceState({...history.state,zadRadioRoute:location.href},'',location.href);history.pushState({zadRadioRoute:url.href},'',url.href);render(url.href);}
 window.zadNavigate=href=>{if((player?.wanted||frame)&&!(window.Capacitor?.getPlatform?.()==='android'&&window.Capacitor?.isPluginAvailable?.('RadioNative')))navigate(href);else location.assign(href);};
-window.ZadRadioHost={sync(href){const url=target(href);if(url)history.replaceState({...history.state,zadRadioRoute:url.href},'',url.href);},attach(value){player=value;},navigate,openPanel,pause(){player?.stop();}};
+window.ZadRadioHost={sync(href){const url=target(href);if(url)history.replaceState({...history.state,zadRadioRoute:url.href},'',url.href);},attach(value){player=value;},navigate,openPanel,closePanel,pause(){player?.stop();}};
 document.addEventListener('click',event=>{
  if(!player?.wanted&&!frame)return;
  // Android's native service already survives full document navigation.

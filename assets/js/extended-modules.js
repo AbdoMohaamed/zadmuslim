@@ -2775,13 +2775,32 @@ function initLiveRadioWidgetWithSleepTimer() {
  const savedVolume=Number(read('zadmuslim_radio_volume','.8'));updateVolume(Number.isFinite(savedVolume)?savedVolume:.8);
  if(vol)vol.oninput=()=>updateVolume(Number(vol.value));
  if($('btn-radio-mute'))$('btn-radio-mute').onclick=()=>updateVolume(audio.volume?0:previousVolume);
- const open=()=>{panel.classList.toggle('open');fab.setAttribute('aria-expanded',String(panel.classList.contains('open')));};
+ const closePanel=()=>{if(panel.classList.contains('open')){panel.classList.remove('open');fab.setAttribute('aria-expanded','false');}};
+ let lastScrollY=window.pageYOffset||document.documentElement.scrollTop||0;
+ const open=()=>{
+  const isOpening=!panel.classList.contains('open');
+  panel.classList.toggle('open');
+  fab.setAttribute('aria-expanded',String(panel.classList.contains('open')));
+  if(isOpening){lastScrollY=window.pageYOffset||document.documentElement.scrollTop||0;}
+ };
  fab.onclick=event=>{event.stopPropagation();open();};
  if($('btn-toggle-radio-nav'))$('btn-toggle-radio-nav').onclick=event=>{event.stopPropagation();open();};
- $('btn-close-radio').onclick=()=>{panel.classList.remove('open');fab.setAttribute('aria-expanded','false');fab.focus();};
+ $('btn-close-radio').onclick=()=>{closePanel();fab.focus();};
  panel.addEventListener('click',event=>event.stopPropagation());
- document.addEventListener('click',()=>{panel.classList.remove('open');fab.setAttribute('aria-expanded','false');});
+ document.addEventListener('click',()=>{closePanel();});
  panel.addEventListener('keydown',event=>{if(event.key==='Escape')$('btn-close-radio').click();});
+ const onPageScroll=()=>{
+  if(!panel.classList.contains('open')){lastScrollY=window.pageYOffset||document.documentElement.scrollTop||0;return;}
+  const currentY=window.pageYOffset||document.documentElement.scrollTop||0;
+  if(Math.abs(currentY-lastScrollY)>8){closePanel();lastScrollY=currentY;}
+ };
+ window.addEventListener('scroll',onPageScroll,{passive:true});
+ document.addEventListener('touchmove',event=>{
+  if(panel.classList.contains('open')&&!event.target.closest('#radio-panel')&&!event.target.closest('#radio-fab-btn')){
+   closePanel();
+  }
+ },{passive:true});
+ if(window.ZadRadioHost)window.ZadRadioHost.closePanel=closePanel;
  const quick=document.createElement('button');quick.type='button';quick.className='btn outline radio-cairo-shortcut';quick.textContent='سماع إذاعة القرآن الكريم من القاهرة';quick.onclick=()=>{const cairo=stations.find(s=>s.id==='cairo');if(cairo){setStation(cairo,false);start();}};panel.querySelector('.radio-controls-row').after(quick);
  const favorite=document.createElement('button');favorite.type='button';favorite.className='btn outline';
  let favorites;try{favorites=JSON.parse(read('zadmuslim_radio_favorites','[]'));if(!Array.isArray(favorites))favorites=[];}catch{favorites=[];}
