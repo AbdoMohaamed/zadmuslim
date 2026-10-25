@@ -45,3 +45,28 @@
 body.zad-radio-host { overflow:hidden!important; }
 body.zad-radio-host > :not(#live-radio-widget):not(#zad-radio-page) { display:none!important; }
 #zad-radio-page { position:fixed; inset:0; width:100%; height:100%; border:0; z-index:990; background:var(--bg-primary,#06221b); }
+
+/* Branded radio player: primary playback controls before station options. */
+#radio-panel { background:linear-gradient(155deg,#153d32,#09261f); color:#f4f8f5; border:1px solid #bda56566; box-shadow:0 24px 70px #0008; }
+#radio-panel .radio-panel-header { padding-bottom:12px; border-bottom:1px solid #ffffff14; }
+#radio-panel .radio-header-title { color:#e5d29a; font-size:.88rem; }
+#radio-panel .radio-station-info { background:transparent; border:0; text-align:center; padding:8px 4px; }
+#radio-panel .radio-brand-logo { display:block; width:80px; height:80px; object-fit:contain; margin:0 auto 10px; border-radius:22px; box-shadow:0 8px 24px #0004; }
+#radio-panel .radio-eyebrow { display:block; color:#cbbd92; font-size:.76rem; margin-bottom:8px; }
+#radio-panel .radio-station-header-line { justify-content:center; }
+#radio-panel .radio-station-name { color:#fff; font-size:1.12rem; font-weight:800; }
+#radio-panel .radio-station-desc { color:#b9cec5; font-size:.8rem; }
+#radio-panel .radio-controls-row { grid-template-columns:1fr; border:0; padding-top:0; gap:12px; }
+#radio-panel #btn-radio-play { display:flex; justify-content:center; align-items:center; gap:12px; width:100%; height:54px; border-radius:16px; background:#e6cf8d; color:#152d24; font:inherit; font-weight:800; box-shadow:0 5px 18px #0003; }
+#radio-panel .radio-volume-group { background:#ffffff08; border:1px solid #ffffff12; border-radius:14px; }
+#radio-panel #radio-volume-value { min-width:40px; font-size:.8rem; font-variant-numeric:tabular-nums; direction:ltr; color:#dfd3ac; }
+#radio-panel #radio-volume-slider { direction:ltr; accent-color:#e6cf8d; }
+#radio-panel .radio-live-status-badge { background:#ffffff0b; color:#c7d5cf; font-size:.72rem; }
+#radio-panel[data-state="playing"] .radio-live-status-badge { background:#34d39920; color:#87efbd; }
+#radio-panel[data-state="failed"] .radio-live-status-badge,#radio-panel[data-state="offline"] .radio-live-status-badge { color:#ffd4a0; }
+#radio-panel .radio-station-select { background:#183d32; color:#f4f8f5; border:1px solid #ffffff26; border-radius:12px; }
+#radio-panel .radio-station-select-group label,#radio-panel .radio-sleep-details { color:#c8d8d0; }
+#radio-panel .radio-cairo-shortcut { border:1px solid #d7bd724f; background:#d7bd720c; color:#ead9a9; }
+#radio-panel > .btn:not(.radio-cairo-shortcut) { border:0; background:transparent; color:#c8d8d0; }
+#radio-panel .btn-close-radio,#radio-panel #btn-radio-mute { color:#d9e8df; }
+@media(max-height:650px) { #radio-panel .radio-brand-logo { width:56px; height:56px; } #radio-panel { gap:10px; } }
