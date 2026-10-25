@@ -24811,3 +24811,353 @@ body.light-theme .pg-prohibition-explanation .text-gold {
   color: #8E651E !important;
 }
 
+/* ========================================================
+   نظام وضع التركيز وعرض الخدمة الفردية (Single-Service Focus Mode)
+   ======================================================== */
+
+/* الوضع الافتراضي: فهرس الخدمات (Directory Hub Mode) */
+body.services-hub-mode .service-view-section {
+    display: none !important;
+}
+
+body.services-hub-mode #services-directory {
+    display: block !important;
+}
+
+body.services-hub-mode #serviceFocusHeader {
+    display: none !important;
+}
+
+body.services-hub-mode #floatingBackToServices {
+    display: none !important;
+}
+
+/* وضع الخدمة النشطة الفردية (Single Service Active View) */
+body.single-service-mode #services-directory {
+    display: none !important;
+}
+
+body.single-service-mode .service-view-section {
+    display: none !important;
+}
+
+body.single-service-mode .service-view-section.active-service-view {
+    display: block !important;
+    animation: serviceFadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes serviceFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* شريط رأس الخدمة المركزة (Focus Header Bar) */
+.service-focus-header {
+    display: none;
+    background: var(--nav-bg, rgba(11, 23, 42, 0.94));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color, rgba(212, 175, 55, 0.25));
+    padding: 12px 0;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .service-focus-header,
+body.light-theme .service-focus-header {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(180, 140, 20, 0.2);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.service-focus-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.btn-focus-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: var(--gold-400, #d4af37);
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: inherit;
+}
+
+.btn-focus-back:hover {
+    background: rgba(212, 175, 55, 0.25);
+    border-color: var(--gold-400, #d4af37);
+    transform: translateX(3px);
+}
+
+.btn-focus-back i {
+    font-size: 0.95rem;
+    transition: transform 0.2s ease;
+}
+
+.btn-focus-back:hover i {
+    transform: translateX(4px);
+}
+
+.service-focus-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+    min-width: 0;
+}
+
+.service-focus-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.14);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+[data-theme="light"] .service-focus-badge,
+body.light-theme .service-focus-badge {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+.service-focus-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-primary, #f8fafc);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.service-focus-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-focus-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-muted, #94a3b8);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+[data-theme="light"] .btn-focus-home,
+body.light-theme .btn-focus-home {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #4b5563;
+}
+
+.btn-focus-home:hover {
+    color: var(--gold-400, #d4af37);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* زر عائم سريع للعودة يظهر عند التمرير لأسفل في وضع الخدمة */
+#floatingBackToServices {
+    position: fixed;
+    bottom: 84px;
+    right: 20px;
+    z-index: 990;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.92);
+    color: #d4af37;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] #floatingBackToServices,
+body.light-theme #floatingBackToServices {
+    background: rgba(255, 255, 255, 0.96);
+    color: #854d0e;
+    border-color: rgba(202, 138, 4, 0.4);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+#floatingBackToServices:hover {
+    transform: translateY(-3px) scale(1.02);
+    background: #d4af37;
+    color: #0b172a;
+}
+
+body.single-service-mode #floatingBackToServices.show-floating {
+    display: inline-flex !important;
+    animation: popInFloating 0.25s ease-out;
+}
+
+@keyframes popInFloating {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* شريط تبويبات التصنيف في الفهرس (Category Pills) */
+.category-filter-pills {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 2px 14px;
+    margin: 12px 0 16px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.category-filter-pills::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted, #94a3b8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+[data-theme="light"] .cat-pill-btn,
+body.light-theme .cat-pill-btn {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+
+.cat-pill-btn:hover {
+    color: var(--text-primary, #f8fafc);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(212, 175, 55, 0.2);
+}
+
+.cat-pill-btn.active {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.1));
+    color: var(--gold-400, #d4af37);
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.15);
+}
+
+[data-theme="light"] .cat-pill-btn.active,
+body.light-theme .cat-pill-btn.active {
+    background: #fefce8;
+    color: #a16207;
+    border-color: #facc15;
+}
+
+/* كبسولات البحث السريع (Search Chips) */
+.search-quick-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 8px 0 16px;
+}
+
+.search-chip-label {
+    font-size: 0.78rem;
+    color: var(--muted, #64748b);
+    margin-left: 4px;
+}
+
+.search-chip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted, #94a3b8);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: inherit;
+}
+
+[data-theme="light"] .search-chip-btn,
+body.light-theme .search-chip-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #cbd5e1;
+}
+
+.search-chip-btn:hover {
+    color: var(--gold-400, #d4af37);
+    border-style: solid;
+    border-color: var(--gold-400, #d4af37);
+    background: rgba(212, 175, 55, 0.08);
+}
+
+@media (max-width: 640px) {
+    .service-focus-title {
+        font-size: 0.95rem;
+    }
+    .service-focus-badge {
+        display: none;
+    }
+    .btn-focus-back {
+        padding: 7px 14px;
+        font-size: 0.84rem;
+    }
+    .btn-focus-home .hide-mobile {
+        display: none;
+    }
+    #floatingBackToServices {
+        bottom: 74px;
+        right: 14px;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+    }
+}
+
+

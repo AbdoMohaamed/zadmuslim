@@ -34,7 +34,7 @@ function render(href){
   return;
  }
  if(!frame){
-  frame=document.createElement('iframe');frame.id='zad-radio-page';frame.title='صفحة التطبيق';frame.allow='autoplay; geolocation';
+  frame=document.createElement('iframe');frame.id='zad-radio-page';frame.title='صفحة التطبيق';frame.allow='autoplay; geolocation; accelerometer; gyroscope; magnetometer';
   frame.addEventListener('load',()=>{
    try{const current=target(frame.contentWindow.location.href);if(current){document.title=frame.contentDocument.title;history.replaceState({...history.state,zadRadioRoute:current.href},'',current.href);}}catch{}
   });document.body.append(frame);

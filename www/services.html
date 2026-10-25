@@ -55,11 +55,11 @@
   
     <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
 <link rel="stylesheet" href="assets/css/radio-player.css?v=3">
-<script src="assets/js/radio-navigation.js?v=1"></script>
+<script src="assets/js/radio-navigation.js?v=2"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
 </head>
-<body>
+<body class="services-hub-mode">
 
     <!-- شريط التنقل العلوي المتطابق -->
     <header class="top">
@@ -70,16 +70,13 @@
             </a>
             <nav class="links">
                 <a href="index.html#home">الرئيسية</a>
-                <a href="index.html#daily">يومي مع الله</a>
-                <a href="services.html" style="color: var(--green);">العبادات</a>
                 <a href="#islamic-media">مرئيات وبودكاست</a>
-                <a href="index.html#sadaqa">صدقة جارية</a>
             </nav>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <a class="btn outline" id="btn-open-settings-nav" href="settings.html" title="الإعدادات والتخصيص" style="padding: 10px 14px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                <a class="btn outline" id="btn-open-settings-nav" href="settings.html" title="الإعدادات والتخصيص" style="padding: 16px; font-size: 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                     <i class="fa-solid fa-gear text-gold"></i>
                 </a>
-                <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-nav" title="المظهر النهاري / الليلي" style="padding: 10px 14px;">
+                <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-nav" title="المظهر النهاري / الليلي" style="padding:16px; font-size:20px;">
                     <i class="fa-solid fa-moon" id="theme-toggle-icon"></i>
                 </button>
                 <a class="btn solid" href="index.html#home">← عودة للرئيسية</a>
@@ -97,7 +94,7 @@
     <audio id="audio-adhan-preview" preload="none"></audio>
 
 
-    <main class="shell container" style="margin-top: 24px; margin-bottom: 60px;">
+    <main id="services-directory" class="shell container" style="margin-top: 24px; margin-bottom: 60px;">
         <!-- رأس الصفحة -->
         <div class="section-head" style="margin-top: 12px; margin-bottom: 18px;">
             <div>
@@ -111,6 +108,26 @@
         <div class="services-search-wrapper">
             <i class="fa-solid fa-magnifying-glass services-search-icon"></i>
             <input type="text" id="servicesSearch" class="services-search-input" placeholder="ابحث في جميع خدمات وأقسام زاد المسلم (مثال: المصحف، القبلة، أسماء الله، الأذكار)..." oninput="filterServices()">
+        </div>
+
+        <!-- كبسولات الاقتراح السريع -->
+        <div class="search-quick-chips">
+            <span class="search-chip-label"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> مقترحات:</span>
+            <button type="button" class="search-chip-btn" onclick="applySearchChip('القبلة')">🧭 القبلة</button>
+            <button type="button" class="search-chip-btn" onclick="applySearchChip('زكاة')">🪙 زكاة المال</button>
+            <button type="button" class="search-chip-btn" onclick="applySearchChip('أذكار')">🤲 الأذكار</button>
+            <button type="button" class="search-chip-btn" onclick="applySearchChip('المصحف')">📖 المصحف</button>
+            <button type="button" class="search-chip-btn" onclick="applySearchChip('قصص')">📜 قصص الأنبياء</button>
+            <button type="button" class="search-chip-btn" onclick="applySearchChip('إذاعة')">📻 إذاعة القرآن</button>
+        </div>
+
+        <!-- أزرار تبويب التصنيفات السريعة -->
+        <div class="category-filter-pills">
+            <button type="button" class="cat-pill-btn active" onclick="filterCategory('all', this)">✦ جميع الأقسام</button>
+            <button type="button" class="cat-pill-btn" onclick="filterCategory('العبادات', this)">🕌 العبادات والصلاة</button>
+            <button type="button" class="cat-pill-btn" onclick="filterCategory('القرآن الكريم', this)">📖 القرآن الكريم</button>
+            <button type="button" class="cat-pill-btn" onclick="filterCategory('المعرفة الإسلامية', this)">📚 المعرفة والثقافة</button>
+            <button type="button" class="cat-pill-btn" onclick="filterCategory('الصدقة الجارية', this)">🤍 الصدقة الجارية</button>
         </div>
 
         <div id="noResultsBox" class="no-results">
@@ -171,7 +188,7 @@
                     <span class="service-action-link">الذهاب للسبحة التفاعلية 📿 ←</span>
                 </a>
 
-                <a class="service-card" href="javascript:void(0)" onclick="if(window.MoodCompass) MoodCompass.openMoodModal('sadness');">
+                <a class="service-card" href="#mood-compass-section">
                     <div class="service-card-top">
                         <div class="service-icon-box">🌿</div>
                         <div class="service-info">
@@ -393,9 +410,37 @@
     </main>
 
     <!-- ==========================================
+         شريط رأس الخدمة المركزة وزر العودة للفهرس
+         ========================================== -->
+    <div id="serviceFocusHeader" class="service-focus-header">
+        <div class="shell container service-focus-bar">
+            <button type="button" class="btn-focus-back" id="btnServiceFocusBack" onclick="closeServiceFocusView(true)">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>العودة لجميع الخدمات</span>
+            </button>
+            <div class="service-focus-meta">
+                <span class="service-focus-badge">وضع التركيز</span>
+                <h2 class="service-focus-title" id="serviceFocusTitle">الخدمة</h2>
+            </div>
+            <div class="service-focus-actions">
+                <a href="index.html" class="btn-focus-home" title="الرئيسية">
+                    <i class="fa-solid fa-house"></i>
+                    <span class="hide-mobile">الرئيسية</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- زر عائم سريع للعودة عند التمرير -->
+    <button type="button" id="floatingBackToServices" onclick="closeServiceFocusView(true)" title="العودة لجميع الخدمات">
+        <i class="fa-solid fa-arrow-right"></i>
+        <span>العودة للخدمات</span>
+    </button>
+
+    <!-- ==========================================
          الأقسام والخدمات التفاعلية المباشرة
          ========================================== -->
-    <section id="quran-khatma" class="quran-khatma-section">
+    <section id="quran-khatma" class="service-view-section quran-khatma-section">
         <div id="services-interactive-hub" class="shell" style="margin-top: 40px; margin-bottom: 20px;">
             <div id="khatma"></div>
             <div id="quran-reader"></div>
@@ -816,7 +861,7 @@
     <!-- ==========================================
          قسم مواقيت الصلاة وساعة الاستجابة (Prayer Times Section)
          ========================================== -->
-    <section id="prayer-times" class="prayer-times-section">
+    <section id="prayer-times" class="service-view-section prayer-times-section">
         <div class="container">
             <div class="section-header">
                 <span class="section-tag"><i class="fa-solid fa-mosque"></i> صلواتك بركة ونور</span>
@@ -979,7 +1024,7 @@
     <!-- ==========================================
      قسم دليل الصلاة الشامل • صفة صلاة النبي ﷺ (Comprehensive Prayer Guide)
      ========================================== -->
-    <section id="prayer-guide-section" class="prayer-guide-section">
+    <section id="prayer-guide-section" class="service-view-section prayer-guide-section">
         <div class="container">
             <div id="prayer-guide-content">
                 <!-- يُملأ برمجياً بواسطة PrayerGuide.init() من prayer-guide.js -->
@@ -989,7 +1034,7 @@
     <!-- ==========================================
      زاد المسلم V4 — 2. مساجد قريبة منك (Nearby Mosques)
      ========================================== -->
-    <section id="nearby-mosques-section" class="cemetery-guide-section" style="padding-bottom: 20px ; background: var(--bg-elevated);">
+    <section id="nearby-mosques-section" class="service-view-section cemetery-guide-section" style="padding-bottom: 20px ; background: var(--bg-elevated);">
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">
@@ -1067,13 +1112,13 @@
         <!-- ==========================================
              قسم بوصلة القلوب والسكينة (Spiritual First-Aid)
              ========================================== -->
-        <div class="container" style="margin-top: 1.5rem; margin-bottom: 2rem;">
+        <section id="mood-compass-section" class="service-view-section container" style="margin-top: 1.5rem; margin-bottom: 2rem;">
             <div id="mood-compass-slot"></div>
-        </div>
+        </section>
         <!-- ==========================================
              قسم أذكار الصباح والمساء الذكية (Azkar Section)
              ========================================== -->
-        <section id="azkar" class="azkar-section">
+        <section id="azkar" class="service-view-section azkar-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-sun"></i> حصن المسلم اليومي</span>
@@ -1148,7 +1193,7 @@
         <!-- ==========================================
          قسم حديقة الحسنات وشجرة الذكر التفاعلية (Spiritual Garden & Tree)
          ========================================== -->
-        <section id="spiritual-garden" class="spiritual-garden-section">
+        <section id="spiritual-garden" class="service-view-section spiritual-garden-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag">
@@ -1246,7 +1291,7 @@
         <!-- ==========================================
          قسم جدول الورد والمهام الإيمانية اليومية (Daily Wird & Tracker)
          ========================================== -->
-        <section id="daily-wird" class="daily-wird-section">
+        <section id="daily-wird" class="service-view-section daily-wird-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag">
@@ -1364,7 +1409,7 @@
         <!-- ==========================================
          قسم مواسم الطاعات والتقويم الهجري (Seasons of Worship)
          ========================================== -->
-        <section id="seasons" class="seasons-section">
+        <section id="seasons" class="service-view-section seasons-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-calendar-days"></i> مواسم الخير ومضاعفة الأجور</span>
@@ -1385,7 +1430,7 @@
         <!-- ==========================================
         قسم موسوعة الأدعية النبوية والقرآنية المبوبة (Categorized Duas Section)
         ========================================== -->
-        <section id="categorized-duas" class="categorized-duas-section">
+        <section id="categorized-duas" class="service-view-section categorized-duas-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-hands-praying"></i> جوامع الكلم وسؤال العظيم</span>
@@ -1457,7 +1502,7 @@
         <!-- ==========================================
          قسم أسماء الله الحسنى الـ 99 (99 Names of Allah)
          ========================================== -->
-        <section id="asmaa-allah" class="asmaa-section">
+        <section id="asmaa-allah" class="service-view-section asmaa-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-star-and-crescent"></i> وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا</span>
@@ -1509,7 +1554,7 @@
         <!-- ==========================================
              قسم المرئيات والبودكاست الإسلامي (Islamic Media Hub)
              ========================================== -->
-        <section id="islamic-media" class="islamic-media-section">
+        <section id="islamic-media" class="service-view-section islamic-media-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-video"></i> مرئيات وبودكاست إسلامي</span>
@@ -1607,7 +1652,7 @@
         <!-- ==========================================
              قسم مكتبة قصص الأنبياء وسير الصحابة الكرام (Islamic Stories)
              ========================================== -->
-        <section id="islamic-stories" class="stories-section">
+        <section id="islamic-stories" class="service-view-section stories-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-book-bookmark"></i> عِبَرٌ وَدُرُوسٌ مُلْهِمَة</span>
@@ -1652,7 +1697,7 @@
         <!-- ==========================================
              قسم مسابقة واختبر معلوماتك الإسلامية (Islamic Quiz & Trivia)
              ========================================== -->
-        <section id="islamic-quiz" class="quiz-section">
+        <section id="islamic-quiz" class="service-view-section quiz-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-trophy"></i> زَادُ الْمَعْرِفَةِ وَالْعِلْم</span>
@@ -1672,7 +1717,7 @@
         <!-- ==========================================
              زاد المسلم V4 — 1. حاسبة الزكاة الذكية الشاملة (Zakat Calculator)
              ========================================== -->
-        <section id="zakat-calculator-section" class="cemetery-guide-section" style="padding: 10px 0;">
+        <section id="zakat-calculator-section" class="service-view-section cemetery-guide-section" style="padding: 10px 0;">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-calculator"></i> ركن الإسلام الثالث • طهرة وبركة</span>
@@ -1862,7 +1907,7 @@
         <!-- ==============================================================================
         حائط الدعاء بظهر الغيب (Wall of Duas — Mutual Brotherhood Prayers)
         ============================================================================== -->
-        <section class="wall-of-duas-section" id="wall-of-duas">
+        <section id="wall-of-duas" class="service-view-section wall-of-duas-section">
             <div class="container">
                 <div class="wall-header-wrapper">
                     <div class="wall-header-info">
@@ -1966,7 +2011,7 @@
         <!-- ==========================================
         سلايدر أدعية الزوار (Swiper Slider Section)
         ========================================== -->
-        <section id="prayers" class="prayers-section">
+        <section id="prayers" class="service-view-section prayers-section">
 
             <div class="container">
                 <div class="section-header">
@@ -2058,7 +2103,7 @@
         <!-- ==========================================
          قسم آيات وأحاديث عن الدعاء للميت
          ========================================== -->
-        <section id="quran" class="quran-section">
+        <section id="quran" class="service-view-section quran-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-book-quran"></i> قبسات من النور</span>
@@ -2105,7 +2150,7 @@
         <!-- ==========================================
              قسم دليل أحكام الجنائز والصدقة الجارية (Islamic Deceased Guide)
              ========================================== -->
-        <section id="islamic-guide" class="faq-section">
+        <section id="islamic-guide" class="service-view-section faq-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-scale-balanced"></i> فتاوى وأحكام شرعية موثقة</span>
@@ -2124,7 +2169,7 @@
         <!-- ==========================================
         قسم دليل وآداب زيارة القبور (Cemetery Etiquette & Sadaqah Guide)
         ========================================== -->
-        <section id="cemetery-guide" class="cemetery-guide-section">
+        <section id="cemetery-guide" class="service-view-section cemetery-guide-section">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-monument"></i> سنّة نبوية وهدي قويم</span>
@@ -2683,8 +2728,8 @@
                 <div class="qibla-modal-body">
                     <div class="qibla-city-status">
                         <div class="qibla-city-info">
-                            <span>المدينة: <strong id="qibla-city-name">القاهرة</strong></span>
-                            <span class="qibla-angle-badge">زاوية الكعبة: <strong id="qibla-angle-value">136°</strong></span>
+                            <span>المدينة: <strong id="qibla-city-name">لم يُحدد بعد</strong></span>
+                            <span class="qibla-angle-badge">زاوية الكعبة: <strong id="qibla-angle-value">—</strong></span>
                         </div>
                         <button type="button" class="btn btn-gold btn-sm btn-qibla-gps" id="btn-qibla-gps" title="تحديد القبلة الدقيقة بموقعي الحالي GPS">
                             <i class="fa-solid fa-location-crosshairs"></i>
@@ -3545,7 +3590,6 @@
                 </p>
                 <div style="display: flex; justify-content: center; gap: 16px; margin: 10px 0 14px; flex-wrap: wrap;">
                     <a href="index.html" style="color: var(--text-primary); font-size: 13px; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-house text-gold"></i> الرئيسية</a>
-                    <a href="services.html" style="color: var(--gold-400); font-size: 13px; text-decoration: none; font-weight: 700;"><i class="fa-solid fa-shapes"></i> فهرس الخدمات والعبادات</a>
                     <a href="settings.html" style="color: var(--text-primary); font-size: 13px; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-sliders text-gold"></i> الإعدادات والتخصيص</a>
                     <a href="privacy.html" style="color: var(--muted); font-size: 13px; text-decoration: none;"><i class="fa-solid fa-shield-halved"></i> الخصوصية</a>
                 </div>
@@ -3556,16 +3600,17 @@
         </footer>
 
         <script>
-            // كود تصفية وبحث الخدمات
+            // كود تصفية وبحث الخدمات والتبويبات السريعة
             function filterServices() {
-                const query = document.getElementById('servicesSearch').value.trim().toLowerCase();
+                const input = document.getElementById('servicesSearch');
+                const query = input ? input.value.trim().toLowerCase() : '';
                 const cards = document.querySelectorAll('.service-card');
                 const categories = document.querySelectorAll('.category-block');
                 let totalVisible = 0;
 
                 cards.forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    const desc = card.querySelector('p').textContent.toLowerCase();
+                    const title = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
+                    const desc = card.querySelector('p') ? card.querySelector('p').textContent.toLowerCase() : '';
                     const match = !query || title.includes(query) || desc.includes(query);
                     card.style.display = match ? 'flex' : 'none';
                     if (match) totalVisible++;
@@ -3579,6 +3624,35 @@
                 const noRes = document.getElementById('noResultsBox');
                 if (noRes) {
                     noRes.style.display = (totalVisible === 0) ? 'block' : 'none';
+                }
+            }
+
+            function filterCategory(catName, btn) {
+                document.querySelectorAll('.cat-pill-btn').forEach(b => b.classList.remove('active'));
+                if (btn) btn.classList.add('active');
+
+                const searchInput = document.getElementById('servicesSearch');
+                if (searchInput && searchInput.value) {
+                    searchInput.value = '';
+                    filterServices();
+                }
+
+                const blocks = document.querySelectorAll('.category-block');
+                blocks.forEach(block => {
+                    if (catName === 'all' || block.getAttribute('data-category') === catName) {
+                        block.style.display = 'block';
+                    } else {
+                        block.style.display = 'none';
+                    }
+                });
+            }
+
+            function applySearchChip(text) {
+                const input = document.getElementById('servicesSearch');
+                if (input) {
+                    input.value = text;
+                    filterServices();
+                    input.focus();
                 }
             }
         </script>
@@ -3604,11 +3678,11 @@
         <script src="assets/js/media-data.js?v=2"></script>
         <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
-        <script src="assets/js/native-adhan-service.js?v=10"></script>
+        <script src="assets/js/native-adhan-service.js?v=11"></script>
         <script src="assets/js/onesignal-service.js?v=1"></script>
         <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=21"></script>
+    <script src="assets/js/app.js?v=22"></script>
         <script src="assets/js/quran.js?v=26"></script>
         <script src="assets/js/radio-player.js?v=1"></script>
     <script src="assets/js/extended-modules.js?v=32"></script>
@@ -3840,15 +3914,130 @@
 
             document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-            // التمرير السلس إلى القسم المطلوب عند فتح الصفحة بهاش
-            window.addEventListener('DOMContentLoaded', () => {
+            // خريطة أسماء وأيقونات الخدمات لوضع التركيز
+            const SERVICE_TITLES = {
+                'prayer-times': 'مواقيت الصلاة والقبلة وساعة الاستجابة 🕌',
+                'prayer-guide-section': 'دليل الصلاة الشامل • صفة صلاة النبي ﷺ 📖',
+                'nearby-mosques-section': 'أقرب المساجد إليك 📍',
+                'mood-compass-section': 'بوصلة القلوب والسكينة الإيمانية 🧭',
+                'azkar': 'أذكار اليوم وحصن المسلم 🤲',
+                'spiritual-garden': 'حديقة الحسنات وشجرة الذكر التفاعلية 🌱',
+                'daily-wird': 'الورد اليومي ومهام المسلم 🌿',
+                'seasons': 'مواسم الخيرات والأيام الفاضلة 🌙',
+                'categorized-duas': 'الأدعية النبوية والقرآنية المصنفة 🤲',
+                'asmaa-allah': 'أسماء الله الحسنى ومعانيها ✨',
+                'islamic-media': 'إذاعات القرآن الكريم والبث الحي 📻',
+                'islamic-stories': 'قصص الأنبياء والصحابة الكرام 📜',
+                'islamic-quiz': 'مسابقة اختبر معلوماتك الدينية 🏆',
+                'zakat-calculator-section': 'حاسبة الزكاة الشرعية الشاملة 🪙',
+                'wall-of-duas': 'حائط الدعاء بظهر الغيب 🌟',
+                'prayers': 'أدعية الزوار وسجل الوفاء 🤍',
+                'quran': 'فضل الدعاء والصدقة للميت 🤍',
+                'islamic-guide': 'دليل أحكام الجنائز وفضل الصدقة ⚖️',
+                'cemetery-guide': 'دليل زيارة القبور وآدابها الشرعية 🌿',
+                'quran-khatma': 'المصحف الشريف والختمة الجماعية 📖'
+            };
+
+            function openServiceView(serviceId, pushHistory = true) {
+                if (!serviceId) return;
+                const cleanId = serviceId.replace(/^#/, '').split('?')[0];
+                const targetSection = document.getElementById(cleanId);
+                if (!targetSection) return;
+
+                document.body.classList.remove('services-hub-mode');
+                document.body.classList.add('single-service-mode');
+
+                document.querySelectorAll('.service-view-section').forEach(sec => {
+                    sec.classList.remove('active-service-view');
+                });
+                targetSection.classList.add('active-service-view');
+
+                const focusHeader = document.getElementById('serviceFocusHeader');
+                if (focusHeader) focusHeader.style.display = 'block';
+
+                const titleEl = document.getElementById('serviceFocusTitle');
+                if (titleEl) {
+                    titleEl.textContent = SERVICE_TITLES[cleanId] || (targetSection.querySelector('.section-title')?.textContent.trim() || 'الخدمة المحددة');
+                }
+
+                if (pushHistory) {
+                    const targetHash = '#' + cleanId;
+                    if (window.location.hash !== targetHash) {
+                        history.pushState({ serviceId: cleanId }, '', targetHash);
+                    }
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                if (cleanId === 'nearby-mosques-section') {
+                    setTimeout(() => {
+                        window.dispatchEvent(new Event('resize'));
+                        if (window.NearbyMosques?.map) window.NearbyMosques.map.invalidateSize();
+                    }, 150);
+                }
+                if (cleanId === 'prayer-guide-section' && window.PrayerGuide?.init) {
+                    window.PrayerGuide.init();
+                }
+                if (cleanId === 'wall-of-duas' && window.WallOfDuas?.init) {
+                    window.WallOfDuas.init();
+                }
+            }
+
+            function closeServiceFocusView(pushHistory = true) {
+                document.body.classList.remove('single-service-mode');
+                document.body.classList.add('services-hub-mode');
+
+                document.querySelectorAll('.service-view-section').forEach(sec => {
+                    sec.classList.remove('active-service-view');
+                });
+
+                const focusHeader = document.getElementById('serviceFocusHeader');
+                if (focusHeader) focusHeader.style.display = 'none';
+
+                const floatingBtn = document.getElementById('floatingBackToServices');
+                if (floatingBtn) floatingBtn.classList.remove('show-floating');
+
+                if (pushHistory) {
+                    if (window.location.hash) {
+                        history.pushState({ serviceId: null }, '', window.location.pathname + window.location.search);
+                    }
+                }
+
+                document.title = 'دليل الخدمات والأقسام • زاد المسلم';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // التعامل مع أزرار الرجوع في المتصفح والهاتف (Android Back / iOS swipe)
+            window.addEventListener('popstate', () => {
                 if (window.location.hash) {
-                    const targetId = window.location.hash.substring(1);
-                    const el = document.getElementById(targetId);
-                    if (el) {
-                        setTimeout(() => {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 300);
+                    const cleanId = window.location.hash.substring(1).split('?')[0];
+                    const targetSection = document.getElementById(cleanId);
+                    if (targetSection && targetSection.classList.contains('service-view-section')) {
+                        openServiceView(cleanId, false);
+                        return;
+                    }
+                }
+                closeServiceFocusView(false);
+            });
+
+            // مراقبة التمرير لإظهار زر العودة العائم
+            window.addEventListener('scroll', () => {
+                const floatingBtn = document.getElementById('floatingBackToServices');
+                if (!floatingBtn) return;
+                if (document.body.classList.contains('single-service-mode') && window.scrollY > 300) {
+                    floatingBtn.classList.add('show-floating');
+                } else {
+                    floatingBtn.classList.remove('show-floating');
+                }
+            }, { passive: true });
+
+            // تفعيل الخدمة تلقائياً إذا فُتحت الصفحة برابط مباشر يحمل هاش
+            function initServiceFocus() {
+                if (window.location.hash) {
+                    const cleanId = window.location.hash.substring(1).split('?')[0];
+                    const targetSection = document.getElementById(cleanId);
+                    if (targetSection && targetSection.classList.contains('service-view-section')) {
+                        openServiceView(cleanId, false);
                     }
                 }
                 const targetAzkar = sessionStorage.getItem('target_azkar_tab');
@@ -3859,18 +4048,44 @@
                     }, 350);
                     sessionStorage.removeItem('target_azkar_tab');
                 }
-            });
+            }
 
-            // دعم النقر على بطاقات الخدمات للتمرير بسلاسة
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', initServiceFocus);
+            } else {
+                initServiceFocus();
+            }
+
+            // ربط بطاقات الخدمات للدخول في وضع التركيز
             document.querySelectorAll('.service-card').forEach(card => {
                 card.addEventListener('click', function (e) {
                     const href = this.getAttribute('href');
                     if (href && href.startsWith('#')) {
-                        e.preventDefault();
-                        const targetEl = document.querySelector(href);
-                        if (targetEl) {
-                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            window.history.pushState(null, '', href);
+                        const cleanId = href.substring(1).split('?')[0];
+                        const targetEl = document.getElementById(cleanId);
+                        if (targetEl && targetEl.classList.contains('service-view-section')) {
+                            e.preventDefault();
+                            openServiceView(cleanId, true);
+                        }
+                    }
+                });
+            });
+
+            // ربط الروابط العلوية والسفلية
+            document.querySelectorAll('header.top .links a[href^="#"], .bottom-nav a[href="services.html"], .bottom-nav a[href^="#"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href === 'services.html') {
+                        if (document.body.classList.contains('single-service-mode')) {
+                            e.preventDefault();
+                            closeServiceFocusView(true);
+                        }
+                    } else if (href && href.startsWith('#')) {
+                        const cleanId = href.substring(1).split('?')[0];
+                        const targetSection = document.getElementById(cleanId);
+                        if (targetSection && targetSection.classList.contains('service-view-section')) {
+                            e.preventDefault();
+                            openServiceView(cleanId, true);
                         }
                     }
                 });

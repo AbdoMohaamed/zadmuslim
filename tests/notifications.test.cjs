@@ -215,3 +215,6 @@ test('Android prayer plugin failure does not claim full adhan delivery',async()=
  assert.equal(result.remindersScheduled,true);
  assert.ok(h.calls.reminders.some(n=>n.id===80001));
 });
+
+test('Android missing exact alarm access reports incomplete setup rather than guaranteed adhan',async()=>{const h=harness({exact:false,settings:{adhan:true,hourlySalawat:true}});const r=await h.service.schedulePrayers();assert.equal(r.success,false);assert.equal(r.remindersScheduled,true);assert.match(r.message,/الدقيقة/);});
+test('enabled adhan with no future times does not claim success',async()=>{const h=harness({platform:'ios',settings:{adhan:true}});const r=await h.service.schedulePrayers({Fajr:'00:00',Dhuhr:'00:00',Asr:'00:00',Maghrib:'00:00',Isha:'00:00'});assert.equal(r.success,false);assert.match(r.message,/لا توجد/);});

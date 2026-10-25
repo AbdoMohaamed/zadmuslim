@@ -412,6 +412,9 @@ const NativeAdhanService = {
             }
             const prayerRequests = notificationsToSchedule.filter(n=>n.id<70000);
             const actualRequests = isAndroid && hasNativePlugin ? prayerRequests : notificationsForLocal.filter(n=>n.id<70000);
+            const needsPrayerAlerts = (notifySettings.adhan !== false || notifySettings.prePrayer !== false) && Object.values(enabledPrayers).some(enabled=>enabled!==false);
+            if (needsPrayerAlerts && actualRequests.length === 0) return {success:false,remindersScheduled:true,message:'لا توجد مواعيد صلاة قادمة مجدولة. حدّث المواقيت من الرئيسية؛ التذكيرات الأخرى محفوظة.'};
+            if (isAndroid && actualRequests.length && !await this.checkExactAlarmPermission()) return {success:false,prayersScheduled:true,remindersScheduled:true,message:'حُفظت التنبيهات، لكن إذن المنبّهات الدقيقة غير مفعّل. فعّله لضبط توقيت الأذان وتشغيله في الخلفية.'};
             const until = actualRequests.length ? new Date(Math.max(...actualRequests.map(n=>n.schedule.at.getTime()))).toLocaleDateString('ar-EG') : '';
             return { success: true, message: until ? 'تمت الجدولة في الهاتف؛ الأذان حتى ' + until + '. افتح التطبيق لتجديد المواعيد قبل انتهاء المدة.' : 'تم حفظ التذكيرات المتكررة في الهاتف.' };
         } catch (e) {
