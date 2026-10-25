@@ -281,7 +281,7 @@ test('home section toggles in settings persist and control visibility on index.h
         const w=dom.window,d=w.document;
         assert.deepEqual(errors,[]);
         const cards=d.querySelectorAll('.settings-home-section-card');
-        assert.equal(cards.length,9,'all 9 home sections must be controllable');
+        assert.equal(cards.length,8,'all 8 home sections must be controllable');
         
         const dhikrCard=d.querySelector('[data-section-id="smart_dhikr"]');
         assert.ok(dhikrCard);
@@ -356,4 +356,84 @@ test('radio starts with Cairo, preserves station on failure, and exposes accessi
  fab.click();assert.equal(panel.classList.contains('open'),true);
  w.pageYOffset=100;w.dispatchEvent(new w.Event('scroll'));assert.equal(panel.classList.contains('open'),false);
  assert.equal(errors.length,0);dom.window.close();
+});
+
+test('services search resets category and zakat lives with charity',async()=>{
+ const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;
+ w.filterCategory('الصلاة');d.getElementById('servicesSearch').value='قصص';w.filterServices();
+ assert.match(d.querySelector('.cat-pill-btn.active').textContent,/جميع/);
+ assert.equal(d.querySelector('[data-category="المعرفة الإسلامية"]').style.display,'block');
+ assert.equal(d.querySelector('a[href="#zakat-calculator-section"]').closest('.category-block').dataset.category,'الزكاة والصدقة');
+ assert.equal(d.querySelector('.services-search-hint'),null);assert.deepEqual(errors,[]);w.close();
+});
+test('services open correct Quran tabs and radio, and restore directory position',async()=>{
+ const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;let scroll;
+ w.scrollTo=options=>{scroll=options.top;};Object.defineProperty(w,'scrollY',{value:640,configurable:true});
+ w.filterCategory('القرآن الكريم');d.querySelector('a[href="#quran-khatma?tab=khatma"]').click();
+ assert.equal(d.querySelector('.quran-tab-btn.active').dataset.tab,'khatma');assert.equal(w.location.hash,'#quran-khatma?tab=khatma');
+ w.closeServiceFocusView();await new Promise(r=>setTimeout(r,30));assert.equal(scroll,640);assert.match(d.querySelector('.cat-pill-btn.active').textContent,/القرآن/);
+ d.querySelector('a[href="#quran-khatma?tab=mushaf"]').click();assert.equal(d.querySelector('.quran-tab-btn.active').dataset.tab,'mushaf');
+ w.closeServiceFocusView();d.querySelector('[data-open-radio]').click();assert.equal(d.getElementById('radio-panel').classList.contains('open'),true);assert.equal(d.body.classList.contains('single-service-mode'),false);
+ assert.deepEqual(errors,[]);w.close();
+});
+test('direct khatma link selects the group tab',async()=>{
+ const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html#quran-khatma?tab=khatma'});
+ assert.equal(dom.window.document.querySelector('.quran-tab-btn.active').dataset.tab,'khatma');assert.deepEqual(errors,[]);dom.window.close();
+});
+
+test('personal services start quiet, pin up to four and keep controls separate from links',async()=>{
+ const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;
+ assert.equal(d.getElementById('services-resume').hidden,true);assert.equal(d.getElementById('services-favorites').hidden,true);assert.equal(d.getElementById('services-recent').hidden,true);
+ const stars=[...d.querySelectorAll('.service-favorite')];assert.equal(stars.length,21);assert.equal(d.querySelector('.service-card button'),null);
+ stars.slice(0,5).forEach(b=>b.click());assert.equal(JSON.parse(w.localStorage.getItem('zad_services_favorites')).length,4);assert.match(d.getElementById('services-personal-status').textContent,/4/);
+ assert.equal(d.body.classList.contains('single-service-mode'),false);
+ stars[0].click();assert.equal(JSON.parse(w.localStorage.getItem('zad_services_favorites')).length,3);
+ w.filterCategory('الصلاة');assert.equal(d.querySelector('a[href="#azkar"]').parentElement.hidden,true);
+ assert.deepEqual(errors,[]);w.close();
+});
+test('personal services resume saved Quran and remember recent visibility',async()=>{
+ const {dom,errors}=await load('services.html',{storage:{zad_quran_last_read:JSON.stringify({pageNumber:12}),zad_services_favorites:JSON.stringify(['#azkar','javascript:alert(1)'])}});const w=dom.window,d=w.document;
+ assert.match(d.getElementById('services-resume').textContent,/12/);assert.equal(d.querySelectorAll('#services-favorites .services-personal-links button').length,1);
+ d.querySelector('#services-resume button').click();assert.equal(d.querySelector('.quran-tab-btn.active').dataset.tab,'mushaf');w.closeServiceFocusView();
+ assert.equal(d.getElementById('services-recent').hidden,false);d.getElementById('services-hide-recent').click();assert.equal(d.getElementById('services-recent').hidden,true);assert.equal(w.localStorage.getItem('zad_services_recent_hidden'),'true');d.getElementById('services-show-recent').click();assert.equal(d.getElementById('services-recent').hidden,false);
+ assert.deepEqual(errors,[]);w.close();
+});
+test('personal services do not fabricate resume from hidden reader initialization',async()=>{
+ const {dom,errors}=await load('services.html',{storage:{zad_services_personal_seen:'true',zad_quran_last_read:JSON.stringify({pageNumber:562}),zad_services_favorites:'null',zad_services_recent:'{}'}});
+ assert.equal(dom.window.document.getElementById('services-resume').hidden,true);assert.deepEqual(errors,[]);dom.window.close();
+});
+
+test('personal offline badges reflect actual cached pages and disappear after deletion',async()=>{
+ let files=[{url:'http://localhost:4173/assets/quran-pages/12.svg'}];
+ const {dom,errors}=await load('services.html',{setup(w){w.caches={keys:async()=>['zad-downloads-v1'],open:async()=>({keys:async()=>files,match:async()=>undefined})};}});const w=dom.window,d=w.document;
+ assert.match(d.querySelector('.service-offline-badge').textContent,/1 صفحة/);assert.match(d.getElementById('services-offline-count').textContent,/1 ملف/);
+ files=[];d.dispatchEvent(new w.Event('zad:downloads-changed'));await new Promise(r=>setImmediate(r));assert.equal(d.querySelector('.service-offline-badge'),null);assert.equal(d.getElementById('services-offline-count').textContent,'');assert.deepEqual(errors,[]);w.close();
+});
+
+test('service search understands synonyms, Arabic spelling and clear action',async()=>{
+ const {dom,errors}=await load('services.html');const w=dom.window,d=w.document,input=d.getElementById('servicesSearch');
+ for(const [query,href]of [['جامع قريب','#nearby-mosques-section'],['تسبيح','index.html#smart-dhikr-panel'],['راديو','#radio-panel'],['قُرآن','#quran-khatma?tab=mushaf'],['زكاه','#zakat-calculator-section']]){
+ input.value=query;w.filterServices();assert.equal(d.querySelector('a[href="'+href+'"]').style.display,'flex');assert.equal(d.getElementById('services-clear-search').hidden,false);
+ }
+ input.value='خدمة غير موجودة';w.filterServices();assert.equal(d.getElementById('noResultsBox').style.display,'block');d.getElementById('services-clear-search').click();assert.equal(input.value,'');assert.equal(d.activeElement,input);assert.equal(d.getElementById('services-clear-search').hidden,true);
+ assert.equal(d.querySelector('script[src*="leaflet"]'),null);assert.equal(d.getElementById('audio-adhan').preload,'none');assert.deepEqual(errors,[]);w.close();
+});
+
+test('services search stays above personal shortcuts and favorites are excluded from recents',async()=>{
+ const {dom,errors}=await load('services.html',{storage:{zad_services_favorites:JSON.stringify(['#azkar']),zad_services_recent:JSON.stringify(['#azkar','#prayer-times'])}});const w=dom.window,d=w.document;
+ assert.ok(d.querySelector('.services-search-wrapper').compareDocumentPosition(d.getElementById('services-personal')) & w.Node.DOCUMENT_POSITION_FOLLOWING);
+ const labels=()=>[...d.querySelectorAll('#services-recent .services-personal-links button')].map(b=>b.textContent);
+ assert.equal(labels().length,1);assert.match(labels()[0],/الصلاة/);
+ const prayer=d.querySelector('a[href="#prayer-times"]').parentElement.querySelector('.service-favorite');prayer.click();assert.equal(d.getElementById('services-recent').hidden,true);assert.equal(labels().length,0);
+ prayer.click();assert.equal(d.getElementById('services-recent').hidden,false);assert.equal(labels().length,1);assert.deepEqual(errors,[]);w.close();
+});
+
+test('single service has one return control and preserves directory position',async()=>{
+ const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;let restored;
+ w.scrollTo=opts=>{restored=opts.top;};Object.defineProperty(w,'scrollY',{value:510,configurable:true});
+ w.filterCategory('الصلاة');d.querySelector('a[href="#prayer-times"]').click();
+ assert.equal(d.body.classList.contains('single-service-mode'),true);assert.equal(d.getElementById('serviceFocusHeader').style.display,'block');
+ assert.equal(d.querySelectorAll('button[onclick="closeServiceFocusView(true)"]').length,1);assert.equal(d.getElementById('floatingBackToServices'),null);assert.equal(d.getElementById('serviceFocusBottomBar'),null);
+ const back=d.getElementById('btnServiceFocusBack');assert.equal(back.textContent.trim(),'رجوع للخدمات');back.click();await new Promise(r=>setTimeout(r,35));
+ assert.equal(d.body.classList.contains('services-hub-mode'),true);assert.equal(d.getElementById('serviceFocusHeader').style.display,'none');assert.equal(restored,510);assert.match(d.querySelector('.cat-pill-btn.active').textContent,/الصلاة/);assert.deepEqual(errors,[]);w.close();
 });

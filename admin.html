@@ -1404,16 +1404,26 @@
                             <textarea id="notify-body" class="form-textarea" placeholder="اكتب نص التذكير أو الحديث الشريف..." required>لا تنسوا قراءة سورة الكهف اليوم، والإكثار من الصلاة على النبي ﷺ والدعاء لموتانا وموتى المسلمين جميعاً 🤲✨</textarea>
                         </div>
 
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label" for="notify-channel">قناة الإرسال:</label>
+                            <select id="notify-channel" class="form-select">
+                                <option value="all" selected>🌐 الكل (متصفحات الويب + تطبيقات الموبايل OneSignal)</option>
+                                <option value="mobile">📱 تطبيقات الموبايل فقط (OneSignal)</option>
+                                <option value="web">💻 متصفحات الويب فقط (Web Push)</option>
+                            </select>
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label" for="notify-target-url">الصفحة أو القسم المستهدف عند النقر:</label>
                             <select id="notify-target-url" class="form-select">
-                                <option value="index.html#subpart-mushaf">📖 المصحف الشريف وقراءة السور</option>
-                                <option value="index.html#azkar">📿 قسم الأذكار وحصن المسلم</option>
-                                <option value="index.html#prayers">🤲 حائط الأدعية والختمة الجماعية</option>
-                                <option value="index.html#nawawi">📜 الأربعون النووية وشروحها</option>
-                                <option value="index.html#stories">✨ قصص الأنبياء والصالحين</option>
-                                <option value="index.html#asmaa">🌟 أسماء الله الحسنى الـ 99</option>
-                                <option value="index.html#fasting">🌙 متتبع الصيام والأيام البيض</option>
+                                <option value="services.html#quran-khatma?tab=mushaf">📖 المصحف الشريف وقراءة السور</option>
+                                <option value="services.html#prayer-times">🕌 مواقيت الصلاة والقبلة</option>
+                                <option value="services.html#azkar">📿 قسم الأذكار وحصن المسلم</option>
+                                <option value="services.html#mood-compass-section">🌿 بوصلة القلوب والسكينة</option>
+                                <option value="services.html#nearby-mosques-section">📍 أقرب المساجد إليك</option>
+                                <option value="services.html#zakat-calculator-section">🪙 حاسبة الزكاة الذكية</option>
+                                <option value="services.html#wall-of-duas">🤲 حائط الدعاء بظهر الغيب</option>
+                                <option value="index.html#smart-dhikr-panel">📿 السبحة الإلكترونية التفاعلية</option>
                                 <option value="index.html">🏠 الصفحة الرئيسية للتطبيق</option>
                             </select>
                         </div>
@@ -2402,15 +2412,45 @@
 
             tbody.innerHTML = broadcasts.map(b => {
                 const dateStr = b.timestamp ? new Date(b.timestamp).toLocaleString("ar-EG") : "الآن";
+
+                let statusBadge = '';
+                let retryButtons = '';
+
+                if (b.partialFailure) {
+                    statusBadge = `<span class="status-badge" style="background: rgba(234, 179, 8, 0.18); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.4);" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-triangle-exclamation"></i> إرسال جزئي</span>`;
+                    if (b.mobileSuccess && !b.webSuccess) {
+                        retryButtons = `
+                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}', 'web')" title="إعادة إرسال للمتصفحات فقط (حماية الموبايل من التكرار)" style="color: #fbbf24; border-color: #fbbf24;">
+                                <i class="fa-solid fa-globe"></i> ويب فقط
+                            </button>
+                        `;
+                    } else if (b.webSuccess && !b.mobileSuccess) {
+                        retryButtons = `
+                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}', 'mobile')" title="إعادة إرسال للموبايل فقط" style="color: #fbbf24; border-color: #fbbf24;">
+                                <i class="fa-solid fa-mobile-screen"></i> موبايل فقط
+                            </button>
+                        `;
+                    }
+                } else if (b.mobileSuccess && b.webSuccess) {
+                    statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-check-double"></i> ويب (${b.webSent || 0}) + موبايل</span>`;
+                } else if (b.mobileSuccess && !b.webSuccess) {
+                    statusBadge = `<span class="status-badge sent" style="background: rgba(16, 185, 129, 0.15); color: #10b981;" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-mobile-screen"></i> موبايل فقط</span>`;
+                } else if (b.webSent > 0) {
+                    statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-globe"></i> ويب (${b.webSent})</span>`;
+                } else {
+                    statusBadge = `<span class="status-badge sent"><i class="fa-solid fa-check"></i> تم البث</span>`;
+                }
+
                 return `
                     <tr>
                         <td style="font-size: 12px; color: var(--gold-light); white-space: nowrap;">${dateStr}</td>
                         <td style="font-weight: 700; color: #fff;">${escapeHtml(b.title || "")}</td>
                         <td style="max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(b.body || "")}</td>
                         <td><span style="font-size: 12px; color: var(--text-muted);">${escapeHtml(b.url || "الرئيسية")}</span></td>
-                        <td><span class="status-badge sent"><i class="fa-solid fa-check-double"></i> تم البث</span></td>
+                        <td>${statusBadge}</td>
                         <td style="white-space: nowrap;">
-                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}')" title="إعادة الإرسال">
+                            ${retryButtons}
+                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}', 'all')" title="إعادة إرسال للكل">
                                 <i class="fa-solid fa-repeat"></i>
                             </button>
                             <button type="button" class="btn btn-danger btn-sm" onclick="deleteBroadcast('${b.id}')" title="حذف من السجل">
@@ -2468,6 +2508,7 @@
             const title = titleInput.value.trim();
             const body = bodyInput.value.trim();
             const url = document.getElementById("notify-target-url").value;
+            const channel = document.getElementById("notify-channel") ? document.getElementById("notify-channel").value : "all";
 
             if (!title || !body) {
                 showAdminToast("يرجى ملء العنوان ونص الإشعار", true);
@@ -2478,12 +2519,36 @@
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري بث الإشعار للجميع...';
 
-
             try {
-                const result = await adminRequest('/api/send-push', { title, body, url });
-                if (!result.success) throw new Error('لم يتم إرسال أي إشعار. راجع المشتركين وإعدادات الخدمة.');
-                if (db) await db.ref('push_broadcasts').push({ title, body, url, timestamp: firebase.database.ServerValue.TIMESTAMP });
-                showAdminToast('تم قبول الإرسال: ' + (result.sentCount || 0) + ' متصفح. الوصول يعتمد على حالة الجهاز.');
+                const result = await adminRequest('/api/send-push', { title, body, url, channel });
+                if (!result.success) throw new Error(result.message || 'لم يتم إرسال أي إشعار. راجع المشتركين وإعدادات الخدمة.');
+
+                const webCount = result.channels?.web?.sentCount ?? (result.sentCount || 0);
+                const mobileOk = Boolean(result.channels?.mobile?.success || result.onesignal?.id);
+                const mobileRecipients = result.channels?.mobile?.recipients || (mobileOk ? 1 : 0);
+                const isPartial = Boolean(result.partialFailure);
+
+                if (db) {
+                    await db.ref('push_broadcasts').push({
+                        title,
+                        body,
+                        url,
+                        channel: result.channel || channel,
+                        webSent: webCount,
+                        webSuccess: Boolean(result.channels?.web?.success),
+                        mobileSuccess: mobileOk,
+                        mobileRecipients: mobileRecipients,
+                        partialFailure: isPartial,
+                        message: result.message || '',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+
+                if (isPartial) {
+                    showAdminToast('⚠️ تنبيه: إرسال جزئي — ' + (result.message || 'راجع السجل.'), true);
+                } else {
+                    showAdminToast('✅ ' + (result.message || 'تم قبول الإرسال بنجاح.'));
+                }
             } catch (err) {
                 console.error("Broadcast failed:", err);
                 showAdminToast("حدث خطأ أثناء الإرسال: " + err.message, true);
@@ -2555,17 +2620,41 @@
             showAdminToast("تم إطلاق التنبيه التجريبي وصوت الإشعار 🔔✨");
         });
 
-        // Resend Broadcast
-
-        window.resendBroadcast = async function(id) {
-            if (!db || !confirm('إعادة إرسال هذا الإشعار؟')) return;
+        // Resend Broadcast with target channel support
+        window.resendBroadcast = async function(id, targetChannel) {
+            if (!db) return;
+            const chanName = targetChannel === 'web' ? 'للمتصفحات فقط' : (targetChannel === 'mobile' ? 'لتطبيقات الموبايل فقط' : 'للجميع');
+            if (!confirm(`إعادة إرسال هذا الإشعار ${chanName}؟`)) return;
             try {
                 const val = (await db.ref('push_broadcasts/' + id).once('value')).val();
                 if (!val) throw new Error('الإشعار غير موجود');
-                const result = await adminRequest('/api/send-push', { title: val.title, body: val.body, url: val.url });
-                if (!result.success) throw new Error('لم يتم إرسال أي إشعار');
-                await db.ref('push_broadcasts').push({ ...val, timestamp: firebase.database.ServerValue.TIMESTAMP });
-                showAdminToast('تم قبول إعادة الإرسال');
+                const reqChannel = targetChannel || val.channel || 'all';
+                const result = await adminRequest('/api/send-push', { title: val.title, body: val.body, url: val.url, channel: reqChannel });
+                if (!result.success) throw new Error(result.message || 'لم يتم إرسال أي إشعار');
+
+                const webCount = result.channels?.web?.sentCount ?? (result.sentCount || 0);
+                const mobileOk = Boolean(result.channels?.mobile?.success || result.onesignal?.id);
+                const isPartial = Boolean(result.partialFailure);
+
+                await db.ref('push_broadcasts').push({
+                    title: val.title,
+                    body: val.body,
+                    url: val.url,
+                    channel: reqChannel,
+                    webSent: webCount,
+                    webSuccess: Boolean(result.channels?.web?.success),
+                    mobileSuccess: mobileOk,
+                    mobileRecipients: result.channels?.mobile?.recipients || null,
+                    partialFailure: isPartial,
+                    message: result.message || '',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                if (isPartial) {
+                    showAdminToast('⚠️ إرسال جزئي: ' + result.message, true);
+                } else {
+                    showAdminToast('✅ تم قبول إعادة الإرسال: ' + result.message);
+                }
             } catch(e) { showAdminToast(e.message, true); }
         };
 

@@ -98,8 +98,8 @@ public class RadioService extends Service {
  private boolean online(){android.net.ConnectivityManager cm=(android.net.ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);android.net.Network network=cm.getActiveNetwork();return network!=null;}
  private void reconnect(){
   if(!wanted||interrupted||retry!=null)return;
-  releasePlayer();if(!online()){publish("offline");retry=()->{retry=null;connect();};handler.postDelayed(retry,5000);return;}if(attempt>=6){wanted=false;publish("failed");stopSelf();return;}
-  long delay=Math.min(1000L<<attempt,30000);attempt++;publish("retrying");retry=()->{retry=null;connect();};handler.postDelayed(retry,delay);
+  releasePlayer();if(!online()){publish("offline");retry=()->{retry=null;connect();};handler.postDelayed(retry,5000);return;}
+  long delay=Math.min(1000L<<Math.min(attempt,6),60000);attempt=Math.min(attempt+1,7);publish("retrying");retry=()->{retry=null;connect();};handler.postDelayed(retry,delay);
  }
  @Override public void onDestroy(){if(noisyReceiver!=null)unregisterReceiver(noisyReceiver);wanted=false;releasePlayer();handler.removeCallbacksAndMessages(null);if(Build.VERSION.SDK_INT>=26&&focus!=null)audioManager.abandonAudioFocusRequest(focus);else if(focusListener!=null)audioManager.abandonAudioFocus(focusListener);if(session!=null){session.setActive(false);session.release();}instance=null;stopForeground(true);super.onDestroy();}
  @Override public IBinder onBind(Intent intent){return null;}

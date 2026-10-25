@@ -57,9 +57,11 @@ const OneSignalService = {
                         const notif = event && event.notification ? event.notification : null;
                         const data = notif ? notif.additionalData : null;
                         if (data && data.url) {
-                            window.location.hash = data.url;
+                            OneSignalService.handleNotificationUrl(data.url);
                         }
-                    } catch (clickErr) {}
+                    } catch (clickErr) {
+                        console.warn("OneSignal click handler warning:", clickErr);
+                    }
                 });
             }
 
@@ -68,6 +70,77 @@ const OneSignalService = {
 
         } catch (e) {
             console.warn("OneSignal initialization notice:", e);
+        }
+    },
+
+    // معالجة رابط الإشعار بدقة ومنع أي أخطاء في العناوين أو الهروب خارج التطبيق
+    handleNotificationUrl(rawUrl) {
+        if (!rawUrl || rawUrl === './' || rawUrl === '/') {
+            return;
+        }
+        try {
+            let targetPath = '';
+            let targetSearch = '';
+            let targetHash = '';
+
+            if (/^https?:\/\//i.test(rawUrl)) {
+                try {
+                    const u = new URL(rawUrl);
+                    targetPath = u.pathname.replace(/^\/+/, '');
+                    targetSearch = u.search || '';
+                    targetHash = u.hash || '';
+                } catch {
+                    targetPath = '';
+                }
+            } else {
+                const hashIndex = rawUrl.indexOf('#');
+                let pathPart = hashIndex !== -1 ? rawUrl.slice(0, hashIndex) : rawUrl;
+                targetHash = hashIndex !== -1 ? rawUrl.slice(hashIndex) : '';
+                const queryIndex = pathPart.indexOf('?');
+                if (queryIndex !== -1) {
+                    targetSearch = pathPart.slice(queryIndex);
+                    pathPart = pathPart.slice(0, queryIndex);
+                }
+                targetPath = pathPart.replace(/^\.?\/+/, '');
+            }
+
+            let targetFile = targetPath.split('/').pop() || '';
+            const cleanHash = targetHash.split('?')[0];
+
+            // قائمة الأقسام والخدمات التابعة لصفحة services.html
+            const servicesSections = [
+                '#prayer-times', '#prayer-guide-section', '#nearby-mosques-section',
+                '#mood-compass-section', '#zakat-calculator-section', '#seasons',
+                '#quran-khatma', '#subpart-mushaf', '#khatma', '#wall-of-duas',
+                '#prayers', '#spiritual-garden', '#categorized-duas', '#daily-wird',
+                '#asmaa-allah', '#islamic-stories', '#islamic-quiz', '#islamic-guide', '#cemetery-guide'
+            ];
+
+            // إذا كان القسم موجوداً في صفحة الخدمات، نوجهه إلى services.html حصراً
+            if (servicesSections.includes(cleanHash)) {
+                if (!targetFile || targetFile === 'index.html') {
+                    targetFile = 'services.html';
+                }
+            } else if (!targetFile) {
+                targetFile = 'index.html';
+            }
+
+            const currentFile = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+            const destinationFile = targetFile.toLowerCase();
+
+            if (currentFile === destinationFile) {
+                if (targetHash) {
+                    if (destinationFile === 'services.html' && typeof window.openServiceView === 'function') {
+                        window.openServiceView(targetHash, true);
+                    } else {
+                        window.location.hash = targetHash;
+                    }
+                }
+            } else {
+                window.location.href = targetFile + targetSearch + targetHash;
+            }
+        } catch (err) {
+            console.warn('OneSignal navigation handler warning:', err);
         }
     }
 };
@@ -79,4 +152,8 @@ if (typeof document !== "undefined") {
             OneSignalService.init();
         }, 1500);
     });
+}
+
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = OneSignalService;
 }

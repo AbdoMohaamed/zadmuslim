@@ -3,6 +3,7 @@
 (function (root) {
     'use strict';
     const EXACT = new Set([
+        'zad_services_favorites', 'zad_services_recent', 'zad_services_recent_hidden', 'zad_services_reading', 'zad_services_personal_seen',
         'zad_quran_last_read', 'zad_quran_bookmarks', 'mushaf_last_page', 'mushaf_saved_bookmark',
         'golden_quran_theme', 'zad_smart_khatma_plan', 'zad_user_badges_unlocked',
         'zad_khatma_streak_data', 'zad_7days_challenge_progress', 'zad_quick_tasbeeh_count',
@@ -160,7 +161,7 @@
 
     function status(text) {
         const el = $('zad-tools-status');
-        if (el) el.textContent = text;
+        if (el) { el.setAttribute('role','status');el.setAttribute('aria-live','polite');el.textContent = text; }
     }
 
     function applyFont() {
@@ -260,6 +261,7 @@
     }
 
     async function listDownloads() {
+        document.dispatchEvent(new Event('zad:downloads-changed'));
         const box = $('zad-download-list');
         if (!box) return;
         box.replaceChildren();
@@ -413,12 +415,6 @@
             icon: 'fa-book-quran'
         },
         {
-            id: 'mood_compass',
-            name: 'بوصلة المشاعر والسكينة',
-            desc: 'توجيهات قرآنية ونبوية مهدئة للقلب حسب حالتك النفسية والشعورية',
-            icon: 'fa-compass'
-        },
-        {
             id: 'daily_clip',
             name: 'موعظة اليوم المرئية والبودكاست',
             desc: 'مقاطع فيديو إيمانية قصيرة ومختارات وعظية متجددة يومياً',
@@ -517,9 +513,6 @@
         const khatmaSlot = $('smart-khatma-dashboard-slot');
         if (khatmaSlot) khatmaSlot.style.display = isVisible('smart_khatma') ? '' : 'none';
 
-        // 6. Mood Compass
-        const moodSlot = $('mood-compass-slot');
-        if (moodSlot) moodSlot.style.display = isVisible('mood_compass') ? '' : 'none';
 
         // 7. Daily Clip
         const clipCard = $('daily-featured-media-card');

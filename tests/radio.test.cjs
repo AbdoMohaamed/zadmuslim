@@ -37,3 +37,15 @@ test('Cairo and Makkah do not silently fall back to a different station',()=>{
  const ctx={};vm.runInNewContext(fs.readFileSync('assets/js/radio-stations-data.js','utf8')+';this.stations=RADIO_STATIONS_LIST;',ctx);
  for(const id of ['cairo','makkah'])assert.equal(ctx.stations.find(s=>s.id===id).backupUrl,undefined);
 });
+
+test('long outage keeps retrying at a capped interval and explicit stop cancels recovery',()=>{
+ const h=setup();h.player.play();
+ for(let i=0;i<12;i++){h.audio.dispatchEvent(new Event('error'));assert.equal(h.player.wanted,true);assert.equal(h.player.state,'retrying');h.tick(Math.min(1000*2**Math.min(i,6),60000));}
+ assert.equal(h.audio.plays.length,13);assert.ok(h.audio.plays.every(url=>url.endsWith('/cairo')));
+ h.audio.dispatchEvent(new Event('error'));h.player.stop();assert.equal(h.timers.size,0);h.window.dispatchEvent(new Event('online'));assert.equal(h.audio.plays.length,13);
+});
+test('buffered audio progress prevents needless reconnect and online does not restart healthy playback',()=>{
+ const h=setup();h.player.play();h.audio.dispatchEvent(new Event('playing'));h.audio.dispatchEvent(new Event('stalled'));
+ h.audio.currentTime=1;h.audio.dispatchEvent(new Event('timeupdate'));assert.equal(h.player.state,'playing');assert.equal([...h.timers.values()].filter(t=>t.ms===18000).length,1);
+ h.window.dispatchEvent(new Event('online'));assert.equal(h.audio.plays.length,1);h.tick(18000);assert.equal(h.player.state,'retrying');h.player.stop();
+});

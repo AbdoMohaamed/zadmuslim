@@ -40,6 +40,7 @@
     async function runTask(task) {
         if (busy) return;
         busy = true;
+        document.getElementById("nearby-mosques-section")?.setAttribute("aria-busy", "true");
         const controls = document.querySelectorAll('#nearby-mosques-section button, #nearby-mosques-section input');
         controls.forEach(el => el.disabled = true);
         try {
@@ -48,6 +49,7 @@
             handleLocationError(error.message || 'تعذّر البحث. حاول مجددًا.');
         } finally {
             busy = false;
+            document.getElementById("nearby-mosques-section")?.setAttribute("aria-busy", "false");
             controls.forEach(el => el.disabled = false);
         }
     }
@@ -175,6 +177,7 @@
     function updateStatusBox(html, isWarning = false) {
         const statusBox = document.getElementById('mosques-status-box');
         if (statusBox) {
+            statusBox.setAttribute('role','status');statusBox.setAttribute('aria-live','polite');
             statusBox.style.display = 'flex';
             statusBox.innerHTML = html;
         }
@@ -662,7 +665,7 @@ out body center;`;
     /**
      * التركيز والتكبير على المسجد المختار في الخريطة وفتح الـ Popup
      */
-    window.focusMosqueOnMap = function (index) {
+    window.focusMosqueOnMap = async function (index) {
         const m = mosquesList[index];
         if (!m) return;
 
@@ -671,13 +674,11 @@ out body center;`;
             btnMap.click();
         }
 
-        setTimeout(() => {
-            if (leafletMapInstance) {
-                leafletMapInstance.setView([m.lat, m.lon], 16, { animate: true });
-                const marker = markersMap.get(m.id || index);
-                if (marker) marker.openPopup();
-            }
-        }, 150);
+        await ensureLeafletMapLoaded();
+        if (leafletMapInstance && activeViewMode==='map') {
+            leafletMapInstance.setView([m.lat,m.lon],16,{animate:true});
+            markersMap.get(m.id || index)?.openPopup();
+        }
     };
 
     /**
@@ -738,14 +739,40 @@ out body center;`;
         }
     }
 
-    function ensureLeafletMapLoaded() {
+    let leafletAssetsPromise;
+    function loadLeafletAssets() {
+        if (leafletAssetsPromise) return leafletAssetsPromise;
+        const resource=(tag,url,integrity)=>new Promise((resolve,reject)=>{
+            const existing=document.querySelector('[data-map-resource="'+tag+'"]');
+            if(existing?.dataset.loaded==='true'){resolve();return;}
+            const el=document.createElement(tag);el.dataset.mapResource=tag;el.integrity=integrity;el.crossOrigin='';
+            if(tag==='link'){el.rel='stylesheet';el.href=url;}else{el.src=url;el.async=true;}
+            const timer=setTimeout(()=>finish(false),15000);
+            function finish(ok){clearTimeout(timer);el.onload=el.onerror=null;if(ok){el.dataset.loaded='true';resolve();}else{el.remove();reject(Error('Map unavailable'));}}
+            el.onload=()=>finish(true);el.onerror=()=>finish(false);document.head.append(el);
+        });
+        leafletAssetsPromise=Promise.allSettled([
+            resource('link','https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY='),
+            typeof L!=='undefined'?Promise.resolve():resource('script','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=')
+        ]).then(results=>{if(results.some(result=>result.status==='rejected'))throw Error('Map unavailable');}).catch(error=>{leafletAssetsPromise=null;throw error;});
+        return leafletAssetsPromise;
+    }
+    async function ensureLeafletMapLoaded() {
         const mapDiv = document.getElementById('mosques-leaflet-map');
         if (!mapDiv) return;
-        if (typeof L === 'undefined' || navigator.onLine === false) {
+        if (navigator.onLine === false) {
             mapDiv.textContent = 'عرض الخريطة يحتاج الإنترنت. يمكنك استخدام قائمة المساجد المحفوظة.';
             return;
         }
 
+        if (!leafletMapInstance) {
+            mapDiv.textContent='جاري تحميل الخريطة…';mapDiv.setAttribute('aria-busy','true');
+            try { await loadLeafletAssets(); }
+            catch { mapDiv.textContent='تعذّر تحميل الخريطة. اضغط «الخريطة» للمحاولة مجددًا، أو استخدم قائمة المساجد.';return; }
+            finally { mapDiv.setAttribute('aria-busy','false'); }
+            if(activeViewMode!=='map')return;
+            if(!leafletMapInstance)mapDiv.replaceChildren();
+        }
         const defaultLat = currentLat ?? 21.4225;
         const defaultLon = currentLon ?? 39.8262;
 

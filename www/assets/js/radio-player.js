@@ -1,16 +1,27 @@
-/* One selected station, one playback intent, bounded reconnect attempts. */
+/* One selected station, one playback intent, persistent reconnect with bounded delays. */
 (function(global){
 'use strict';
 class RadioPlayer {
  constructor(audio, notify=()=>{}) {
   this.audio=audio;this.notify=notify;this.wanted=false;this.generation=0;this.attempt=0;this.state='paused';
   this.online=()=>navigator.onLine!==false;
-  audio.addEventListener('playing',()=>{if(!this.wanted){audio.pause();return;}this.clear();this.setState('playing');this.stable=setTimeout(()=>{this.attempt=0;},30000);});
+  audio.addEventListener('playing',()=>{if(!this.wanted){audio.pause();return;}this.clear();this.setState('playing');this.watch();this.stable=setTimeout(()=>{this.attempt=0;},30000);});
   for(const event of ['waiting','stalled'])audio.addEventListener(event,()=>{if(this.wanted&&!this.retry){this.setState('buffering');this.watch();}});
   for(const event of ['error','ended'])audio.addEventListener(event,()=>this.reconnect());
   audio.addEventListener('pause',()=>{if(this.wanted&&!this.retry&&this.state==='playing'){this.wanted=false;this.clear();this.setState('paused');}});
-  global.addEventListener('offline',()=>{if(this.wanted){this.generation++;this.clear();this.setState('offline');audio.pause();}});
-  global.addEventListener('online',()=>{if(this.wanted){this.attempt=0;this.connect();}});
+  global.addEventListener('offline',()=>{if(this.wanted){
+   if(this.state==='playing'||this.state==='buffering'){this.watch();return;}
+   this.generation++;this.clear();this.setState('offline');audio.pause();
+  }});
+  global.addEventListener('online',()=>{if(this.wanted&&this.state!=='playing'){this.attempt=0;this.connect();}});
+  audio.addEventListener('timeupdate',()=>{
+   const position=audio.currentTime;
+   if(this.wanted&&!this.retry&&!audio.paused&&Number.isFinite(position)&&position>this.lastPosition){
+    clearTimeout(this.watchdog);this.watchdog=null;this.watch();
+    if(this.state==='buffering')this.setState('playing');
+   }
+   this.lastPosition=position;
+  });
  }
  setState(state){this.state=state;this.notify({state,station:this.station,wanted:this.wanted,attempt:this.attempt});}
  clear(){clearTimeout(this.retry);clearTimeout(this.watchdog);clearTimeout(this.stable);this.retry=this.watchdog=this.stable=null;}
@@ -22,7 +33,7 @@ class RadioPlayer {
   if(!this.wanted)return;
   const generation=++this.generation;this.clear();
   if(!this.online()){this.setState('offline');return;}
-  this.setState('connecting');
+  this.lastPosition=-1;this.setState('connecting');
   const urls=[this.station.url,...(this.station.backupUrl?[this.station.backupUrl]:[])];
   this.audio.src=urls[this.attempt%urls.length];this.audio.load();this.watch();
   try{await this.audio.play();}catch(error){
@@ -35,8 +46,7 @@ class RadioPlayer {
   if(!this.wanted||this.retry)return;
   this.generation++;this.clear();
   if(!this.online()){this.setState('offline');this.audio.pause();return;}
-  if(this.attempt>=6){this.wanted=false;this.setState('failed');this.audio.pause();return;}
-  const delay=Math.min(1000*2**this.attempt,30000);this.attempt++;
+  const delay=Math.min(1000*2**Math.min(this.attempt,6),60000);this.attempt=Math.min(this.attempt+1,7);
   this.setState('retrying');this.retry=setTimeout(()=>{this.retry=null;this.connect();},delay);
  }
 }

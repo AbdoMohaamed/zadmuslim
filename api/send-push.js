@@ -94,17 +94,56 @@ module.exports = async function handler(req, res) {
     }
 
     // -------------------------------------------------------------
-    // 3. Full Broadcast (Web Push + OneSignal Cloud Push)
+    // 3. Broadcast (Web Push + OneSignal Mobile Push)
     // -------------------------------------------------------------
-    const { title, body, url, icon, badge, onesignalAppId, onesignalRestKey } = bodyData;
+    const { title, body, url, icon, badge, onesignalAppId, onesignalRestKey, channel = 'all' } = bodyData;
 
     if (!title || !body) {
       return res.status(400).json({ error: 'Title and body are required' });
     }
 
-    // A. Send to OneSignal (iOS / Android / Closed Mobile devices) if credentials provided
+    const targetChannel = ['all', 'web', 'mobile'].includes(channel) ? channel : 'all';
+    const hasOneSignalConfig = Boolean(onesignalAppId && onesignalRestKey);
+    const shouldSendMobile = (targetChannel === 'all' || targetChannel === 'mobile') && hasOneSignalConfig;
+    const shouldSendWeb = targetChannel === 'all' || targetChannel === 'web';
+
+    if (targetChannel === 'mobile' && !hasOneSignalConfig) {
+      return res.status(400).json({ error: 'إعدادات OneSignal غير متوفرة على الخادم.' });
+    }
+
+    // Step 1: Pre-fetch Web subscribers BEFORE triggering mobile push.
+    // If reading database fails, abort now before any notifications are dispatched.
+    // This prevents sending to mobile then failing on web, which would cause duplicate mobile pushes on retry.
+    let subscribersData = null;
+    let webFetchError = null;
+
+    if (shouldSendWeb) {
+      try {
+        const fbResponse = await fetch(`${FIREBASE_DB_URL}/push_subscribers.json?auth=${encodeURIComponent(session.token)}`, { signal: AbortSignal.timeout(10000) });
+        if (!fbResponse.ok) {
+          webFetchError = 'تعذّر قراءة المشتركين من قاعدة البيانات. راجع الصلاحيات.';
+        } else {
+          subscribersData = await fbResponse.json();
+        }
+      } catch (fetchErr) {
+        webFetchError = 'فشل الاتصال بقاعدة البيانات لقراءة المشتركين: ' + fetchErr.message;
+      }
+
+      if (webFetchError) {
+        return res.status(502).json({
+          error: webFetchError,
+          preventedSend: true,
+          message: 'تم إيقاف الإرسال قبل الوصول لخدمة الموبايل لحماية المستخدمين من التكرار.'
+        });
+      }
+    }
+
+    // Step 2: Send Mobile Push via OneSignal if targeted
     let onesignalResult = null;
-    if (onesignalAppId && onesignalRestKey) {
+    let mobileError = null;
+    let mobileSuccess = false;
+
+    if (shouldSendMobile) {
       try {
         const cleanKey = onesignalRestKey.replace(/^(Key|Basic)\s+/i, '').trim();
         const osRes = await fetch('https://api.onesignal.com/notifications', {
@@ -125,95 +164,132 @@ module.exports = async function handler(req, res) {
           })
         });
         onesignalResult = await osRes.json();
+        if (onesignalResult && onesignalResult.id && !onesignalResult.errors) {
+          mobileSuccess = true;
+        } else if (onesignalResult && onesignalResult.errors) {
+          mobileError = Array.isArray(onesignalResult.errors) ? onesignalResult.errors.join(', ') : String(onesignalResult.errors);
+        }
       } catch (osErr) {
+        mobileError = osErr.message;
         onesignalResult = { errors: [osErr.message] };
       }
     }
 
-    // B. Send to Web Push Subscribers via Firebase Realtime Database
-    const payload = JSON.stringify({
-      title: title,
-      body: body,
-      icon: icon || '/assets/icon-192.png',
-      badge: badge || '/assets/icon-192.png',
-      dir: 'rtl',
-      lang: 'ar',
-      data: {
-        url: url || './',
-        timestamp: Date.now()
-      }
-    });
-
-    const fbResponse = await fetch(`${FIREBASE_DB_URL}/push_subscribers.json?auth=${encodeURIComponent(session.token)}`, { signal: AbortSignal.timeout(10000) });
-    if (!fbResponse.ok) return res.status(502).json({ error: 'تعذّر قراءة المشتركين. راجع الصلاحيات.' });
-    const subscribersData = await fbResponse.json();
-
-    if (!subscribersData) {
-      return res.status(200).json({
-        success: Boolean(onesignalResult?.id),
-        sentCount: 0,
-        onesignal: onesignalResult,
-        message: 'No web subscribers registered yet'
-      });
-    }
-
-    const subscriberEntries = Object.entries(subscribersData);
+    // Step 3: Send Web Push to subscribers if targeted
     let successCount = 0;
     let failureCount = 0;
     const expiredKeys = [];
+    const subscriberEntries = subscribersData ? Object.entries(subscribersData) : [];
 
-    const sendSubscriber = async ([key, subObj]) => {
-      if (!subObj || !subObj.subscription || !subObj.subscription.endpoint) {
-        return;
-      }
-
-      const subscription = subObj.subscription;
-      let endpoint;
-      try { endpoint = new URL(subscription.endpoint); } catch { failureCount++; return; }
-      const host = endpoint.hostname;
-      if (endpoint.protocol !== 'https:' || endpoint.port ||
-          !(host === 'fcm.googleapis.com' || host === 'updates.push.services.mozilla.com' ||
-            host.endsWith('.notify.windows.com') || host === 'web.push.apple.com' || host.endsWith('.push.apple.com'))) {
-        failureCount++; return;
-      }
-
-      try {
-        await webpush.sendNotification(subscription, payload, {
-          TTL: 86400, // 24 hours retention
-          urgency: 'high', timeout: 10000
-        });
-        successCount++;
-      } catch (err) {
-        failureCount++;
-        if (err.statusCode === 404 || err.statusCode === 410) {
-          expiredKeys.push(key);
+    if (shouldSendWeb && subscriberEntries.length > 0) {
+      const payload = JSON.stringify({
+        title: title,
+        body: body,
+        icon: icon || '/assets/icon-192.png',
+        badge: badge || '/assets/icon-192.png',
+        dir: 'rtl',
+        lang: 'ar',
+        data: {
+          url: url || './',
+          timestamp: Date.now()
         }
-      }
-    };
+      });
 
-    for (let i = 0; i < subscriberEntries.length; i += 20) {
-      await Promise.all(subscriberEntries.slice(i, i + 20).map(sendSubscriber));
+      const sendSubscriber = async ([key, subObj]) => {
+        if (!subObj || !subObj.subscription || !subObj.subscription.endpoint) {
+          return;
+        }
+
+        const subscription = subObj.subscription;
+        let endpoint;
+        try { endpoint = new URL(subscription.endpoint); } catch { failureCount++; return; }
+        const host = endpoint.hostname;
+        if (endpoint.protocol !== 'https:' || endpoint.port ||
+            !(host === 'fcm.googleapis.com' || host === 'updates.push.services.mozilla.com' ||
+              host.endsWith('.notify.windows.com') || host === 'web.push.apple.com' || host.endsWith('.push.apple.com'))) {
+          failureCount++; return;
+        }
+
+        try {
+          await webpush.sendNotification(subscription, payload, {
+            TTL: 86400, // 24 hours retention
+            urgency: 'high', timeout: 10000
+          });
+          successCount++;
+        } catch (err) {
+          failureCount++;
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            expiredKeys.push(key);
+          }
+        }
+      };
+
+      for (let i = 0; i < subscriberEntries.length; i += 20) {
+        await Promise.all(subscriberEntries.slice(i, i + 20).map(sendSubscriber));
+      }
+
+      // Clean up expired subscriptions from Firebase
+      if (expiredKeys.length > 0) {
+        await Promise.all(expiredKeys.map(async (expiredKey) => {
+          try {
+            await fetch(`${FIREBASE_DB_URL}/push_subscribers/${encodeURIComponent(expiredKey)}.json?auth=${encodeURIComponent(session.token)}`, {
+              method: 'DELETE', signal: AbortSignal.timeout(10000)
+            });
+          } catch (e) {}
+        }));
+      }
     }
 
-    // Clean up expired subscriptions from Firebase
-    if (expiredKeys.length > 0) {
-      await Promise.all(expiredKeys.map(async (expiredKey) => {
-        try {
-          await fetch(`${FIREBASE_DB_URL}/push_subscribers/${encodeURIComponent(expiredKey)}.json?auth=${encodeURIComponent(session.token)}`, {
-            method: 'DELETE', signal: AbortSignal.timeout(10000)
-          });
-        } catch (e) {}
-      }));
+    const webAttempted = shouldSendWeb;
+    const webSuccess = successCount > 0;
+    const mobileAttempted = shouldSendMobile;
+
+    // Overall success if at least one requested channel succeeded
+    const overallSuccess = (webAttempted && webSuccess) || (mobileAttempted && mobileSuccess);
+    const partialFailure = (webAttempted && mobileAttempted) && (webSuccess !== mobileSuccess);
+
+    let summaryMessage = '';
+    if (webSuccess && mobileSuccess) {
+      summaryMessage = `تم الإرسال بنجاح إلى ${successCount} متصفح ويب وتطبيق الموبايل (OneSignal).`;
+    } else if (webSuccess && !mobileAttempted) {
+      summaryMessage = `تم الإرسال بنجاح إلى ${successCount} متصفح ويب.`;
+    } else if (mobileSuccess && !webAttempted) {
+      summaryMessage = `تم البث بنجاح إلى تطبيق الموبايل عبر OneSignal.`;
+    } else if (mobileSuccess && webAttempted && !webSuccess) {
+      summaryMessage = `تم البث لهواتف الموبايل بنجاح، ولكن لم تصل لأي متصفح ويب (${subscriberEntries.length ? 'فشل الإرسال' : 'لا يوجد مشتركون'}).`;
+    } else if (webSuccess && mobileAttempted && !mobileSuccess) {
+      summaryMessage = `تم الإرسال لـ ${successCount} متصفح ويب، ولكن فشل إرسال الموبايل (${mobileError || 'خطأ OneSignal'}).`;
+    } else {
+      summaryMessage = 'لم يتم تسليم الإشعار لأي مشترك.';
     }
 
     return res.status(200).json({
-      success: successCount > 0 || Boolean(onesignalResult?.id),
+      success: overallSuccess,
+      partialFailure: partialFailure,
+      channel: targetChannel,
+      channels: {
+        web: {
+          attempted: webAttempted,
+          success: webSuccess,
+          sentCount: successCount,
+          failedCount: failureCount,
+          totalSubscribers: subscriberEntries.length,
+          error: webAttempted && !webSuccess && subscriberEntries.length > 0 ? 'تعذّر الإرسال لجميع المتصفحات' : null
+        },
+        mobile: {
+          attempted: mobileAttempted,
+          success: mobileSuccess,
+          recipients: onesignalResult?.recipients || (mobileSuccess ? 1 : 0),
+          id: onesignalResult?.id || null,
+          error: mobileError
+        }
+      },
       totalSubscribers: subscriberEntries.length,
       sentCount: successCount,
       failedCount: failureCount,
       cleanedExpired: expiredKeys.length,
       onesignal: onesignalResult,
-      message: `Successfully pushed to ${successCount} devices.`
+      message: summaryMessage
     });
 
   } catch (error) {

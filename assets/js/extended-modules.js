@@ -2811,6 +2811,11 @@ function initLiveRadioWidgetWithSleepTimer() {
  if(timer)timer.onchange=()=>{clearInterval(sleepInterval);const minutes=Number(timer.value);sleepDeadline=minutes>0?Date.now()+minutes*60000:0;player.setSleepTimer?.(sleepDeadline);countdown.style.display=sleepDeadline?'flex':'none';if(sleepDeadline){updateTimer();sleepInterval=setInterval(updateTimer,1000);}};
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateTimer();});
  const sleepGroup=panel.querySelector('.radio-sleep-timer-group');if(sleepGroup){const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='مؤقت النوم';details.className='radio-sleep-details';details.append(summary);sleepGroup.before(details);details.append(sleepGroup);}
+ const options=document.createElement('details');options.className='radio-options';
+ const optionsTitle=document.createElement('summary');optionsTitle.textContent='خيارات الراديو';options.append(optionsTitle);
+ const stationGroup=panel.querySelector('.radio-station-select-group');
+ panel.append(options);for(const item of [stationGroup,favorite,panel.querySelector('.radio-sleep-details')])if(item)options.append(item);
+
 
 }
 

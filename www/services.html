@@ -47,17 +47,18 @@
     
     <!-- تنسيقات الموقع المتطابقة مع النموذج المرجعي -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <link rel="stylesheet" href="assets/css/style.css?v=96">
     
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
   
     <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
-<link rel="stylesheet" href="assets/css/radio-player.css?v=4">
+<link rel="stylesheet" href="assets/css/radio-player.css?v=5">
 <script src="assets/js/radio-navigation.js?v=2"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
+<link rel="stylesheet" href="assets/css/services-personal.css?v=4">
+<script src="assets/js/services-personal.js?v=3"></script>
 </head>
 <body class="services-hub-mode">
 
@@ -88,7 +89,7 @@
     <audio id="quran-audio" preload="none" loop>
         <source src="https://server8.mp3quran.net/afs/001.mp3" type="audio/mpeg">
     </audio>
-    <audio id="audio-adhan" preload="auto">
+    <audio id="audio-adhan" preload="none">
         <source src="assets/audio/adhan/qatami.mp3" type="audio/mpeg">
     </audio>
     <audio id="audio-adhan-preview" preload="none"></audio>
@@ -107,19 +108,12 @@
         <!-- حقل البحث السريع في الخدمات -->
         <div class="services-search-wrapper">
             <i class="fa-solid fa-magnifying-glass services-search-icon"></i>
-            <input type="text" id="servicesSearch" class="services-search-input" placeholder="ابحث في جميع خدمات وأقسام زاد المسلم (مثال: المصحف، القبلة، أسماء الله، الأذكار)..." oninput="filterServices()">
+            <input type="text" id="servicesSearch" class="services-search-input" aria-label="البحث في جميع الخدمات" placeholder="ابحث عن خدمة…" inputmode="search" enterkeyhint="search" autocomplete="off" oninput="filterServices()">
+            <button type="button" id="services-clear-search" aria-label="مسح البحث" hidden onclick="clearServicesSearch()">×</button>
         </div>
 
-        <!-- تلميحات البحث السريعة البسيطة وغير المشتتة -->
-        <div class="services-search-hint">
-            <span class="search-hint-label"><i class="fa-solid fa-lightbulb text-gold"></i> جرّب:</span>
-            <button type="button" class="search-hint-pill" onclick="applySearchChip('أذكار')">أذكار</button>
-            <button type="button" class="search-hint-pill" onclick="applySearchChip('صلاة')">صلاة</button>
-            <button type="button" class="search-hint-pill" onclick="applySearchChip('قرآن')">قرآن</button>
-            <button type="button" class="search-hint-pill" onclick="applySearchChip('قبلة')">قبلة</button>
-            <button type="button" class="search-hint-pill" onclick="applySearchChip('زكاة')">زكاة</button>
-            <button type="button" class="search-hint-pill" onclick="applySearchChip('سكينة')">سكينة</button>
-        </div>
+        <p id="services-search-results" role="status" aria-live="polite"></p>
+
 
         <!-- أزرار تبويب التصنيفات السريعة والواضحة -->
         <div class="category-filter-pills">
@@ -128,7 +122,7 @@
             <button type="button" class="cat-pill-btn" onclick="filterCategory('الصلاة', this)">🕌 الصلاة والقبلة</button>
             <button type="button" class="cat-pill-btn" onclick="filterCategory('القرآن الكريم', this)">📖 القرآن والختمات</button>
             <button type="button" class="cat-pill-btn" onclick="filterCategory('المعرفة الإسلامية', this)">📚 المعرفة والقصص</button>
-            <button type="button" class="cat-pill-btn" onclick="filterCategory('الصدقة الجارية', this)">🤍 الصدقة الجارية</button>
+            <button type="button" class="cat-pill-btn" onclick="filterCategory('الزكاة والصدقة', this)">🤍 الزكاة والصدقة</button>
         </div>
 
         <div id="noResultsBox" class="no-results">
@@ -144,14 +138,14 @@
                 <h2 class="category-title">الأذكار وحصن المسلم</h2>
                 <span class="category-badge">حفظ وبركة يومية</span>
             </div>
-            <p class="category-desc">«ألا بذكر الله تطمئن القلوب» • حصنك المنيع من وساوس الشيطان ومصاعب اليوم، يعمر قلبك بالسكينة ويضاعف حسناتك بيسر وسهولة.</p>
+            <p class="category-desc">أذكار وأدعية وعبادات يومية.</p>
             <div class="services-grid">
                 <a class="service-card" href="#azkar">
                     <div class="service-card-top">
                         <div class="service-icon-box">🤲</div>
                         <div class="service-info">
                             <h3>أذكار اليوم وحصن المسلم</h3>
-                            <p>أذكار الصباح، المساء، النوم، الاستيقاظ، وأدعية الأحوال مع عدادات تفاعلية تحفظ تقدمك.</p>
+                            <p>أذكار يومك مع حفظ تقدمك.</p>
                         </div>
                     </div>
                     <span class="service-action-link">تصفح الأذكار ←</span>
@@ -162,10 +156,10 @@
                         <div class="service-icon-box">📿</div>
                         <div class="service-info">
                             <h3>السبحة الإلكترونية التفاعلية</h3>
-                            <p>سبحة ذكية مدمجة مع صوت نقر الخرزات وحفظ العداد وتتبع إنجاز تسبيحاتك اليومية.</p>
+                            <p>عداد تسبيح ذكي تفاعلي.</p>
                         </div>
                     </div>
-                    <span class="service-action-link">الذهاب للسبحة التفاعلية 📿 ←</span>
+                    <span class="service-action-link">فتح السبحة الذكية ←</span>
                 </a>
 
                 <a class="service-card" href="#mood-compass-section" onclick="if(window.MoodCompass && typeof window.MoodCompass.init === 'function') window.MoodCompass.init();">
@@ -173,7 +167,7 @@
                         <div class="service-icon-box">🌿</div>
                         <div class="service-info">
                             <h3>بوصلة القلوب والسكينة</h3>
-                            <p>أشعر بـ... تداوِ بالقرآن الكريم والأدعية النبوية المأثورة المخصصة لحالتك النفسية والشعورية.</p>
+                            <p>آيات وأدعية تناسب شعورك.</p>
                         </div>
                     </div>
                     <span class="service-action-link">افتح بوصلة السكينة 🌿 ←</span>
@@ -184,7 +178,7 @@
                         <div class="service-icon-box">📋</div>
                         <div class="service-info">
                             <h3>الورد اليومي والمهام</h3>
-                            <p>جدول محاسبة الطاعات اليومية من الصلوات والسنن وقراءة القرآن والأذكار للحفاظ على الاستمرارية.</p>
+                            <p>تابع عباداتك اليومية.</p>
                         </div>
                     </div>
                     <span class="service-action-link">متابعة الورد ←</span>
@@ -195,7 +189,7 @@
                         <div class="service-icon-box">🌱</div>
                         <div class="service-info">
                             <h3>حديقة الحسنات وشجرة الذكر</h3>
-                            <p>تجربة تفاعلية ملهمة تحفزك على غرس حسناتك وزراعة شجر الجنة مع كل تسبيحة واستغفار.</p>
+                            <p>تابع تقدمك في الذكر والقراءة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">دخول حديقة الحسنات ←</span>
@@ -206,7 +200,7 @@
                         <div class="service-icon-box">✨</div>
                         <div class="service-info">
                             <h3>الأدعية النبوية والقرآنية</h3>
-                            <p>موسوعة الأدعية المأثورة المصنفة حسب الحالات والمناسبات مع ميزة النسخ والمشاركة الفورية.</p>
+                            <p>أدعية مصنفة للنسخ والمشاركة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">استعراض الأدعية ←</span>
@@ -221,14 +215,14 @@
                 <h2 class="category-title">الصلاة والقبلة</h2>
                 <span class="category-badge">عماد الدين</span>
             </div>
-            <p class="category-desc">«إن الصلاة كانت على المؤمنين كتاباً موقوتاً» • أول ما يُحاسب عليه العبد وصلتك بربك 5 مرات يومياً لتطهير الروح وتجديد الإيمان.</p>
+            <p class="category-desc">مواقيت الصلاة والقبلة والمساجد.</p>
             <div class="services-grid">
                 <a class="service-card" href="#prayer-times">
                     <div class="service-card-top">
                         <div class="service-icon-box">🕌</div>
                         <div class="service-info">
                             <h3>مواقيت الصلاة والقبلة</h3>
-                            <p>مواقيت دقيقة حسب موقعك الجغرافي مع بوصلة القبلة وتنبيهات الأذان الحي وتوقيت الصلوات القادمة.</p>
+                            <p>مواقيت الصلاة والقبلة حسب موقعك.</p>
                         </div>
                     </div>
                     <span class="service-action-link">فتح مواقيت الصلاة ←</span>
@@ -239,7 +233,7 @@
                         <div class="service-icon-box">📖</div>
                         <div class="service-info">
                             <h3>دليل الصلاة الشامل وفقهها</h3>
-                            <p>صفة صلاة النبي ﷺ خطوة بخطوة، أركانها، سننها، الفرائض والنوافل، وأدعية الركوع والسجود والمنهيات.</p>
+                            <p>تعلّم الصلاة خطوة بخطوة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">استكشف فقه الصلاة 🕌 ←</span>
@@ -250,29 +244,20 @@
                         <div class="service-icon-box">🗺️</div>
                         <div class="service-info">
                             <h3>مساجد قريبة منك</h3>
-                            <p>اكتشف أقرب بيوت الله إليك والمسافة إليها مع خريطة تفاعلية واتجاهات فورية للوصول لصلاة الجماعة.</p>
+                            <p>اعثر على المساجد القريبة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">عرض أقرب المساجد ←</span>
                 </a>
 
-                <a class="service-card" href="#zakat-calculator-section">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🧮</div>
-                        <div class="service-info">
-                            <h3>حاسبة الزكاة الذكية</h3>
-                            <p>ركن الإسلام الثالث؛ حساب دقيق لزكاة المال والذهب والفضة وعروض التجارة وفق النصاب الشرعي.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">احسب زكاتك الآن ←</span>
-                </a>
+
 
                 <a class="service-card" href="#seasons">
                     <div class="service-card-top">
                         <div class="service-icon-box">📅</div>
                         <div class="service-info">
                             <h3>مواسم الطاعات والتقويم</h3>
-                            <p>متابعة التقويم الهجري والمناسبات الإسلامية وفضائل الأيام المباركة والأشهر الحرم واغتنام الأجر.</p>
+                            <p>التقويم الهجري ومواسم الطاعات.</p>
                         </div>
                     </div>
                     <span class="service-action-link">عرض التقويم والمواسم ←</span>
@@ -287,36 +272,36 @@
                 <h2 class="category-title">القرآن الكريم والختمات</h2>
                 <span class="category-badge">نور وهداية</span>
             </div>
-            <p class="category-desc">«كتابٌ أنزلناه إليك مباركٌ ليدّبّروا آياته» • ربيع القلوب وشفيعك يوم القيامة، مع كل حرف عشر حسنات لتنال رفعة الدرجات.</p>
+            <p class="category-desc">قراءة واستماع وختمات جماعية.</p>
             <div class="services-grid">
-                <a class="service-card" href="#quran-khatma">
+                <a class="service-card" href="#quran-khatma?tab=mushaf">
                     <div class="service-card-top">
                         <div class="service-icon-box">📖</div>
                         <div class="service-info">
                             <h3>المصحف الشريف الإلكتروني</h3>
-                            <p>قراءة المصحف بالرسم العثماني برواية حفص مع الفاصلة المرجعية والاستماع للآيات وتدبر معانيها.</p>
+                            <p>اقرأ واستمع واحفظ موضعك.</p>
                         </div>
                     </div>
                     <span class="service-action-link">فتح المصحف الشريف ←</span>
                 </a>
 
-                <a class="service-card" href="#quran-khatma">
+                <a class="service-card" href="#quran-khatma?tab=khatma">
                     <div class="service-card-top">
                         <div class="service-icon-box">🌟</div>
                         <div class="service-info">
                             <h3>ختمة الـ 30 جزء الجماعية</h3>
-                            <p>شارك في حجز أجزاء الختمة القرآنية وإتمامها مع إخوانك الزوار تعظيماً للأجر وإهداءً للراحلين.</p>
+                            <p>احجز جزءًا وشارك في الختمة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">حجز جزء في الختمة ←</span>
                 </a>
 
-                <a class="service-card" href="#islamic-media">
+                <a class="service-card" href="#radio-panel" data-open-radio="true">
                     <div class="service-card-top">
                         <div class="service-icon-box">📻</div>
                         <div class="service-info">
                             <h3>إذاعات القرآن والبث الحي</h3>
-                            <p>بث مباشر 24/7 لإذاعة القرآن الكريم من القاهرة ومكة المكرمة وباقات تلاوات لأشهر القراء في العالم الإسلامي.</p>
+                            <p>استمع لإذاعة القاهرة وباقي المحطات.</p>
                         </div>
                     </div>
                     <span class="service-action-link">الاستماع للإذاعات ←</span>
@@ -331,14 +316,14 @@
                 <h2 class="category-title">المعرفة والقصص الإسلامية</h2>
                 <span class="category-badge">علم نافع وأثر</span>
             </div>
-            <p class="category-desc">«من سلك طريقاً يلتمس فيه علماً سهّل الله له به طريقاً إلى الجنة» • تفقه في دينك، وتعرف على أسماء الله الحسنى، واستلهم العظة من سير الأنبياء.</p>
+            <p class="category-desc">معرفة دينية وقصص ومسابقات.</p>
             <div class="services-grid">
                 <a class="service-card" href="#asmaa-allah">
                     <div class="service-card-top">
                         <div class="service-icon-box">✨</div>
                         <div class="service-info">
                             <h3>أسماء الله الحسنى ومعانيها</h3>
-                            <p>استعراض شامل لـ 99 اسماً من أسماء الله الحسنى مع شرح معانيها ودلالاتها وفضل إحصائها والدعاء بها.</p>
+                            <p>تعرّف على الأسماء ومعانيها.</p>
                         </div>
                     </div>
                     <span class="service-action-link">استكشاف الأسماء الحسنى ←</span>
@@ -349,7 +334,7 @@
                         <div class="service-icon-box">📜</div>
                         <div class="service-info">
                             <h3>قصص الأنبياء والصحابة</h3>
-                            <p>قصص وعبر موثقة من القرآن والسنة النبوية بأسلوب شيق وجذاب ومناسب لجميع أفراد الأسرة.</p>
+                            <p>اقرأ قصص الأنبياء والصحابة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">قراءة القصص ←</span>
@@ -360,7 +345,7 @@
                         <div class="service-icon-box">🏆</div>
                         <div class="service-info">
                             <h3>مسابقة اختبر معلوماتك</h3>
-                            <p>مسابقة ثقافية دينية تفاعلية مع أسئلة متنوعة واحتساب للنتائج لتثبيت معلوماتك الإسلامية بروح ممتعة.</p>
+                            <p>اختبر معلوماتك بأسئلة متنوعة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">بدء الاختبار ←</span>
@@ -371,7 +356,7 @@
                         <div class="service-icon-box">⚖️</div>
                         <div class="service-info">
                             <h3>أحكام الجنائز وفضل الصدقة</h3>
-                            <p>دليل فقهي مبسط حول آداب الجنائز والدعاء للميت ومفهوم الصدقة الجارية وكيفية نفع الميت شرعاً.</p>
+                            <p>دليل أحكام الجنائز والصدقة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">قراءة الأحكام ←</span>
@@ -380,31 +365,40 @@
         </section>
 
         <!-- تصنيف 5: الصدقة الجارية والوفاء -->
-        <section class="category-block" data-category="الصدقة الجارية">
+        <section class="category-block" data-category="الزكاة والصدقة">
             <div class="category-title-wrap">
                 <span style="font-size: 22px;">🤍</span>
-                <h2 class="category-title">الصدقة الجارية والدعاء</h2>
+                <h2 class="category-title">الزكاة والصدقة والدعاء</h2>
                 <span class="category-badge">أجر لا ينقطع</span>
             </div>
-            <p class="category-desc">«إذا مات ابن آدم انقطع عمله إلا من ثلاث: صدقة جارية...» • وفاء لراحلين تحبهم واستثمار لآخرتك يدوم نفعه وتتضاعف بركته.</p>
+            <p class="category-desc">الزكاة والصدقة والدعاء لمن تحب.</p>
             <div class="services-grid">
                 <a class="service-card" href="index.html#sadaqa">
                     <div class="service-card-top">
                         <div class="service-icon-box">🕊️</div>
                         <div class="service-info">
                             <h3>إنشاء بطاقة وصفحة صدقة جارية</h3>
-                            <p>أنشئ رابطاً مخصصاً لفقيدك باسمه واجمع له الدعوات وقراءات القرآن من الأهل والأصدقاء وزوار الموقع.</p>
+                            <p>أنشئ رابطاً مخصصاً لفقيدك واجمع له الدعوات وقراءات القرآن.</p>
                         </div>
                     </div>
                     <span class="service-action-link">إنشاء بطاقة الآن ←</span>
                 </a>
-
+                <a class="service-card" href="#zakat-calculator-section">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🧮</div>
+                        <div class="service-info">
+                            <h3>حاسبة الزكاة الذكية</h3>
+                            <p>احسب زكاة المال والذهب والتجارة.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">احسب زكاتك الآن ←</span>
+                </a>
                 <a class="service-card" href="#wall-of-duas">
                     <div class="service-card-top">
                         <div class="service-icon-box">🤲</div>
                         <div class="service-info">
                             <h3>حائط الدعاء بظهر الغيب 🌟</h3>
-                            <p>أعظم صور التكافل الإيماني؛ اطلب دعاءً بظهر الغيب وأمّن على دعوات إخوانك لتنال بشارة: «ولكَ بمثل».</p>
+                            <p>اطلب الدعاء وأمّن على دعوات الآخرين.</p>
                         </div>
                     </div>
                     <span class="service-action-link">زيارة حائط الدعاء ←</span>
@@ -415,7 +409,7 @@
                         <div class="service-icon-box">🤍</div>
                         <div class="service-info">
                             <h3>أدعية الزوار وسجل الوفاء</h3>
-                            <p>اكتب دعاءً أو رسالة مواساة وتشارك الأجر فوراً مع زوار الموقع عبر السحابة في سجل دائم للوفاء.</p>
+                            <p>شارك دعاءً أو رسالة مواساة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">إهداء دعاء ←</span>
@@ -431,7 +425,7 @@
         <div class="shell container service-focus-bar">
             <button type="button" class="btn-focus-back" id="btnServiceFocusBack" onclick="closeServiceFocusView(true)">
                 <i class="fa-solid fa-arrow-right"></i>
-                <span>العودة لجميع الخدمات</span>
+                <span>رجوع للخدمات</span>
             </button>
             <div class="service-focus-meta">
                 <span class="service-focus-badge">وضع التركيز</span>
@@ -446,13 +440,7 @@
         </div>
     </div>
 
-    <!-- زر عائم سريع للعودة عند التمرير -->
-    <button type="button" id="floatingBackToServices" onclick="closeServiceFocusView(true)" title="العودة لجميع الخدمات">
-        <i class="fa-solid fa-arrow-right"></i>
-        <span>العودة للخدمات</span>
-    </button>
-
-    <!-- ==========================================
+<!-- ==========================================
          الأقسام والخدمات التفاعلية المباشرة
          ========================================== -->
     <section id="quran-khatma" class="service-view-section quran-khatma-section">
@@ -540,11 +528,11 @@
                             <!-- حاوية الصفحتين المتقابلتين (Dual Page Spread للشاشات الكبيرة وصفحة واحدة للهاتف) -->
                             <div class="golden-spread-container" id="golden-spread-container">
                                 <div class="golden-page-side golden-page-right" id="golden-page-right-wrap">
-                                    <img id="mushaf-real-page-img-right" class="golden-mushaf-img" src="assets/quran-pages/561.svg" alt="الصفحة اليمنى" draggable="false">
+                                    <img id="mushaf-real-page-img-right" class="golden-mushaf-img" loading="lazy" decoding="async" src="assets/quran-pages/561.svg" alt="الصفحة اليمنى" draggable="false">
                                 </div>
                                 <div class="golden-spread-spine" id="golden-spread-spine"></div>
                                 <div class="golden-page-side golden-page-left" id="golden-page-left-wrap">
-                                    <img id="mushaf-real-page-img" class="golden-mushaf-img" src="assets/quran-pages/562.svg" alt="الصفحة اليسرى" draggable="false">
+                                    <img id="mushaf-real-page-img" class="golden-mushaf-img" loading="lazy" decoding="async" src="assets/quran-pages/562.svg" alt="الصفحة اليسرى" draggable="false">
                                 </div>
                             </div>
 
@@ -3460,179 +3448,6 @@
                 </div>
             </div>
         </div>
-        <!-- نافذة تسجيل دخول لوحة الإحصائيات (Admin PIN Modal) -->
-        <div class="modal-overlay" id="admin-login-modal" role="dialog" aria-modal="true">
-            <div class="modal-card modal-card-sm" style="max-width: 420px; text-align: center;">
-                <button class="modal-close-btn" id="btn-close-admin-login" aria-label="إغلاق">&times;</button>
-                <div class="admin-login-icon">
-                    <i class="fa-solid fa-user-shield text-gold" style="font-size: 2.5rem; margin-bottom: 0.8rem;"></i>
-                </div>
-                <h3 class="modal-title" style="margin-bottom: 0.4rem;">لوحة الإحصائيات الخاصة</h3>
-                <p class="modal-desc" style="font-size: 0.85rem; margin-bottom: 1.2rem;">
-                    هذه اللوحة خاصة بصاحب الموقع لمتابعة عدد الزوار، مرات التنزيل، والتفاعل مع الصدقة الجارية.
-                </p>
-
-                <form id="admin-pin-form" onsubmit="return false;">
-                    <div class="admin-pin-input-wrapper">
-                        <input type="password" id="admin-pin-input" class="admin-pin-input" placeholder="أدخل رمز المرور (PIN)" maxlength="10" autocomplete="current-password">
-                    </div>
-                    <p id="admin-pin-error" class="admin-pin-error" style="display: none; color: #ef4444; font-size: 0.82rem; margin-top: 0.5rem; font-weight: 600;"></p>
-
-                    <div style="margin-top: 1.2rem; display: flex; gap: 0.6rem; justify-content: center;">
-                        <button type="submit" class="btn btn-gold" id="btn-submit-admin-pin" style="flex: 1;">
-                            <i class="fa-solid fa-lock-open"></i> دخول اللوحة
-                        </button>
-                        <button type="button" class="btn btn-outline" id="btn-cancel-admin-login">إلغاء</button>
-                    </div>
-                    <div style="margin-top: 1rem; font-size: 0.78rem; color: var(--text-muted);">
-                        الرمز الافتراضي: <code>1997</code> (يمكنك تغييره من داخل اللوحة)
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- نافذة لوحة الإحصائيات الشاملة (Admin Dashboard Modal) -->
-        <div class="modal-overlay" id="admin-dashboard-modal" role="dialog" aria-modal="true">
-            <div class="modal-card modal-card-admin">
-                <div class="admin-dashboard-header">
-                    <div class="admin-header-title-group">
-                        <div class="admin-avatar-badge"><i class="fa-solid fa-chart-line text-gold"></i></div>
-                        <div>
-                            <h2 class="admin-dashboard-title">لوحة إحصائيات زاد المسلم 📊</h2>
-                            <span class="admin-dashboard-subtitle">إحصائيات حية ومباشرة من قاعدة بيانات السحابة (Firebase)</span>
-                        </div>
-                    </div>
-                    <div class="admin-header-actions">
-                        <a href="admin.html" class="btn btn-gold btn-sm" title="فتح لوحة إرسال الإشعارات الشاملة">
-                            <i class="fa-solid fa-paper-plane"></i> <span>لوحة الإشعارات</span>
-                        </a>
-                        <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-admin-stats" title="تحديث البيانات">
-                            <i class="fa-solid fa-rotate"></i> <span>تحديث</span>
-                        </button>
-                        <button type="button" class="btn btn-outline btn-sm" id="btn-change-admin-pin" title="تغيير رمز المرور">
-                            <i class="fa-solid fa-key"></i> <span>تغيير الرمز</span>
-                        </button>
-                        <button class="modal-close-btn" id="btn-close-admin-dashboard" aria-label="إغلاق">&times;</button>
-                    </div>
-                </div>
-
-                <!-- شبكة البطاقات الإحصائية الرئيسية -->
-                <div class="admin-stats-grid">
-                    <div class="admin-stat-card">
-                        <div class="admin-stat-icon-wrapper bg-gold-subtle">
-                            <i class="fa-solid fa-eye text-gold"></i>
-                        </div>
-                        <div class="admin-stat-info">
-                            <span class="admin-stat-label">إجمالي الزيارات والصفحات</span>
-                            <strong class="admin-stat-number" id="stat-total-visits">0</strong>
-                            <span class="admin-stat-sub" id="stat-today-visits">اليوم: 0 زيارة</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <div class="admin-stat-icon-wrapper bg-emerald-subtle">
-                            <i class="fa-solid fa-users text-emerald-400"></i>
-                        </div>
-                        <div class="admin-stat-info">
-                            <span class="admin-stat-label">الزوار الفريدون (Unique)</span>
-                            <strong class="admin-stat-number" id="stat-unique-visitors">0</strong>
-                            <span class="admin-stat-sub">أجهزة فريدة زارت الموقع</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <div class="admin-stat-icon-wrapper bg-blue-subtle">
-                            <i class="fa-solid fa-download text-blue-400"></i>
-                        </div>
-                        <div class="admin-stat-info">
-                            <span class="admin-stat-label">مرات تنزيل وتثبيت التطبيق</span>
-                            <strong class="admin-stat-number" id="stat-total-downloads">0</strong>
-                            <span class="admin-stat-sub">تثبيت PWA على الهواتف</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <div class="admin-stat-icon-wrapper bg-rose-subtle">
-                            <i class="fa-solid fa-hands-praying text-rose-400"></i>
-                        </div>
-                        <div class="admin-stat-info">
-                            <span class="admin-stat-label">الأدعية المهداة للفقيد</span>
-                            <strong class="admin-stat-number" id="stat-total-prayers">0</strong>
-                            <span class="admin-stat-sub">دعاء ومواساة من الزوار</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <div class="admin-stat-icon-wrapper bg-amber-subtle">
-                            <i class="fa-solid fa-ring text-amber-400"></i>
-                        </div>
-                        <div class="admin-stat-info">
-                            <span class="admin-stat-label">مجموع التسبيحات والأذكار</span>
-                            <strong class="admin-stat-number" id="stat-total-tasbeeh">0</strong>
-                            <span class="admin-stat-sub">تسبيحة في ميزان حسناتهما</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <div class="admin-stat-icon-wrapper bg-cyan-subtle">
-                            <i class="fa-solid fa-book-quran text-cyan-400"></i>
-                        </div>
-                        <div class="admin-stat-info">
-                            <span class="admin-stat-label">أجزاء الختمة المحجوزة</span>
-                            <strong class="admin-stat-number" id="stat-total-khatmas">0 / 30</strong>
-                            <span class="admin-stat-sub" id="stat-khatma-cycles">ختمات مكتملة</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- تفاصيل إضافية: الأجهزة وسجل الأيام -->
-                <div class="admin-details-row">
-                    <div class="admin-panel-box">
-                        <h3 class="admin-panel-title"><i class="fa-solid fa-mobile-screen-button text-gold"></i> توزيع أجهزة الزوار</h3>
-                        <div class="device-stat-bar-group">
-                            <div class="device-stat-item">
-                                <div class="device-label-row">
-                                    <span><i class="fa-solid fa-mobile text-muted"></i> الهواتف الذكية (Mobile)</span>
-                                    <strong id="stat-device-mobile-pct">0%</strong>
-                                </div>
-                                <div class="device-progress"><div class="device-progress-fill" id="fill-device-mobile" style="width: 0%;"></div></div>
-                            </div>
-                            <div class="device-stat-item">
-                                <div class="device-label-row">
-                                    <span><i class="fa-solid fa-laptop text-muted"></i> الحواسيب (Desktop)</span>
-                                    <strong id="stat-device-desktop-pct">0%</strong>
-                                </div>
-                                <div class="device-progress"><div class="device-progress-fill" id="fill-device-desktop" style="width: 0%;"></div></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="admin-panel-box">
-                        <h3 class="admin-panel-title"><i class="fa-solid fa-calendar-week text-gold"></i> نشاط الزيارات الأسبوعي</h3>
-                        <div class="admin-daily-list" id="admin-daily-list">
-                            <!-- يتم توليده ديناميكياً -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- تذييل اللوحة -->
-                <div class="admin-dashboard-footer">
-                    <div class="admin-live-status">
-                        <span class="live-dot-pulse"></span>
-                        <span>البيانات متصلة لحظياً ومحفوظة في سحابة Firebase الآمنة</span>
-                    </div>
-                    <div class="admin-footer-buttons">
-                        <button type="button" class="btn btn-outline btn-sm" id="btn-export-admin-stats">
-                            <i class="fa-solid fa-file-arrow-down"></i> تصدير تقرير
-                        </button>
-                        <button type="button" class="btn btn-gold btn-sm" id="btn-admin-logout">
-                            <i class="fa-solid fa-right-from-bracket"></i> قفل اللوحة
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- النافذة المنبثقة التفاعلية (Modal) من النموذج المرجعي -->
         <div class="modal-bg" id="overlay" onclick="if(event.target===this)closeModal()">
             <div class="modal">
@@ -3641,15 +3456,7 @@
             </div>
         </div>
 
-        <!-- شريط سفلي إضافي للعودة عند الوصول لنهاية محتوى الخدمة -->
-        <div class="service-focus-bottom-bar" id="serviceFocusBottomBar" style="display: none;">
-            <button type="button" class="btn-focus-back-bottom" onclick="closeServiceFocusView(true)">
-                <i class="fa-solid fa-arrow-right"></i>
-                <span>العودة لجميع الخدمات والأقسام</span>
-            </button>
-        </div>
-
-        <!-- شريط التنقل السفلي للهواتف المتطابق -->
+<!-- شريط التنقل السفلي للهواتف المتطابق -->
         <nav class="mobilebar">
             <a href="index.html#home"><span>⌂</span>الرئيسية</a>
             <a href="index.html#daily"><span>🌿</span>يومي</a>
@@ -3676,61 +3483,64 @@
         </footer>
 
         <script>
-            // كود تصفية وبحث الخدمات والتبويبات السريعة
-            function filterServices() {
-                const input = document.getElementById('servicesSearch');
-                const query = input ? input.value.trim().toLowerCase() : '';
-                const cards = document.querySelectorAll('.service-card');
-                const categories = document.querySelectorAll('.category-block');
-                let totalVisible = 0;
 
-                cards.forEach(card => {
-                    const title = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
-                    const desc = card.querySelector('p') ? card.querySelector('p').textContent.toLowerCase() : '';
-                    const match = !query || title.includes(query) || desc.includes(query);
-                    card.style.display = match ? 'flex' : 'none';
-                    if (match) totalVisible++;
+            let servicesCategory = 'all';
+            let servicesScroll = 0;
+            const normalizeServiceSearch = value => value.trim().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[\u064B-\u065F\u0670ـ]/g,'').toLowerCase();
+            const serviceSearchAliases = {
+                '#nearby-mosques-section':'جامع جوامع مسجد مساجد قريب قريبة خريطة خرائط',
+                'index.html#smart-dhikr-panel':'تسبيح سبحة سبح عداد',
+                '#radio-panel':'راديو اذاعة اذاعات بث سماع استماع قران قرآن',
+                '#quran-khatma?tab=mushaf':'مصحف قران قرآن قراءة سورة سور تلاوة',
+                '#quran-khatma?tab=khatma':'ختمة ختم ختمات اجزاء جزء جماعية',
+                '#azkar':'ذكر اذكار صباح مساء نوم حصن',
+                '#prayer-times':'صلاة صلاه صلوات اذان أذان قبلة مواقيت',
+                '#zakat-calculator-section':'زكاة زكاه نصاب ذهب فضة مال',
+                '#islamic-stories':'قصص قصة نبي انبياء صحابة',
+                '#mood-compass-section':'حزن قلق خوف طمأنينة سكينة',
+                '#categorized-duas':'دعاء ادعية أدعية',
+                '#daily-wird':'ورد مهام يومي متابعة'
+            };
+            function clearServicesSearch() { document.getElementById('servicesSearch').value='';filterServices();document.getElementById('servicesSearch').focus(); }
+            function renderServices() {
+                const query = normalizeServiceSearch(document.getElementById('servicesSearch').value);
+                let total = 0;
+                document.querySelectorAll('.category-block').forEach(block => {
+                    let count = 0;
+                    block.querySelectorAll('.service-card').forEach(card => {
+                        const searchable=normalizeServiceSearch((card.querySelector('h3')?.textContent||'')+' '+(card.querySelector('p')?.textContent||'')+' '+(serviceSearchAliases[card.getAttribute('href')]||''));
+                        const match = (!query || query.split(/\s+/).every(word=>searchable.includes(word))) && (servicesCategory === 'all' || block.dataset.category === servicesCategory);
+                        card.style.display = match ? 'flex' : 'none';
+                        if (card.parentElement.classList.contains('service-card-shell')) card.parentElement.hidden=!match;
+                        if (match) count++;
+                    });
+                    block.style.display = count ? 'block' : 'none'; total += count;
                 });
-
-                categories.forEach(cat => {
-                    const visibleInCat = cat.querySelectorAll('.service-card[style*="display: flex"]').length;
-                    cat.style.display = (query && visibleInCat === 0) ? 'none' : 'block';
+                document.querySelectorAll('.cat-pill-btn').forEach(button => {
+                    const active = button.getAttribute('onclick').includes("'" + servicesCategory + "'");
+                    button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
                 });
-
-                const noRes = document.getElementById('noResultsBox');
-                if (noRes) {
-                    noRes.style.display = (totalVisible === 0) ? 'block' : 'none';
-                }
+                document.getElementById('noResultsBox').style.display = total ? 'none' : 'block';
+                document.getElementById('services-clear-search').hidden=!query;
+                document.getElementById('services-search-results').textContent=query?'نتائج البحث: '+total+' خدمة':'';
             }
-
-            function filterCategory(catName, btn) {
-                document.querySelectorAll('.cat-pill-btn').forEach(b => b.classList.remove('active'));
-                if (btn) btn.classList.add('active');
-
-                const searchInput = document.getElementById('servicesSearch');
-                if (searchInput && searchInput.value) {
-                    searchInput.value = '';
-                    filterServices();
-                }
-
-                const blocks = document.querySelectorAll('.category-block');
-                blocks.forEach(block => {
-                    if (catName === 'all' || block.getAttribute('data-category') === catName) {
-                        block.style.display = 'block';
-                    } else {
-                        block.style.display = 'none';
-                    }
-                });
+            function filterServices() { servicesCategory = 'all'; renderServices(); }
+            function filterCategory(category) { servicesCategory = category; document.getElementById('servicesSearch').value = ''; renderServices(); }
+            function saveServicesPosition() {
+                if (document.body.classList.contains('single-service-mode')) return;
+                servicesScroll = window.scrollY;
+                try { sessionStorage.setItem('zad_services_directory',JSON.stringify({query:document.getElementById('servicesSearch').value,category:servicesCategory,scroll:servicesScroll})); } catch {}
             }
-
-            function applySearchChip(text) {
-                const input = document.getElementById('servicesSearch');
-                if (input) {
-                    input.value = text;
-                    filterServices();
-                    input.focus();
-                }
+            function restoreServicesPosition() {
+                try { const saved=JSON.parse(sessionStorage.getItem('zad_services_directory') || 'null');if(saved){
+                    document.getElementById('servicesSearch').value=typeof saved.query==='string'?saved.query:'';
+                    servicesCategory = ['all',...Array.from(document.querySelectorAll('.category-block'),b=>b.dataset.category)].includes(saved.category)?saved.category:'all';
+                    servicesScroll=Number.isFinite(saved.scroll)?Math.max(0,saved.scroll):0;
+                }} catch {}
+                renderServices();
+                requestAnimationFrame(()=>window.scrollTo({top:servicesScroll,behavior:'instant'}));
             }
+            window.addEventListener('pagehide',saveServicesPosition);
         </script>
 
 
@@ -3760,15 +3570,14 @@
     <script src="assets/js/prayer-cities.js?v=1"></script>
     <script src="assets/js/app.js?v=22"></script>
         <script src="assets/js/quran.js?v=26"></script>
-        <script src="assets/js/radio-player.js?v=1"></script>
-    <script src="assets/js/extended-modules.js?v=33"></script>
+        <script src="assets/js/radio-player.js?v=2"></script>
+    <script src="assets/js/extended-modules.js?v=34"></script>
         <script src="assets/js/smart-khatma.js?v=2"></script>
         <script src="assets/js/share-card-generator.js?v=1"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
         <script src="assets/js/smart-tasbih.js?v=1"></script>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
         <script src="assets/js/zakat-calculator.js?v=1"></script>
-        <script src="assets/js/nearby-mosques.js?v=9"></script>
+        <script src="assets/js/nearby-mosques.js?v=11"></script>
         <script src="assets/js/wall-of-duas.js?v=1"></script>
         <script src="assets/js/prayer-guide.js?v=1"></script>
 
@@ -4020,6 +3829,7 @@
                 const targetSection = document.getElementById(cleanId);
                 if (!targetSection) return;
 
+                if (pushHistory) saveServicesPosition();
                 document.body.classList.remove('services-hub-mode');
                 document.body.classList.add('single-service-mode');
 
@@ -4031,16 +3841,13 @@
                 const focusHeader = document.getElementById('serviceFocusHeader');
                 if (focusHeader) focusHeader.style.display = 'block';
 
-                const focusBottomBar = document.getElementById('serviceFocusBottomBar');
-                if (focusBottomBar) focusBottomBar.style.display = 'block';
-
                 const titleEl = document.getElementById('serviceFocusTitle');
                 if (titleEl) {
                     titleEl.textContent = SERVICE_TITLES[cleanId] || (targetSection.querySelector('.section-title')?.textContent.trim() || 'الخدمة المحددة');
                 }
 
                 if (pushHistory) {
-                    const targetHash = '#' + cleanId;
+                    const targetHash = '#' + serviceId.replace(/^#/, '');
                     if (window.location.hash !== targetHash) {
                         history.pushState({ serviceId: cleanId }, '', targetHash);
                     }
@@ -4048,6 +3855,10 @@
 
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
+                if (cleanId === 'quran-khatma') {
+                    const tab=new URLSearchParams(serviceId.split('?')[1] || '').get('tab');
+                    if (tab === 'mushaf' || tab === 'khatma') document.querySelector('.quran-tab-btn[data-tab="'+tab+'"]')?.click();
+                }
                 if (cleanId === 'nearby-mosques-section') {
                     setTimeout(() => {
                         window.dispatchEvent(new Event('resize'));
@@ -4076,12 +3887,6 @@
                 const focusHeader = document.getElementById('serviceFocusHeader');
                 if (focusHeader) focusHeader.style.display = 'none';
 
-                const focusBottomBar = document.getElementById('serviceFocusBottomBar');
-                if (focusBottomBar) focusBottomBar.style.display = 'none';
-
-                const floatingBtn = document.getElementById('floatingBackToServices');
-                if (floatingBtn) floatingBtn.classList.remove('show-floating');
-
                 if (pushHistory) {
                     if (window.location.hash) {
                         history.pushState({ serviceId: null }, '', window.location.pathname + window.location.search);
@@ -4089,7 +3894,8 @@
                 }
 
                 document.title = 'دليل الخدمات والأقسام • زاد المسلم';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                document.dispatchEvent(new Event('zad:services-return'));
+                restoreServicesPosition();
             }
 
             // التعامل مع أزرار الرجوع في المتصفح والهاتف (Android Back / iOS swipe)
@@ -4098,31 +3904,21 @@
                     const cleanId = window.location.hash.substring(1).split('?')[0];
                     const targetSection = document.getElementById(cleanId);
                     if (targetSection && targetSection.classList.contains('service-view-section')) {
-                        openServiceView(cleanId, false);
+                        openServiceView(window.location.hash, false);
                         return;
                     }
                 }
                 closeServiceFocusView(false);
             });
 
-            // مراقبة التمرير لإظهار زر العودة العائم
-            window.addEventListener('scroll', () => {
-                const floatingBtn = document.getElementById('floatingBackToServices');
-                if (!floatingBtn) return;
-                if (document.body.classList.contains('single-service-mode') && window.scrollY > 300) {
-                    floatingBtn.classList.add('show-floating');
-                } else {
-                    floatingBtn.classList.remove('show-floating');
-                }
-            }, { passive: true });
-
             // تفعيل الخدمة تلقائياً إذا فُتحت الصفحة برابط مباشر يحمل هاش
             function initServiceFocus() {
+                if (!window.location.hash) restoreServicesPosition();
                 if (window.location.hash) {
                     const cleanId = window.location.hash.substring(1).split('?')[0];
                     const targetSection = document.getElementById(cleanId);
                     if (targetSection && targetSection.classList.contains('service-view-section')) {
-                        openServiceView(cleanId, false);
+                        openServiceView(window.location.hash, false);
                     }
                 }
                 const targetAzkar = sessionStorage.getItem('target_azkar_tab');
@@ -4145,12 +3941,18 @@
             document.querySelectorAll('.service-card').forEach(card => {
                 card.addEventListener('click', function (e) {
                     const href = this.getAttribute('href');
+                    if (this.dataset.openRadio) {
+                        e.preventDefault();e.stopPropagation();
+                        if (window.ZadRadioEmbedded) parent.ZadRadioHost?.openPanel();
+                        else window.ZadRadioHost?.openPanel();
+                        return;
+                    }
                     if (href && href.startsWith('#')) {
                         const cleanId = href.substring(1).split('?')[0];
                         const targetEl = document.getElementById(cleanId);
                         if (targetEl && targetEl.classList.contains('service-view-section')) {
                             e.preventDefault();
-                            openServiceView(cleanId, true);
+                            openServiceView(href, true);
                         }
                     }
                 });
@@ -4177,6 +3979,6 @@
             });
         </script>
 
-    <script src="assets/js/user-tools.js?v=6"></script>
+    <script src="assets/js/user-tools.js?v=7"></script>
 </body>
 </html>

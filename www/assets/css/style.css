@@ -24996,7 +24996,7 @@ body.light-theme .btn-focus-home {
     display: none;
     align-items: center;
     gap: 8px;
-    background: rgba(15, 23, 42, 0.92);
+    background: rgba(16, 185, 129, 0.14);
     color: #d4af37;
     border: 1px solid rgba(212, 175, 55, 0.4);
     padding: 10px 18px;
@@ -25016,34 +25016,6 @@ body.light-theme #floatingBackToServices {
     border-color: rgba(202, 138, 4, 0.45);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
-
-#floatingBackToServices {
-    position: fixed;
-    bottom: calc(105px + env(safe-area-inset-bottom, 0px));
-    right: 20px;
-    z-index: 990;
-    display: none;
-    align-items: center;
-    gap: 8px;
-    background: rgba(15, 23, 42, 0.95);
-    color: #d4af37;
-    border: 1px solid rgba(212, 175, 55, 0.45);
-    padding: 11px 20px;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(10px);
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-#floatingBackToServices:hover {
-    transform: translateY(-3px) scale(1.02);
-    background: #d4af37;
-    color: #0b172a;
-}
-
 body.single-service-mode #floatingBackToServices.show-floating {
     display: inline-flex !important;
     animation: popInFloating 0.25s ease-out;
