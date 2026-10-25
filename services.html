@@ -112,12 +112,13 @@
 
         <!-- تلميحات البحث السريعة البسيطة وغير المشتتة -->
         <div class="services-search-hint">
-            <span><i class="fa-solid fa-lightbulb text-gold"></i> جرّب:</span>
+            <span class="search-hint-label"><i class="fa-solid fa-lightbulb text-gold"></i> جرّب:</span>
             <button type="button" class="search-hint-pill" onclick="applySearchChip('أذكار')">أذكار</button>
             <button type="button" class="search-hint-pill" onclick="applySearchChip('صلاة')">صلاة</button>
             <button type="button" class="search-hint-pill" onclick="applySearchChip('قرآن')">قرآن</button>
             <button type="button" class="search-hint-pill" onclick="applySearchChip('قبلة')">قبلة</button>
             <button type="button" class="search-hint-pill" onclick="applySearchChip('زكاة')">زكاة</button>
+            <button type="button" class="search-hint-pill" onclick="applySearchChip('سكينة')">سكينة</button>
         </div>
 
         <!-- أزرار تبويب التصنيفات السريعة والواضحة -->
@@ -167,7 +168,7 @@
                     <span class="service-action-link">الذهاب للسبحة التفاعلية 📿 ←</span>
                 </a>
 
-                <a class="service-card" href="#mood-compass-section">
+                <a class="service-card" href="#mood-compass-section" onclick="if(window.MoodCompass && typeof window.MoodCompass.init === 'function') window.MoodCompass.init();">
                     <div class="service-card-top">
                         <div class="service-icon-box">🌿</div>
                         <div class="service-info">
@@ -1127,7 +1128,60 @@
              قسم بوصلة القلوب والسكينة (Spiritual First-Aid)
              ========================================== -->
         <section id="mood-compass-section" class="service-view-section container" style="margin-top: 1.5rem; margin-bottom: 2rem;">
-            <div id="mood-compass-slot"></div>
+            <div class="section-header">
+                <span class="section-tag"><i class="fa-solid fa-heart-pulse text-gold"></i> دواء القلب بالقرآن والدعاء</span>
+                <h2 class="section-title">بوصلة القلوب والسكينة 🌿</h2>
+                <p class="section-desc">
+                    كيف تجد في قلبك الآن؟ اختر شعورك وسيدلك زاد المسلم على ما يطمئنك من آيات الذكر الحكيم والأدعية النبوية المأثورة:
+                </p>
+            </div>
+            <div id="mood-compass-slot">
+                <div class="mood-compass-card">
+                    <div class="mood-compass-header">
+                        <div class="mood-compass-title-wrap">
+                            <span class="mood-icon-tag"><i class="fa-solid fa-heart-pulse text-gold"></i></span>
+                            <div>
+                                <h3 class="mood-compass-title">بوصلة القلوب والسكينة 🌿</h3>
+                                <p class="mood-compass-subtitle">كيف تجد في قلبك الآن؟ اختر شعورك وسيدلك زاد المسلم على ما يطمئنك:</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mood-pills-grid">
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('sadness')" title="حزين أو مهموم">
+                            <span class="mood-pill-emoji">😔</span>
+                            <span class="mood-pill-txt">حزين أو مهموم</span>
+                        </button>
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('anxiety')" title="قلق أو متوتر">
+                            <span class="mood-pill-emoji">😟</span>
+                            <span class="mood-pill-txt">قلق أو متوتر</span>
+                        </button>
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('sustenance')" title="ضيق في الرزق">
+                            <span class="mood-pill-emoji">🤲</span>
+                            <span class="mood-pill-txt">ضيق في الرزق</span>
+                        </button>
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('anger')" title="غاضب أو منفعل">
+                            <span class="mood-pill-emoji">😡</span>
+                            <span class="mood-pill-txt">غاضب أو منفعل</span>
+                        </button>
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('hopelessness')" title="محبط أو ضعيف الهمة">
+                            <span class="mood-pill-emoji">💔</span>
+                            <span class="mood-pill-txt">محبط أو ضعيف الهمة</span>
+                        </button>
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('gratitude')" title="ممتن وفرحان بنعمة">
+                            <span class="mood-pill-emoji">🤍</span>
+                            <span class="mood-pill-txt">ممتن وفرحان بنعمة</span>
+                        </button>
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('fear')" title="خائف أو غير آمن">
+                            <span class="mood-pill-emoji">😨</span>
+                            <span class="mood-pill-txt">خائف أو غير آمن</span>
+                        </button>
+                        <button type="button" class="mood-pill-btn" onclick="MoodCompass.openMoodModal('insomnia')" title="أرق وصعوبة نوم">
+                            <span class="mood-pill-emoji">😴</span>
+                            <span class="mood-pill-txt">أرق وصعوبة نوم</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </section>
         <!-- ==========================================
              قسم أذكار الصباح والمساء الذكية (Azkar Section)
@@ -4005,6 +4059,9 @@
                 }
                 if (cleanId === 'wall-of-duas' && window.WallOfDuas?.init) {
                     window.WallOfDuas.init();
+                }
+                if (cleanId === 'mood-compass-section' && window.MoodCompass?.init) {
+                    window.MoodCompass.init();
                 }
             }
 
