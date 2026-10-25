@@ -24449,3 +24449,360 @@ body.light-theme .dua-prophetic-banner .prophetic-text {
   }
 }
 
+/* ==============================================================================
+   تنسيقات المظهر النهاري • دليل الصلاة الشامل (Prayer Guide - Light Theme)
+   ============================================================================== */
+html[data-theme="light"] .prayer-guide-section,
+[data-theme="light"] .prayer-guide-section,
+body.light-theme .prayer-guide-section {
+  background: transparent;
+}
+
+html[data-theme="light"] .prayer-guide-box,
+[data-theme="light"] .prayer-guide-box,
+body.light-theme .prayer-guide-box {
+  background: #FFFFFF !important;
+  border: 1px solid #DFE9E1 !important;
+  box-shadow: 0 8px 30px rgba(7, 63, 53, 0.06) !important;
+}
+
+html[data-theme="light"] .prayer-guide-hero,
+[data-theme="light"] .prayer-guide-hero,
+body.light-theme .prayer-guide-hero {
+  border-bottom: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .prayer-guide-icon-circle,
+[data-theme="light"] .prayer-guide-icon-circle,
+body.light-theme .prayer-guide-icon-circle {
+  background: linear-gradient(135deg, #FFF5E3, #E8F4EF) !important;
+  border-color: #A87927 !important;
+  color: #A87927 !important;
+  box-shadow: 0 4px 16px rgba(168, 121, 39, 0.15) !important;
+}
+
+html[data-theme="light"] .prayer-guide-hero-text h2,
+[data-theme="light"] .prayer-guide-hero-text h2,
+body.light-theme .prayer-guide-hero-text h2 {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .prayer-guide-hero-text p,
+[data-theme="light"] .prayer-guide-hero-text p,
+body.light-theme .prayer-guide-hero-text p {
+  color: #536A60 !important;
+}
+
+/* شريط التبويبات النهاري */
+html[data-theme="light"] .pg-tab-btn,
+[data-theme="light"] .pg-tab-btn,
+body.light-theme .pg-tab-btn {
+  background: #F0F5F1 !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .pg-tab-btn:hover,
+[data-theme="light"] .pg-tab-btn:hover,
+body.light-theme .pg-tab-btn:hover {
+  background: #FFF5E3 !important;
+  border-color: #D8A547 !important;
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .pg-tab-btn.active,
+[data-theme="light"] .pg-tab-btn.active,
+body.light-theme .pg-tab-btn.active {
+  background: linear-gradient(135deg, #073F35, #0E6654) !important;
+  color: #FFFFFF !important;
+  border-color: #073F35 !important;
+  box-shadow: 0 4px 14px rgba(7, 63, 53, 0.22) !important;
+}
+
+/* بطاقات الطي والأقسام */
+html[data-theme="light"] .pg-card,
+[data-theme="light"] .pg-card,
+body.light-theme .pg-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DFE9E1 !important;
+  box-shadow: 0 2px 8px rgba(7, 63, 53, 0.03) !important;
+}
+
+html[data-theme="light"] .pg-card.expanded,
+[data-theme="light"] .pg-card.expanded,
+body.light-theme .pg-card.expanded {
+  border-color: #C2D5C8 !important;
+  box-shadow: 0 6px 20px rgba(7, 63, 53, 0.06) !important;
+}
+
+html[data-theme="light"] .pg-card-header,
+[data-theme="light"] .pg-card-header,
+body.light-theme .pg-card-header {
+  background: #F7F9F6 !important;
+}
+
+html[data-theme="light"] .pg-card-header:hover,
+[data-theme="light"] .pg-card-header:hover,
+body.light-theme .pg-card-header:hover {
+  background: #EEF4F0 !important;
+}
+
+html[data-theme="light"] .pg-card-title,
+[data-theme="light"] .pg-card-title,
+body.light-theme .pg-card-title {
+  color: #193B34 !important;
+}
+
+html[data-theme="light"] .pg-card-arrow,
+[data-theme="light"] .pg-card-arrow,
+body.light-theme .pg-card-arrow {
+  color: #A87927 !important;
+}
+
+html[data-theme="light"] .pg-card-body,
+[data-theme="light"] .pg-card-body,
+body.light-theme .pg-card-body {
+  border-top: 1px solid #DFE9E1 !important;
+  background: #FFFFFF !important;
+}
+
+html[data-theme="light"] .pg-card-intro,
+[data-theme="light"] .pg-card-intro,
+body.light-theme .pg-card-intro {
+  color: #536A60 !important;
+}
+
+/* الشارات التوضيحية الفاخرة */
+html[data-theme="light"] .pg-badge-gold,
+[data-theme="light"] .pg-badge-gold,
+body.light-theme .pg-badge-gold {
+  background: #FFF5E3 !important;
+  color: #8E651E !important;
+  border: 1px solid #E6BD70 !important;
+}
+
+html[data-theme="light"] .pg-badge-danger,
+[data-theme="light"] .pg-badge-danger,
+body.light-theme .pg-badge-danger {
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+  border: 1px solid #FECACA !important;
+}
+
+html[data-theme="light"] .pg-badge-warning,
+[data-theme="light"] .pg-badge-warning,
+body.light-theme .pg-badge-warning {
+  background: #FFFBEB !important;
+  color: #B45309 !important;
+  border: 1px solid #FDE68A !important;
+}
+
+html[data-theme="light"] .pg-badge-info,
+[data-theme="light"] .pg-badge-info,
+body.light-theme .pg-badge-info {
+  background: #EFF6FF !important;
+  color: #1D4ED8 !important;
+  border: 1px solid #BFDBFE !important;
+}
+
+html[data-theme="light"] .pg-badge-green,
+[data-theme="light"] .pg-badge-green,
+body.light-theme .pg-badge-green {
+  background: #E8F4EF !important;
+  color: #073F35 !important;
+  border: 1px solid #B0D7C6 !important;
+}
+
+/* قوائم الشروط والأركان والواجبات */
+html[data-theme="light"] .pg-item-row,
+[data-theme="light"] .pg-item-row,
+body.light-theme .pg-item-row {
+  background: #F7F9F6 !important;
+  border: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .pg-item-name,
+[data-theme="light"] .pg-item-name,
+body.light-theme .pg-item-name {
+  color: #0E6654 !important;
+}
+
+html[data-theme="light"] .pg-item-detail,
+[data-theme="light"] .pg-item-detail,
+body.light-theme .pg-item-detail {
+  color: #384F45 !important;
+}
+
+html[data-theme="light"] .pg-item-row.danger,
+[data-theme="light"] .pg-item-row.danger,
+body.light-theme .pg-item-row.danger {
+  background: #FFF5F5 !important;
+  border: 1px solid #FED7D7 !important;
+  border-right: 3px solid #DC2626 !important;
+  border-left: none !important;
+}
+
+html[data-theme="light"] .pg-item-row.danger .pg-item-name,
+[data-theme="light"] .pg-item-row.danger .pg-item-name,
+body.light-theme .pg-item-row.danger .pg-item-name {
+  color: #B91C1C !important;
+}
+
+html[data-theme="light"] .pg-item-row.danger .pg-item-detail,
+[data-theme="light"] .pg-item-row.danger .pg-item-detail,
+body.light-theme .pg-item-row.danger .pg-item-detail {
+  color: #742A2A !important;
+}
+
+/* كروت الصلوات والنوافل */
+html[data-theme="light"] .pg-prayer-subcard,
+[data-theme="light"] .pg-prayer-subcard,
+body.light-theme .pg-prayer-subcard {
+  background: #FDFEFD !important;
+  border: 1px solid #DFE9E1 !important;
+  box-shadow: 0 2px 10px rgba(7, 63, 53, 0.04) !important;
+}
+
+html[data-theme="light"] .pg-prayer-head,
+[data-theme="light"] .pg-prayer-head,
+body.light-theme .pg-prayer-head {
+  border-bottom: 1px solid #DFE9E1 !important;
+}
+
+html[data-theme="light"] .pg-prayer-name,
+[data-theme="light"] .pg-prayer-name,
+body.light-theme .pg-prayer-name {
+  color: #073F35 !important;
+}
+
+html[data-theme="light"] .pg-prayer-rakaat,
+[data-theme="light"] .pg-prayer-rakaat,
+body.light-theme .pg-prayer-rakaat {
+  background: #E8F4EF !important;
+  color: #0E6654 !important;
+  border: 1px solid #C2E2D3 !important;
+}
+
+html[data-theme="light"] .pg-prayer-row.notes,
+[data-theme="light"] .pg-prayer-row.notes,
+body.light-theme .pg-prayer-row.notes {
+  background: #FFFBEB !important;
+  border: 1px solid #FEF3C7 !important;
+}
+
+html[data-theme="light"] .pg-row-label,
+[data-theme="light"] .pg-row-label,
+body.light-theme .pg-row-label {
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .pg-row-val,
+[data-theme="light"] .pg-row-val,
+body.light-theme .pg-row-val {
+  color: #193B34 !important;
+}
+
+/* صناديق أدعية وأذكار الصلاة */
+html[data-theme="light"] .pg-dua-box,
+[data-theme="light"] .pg-dua-box,
+body.light-theme .pg-dua-box {
+  background: linear-gradient(135deg, #FFFDF7, #F4F8F5) !important;
+  border: 1px solid #E6D5B8 !important;
+  box-shadow: 0 3px 12px rgba(7, 63, 53, 0.04) !important;
+}
+
+html[data-theme="light"] .pg-dua-head,
+[data-theme="light"] .pg-dua-head,
+body.light-theme .pg-dua-head {
+  border-bottom: 1px solid #EFE4D1 !important;
+}
+
+html[data-theme="light"] .pg-dua-subtitle,
+[data-theme="light"] .pg-dua-subtitle,
+body.light-theme .pg-dua-subtitle {
+  color: #8E651E !important;
+}
+
+html[data-theme="light"] .pg-copy-btn,
+[data-theme="light"] .pg-copy-btn,
+body.light-theme .pg-copy-btn {
+  background: #FFFFFF !important;
+  border: 1px solid #DFE9E1 !important;
+  color: #536A60 !important;
+}
+
+html[data-theme="light"] .pg-copy-btn:hover,
+[data-theme="light"] .pg-copy-btn:hover,
+body.light-theme .pg-copy-btn:hover {
+  background: #FFF5E3 !important;
+  border-color: #D8A547 !important;
+  color: #8E651E !important;
+}
+
+html[data-theme="light"] .pg-copy-btn.copied,
+[data-theme="light"] .pg-copy-btn.copied,
+body.light-theme .pg-copy-btn.copied {
+  background: #E8F4EF !important;
+  color: #0E6654 !important;
+  border-color: #0E6654 !important;
+}
+
+html[data-theme="light"] .pg-dua-arabic,
+[data-theme="light"] .pg-dua-arabic,
+body.light-theme .pg-dua-arabic {
+  color: #073F35 !important;
+}
+
+html[data-theme="light"] .pg-dua-trans,
+[data-theme="light"] .pg-dua-trans,
+body.light-theme .pg-dua-trans {
+  color: #4A6357 !important;
+}
+
+html[data-theme="light"] .pg-dua-source,
+[data-theme="light"] .pg-dua-source,
+body.light-theme .pg-dua-source {
+  color: #6C8178 !important;
+}
+
+/* كروت المنهيات والمكروهات */
+html[data-theme="light"] .pg-prohibition-card,
+[data-theme="light"] .pg-prohibition-card,
+body.light-theme .pg-prohibition-card {
+  background: #FFFBFB !important;
+  border: 1px solid #FED7D7 !important;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.05) !important;
+}
+
+html[data-theme="light"] .pg-prohibition-card:hover,
+[data-theme="light"] .pg-prohibition-card:hover,
+body.light-theme .pg-prohibition-card:hover {
+  border-color: #FEB2B2 !important;
+}
+
+html[data-theme="light"] .pg-prohibition-title,
+[data-theme="light"] .pg-prohibition-title,
+body.light-theme .pg-prohibition-title {
+  color: #B91C1C !important;
+}
+
+html[data-theme="light"] .pg-prohibition-hadith,
+[data-theme="light"] .pg-prohibition-hadith,
+body.light-theme .pg-prohibition-hadith {
+  color: #742A2A !important;
+  background: #FFF5F5 !important;
+  border: 1px solid #FED7D7 !important;
+}
+
+html[data-theme="light"] .pg-prohibition-explanation,
+[data-theme="light"] .pg-prohibition-explanation,
+body.light-theme .pg-prohibition-explanation {
+  color: #4A5568 !important;
+}
+
+html[data-theme="light"] .pg-prohibition-explanation .text-gold,
+[data-theme="light"] .pg-prohibition-explanation .text-gold,
+body.light-theme .pg-prohibition-explanation .text-gold {
+  color: #8E651E !important;
+}
+
