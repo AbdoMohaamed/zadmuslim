@@ -290,7 +290,7 @@
         }
     }
 
-    const defaultFavorites = ['quran-khatma', 'azkar', 'prayer-times', 'islamic-media', 'tasbeeh'];
+    const defaultFavorites = ['quran-khatma', 'azkar'];
     function getFavorites() {
         const saved = read('zad_favorites', null);
         const valid = Array.isArray(saved) ? [...new Set(saved)].filter(id => services.some(s => s[0] === id)) : [];
@@ -344,7 +344,7 @@
         renderSettingsShortcuts();
         const favoriteIds = getFavorites();
         const activeServices = services.filter(s => favoriteIds.includes(s[0]));
-        const listToRender = activeServices.length ? activeServices : services.slice(0, 5);
+        const listToRender = activeServices.length ? activeServices : services.slice(0, 2);
 
         // 1. تحديث شبكة اختصارات الصفحة الرئيسية في التطبيق
         const webGrid = document.querySelector('.features.quick-access-grid');

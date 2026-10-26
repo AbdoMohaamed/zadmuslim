@@ -2325,6 +2325,9 @@
         function listenToSubscribersAndHistory() {
             if (!db) return;
 
+            db.ref("push_subscribers").off("value");
+            db.ref("push_broadcasts").off("value");
+
             // Subscribers count
             db.ref("push_subscribers").on("value", (snapshot) => {
                 const count = snapshot.numChildren() || 0;
@@ -2423,21 +2426,25 @@
                 let statusBadge = '';
                 let retryButtons = '';
 
+                const isFailed = (b.webSuccess === false && b.mobileSuccess === false) || (b.webSent === 0 && !b.mobileSuccess && b.partialFailure === false && (b.message && b.message.includes('تعذّر')));
+
                 if (b.partialFailure) {
                     statusBadge = `<span class="status-badge" style="background: rgba(234, 179, 8, 0.18); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.4);" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-triangle-exclamation"></i> إرسال جزئي</span>`;
                     if (b.mobileSuccess && !b.webSuccess) {
                         retryButtons = `
-                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}', 'web')" title="إعادة إرسال للمتصفحات فقط (حماية الموبايل من التكرار)" style="color: #fbbf24; border-color: #fbbf24;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}', 'web')" title="إعادة إرسال للمتصفحات فقط (حماية الموبايل من التكرار)" style="color: #fbbf24; border-color: #fbbf24; font-size: 11px; padding: 4px 8px;">
                                 <i class="fa-solid fa-globe"></i> ويب فقط
                             </button>
                         `;
                     } else if (b.webSuccess && !b.mobileSuccess) {
                         retryButtons = `
-                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}', 'mobile')" title="إعادة إرسال للموبايل فقط" style="color: #fbbf24; border-color: #fbbf24;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="resendBroadcast('${b.id}', 'mobile')" title="إعادة إرسال للموبايل فقط" style="color: #fbbf24; border-color: #fbbf24; font-size: 11px; padding: 4px 8px;">
                                 <i class="fa-solid fa-mobile-screen"></i> موبايل فقط
                             </button>
                         `;
                     }
+                } else if (isFailed) {
+                    statusBadge = `<span class="status-badge" style="background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-circle-xmark"></i> لم يُقبل الإرسال</span>`;
                 } else if (b.mobileSuccess && b.webSuccess) {
                     statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-check-double"></i> ويب (${b.webSent || 0}) + موبايل</span>`;
                 } else if (b.mobileSuccess && !b.webSuccess) {
@@ -2445,13 +2452,18 @@
                 } else if (b.webSent > 0) {
                     statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-globe"></i> ويب (${b.webSent})</span>`;
                 } else {
-                    statusBadge = `<span class="status-badge sent"><i class="fa-solid fa-check"></i> تم البث</span>`;
+                    statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-check"></i> تم البث</span>`;
                 }
+
+                const msgDetail = b.message ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.3;">${escapeHtml(b.message)}</div>` : '';
 
                 return `
                     <tr>
                         <td style="font-size: 12px; color: var(--gold-light); white-space: nowrap;">${dateStr}</td>
-                        <td style="font-weight: 700; color: #fff;">${escapeHtml(b.title || "")}</td>
+                        <td style="font-weight: 700; color: #fff;">
+                            ${escapeHtml(b.title || "")}
+                            ${msgDetail}
+                        </td>
                         <td style="max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(b.body || "")}</td>
                         <td><span style="font-size: 12px; color: var(--text-muted);">${escapeHtml(b.url || "الرئيسية")}</span></td>
                         <td>${statusBadge}</td>
@@ -2506,6 +2518,17 @@
                     showAdminToast("تم تطبيق القالب الجاهز ✨");
                 }
             });
+        });
+
+        // Reset Form
+        document.getElementById("btn-reset-form")?.addEventListener("click", () => {
+            titleInput.value = "";
+            bodyInput.value = "";
+            document.getElementById("notify-target-url").selectedIndex = 0;
+            if (document.getElementById("notify-channel")) document.getElementById("notify-channel").value = "all";
+            mockTitle.textContent = "عنوان الإشعار...";
+            mockBody.textContent = "نص رسالة الإشعار والتذكير...";
+            showAdminToast("تم تفريغ الحقول");
         });
 
         let pendingBroadcast = null;
@@ -2614,21 +2637,42 @@
             } catch { showAdminToast('تعذّر تحميل إعداد الخدمة', true); }
         }
         document.getElementById('btn-save-os-config')?.addEventListener('click', async () => {
+            const badge = document.getElementById('os-status-badge');
             try {
                 const appId = document.getElementById('os-app-id').value.trim();
                 if (!/^[a-f0-9-]{36}$/i.test(appId)) throw new Error('معرّف التطبيق غير صالح');
                 await db.ref('public_config/onesignal_app_id').set(appId);
+                if (badge) { badge.textContent = 'تم الحفظ ✓'; badge.style.color = '#10b981'; }
                 showAdminToast('تم حفظ المعرّف العام. اضبط المفتاح الخاص على الخادم.');
-            } catch(e) { showAdminToast(e.message, true); }
+            } catch(e) {
+                if (badge) { badge.textContent = 'تعذر الحفظ ✗'; badge.style.color = '#ef4444'; }
+                showAdminToast(e.message, true);
+            }
         });
         document.getElementById('btn-test-os-connection')?.addEventListener('click', async () => {
-            try { const result=await adminRequest('/api/send-push', { action: 'test_onesignal' }); const configured=document.getElementById('os-app-id').value.trim(); if (configured && result.appId && configured!==result.appId) throw new Error('معرّف OneSignal في الصفحة مختلف عن إعداد الخادم. وحّد المعرّف قبل الإرسال.'); showAdminToast('تم الاتصال بالخدمة؛ ده فحص إعدادات وليس تجربة وصول إشعار.'); }
-            catch(e) { showAdminToast(e.message, true); }
+            const badge = document.getElementById('os-status-badge');
+            const btn = document.getElementById('btn-test-os-connection');
+            if (btn) btn.disabled = true;
+            if (badge) { badge.textContent = 'جاري الفحص...'; badge.style.color = '#d4af37'; }
+            try {
+                const result = await adminRequest('/api/send-push', { action: 'test_onesignal' });
+                const configured = document.getElementById('os-app-id').value.trim();
+                if (configured && result.appId && configured !== result.appId) throw new Error('معرّف OneSignal في الصفحة مختلف عن إعداد الخادم. وحّد المعرّف قبل الإرسال.');
+                if (badge) { badge.textContent = 'متصل بالخدمة ✓'; badge.style.color = '#10b981'; }
+                showAdminToast('تم الاتصال بالخدمة؛ ده فحص إعدادات وليس تجربة وصول إشعار.');
+            } catch(e) {
+                if (badge) { badge.textContent = 'خطأ اتصال ✗'; badge.style.color = '#ef4444'; }
+                showAdminToast(e.message, true);
+            } finally {
+                if (btn) btn.disabled = false;
+            }
         });
 
         document.getElementById('btn-test-notification-self').addEventListener('click', () => {
-            document.getElementById('push-test-subscription').scrollIntoView({block:'center'});
-            document.getElementById('push-test-subscription').focus();
+            const broadcastTabBtn = document.querySelector('.admin-tab-btn[data-tab="tab-broadcast"]');
+            if (broadcastTabBtn) broadcastTabBtn.click();
+            document.getElementById('push-test-subscription')?.scrollIntoView({block:'center'});
+            document.getElementById('push-test-subscription')?.focus();
         });
         document.getElementById('btn-send-device-test').addEventListener('click', async () => {
             const button=document.getElementById('btn-send-device-test'),status=document.getElementById('device-test-status');

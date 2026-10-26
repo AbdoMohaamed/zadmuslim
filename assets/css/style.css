@@ -2921,7 +2921,7 @@ html[data-theme="light"] .nav-links a.active {
   bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2000;
+  z-index: 100050 !important;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -3918,39 +3918,47 @@ html[data-theme="light"] .nav-links a.active {
         object-fit: contain !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-mushaf-header {
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-header,
+    .golden-quran-wrapper.is-fullscreen .golden-mushaf-header {
         padding: 8px 10px !important;
         gap: 6px !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-surah {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-surah,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-surah {
         font-size: 1rem !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-juz-title {
+    #subpart-mushaf.quran-subpart-block .golden-juz-title,
+    .golden-quran-wrapper.is-fullscreen .golden-juz-title {
         font-size: 0.85rem !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-left {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-left,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-left {
         gap: 8px !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-btn {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-btn,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-btn {
         padding: 6px 8px !important;
         font-size: 1.25rem !important;
         min-width: 38px !important;
         min-height: 38px !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-btn i {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-btn i,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-btn i {
         font-size: 1.25rem !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-mushaf-footer {
+    #subpart-mushaf.quran-subpart-block .golden-mushaf-footer,
+    .golden-quran-wrapper.is-fullscreen .golden-mushaf-footer {
         padding: 6px 8px 12px !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-page-pill {
+    #subpart-mushaf.quran-subpart-block .golden-page-pill,
+    .golden-quran-wrapper.is-fullscreen .golden-page-pill {
         padding: 6px 14px !important;
         font-size: 0.88rem !important;
         gap: 8px !important;
@@ -3961,7 +3969,7 @@ html[data-theme="light"] .nav-links a.active {
     }
 
     #subpart-khatma.quran-subpart-block .khatma-summary-card {
-        padding: 1.2rem 1rem !important;
+        padding: 1.2rem .4rem !important;
         border-radius: 16px !important;
     }
 }
@@ -3982,36 +3990,43 @@ html[data-theme="light"] .nav-links a.active {
         padding: 2px 0 !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-surah {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-surah,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-surah {
         font-size: 1.05rem !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-juz-title {
+    #subpart-mushaf.quran-subpart-block .golden-juz-title,
+    .golden-quran-wrapper.is-fullscreen .golden-juz-title {
         font-size: 0.85rem !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-left {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-left,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-left {
         gap: 6px !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-btn {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-btn,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-btn {
         padding: 4px 6px !important;
         font-size: 1.2rem !important;
         min-width: 36px !important;
         min-height: 36px !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-hdr-btn i {
+    #subpart-mushaf.quran-subpart-block .golden-hdr-btn i,
+    .golden-quran-wrapper.is-fullscreen .golden-hdr-btn i {
         font-size: 1.2rem !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-page-pill {
+    #subpart-mushaf.quran-subpart-block .golden-page-pill,
+    .golden-quran-wrapper.is-fullscreen .golden-page-pill {
         padding: 6px 12px !important;
         font-size: 0.82rem !important;
         gap: 6px !important;
     }
 
-    #subpart-mushaf.quran-subpart-block .golden-pill-tag {
+    #subpart-mushaf.quran-subpart-block .golden-pill-tag,
+    .golden-quran-wrapper.is-fullscreen .golden-pill-tag {
         font-size: 0.78rem !important;
     }
 }
@@ -4033,7 +4048,7 @@ html[data-theme="light"] .nav-links a.active {
   gap: 0.6rem;
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: #FFF;
 }
 
 .subpart-badge {
@@ -4243,11 +4258,21 @@ html[data-theme="light"] .nav-links a.active {
     display: none !important;
   }
 
-  .khatma-summary-card {
-    padding: 1.2rem 0.9rem !important;
-    border-radius: 14px !important;
-    margin-bottom: 1.5rem !important;
-  }
+    .khatma-summary-card {
+        padding: 1.2rem 0.9rem !important;
+        border-radius: 14px !important;
+        margin-bottom: 1.5rem !important;
+        margin: 0 1.5rem 0;
+    }
+    .khatma-summary-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        backdrop-filter: blur(12px);
+    }
+
 
   .khatma-badge-title {
     font-size: 1.05rem !important;
@@ -19229,7 +19254,7 @@ body.light-theme .cemetery-list li strong {
 .golden-index-modal {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 100010 !important;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   display: none;
@@ -19481,6 +19506,34 @@ body.light-theme .cemetery-list li strong {
   box-sizing: border-box !important;
 }
 
+.golden-quran-wrapper.is-fullscreen .golden-mushaf-header {
+  position: relative !important;
+  z-index: 30 !important;
+  pointer-events: auto !important;
+  flex: 0 0 auto !important;
+}
+
+.golden-quran-wrapper.is-fullscreen .golden-mushaf-footer {
+  position: relative !important;
+  z-index: 30 !important;
+  pointer-events: auto !important;
+  flex: 0 0 auto !important;
+}
+
+.golden-quran-wrapper.is-fullscreen .golden-hdr-btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.golden-quran-wrapper.is-fullscreen .golden-page-pill {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
 .golden-quran-wrapper.is-fullscreen.theme-golden-night {
   background: #000000 !important;
 }
@@ -19572,7 +19625,7 @@ body.light-theme .cemetery-list li strong {
 .golden-ayah-modal {
   position: fixed;
   inset: 0;
-  z-index: 100000;
+  z-index: 100020 !important;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -19853,7 +19906,7 @@ body.light-theme .cemetery-list li strong {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100001;
+  z-index: 100025 !important;
   width: calc(100% - 32px);
   max-width: 440px;
   background: rgba(18, 18, 20, 0.94);
@@ -19938,7 +19991,7 @@ body.light-theme .cemetery-list li strong {
 .golden-memorize-modal {
   position: fixed;
   inset: 0;
-  z-index: 100010;
+  z-index: 100030 !important;
   background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -25849,6 +25902,43 @@ body.light-theme .btn-focus-back-bottom {
   object-fit: contain;
 }
 .golden-quran-wrapper.is-fullscreen .golden-hdr-btn { min-width: 44px; min-height: 44px; }
+@media (max-width: 600px) {
+  .golden-quran-wrapper.is-fullscreen .golden-mushaf-header {
+    padding: 6px 8px !important;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+  }
+  .golden-quran-wrapper.is-fullscreen .golden-hdr-left {
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+  }
+  .golden-quran-wrapper.is-fullscreen .golden-hdr-btn {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 4px 6px !important;
+    font-size: 1.15rem !important;
+  }
+  .golden-quran-wrapper.is-fullscreen .golden-hdr-btn i {
+    font-size: 1.15rem !important;
+  }
+  .golden-quran-wrapper.is-fullscreen .golden-hdr-surah {
+    font-size: 0.95rem !important;
+  }
+  .golden-quran-wrapper.is-fullscreen .golden-juz-title {
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+  }
+  .golden-quran-wrapper.is-fullscreen .golden-mushaf-footer {
+    padding: 4px 8px 10px !important;
+  }
+  .golden-quran-wrapper.is-fullscreen .golden-page-pill {
+    padding: 6px 12px !important;
+    font-size: 0.82rem !important;
+  }
+}
+#zad-share-card-modal {
+  z-index: 100040 !important;
+}
 
 /* Keep daily essentials close to the top without removing home sections. */
 #home .home-hero-compact { min-height: 0; padding: 22px 28px; margin-top: 16px; gap: 16px; }

@@ -103,14 +103,13 @@ body.zad-radio-host > :not(#live-radio-widget):not(#zad-radio-page) { display:no
 #radio-panel .radio-controls-row { grid-template-columns:1fr; border:0; padding-top:0; gap:12px; }
 #radio-panel #btn-radio-play { display:flex; justify-content:center; align-items:center; gap:12px; width:100%; height:54px; border-radius:16px; background:#e6cf8d; color:#152d24; font:inherit; font-weight:800; box-shadow:0 5px 18px #0003; }
 #radio-panel .radio-volume-group { background:#ffffff08; border:1px solid #ffffff12; border-radius:14px; }
-#radio-panel #radio-volume-value { min-width:40px; font-size:.8rem; font-variant-numeric:tabular-nums; direction:ltr; color:#dfd3ac; }
+#radio-panel #radio-volume-value { min-width:40px; font-size:.8rem; font-variant-numeric:tabular-nums; direction:ltr; }
 #radio-panel #radio-volume-slider { direction:ltr; accent-color:#e6cf8d; }
 #radio-panel .radio-live-status-badge { background:#ffffff0b; color:#c7d5cf; font-size:.72rem; }
 #radio-panel[data-state="playing"] .radio-live-status-badge { background:#34d39920; color:#87efbd; }
 #radio-panel[data-state="failed"] .radio-live-status-badge,#radio-panel[data-state="offline"] .radio-live-status-badge { color:#ffd4a0; }
 #radio-panel .radio-station-select { background:#183d32; color:#f4f8f5; border:1px solid #ffffff26; border-radius:12px; }
-#radio-panel .radio-station-select-group label,#radio-panel .radio-sleep-details { color:#c8d8d0; }
-#radio-panel .radio-cairo-shortcut { border:1px solid #d7bd724f; background:#d7bd720c; color:#ead9a9; }
+#radio-panel .radio-cairo-shortcut { border:1px solid #d7bd724f; background:#d7bd720c; }
 #radio-panel > .btn:not(.radio-cairo-shortcut) { border:0; background:transparent; color:#c8d8d0; }
 #radio-panel .btn-close-radio,#radio-panel #btn-radio-mute { color:#d9e8df; }
 @media(max-height:650px) { #radio-panel .radio-brand-logo { width:56px; height:56px; } #radio-panel { gap:10px; } }
@@ -126,9 +125,9 @@ body.zad-radio-host > :not(#live-radio-widget):not(#zad-radio-page) { display:no
 #radio-panel #btn-radio-play { height:44px; border-radius:12px; }
 #radio-panel .radio-controls-row { gap:6px; }
 #radio-panel .radio-volume-group { padding:0 6px; }
-#radio-panel .radio-options { border-top:1px solid #ffffff1a; color:#c8d8d0; }
+#radio-panel .radio-options { border-top:1px solid #ffffff1a; }
 #radio-panel .radio-options > summary { cursor:pointer; padding:10px 2px; font-size:.8rem; min-height:44px; }
-#radio-panel .radio-options > .btn { width:100%; background:transparent; border:0; color:#c8d8d0; font:inherit; font-size:.8rem; }
+#radio-panel .radio-options > .btn { width:100%; background:transparent; border:0; font:inherit; font-size:.8rem; }
 #radio-panel .radio-options > *:not(summary) { margin-bottom:8px; }
 @media(max-width:767px) {
  #radio-panel { width:min(304px,calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)))!important; }

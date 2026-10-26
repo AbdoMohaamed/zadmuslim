@@ -226,7 +226,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initGoldenQuran() {
-        setupGoldenNavigation();
+    ["golden-index-modal", "golden-memorize-modal", "golden-ayah-modal", "golden-mini-player"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.parentElement && el.parentElement !== document.body) {
+            document.body.appendChild(el);
+        }
+    });
+    setupGoldenNavigation();
     setupGoldenBookmarks();
     setupGoldenTheme();
     setupGoldenIndexModal();
@@ -985,8 +991,22 @@ function setupGoldenFullScreen() {
         button.setAttribute("aria-label", "الخروج من ملء الشاشة");
         if (icon) icon.className = "fa-solid fa-compress";
         updateHeight();
+        // Ensure Quran modals and floating overlays are stacked above the fullscreen reader
+        ["golden-index-modal", "golden-memorize-modal", "golden-ayah-modal", "golden-mini-player"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) document.body.appendChild(el);
+        });
     });
-    document.addEventListener("keydown", e => { if (e.key === "Escape") exit(); });
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+            const openModal = document.querySelector(".golden-index-modal.open, .golden-ayah-modal.open, .golden-memorize-modal.open");
+            if (openModal) {
+                openModal.classList.remove("open");
+                return;
+            }
+            exit();
+        }
+    });
     window.addEventListener("hashchange", exit);
     window.addEventListener("popstate", exit);
     document.addEventListener("zad:services-return", exit);

@@ -31,3 +31,24 @@ test('fullscreen escapes clipped ancestors, tracks viewport height and restores 
  b.click();assert.equal(reader.parentElement.id,'origin');assert.equal(d.body.style.overflow,'auto');assert.equal(b.getAttribute('aria-pressed'),'false');
  b.click();h.w.dispatchEvent(new h.w.Event('popstate'));assert.equal(reader.parentElement.id,'origin');h.dom.window.close();
 });
+test('fullscreen keeps modals stacked and interactive, and Escape closes modal before exiting fullscreen',()=>{
+ const dom = new JSDOM('<div id="origin"><div id="golden-quran-wrapper"><button id="golden-btn-fullscreen"><i id="golden-fullscreen-icon"></i></button><div id="golden-mushaf-viewport"><button id="edge"></button></div></div><div id="golden-index-modal" class="golden-index-modal"></div><div id="golden-ayah-modal" class="golden-ayah-modal"></div></div>', { runScripts: 'outside-only' });
+ const w = dom.window;
+ w.visualViewport = new w.EventTarget(); w.visualViewport.scale = 1; w.visualViewport.height = 640;
+ w.eval('let currentPageNumber = 10; const TOTAL_MUSHAF_PAGES = 604; function goToMushafPage(n) { currentPageNumber = n; } function isDualPageMode() { return false; } function setupTouchSwipe() {}' + source.slice(source.indexOf('function setupGoldenFullScreen()'), source.indexOf('// ==========================================================================', source.indexOf('function setupGoldenFullScreen()') + 50)) + ';setupGoldenFullScreen();');
+ const d = w.document;
+ const btnFs = d.getElementById('golden-btn-fullscreen');
+ const reader = d.getElementById('golden-quran-wrapper');
+ const modal = d.getElementById('golden-index-modal');
+ btnFs.click();
+ assert.equal(reader.parentElement, d.body);
+ assert.equal(modal.parentElement, d.body);
+ assert.equal(Boolean(reader.compareDocumentPosition(modal) & 4), true);
+ modal.classList.add('open');
+ d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' }));
+ assert.equal(modal.classList.contains('open'), false);
+ assert.equal(reader.parentElement, d.body);
+ d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' }));
+ assert.equal(reader.parentElement.id, 'origin');
+ dom.window.close();
+});

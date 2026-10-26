@@ -199,7 +199,7 @@
 
         <div id="home-services-section">
             <div class="section-head" id="services">
-                <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom:20PX;">
                     <div>
                         <h2>اختصاراتك</h2>
                         <p>اختصاراتك السريعة والمخصصة في الصفحة الرئيسية</p>
@@ -214,42 +214,17 @@
                 </div>
             </div>
 
-            <!-- القسم 3: بطاقات الوصول السريع الأربعة الأساسية -->
-            <section class="features quick-access-grid">
-                <a class="feature" href="services.html#quran-khatma?tab=mushaf">
+            <!-- القسم 3: بطاقات الوصول السريع الافتراضية -->
+            <section class="features quick-access-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <a class="feature" href="services.html#quran-khatma?tab=mushaf" data-service="quran-khatma">
                     <div class="fi">📖</div>
                     <h3>القرآن الكريم</h3>
                     <p>تلاوة وتدبر ومتابعة الورد والختمة القرآنية</p>
                 </a>
-                <a class="feature" href="services.html#azkar">
+                <a class="feature" href="services.html#azkar" data-service="azkar">
                     <div class="fi">🤲</div>
                     <h3>الأذكار والأدعية</h3>
                     <p>حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة</p>
-                </a>
-                <a class="feature" href="services.html#prayer-times">
-                    <div class="fi">🕌</div>
-                    <h3>مواقيت الصلاة</h3>
-                    <p>تحديد دقيق للمواقيت واتجاه القبلة مع تنبيهات الأذان</p>
-                </a>
-                <a class="feature" href="#sadaqa">
-                    <div class="fi">🤍</div>
-                    <h3>الصدقة الجارية</h3>
-                    <p>صفحات تذكارية ودعوات مستمرة للأحباب والراحلين</p>
-                </a>
-                <a class="feature" href="services.html#zakat-calculator-section">
-                    <div class="fi">🧮</div>
-                    <h3>حاسبة الزكاة</h3>
-                    <p>حساب زكاة المال، الذهب، والفضة بدقة شرعية 100%</p>
-                </a>
-                <a class="feature" href="services.html#islamic-media">
-                    <div class="fi">🎬</div>
-                    <h3>مرئيات وبودكاست</h3>
-                    <p>حلقات بودكاست ومواعظ مرئية وتأملات قرآنية</p>
-                </a>
-                <a class="feature" href="services.html#nearby-mosques-section">
-                    <div class="fi">🕌</div>
-                    <h3>مساجد قريبة</h3>
-                    <p>استكشف أقرب بيوت الله إليك مع الاتجاهات والخريطة</p>
                 </a>
             </section>
 
@@ -880,9 +855,8 @@
     <nav class="mobilebar">
         <a href="#home"><span>⌂</span>الرئيسية</a>
         <a href="#daily"><span>🌿</span>يومي</a>
-        <a href="services.html#islamic-media"><span>🎬</span>مرئيات</a>
+        <a href="services.html#islamic-media"><span>🎬</span>مقتطفات</a>
         <a href="services.html"><span>📖</span>الخدمات</a>
-        <a href="#sadaqa"><span>🤍</span>صدقة جارية</a>
     </nav>
 
     <!-- نافذة مشغل المرئيات والبودكاست (Islamic Media Video Modal) -->
@@ -891,7 +865,7 @@
             <!-- شريط رأس المشغل البسيط والمباشر -->
             <div class="media-player-header-bar">
                 <div class="media-player-header-meta">
-                    <span class="media-player-badge" id="media-player-badge">بودكاست</span>
+                    <span class="media-player-badge" id="media-player-badge">مقتطفات</span>
                     <span class="media-player-duration" id="media-player-duration"><i class="fa-regular fa-clock"></i> --:--</span>
                 </div>
                 <div class="media-player-header-tools">
