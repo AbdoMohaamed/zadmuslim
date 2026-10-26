@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>زاد المسلم | القرآن الكريم، مواقيت الصلاة، الأذكار والسبحة (صدقة جارية)</title>
     <meta name="description" content="تطبيق زاد المسلم الشامل للقرآن الكريم، مواقيت الصلاة والأذان، الأذكار وحصن المسلم، إذاعات القرآن 24/7، الأربعون النووية، أسماء الله الحسنى، قصص الأنبياء، والمسابقات الإسلامية • صدقة جارية.">
@@ -99,13 +99,13 @@
     </script>
 
     <!-- تنسيقات الموقع -->
-    <link rel="stylesheet" href="assets/css/style.css?v=96">
+    <link rel="stylesheet" href="assets/css/style.css?v=100">
 
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
     <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
 <link rel="stylesheet" href="assets/css/radio-player.css?v=5">
-<script src="assets/js/radio-navigation.js?v=2"></script>
+<script src="assets/js/radio-navigation.js?v=3"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
 </head>
@@ -121,7 +121,7 @@
             <nav class="links">
                 <a href="#home">الرئيسية</a>
                 <a href="#daily">يومي مع الله</a>
-                <a href="#services">الخدمات</a>
+                <a href="services.html">الخدمات</a>
             </nav>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-nav" title="المظهر النهاري / الليلي" style="padding: 16px; font-size: 20px;">
@@ -158,14 +158,14 @@
          تصميم عصري متجاوب للآيفون والأندرويد والكمبيوتر
          ========================================== -->
     <main class="shell container" id="home">
-        <section class="hero">
+        <section class="hero home-hero-compact">
             <div>
                 <div class="eyebrow">✦ رفيقك في رحلة الطمأنينة</div>
                 <h1>زادٌ لقلبك، ونورٌ ليومك.</h1>
-                <p>القرآن الكريم، الأذكار، وردك اليومي، والصدقة الجارية… كل ما يعينك على ذكر الله في مكان واحد، بتجربة هادئة وسهلة.</p>
+                <p>صلاتك وقرآنك وأذكارك… زاد يومك في مكان واحد.</p>
                 <div class="hero-actions">
                     <a class="btn gold" href="#daily">ابدأ يومك الآن ←</a>
-                    <a class="btn glass" href="#services">اكتشف الأقسام</a>
+                    <a class="btn glass" href="#services">اختصاراتك</a>
                 </div>
             </div>
             <div class="moon">☾</div>
@@ -188,6 +188,80 @@
             </div>
         </div>
 
+                <div class="prayer panel home-next-prayer" id="home-next-prayer">
+                    <div>
+                        <div class="small">🕌 الصلاة القادمة</div>
+                        <strong id="daily-next-prayer-name">صلاتك في وقتها</strong>
+                        <div class="small" id="daily-next-prayer-time">تختلف المواقيت حسب مدينتك</div>
+                    </div>
+                    <a class="btn outline" href="services.html#prayer-times">عرض التفاصيل ←</a>
+                </div>
+
+        <div id="home-services-section">
+            <div class="section-head" id="services">
+                <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2>اختصاراتك</h2>
+                        <p>اختصاراتك السريعة والمخصصة في الصفحة الرئيسية</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <a class="subtle" href="settings.html#settings-shortcuts-section" title="تخصيص وترتيب اختصارات الصفحة الرئيسية" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-400); font-weight: 700; font-size: 0.85rem; text-decoration: none;">
+                            <i class="fa-solid fa-star"></i>
+                            <span>تخصيص الاختصارات</span>
+                        </a>
+                        <a class="subtle" href="services.html" style="font-size: 0.88rem;">كل الخدمات ←</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- القسم 3: بطاقات الوصول السريع الأربعة الأساسية -->
+            <section class="features quick-access-grid">
+                <a class="feature" href="services.html#quran-khatma?tab=mushaf">
+                    <div class="fi">📖</div>
+                    <h3>القرآن الكريم</h3>
+                    <p>تلاوة وتدبر ومتابعة الورد والختمة القرآنية</p>
+                </a>
+                <a class="feature" href="services.html#azkar">
+                    <div class="fi">🤲</div>
+                    <h3>الأذكار والأدعية</h3>
+                    <p>حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة</p>
+                </a>
+                <a class="feature" href="services.html#prayer-times">
+                    <div class="fi">🕌</div>
+                    <h3>مواقيت الصلاة</h3>
+                    <p>تحديد دقيق للمواقيت واتجاه القبلة مع تنبيهات الأذان</p>
+                </a>
+                <a class="feature" href="#sadaqa">
+                    <div class="fi">🤍</div>
+                    <h3>الصدقة الجارية</h3>
+                    <p>صفحات تذكارية ودعوات مستمرة للأحباب والراحلين</p>
+                </a>
+                <a class="feature" href="services.html#zakat-calculator-section">
+                    <div class="fi">🧮</div>
+                    <h3>حاسبة الزكاة</h3>
+                    <p>حساب زكاة المال، الذهب، والفضة بدقة شرعية 100%</p>
+                </a>
+                <a class="feature" href="services.html#islamic-media">
+                    <div class="fi">🎬</div>
+                    <h3>مرئيات وبودكاست</h3>
+                    <p>حلقات بودكاست ومواعظ مرئية وتأملات قرآنية</p>
+                </a>
+                <a class="feature" href="services.html#nearby-mosques-section">
+                    <div class="fi">🕌</div>
+                    <h3>مساجد قريبة</h3>
+                    <p>استكشف أقرب بيوت الله إليك مع الاتجاهات والخريطة</p>
+                </a>
+            </section>
+
+            <!-- القسم 4: استكشف المزيد من الخدمات -->
+            <div style="text-align: center; margin: 28px 0 35px;">
+                <a class="btn outline explore-all-btn" href="services.html" style="font-size: 15px; padding: 14px 28px; border-radius: 16px; border: 1.5px solid var(--border-color); display: inline-flex; align-items: center; gap: 8px;">
+                    <span>استكشف جميع خدمات زاد المسلم</span>
+                    <span style="font-size: 18px;">←</span>
+                </a>
+            </div>
+        </div>
+
         <div class="section-head" id="daily">
             <div>
                 <h2>🌿 يومي مع الله</h2>
@@ -198,34 +272,116 @@
 
         <section class="dashboard">
             <article class="panel" id="daily-journey-panel">
-                <h3>رحلتك الإيمانية اليوم</h3>
-                <div class="small">تابع وردك وأذكارك، ويتم حفظ تقدمك على هذا الجهاز</div>
-                <div class="prayer">
-                    <div>
-                        <div class="small">🕌 مواقيت الصلاة</div>
-                        <strong id="daily-next-prayer-name">صلاتك في وقتها</strong>
-                        <div class="small" id="daily-next-prayer-time">تختلف المواقيت حسب مدينتك</div>
+                <div class="journey-heading">
+                    <div class="journey-heading-main">
+                        <span class="journey-heading-icon" aria-hidden="true"><i class="fa-solid fa-seedling"></i></span>
+                        <div class="journey-heading-text">
+                            <h3>رحلتك الإيمانية اليوم</h3>
+                            <p>خطوة صغيرة كل يوم ترتقي بها</p>
+                        </div>
                     </div>
-                    <a class="btn outline" href="services.html#prayer-times">عرض التفاصيل ←</a>
+                    <span class="journey-status-pill"><i class="fa-solid fa-calendar-check"></i> زاد اليوم</span>
                 </div>
-                <div class="progress-top">
-                    <span>إنجازك اليوم</span>
-                    <span id="pct">0%</span>
+                <div class="daily-wird-card home-wird-card" id="daily-wird">
+                    <div class="wird-header-bar">
+                        <div class="wird-progress-info">
+                            <span class="wird-progress-title"><i class="fa-solid fa-chart-line text-gold"></i> وردك اليوم</span>
+                            <span class="wird-progress-badge" id="wird-progress-badge">0 من 8 مهام (0%)</span>
+                        </div>
+                        <div class="wird-progress-bar-container">
+                            <div class="wird-progress-bar-fill" id="wird-progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- قائمة المهام الإيمانية اليومية التفاعلية -->
+                    <div class="wird-tasks-grid" id="wird-tasks-grid">
+                        <div class="wird-task-item" data-task-id="fajr">
+                            <label class="wird-checkbox-label">
+                                <input type="checkbox" class="wird-checkbox" data-task="fajr">
+                                <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-mosque"></i></span>
+                                <span class="wird-task-text">الفجر في وقته</span>
+                            </label>
+                        </div>
+                        <div class="wird-task-item" data-task-id="quran">
+                            <label class="wird-checkbox-label">
+                                <input type="checkbox" class="wird-checkbox" data-task="quran">
+                                <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-book-quran"></i></span>
+                                <span class="wird-task-text">ورد القرآن · صفحتان</span>
+                            </label>
+                        </div>
+                        <div class="wird-task-item" data-task-id="morning_azkar">
+                            <label class="wird-checkbox-label">
+                                <input type="checkbox" class="wird-checkbox" data-task="morning_azkar">
+                                <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>
+                                <span class="wird-task-text">أذكار الصباح</span>
+                            </label>
+                        </div>
+                        <div class="wird-task-item" data-task-id="evening_azkar">
+                            <label class="wird-checkbox-label">
+                                <input type="checkbox" class="wird-checkbox" data-task="evening_azkar">
+                                <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-cloud-sun"></i></span>
+                                <span class="wird-task-text">أذكار المساء</span>
+                            </label>
+                        </div>
+                    </div>
+                    <details class="home-wird-more">
+                        <summary>
+                            <span><i class="fa-solid fa-list-check text-gold"></i> باقي مهام اليوم</span>
+                            <i class="fa-solid fa-chevron-down summary-chevron" aria-hidden="true"></i>
+                        </summary>
+                        <div class="wird-tasks-grid">
+                            <div class="wird-task-item" data-task-id="dhuha_witr">
+                                <label class="wird-checkbox-label">
+                                    <input type="checkbox" class="wird-checkbox" data-task="dhuha_witr">
+                                    <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                    <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-star-and-crescent"></i></span>
+                                    <span class="wird-task-text">الضحى أو الوتر</span>
+                                </label>
+                            </div>
+                            <div class="wird-task-item" data-task-id="sleep_azkar">
+                                <label class="wird-checkbox-label">
+                                    <input type="checkbox" class="wird-checkbox" data-task="sleep_azkar">
+                                    <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                    <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>
+                                    <span class="wird-task-text">أذكار النوم</span>
+                                </label>
+                            </div>
+                            <div class="wird-task-item" data-task-id="prophet_salawat">
+                                <label class="wird-checkbox-label">
+                                    <input type="checkbox" class="wird-checkbox" data-task="prophet_salawat">
+                                    <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                    <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-hands-praying"></i></span>
+                                    <span class="wird-task-text">الصلاة على النبي ﷺ · ١٠٠ مرة</span>
+                                </label>
+                            </div>
+                            <div class="wird-task-item" data-task-id="charity_good">
+                                <label class="wird-checkbox-label">
+                                    <input type="checkbox" class="wird-checkbox" data-task="charity_good">
+                                    <span class="wird-custom-check"><i class="fa-solid fa-check"></i></span>
+                                    <span class="wird-task-icon-badge" aria-hidden="true"><i class="fa-solid fa-hand-holding-heart"></i></span>
+                                    <span class="wird-task-text">صدقة أو إحسان أو صلة رحم</span>
+                                </label>
+                            </div>
+                        </div>
+                    </details>
+
                 </div>
-                <div class="bar">
-                    <div class="fill" id="fill"></div>
-                </div>
-                <div class="tasks">
-                    <button class="task" data-task="morning" onclick="toggleTask(this)"><span>○</span>أذكار الصباح</button>
-                    <button class="task" data-task="evening" onclick="toggleTask(this)"><span>○</span>أذكار المساء</button>
-                    <button class="task" data-task="quran" onclick="toggleTask(this)"><span>○</span>الورد القرآني</button>
-                    <button class="task" data-task="dua" onclick="toggleTask(this)"><span>○</span>دعاء اليوم</button>
+                <div class="journey-footer">
+                    <span class="journey-footer-meta"><i class="fa-solid fa-clock-rotate-left"></i> يتجدد تلقائياً كل فجر</span>
+                    <a class="home-wird-details" href="services.html#daily-wird">
+                        <span>متابعة تفاصيل الورد</span>
+                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    </a>
                 </div>
             </article>
 
             <article class="panel dhikr smart-dhikr-panel" id="smart-dhikr-panel">
                 <div class="dhikr-panel-top">
-                    <div class="small"><i class="fa-solid fa-hand-dots text-gold"></i> السبحة الإلكترونية التفاعلية</div>
+                    <div class="small"><i class="fa-solid fa-hand-dots text-gold"></i> السبحة</div>
                 </div>
 
                 <!-- شريط التبديل السريع بين الأذكار -->
@@ -320,84 +476,80 @@
             </div>
         </article>
 
-        <div id="home-services-section">
-            <div class="section-head" id="services">
-                <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h2>اكتشف زاد المسلم</h2>
-                        <p>اختصاراتك السريعة والمخصصة في الصفحة الرئيسية</p>
-                    </div>
-                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                        <a class="subtle" href="settings.html#settings-shortcuts-section" title="تخصيص وترتيب اختصارات الصفحة الرئيسية" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-400); font-weight: 700; font-size: 0.85rem; text-decoration: none;">
-                            <i class="fa-solid fa-star"></i>
-                            <span>تخصيص الاختصارات</span>
-                        </a>
-                        <a class="subtle" href="services.html" style="font-size: 0.88rem;">عرض كل الأقسام ←</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- القسم 3: بطاقات الوصول السريع الأربعة الأساسية -->
-            <section class="features quick-access-grid">
-                <a class="feature" href="services.html#quran-khatma">
-                    <div class="fi">📖</div>
-                    <h3>القرآن الكريم</h3>
-                    <p>تلاوة وتدبر ومتابعة الورد والختمة القرآنية</p>
-                </a>
-                <a class="feature" href="services.html#azkar">
-                    <div class="fi">🤲</div>
-                    <h3>الأذكار والأدعية</h3>
-                    <p>حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة</p>
-                </a>
-                <a class="feature" href="services.html#prayer-times">
-                    <div class="fi">🕌</div>
-                    <h3>مواقيت الصلاة</h3>
-                    <p>تحديد دقيق للمواقيت واتجاه القبلة مع تنبيهات الأذان</p>
-                </a>
-                <a class="feature" href="#sadaqa">
-                    <div class="fi">🤍</div>
-                    <h3>الصدقة الجارية</h3>
-                    <p>صفحات تذكارية ودعوات مستمرة للأحباب والراحلين</p>
-                </a>
-                <a class="feature" href="services.html#zakat-calculator-section">
-                    <div class="fi">🧮</div>
-                    <h3>حاسبة الزكاة</h3>
-                    <p>حساب زكاة المال، الذهب، والفضة بدقة شرعية 100%</p>
-                </a>
-                <a class="feature" href="services.html#islamic-media">
-                    <div class="fi">🎬</div>
-                    <h3>مرئيات وبودكاست</h3>
-                    <p>حلقات بودكاست ومواعظ مرئية وتأملات قرآنية</p>
-                </a>
-                <a class="feature" href="services.html#nearby-mosques-section">
-                    <div class="fi">🕌</div>
-                    <h3>مساجد قريبة</h3>
-                    <p>استكشف أقرب بيوت الله إليك مع الاتجاهات والخريطة</p>
-                </a>
-            </section>
-
-            <!-- القسم 4: استكشف المزيد من الخدمات -->
-            <div style="text-align: center; margin: 28px 0 35px;">
-                <a class="btn outline explore-all-btn" href="services.html" style="font-size: 15px; padding: 14px 28px; border-radius: 16px; border: 1.5px solid var(--border-color); display: inline-flex; align-items: center; gap: 8px;">
-                    <span>استكشف جميع خدمات زاد المسلم</span>
-                    <span style="font-size: 18px;">←</span>
-                </a>
-            </div>
-        </div>
-
         <!-- القسم 5: بطاقة الصدقة الجارية والتحدي المميزة -->
         <section class="bottom" id="sadaqa">
             <article class="panel sadaqa">
-                <span class="tag">🤍 أثر طيب يبقى</span>
-                <h2>صدقة جارية لمن تحب 🤍</h2>
-                <p class="small">أنشئ صفحة تذكارية لمن تحب، وشارك الدعاء له مع الأهل والأصدقاء.</p>
-                <button class="btn solid btn-open-custom-share" onclick="showModal('sadaqa')">أنشئ صفحة صدقة جارية ←</button>
+                <div class="sadaqa-top-row">
+                    <span class="sadaqa-badge"><i class="fa-solid fa-heart-pulse"></i> أثرٌ طيب لا ينقطع</span>
+                    <span class="sadaqa-subtle-tag"><i class="fa-solid fa-seedling"></i> صدقة جارية</span>
+                </div>
+                
+                <div class="sadaqa-header">
+                    <div class="sadaqa-icon-aura" aria-hidden="true">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <div class="sadaqa-header-text">
+                        <h2>صدقة جارية لمن تحب 🤍</h2>
+                        <p>اجعل لمن تحب نصيباً مستمراً من تلاوة القرآن والدعاء الصالح يصله أثره وبركته بإذن الله.</p>
+                    </div>
+                </div>
+
+                <div class="sadaqa-hadith-card">
+                    <p class="sadaqa-hadith-text">«إِذَا مَاتَ الإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ: إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ، أَوْ عِلْمٍ يُنْتَفَعُ بِهِ، أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ»</p>
+                    <span class="sadaqa-hadith-ref"><i class="fa-solid fa-book-bookmark"></i> رواه مسلم</span>
+                </div>
+
+                <div class="sadaqa-features-pills">
+                    <div class="sadaqa-pill"><i class="fa-solid fa-book-quran"></i><span>ختمات وقرآن مهدى</span></div>
+                    <div class="sadaqa-pill"><i class="fa-solid fa-hands-praying"></i><span>أدعية مأثورة للمتوفى</span></div>
+                    <div class="sadaqa-pill"><i class="fa-solid fa-share-nodes"></i><span>رابط تذكاري للمشاركة</span></div>
+                </div>
+
+                <div class="sadaqa-actions">
+                    <button class="btn solid sadaqa-cta-btn btn-open-custom-share" onclick="showModal('sadaqa')">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>أنشئ صفحة صدقة جارية بالاسم الآن</span>
+                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    </button>
+                    <a href="services.html#islamic-guide" class="sadaqa-secondary-link">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                        <span>دليل ما ينفع المتوفى والأدعية المأثورة ←</span>
+                    </a>
+                </div>
             </article>
+
             <article class="panel challenge">
-                <span class="tag" style="background:#dcece1;color:#357451">🌟 بداية خير</span>
-                <h2>تحدي 7 أيام</h2>
-                <p class="small">ابدأ عادة يومية بسيطة من الذكر والقراءة. تقدمك هنا تشجيعي وليس قياسًا للأجر.</p>
-                <button class="btn outline" id="btn-open-7days-challenge" onclick="showModal('challenge')">اكتشف التحدي ←</button>
+                <div class="sadaqa-top-row">
+                    <span class="challenge-badge"><i class="fa-solid fa-fire text-gold"></i> استقامة وذكر</span>
+                    <span class="sadaqa-subtle-tag"><i class="fa-solid fa-calendar-check"></i> 7 أيام</span>
+                </div>
+
+                <div class="challenge-header">
+                    <div class="challenge-icon-aura" aria-hidden="true">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div class="challenge-header-text">
+                        <h2>تحدي 7 أيام إيماني 🌟</h2>
+                        <p>ابدأ خطوة ثابتة في بناء عادة يومية خفيفة ترتقي بها من الذكر وتلاوة القرآن.</p>
+                    </div>
+                </div>
+
+                <div class="challenge-quote-card">
+                    <p class="challenge-quote-text">«أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ»</p>
+                    <span class="challenge-quote-ref"><i class="fa-solid fa-check"></i> متفق عليه</span>
+                </div>
+
+                <div class="sadaqa-features-pills">
+                    <div class="challenge-pill"><i class="fa-solid fa-clock-rotate-left"></i><span>دقائق يسيرة كل يوم</span></div>
+                    <div class="challenge-pill"><i class="fa-solid fa-chart-line"></i><span>متابعة تشجيعية للتقدم</span></div>
+                </div>
+
+                <div class="sadaqa-actions">
+                    <button class="btn outline challenge-cta-btn" id="btn-open-7days-challenge" type="button">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>اكتشف التحدي وابدأ اليوم ←</span>
+                    </button>
+                </div>
             </article>
         </section>
 
@@ -494,15 +646,15 @@
     <script src="assets/js/media-data.js?v=2"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/native-adhan-service.js?v=11"></script>
-    <script src="assets/js/onesignal-service.js?v=1"></script>
+    <script src="assets/js/native-adhan-service.js?v=12"></script>
+    <script src="assets/js/onesignal-service.js?v=2"></script>
     <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=22"></script>
-    <script src="assets/js/quran.js?v=26"></script>
+    <script src="assets/js/app.js?v=23"></script>
+    <script src="assets/js/quran.js?v=27"></script>
     <script src="assets/js/radio-player.js?v=2"></script>
-    <script src="assets/js/extended-modules.js?v=34"></script>
-    <script src="assets/js/smart-khatma.js?v=2"></script>
+    <script src="assets/js/extended-modules.js?v=36"></script>
+    <script src="assets/js/smart-khatma.js?v=3"></script>
     <script src="assets/js/share-card-generator.js?v=1"></script>
     <script src="assets/js/smart-tasbih.js?v=1"></script>
     <script src="assets/js/prayer-guide.js?v=1"></script>
@@ -645,6 +797,13 @@
                             <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; margin: 0; cursor: pointer;">
                                 <input type="checkbox" id="notify-salawat-sound" checked style="accent-color: var(--gold-400);"> 🔊 صوت
                             </label>
+                            <label for="select-salawat-voice">صوت التذكير:
+                                <select id="select-salawat-voice" class="azkar-time-input" style="max-width:100%;min-height:44px">
+                                    <option value="default">الصوت الافتراضي</option>
+                                    <option value="voice1">الصوت الأول</option>
+                                    <option value="voice2">الصوت الثاني</option>
+                                </select>
+                            </label>
                             <button type="button" class="btn outline" id="btn-test-salawat-sound" style="font-size: 0.72rem; padding: 2px 8px;" title="سماع صوت التذكير">
                                 <i class="fa-solid fa-volume-high text-gold"></i>
                             </button>
@@ -722,7 +881,7 @@
         <a href="#home"><span>⌂</span>الرئيسية</a>
         <a href="#daily"><span>🌿</span>يومي</a>
         <a href="services.html#islamic-media"><span>🎬</span>مرئيات</a>
-        <a href="#services"><span>📖</span>الأقسام</a>
+        <a href="services.html"><span>📖</span>الخدمات</a>
         <a href="#sadaqa"><span>🤍</span>صدقة جارية</a>
     </nav>
 
@@ -850,34 +1009,6 @@
         if (todayEl) {
             todayEl.textContent = new Intl.DateTimeFormat('ar', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
         }
-        const saved = JSON.parse(localStorage.getItem('zadTasks') || '{}');
-        if (saved.date !== todayKey) { saved.date = todayKey; saved.tasks = {}; }
-        document.querySelectorAll('[data-task]').forEach(b => {
-            if (saved.tasks && saved.tasks[b.dataset.task]) {
-                b.classList.add('done');
-                const sp = b.querySelector('span');
-                if (sp) sp.textContent = '✓';
-            }
-        });
-        function refresh() {
-            let n = document.querySelectorAll('.task.done').length;
-            const pctEl = document.getElementById('pct');
-            const fillEl = document.getElementById('fill');
-            if (pctEl) pctEl.textContent = (n * 25) + '%';
-            if (fillEl) fillEl.style.width = (n * 25) + '%';
-            localStorage.setItem('zadTasks', JSON.stringify(saved));
-        }
-        function toggleTask(b) {
-            let yes = b.classList.toggle('done');
-            if (!saved.tasks) saved.tasks = {};
-            saved.tasks[b.dataset.task] = yes;
-            const sp = b.querySelector('span');
-            if (sp) sp.textContent = yes ? '✓' : '○';
-            refresh();
-            if ('vibrate' in navigator) navigator.vibrate(12);
-        }
-        refresh();
-
         let c = Number(localStorage.getItem('zadCount') || 0);
         function paint() {
             const counterEl = document.getElementById('counter');
@@ -897,12 +1028,25 @@
 
         const content = {
             about: '<h2>عن زاد المسلم 🌙</h2><p>زاد المسلم هو تطبيق وموقع إسلامي شامل، تفاعلي وسريع، صُمم ليكون رفيق طاعاتك اليومية وصدقة جارية لوجه الله تعالى. يضم القرآن الكريم، مواقيت الصلاة، الأذكار، الأربعين النووية، أسماء الله الحسنى، والمسابقات الإسلامية.</p>',
-            prayer: '<h2>🕌 مواقيت الصلاة</h2><p>مواقيت الصلاة الدقيقة حسب مدينتك، مع تحديد القبلة وتنبيهات الأذان.</p><div style="text-align:center;margin-top:16px"><a href="#prayer-times" class="btn solid" onclick="closeModal()">الانتقال لمواقيت الصلاة والقبلة ←</a></div>',
+            prayer: '<h2>🕌 مواقيت الصلاة</h2><p>مواقيت الصلاة الدقيقة حسب مدينتك، مع تحديد القبلة وتنبيهات الأذان.</p><div style="text-align:center;margin-top:16px"><a href="services.html#prayer-times" class="btn solid" onclick="closeModal()">الانتقال لمواقيت الصلاة والقبلة ←</a></div>',
             soon: '<h2>متاح الآن ✨</h2><p>هذا القسم متاح وتفاعلي بالكامل داخل زاد المسلم، يمكنك استكشافه وتصفحه مباشرة في الأسفل.</p>',
             challenge: '<h2>🌟 تحدي 7 أيام</h2><p>كل يوم: أذكار الصباح والمساء، ورد قرآني، ودعاء. ابدأ الآن واجعل الذكر عادة يومية ثابتة.</p><div style="text-align:center;margin-top:16px"><button class="btn solid" onclick="closeModal(); document.getElementById(\'btn-open-7days-challenge\')?.click();">فتح تفاصيل التحدي الإيماني 🌿</button></div>',
-            sadaqa: '<h2>🤍 بطاقة دعاء</h2><p>اكتب اسم المتوفى لإنشاء بطاقة دعاء تجريبية قابلة للمشاركة.</p><label style="display:block;margin-top:10px;font-weight:700">اسم المتوفى</label><input id="deceased" maxlength="70" placeholder="مثال: أحمد محمد"><button class="btn solid" onclick="makeCard()">إنشاء البطاقة</button><div id="cardResult"></div>'
+            sadaqa: '<h2>🤍 صدقة جارية لمن تحب</h2><p>اكتب اسم المتوفى لإنشاء بطاقة دعاء ورابط إهداء ثواب يصله بره بإذن الله.</p><label style="display:block;margin-top:10px;font-weight:700">اسم المتوفى أو المهدى له</label><input id="deceased" maxlength="70" placeholder="مثال: الوالد رحمه الله أو فلان بن فلان"><button class="btn solid" onclick="makeCard()">تجهيز بطاقة الدعاء والرابط ✨</button><div id="cardResult"></div>'
         };
         function showModal(k) {
+            if (k === 'challenge') {
+                const cm = document.getElementById('challenge-modal');
+                if (cm) {
+                    const btn = document.getElementById('btn-open-7days-challenge');
+                    if (btn && !cm.classList.contains('active')) {
+                        btn.click();
+                    } else {
+                        cm.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                    return;
+                }
+            }
             const mc = document.getElementById('modalContent');
             if (mc) mc.innerHTML = content[k] || '';
             const ov = document.getElementById('overlay');
@@ -921,21 +1065,42 @@
             box.replaceChildren();
             const div = document.createElement('div');
             div.className = 'notice';
-            div.textContent = 'اللهم اغفر لـ ' + name + ' وارحمه، وعافه واعف عنه، واجعل قبره روضة من رياض الجنة.';
+            div.style.marginTop = '14px';
+            div.style.padding = '14px';
+            div.style.borderRadius = '12px';
+            div.style.border = '1px solid rgba(212, 175, 55, 0.35)';
+            div.style.background = 'rgba(212, 175, 55, 0.08)';
+            div.innerHTML = '<strong style="color:var(--gold-400);display:block;margin-bottom:6px;">🌿 دعاء مبارك مهدی:</strong>اللهم اغفر لـ ' + name + ' وارحمه، وعافه واعف عنه، وأكرم نزله ووسّع مدخله، واجعل قبره روضة من رياض الجنة، واجعل ما يُتلى ويُذكر صدقة جارية ونوراً في صحيفته.';
+            
+            const btnGroup = document.createElement('div');
+            btnGroup.style.display = 'flex';
+            btnGroup.style.gap = '8px';
+            btnGroup.style.flexWrap = 'wrap';
+            btnGroup.style.marginTop = '12px';
+
             const btn = document.createElement('button');
-            btn.className = 'btn outline';
-            btn.style.marginTop = '10px';
-            btn.textContent = 'مشاركة الدعاء ↗';
+            btn.className = 'btn solid';
+            btn.style.flex = '1';
+            btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> مشاركة الدعاء والرابط';
             btn.onclick = async () => {
-                let text = div.textContent + ' — زاد المسلم';
+                const targetUrl = window.location.origin + window.location.pathname + '?name=' + encodeURIComponent(name);
+                let text = 'صدقة جارية ودعاء لـ ' + name + ':\n' + div.textContent.replace('🌿 دعاء مبارك مهدی:', '') + '\n\nرابط الزاد المهدى:\n' + targetUrl;
                 if (navigator.share) {
-                    try { await navigator.share({ text }); } catch (e) { }
+                    try { await navigator.share({ title: 'صدقة جارية لـ ' + name, text }); } catch (e) { }
                 } else {
                     await navigator.clipboard.writeText(text);
-                    btn.textContent = 'تم نسخ الدعاء ✓';
+                    btn.innerHTML = 'تم نسخ الدعاء والرابط ✓';
                 }
             };
-            box.append(div, btn);
+
+            const linkServices = document.createElement('a');
+            linkServices.className = 'btn outline';
+            linkServices.href = 'services.html#islamic-guide';
+            linkServices.style.textDecoration = 'none';
+            linkServices.innerHTML = '<i class="fa-solid fa-book-open"></i> دليل المتوفى';
+
+            btnGroup.append(btn, linkServices);
+            box.append(div, btnGroup);
         }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
@@ -975,6 +1140,6 @@
         })();
     </script>
 
-    <script src="assets/js/user-tools.js?v=7"></script>
+    <script src="assets/js/user-tools.js?v=9"></script>
 </body>
 </html>

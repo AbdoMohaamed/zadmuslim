@@ -75,74 +75,26 @@ const OneSignalService = {
 
     // معالجة رابط الإشعار بدقة ومنع أي أخطاء في العناوين أو الهروب خارج التطبيق
     handleNotificationUrl(rawUrl) {
-        if (!rawUrl || rawUrl === './' || rawUrl === '/') {
-            return;
-        }
+        if (typeof rawUrl !== 'string') return;
         try {
-            let targetPath = '';
-            let targetSearch = '';
-            let targetHash = '';
-
-            if (/^https?:\/\//i.test(rawUrl)) {
-                try {
-                    const u = new URL(rawUrl);
-                    targetPath = u.pathname.replace(/^\/+/, '');
-                    targetSearch = u.search || '';
-                    targetHash = u.hash || '';
-                } catch {
-                    targetPath = '';
-                }
-            } else {
-                const hashIndex = rawUrl.indexOf('#');
-                let pathPart = hashIndex !== -1 ? rawUrl.slice(0, hashIndex) : rawUrl;
-                targetHash = hashIndex !== -1 ? rawUrl.slice(hashIndex) : '';
-                const queryIndex = pathPart.indexOf('?');
-                if (queryIndex !== -1) {
-                    targetSearch = pathPart.slice(queryIndex);
-                    pathPart = pathPart.slice(0, queryIndex);
-                }
-                targetPath = pathPart.replace(/^\.?\/+/, '');
-            }
-
-            let targetFile = targetPath.split('/').pop() || '';
-            const cleanHash = targetHash.split('?')[0];
-
-            // قائمة الأقسام والخدمات التابعة لصفحة services.html
-            const servicesSections = [
-                '#prayer-times', '#prayer-guide-section', '#nearby-mosques-section',
-                '#mood-compass-section', '#zakat-calculator-section', '#seasons',
-                '#quran-khatma', '#subpart-mushaf', '#khatma', '#wall-of-duas',
-                '#prayers', '#spiritual-garden', '#categorized-duas', '#daily-wird',
-                '#asmaa-allah', '#islamic-stories', '#islamic-quiz', '#islamic-guide', '#cemetery-guide'
-            ];
-
-            // إذا كان القسم موجوداً في صفحة الخدمات، نوجهه إلى services.html حصراً
-            if (servicesSections.includes(cleanHash)) {
-                if (!targetFile || targetFile === 'index.html') {
-                    targetFile = 'services.html';
-                }
-            } else if (!targetFile) {
-                targetFile = 'index.html';
-            }
-
-            const currentFile = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
-            const destinationFile = targetFile.toLowerCase();
-
-            if (currentFile === destinationFile) {
-                if (targetHash) {
-                    if (destinationFile === 'services.html' && typeof window.openServiceView === 'function') {
-                        window.openServiceView(targetHash, true);
-                    } else {
-                        window.location.hash = targetHash;
-                    }
-                }
-            } else {
-                window.location.href = targetFile + targetSearch + targetHash;
-            }
-        } catch (err) {
-            console.warn('OneSignal navigation handler warning:', err);
-        }
+            const base='https://zadmuslim-zeta.vercel.app/';
+            const target=new URL(rawUrl || './',base);
+            if (!['https:','http:'].includes(target.protocol) || target.username || target.password) return;
+            if (![new URL(base).origin,window.location.origin].includes(target.origin)) return;
+            let file=target.pathname.replace(/^\//,'') || 'index.html';
+            if (!['index.html','services.html','settings.html','privacy.html','app.html'].includes(file)) return;
+            let hash=target.hash;
+            const id=hash.slice(1).split('?')[0];
+            const services=['prayer-times','prayer-guide-section','nearby-mosques-section','mood-compass-section','zakat-calculator-section','seasons','quran-khatma','wall-of-duas','prayers','spiritual-garden','categorized-duas','daily-wird','asmaa-allah','islamic-stories','islamic-quiz','islamic-guide','cemetery-guide','azkar','islamic-media'];
+            if (['subpart-mushaf','khatma'].includes(id)) { file='services.html';hash='#quran-khatma?tab='+(id==='khatma'?'khatma':'mushaf'); }
+            else if (services.includes(id)) file='services.html';
+            else if(file==='app.html') file='index.html';
+            const current=window.location.pathname.split('/').pop() || 'index.html';
+            if(current===file && file==='services.html' && hash && typeof window.openServiceView==='function') window.openServiceView(hash,true);
+            else (window.zadNavigate || window.location.assign.bind(window.location))(file+target.search+hash);
+        } catch(err) { console.warn('OneSignal navigation handler warning:',err); }
     }
+
 };
 
 // تهيئة الخدمة تلقائياً عند تشغيل التطبيق

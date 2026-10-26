@@ -14,12 +14,16 @@ window.getPublicAppUrl = function(pathAndQuery = "") {
     return base.replace(/\/+$/, "") + "/" + pathAndQuery.replace(/^\/+/, "");
 };
 
-// كشف أجهزة iOS و Capacitor لتأمين الحواف الآمنة للجزيرة التفاعلية (Dynamic Island & Notch)
+// كشف أجهزة iOS و Android و Capacitor لتأمين الحواف الآمنة للجزيرة التفاعلية وضبط الرأس
 (function initSafeAreaDetection() {
     try {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isAndroid = /Android/i.test(ua) || (window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android');
         if (isIOS) {
             document.documentElement.classList.add('ios-device');
+        } else if (isAndroid) {
+            document.documentElement.classList.add('android-device');
         }
         if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
             document.documentElement.classList.add('capacitor-native-app');
@@ -30,7 +34,7 @@ window.getPublicAppUrl = function(pathAndQuery = "") {
 // قياس وتحديث ارتفاع الهيدر الفعلي لدعم الحواف الآمنة والجزيرة التفاعلية (Dynamic Island & Safe Area)
 function updateNavbarActualHeight() {
     try {
-        const navbar = document.querySelector('.navbar');
+        const navbar = document.querySelector('.navbar') || document.querySelector('header.top');
         if (navbar) {
             const h = navbar.getBoundingClientRect().height || navbar.offsetHeight;
             if (h > 0) {
@@ -41,6 +45,11 @@ function updateNavbarActualHeight() {
 }
 window.addEventListener('resize', updateNavbarActualHeight);
 window.addEventListener('orientationchange', () => setTimeout(updateNavbarActualHeight, 250));
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateNavbarActualHeight);
+} else {
+    updateNavbarActualHeight();
+}
 
 /* ==========================================================================
    Smart Scroll Header (إظهار الهيدر عند التمرير لأعلى وإخفاؤه عند التمرير لأسفل)
@@ -3041,7 +3050,8 @@ function initGPSLocation() {
    ========================================================================== */
 function initDailyWird() {
     const section = document.getElementById("daily-wird");
-    if (!section) return;
+    if (!section || section.dataset.wirdReady) return;
+    section.dataset.wirdReady = "true";
 
     const checkboxes = section.querySelectorAll(".wird-checkbox");
     const progressBadge = document.getElementById("wird-progress-badge");
@@ -3050,16 +3060,36 @@ function initDailyWird() {
     const streakCountEl = document.getElementById("wird-streak-count");
     const weeklyTrackerEl = document.getElementById("wird-weekly-tracker");
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const todayKey = `daily_wird_${todayStr}`;
+    const dateKey = date => [date.getFullYear(), String(date.getMonth()+1).padStart(2,'0'), String(date.getDate()).padStart(2,'0')].join('-');
+    let todayStr = dateKey(new Date());
+    let todayKey = 'daily_wird_' + todayStr;
+    const validTasks = new Set([...checkboxes].map(cb => cb.dataset.task));
     let completedTasks = [];
 
-    try {
-        const saved = localStorage.getItem(todayKey);
-        if (saved) completedTasks = JSON.parse(saved);
-    } catch(e) {
+    function loadTasks() {
         completedTasks = [];
+        try {
+            const stored = localStorage.getItem(todayKey);
+            const parsed = stored === null ? [] : JSON.parse(stored);
+            completedTasks = Array.isArray(parsed) ? [...new Set(parsed)].filter(id => validTasks.has(id)) : [];
+            const importKey = 'daily_wird_home_import_' + todayStr;
+            if (!localStorage.getItem(importKey)) {
+                const old = JSON.parse(localStorage.getItem('zadTasks') || '{}');
+                if (old.date === todayStr && old.tasks) {
+                    const aliases = {morning:'morning_azkar', evening:'evening_azkar', quran:'quran'};
+                    for (const [from,to] of Object.entries(aliases)) if (old.tasks[from] && !completedTasks.includes(to)) completedTasks.push(to);
+                }
+                localStorage.setItem(todayKey, JSON.stringify(completedTasks));
+                localStorage.setItem(importKey, 'true');
+            }
+        } catch {}
     }
+    function refreshDay() {
+        todayStr = dateKey(new Date());
+        todayKey = 'daily_wird_' + todayStr;
+        loadTasks();
+    }
+    loadTasks();
 
     function updateStreakAndWeekly() {
         // تحديث سجل الأيام في localStorage
@@ -3087,7 +3117,7 @@ function initDailyWird() {
         let checkDate = new Date();
         
         // فحص اليوم الحالي أولاً
-        const checkTodayStr = checkDate.toISOString().slice(0, 10);
+        const checkTodayStr = dateKey(checkDate);
         if (history[checkTodayStr]) {
             streak++;
             checkDate.setDate(checkDate.getDate() - 1);
@@ -3097,7 +3127,7 @@ function initDailyWird() {
         }
 
         while (true) {
-            const dateStr = checkDate.toISOString().slice(0, 10);
+            const dateStr = dateKey(checkDate);
             if (history[dateStr]) {
                 streak++;
                 checkDate.setDate(checkDate.getDate() - 1);
@@ -3128,7 +3158,7 @@ function initDailyWird() {
             for (let i = 0; i < 7; i++) {
                 const dayDate = new Date(weekStart);
                 dayDate.setDate(weekStart.getDate() + i);
-                const dayStr = dayDate.toISOString().slice(0, 10);
+                const dayStr = dateKey(dayDate);
                 const isDayDone = !!history[dayStr];
                 const isToday = dayStr === todayStr;
 
@@ -3175,6 +3205,7 @@ function initDailyWird() {
 
     checkboxes.forEach(cb => {
         cb.addEventListener("change", () => {
+            refreshDay();
             const taskId = cb.dataset.task;
             if (cb.checked) {
                 if (!completedTasks.includes(taskId)) {
@@ -3199,6 +3230,7 @@ function initDailyWird() {
 
     if (resetBtn) {
         resetBtn.addEventListener("click", () => {
+            refreshDay();
             if (completedTasks.length === 0) {
                 showToast("الجدول فارغ بالفعل لليوم 🌿");
                 return;
@@ -3206,13 +3238,22 @@ function initDailyWird() {
             if (confirm("هل تريد إعادة ضبط مهام الورد اليومي والبدء من جديد؟")) {
                 completedTasks = [];
                 try {
-                    localStorage.removeItem(todayKey);
+                    localStorage.setItem(todayKey, "[]");
                 } catch(e) {}
                 updateUI();
                 showToast("تمت إعادة ضبط جدول الورد لليوم 🌿");
             }
         });
     }
+
+    const syncTasks = () => { refreshDay(); updateUI(); };
+    window.addEventListener('storage', event => {
+        if (event.key === null || event.key?.startsWith('daily_wird_')) syncTasks();
+    });
+    window.addEventListener('pageshow', syncTasks);
+    window.addEventListener('focus', syncTasks);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) syncTasks(); });
+    setInterval(() => { if (dateKey(new Date()) !== todayStr) syncTasks(); }, 60000);
 
     function playWirdAudio(isFull) {
         try {

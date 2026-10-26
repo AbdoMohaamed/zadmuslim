@@ -218,3 +218,11 @@ test('Android prayer plugin failure does not claim full adhan delivery',async()=
 
 test('Android missing exact alarm access reports incomplete setup rather than guaranteed adhan',async()=>{const h=harness({exact:false,settings:{adhan:true,hourlySalawat:true}});const r=await h.service.schedulePrayers();assert.equal(r.success,false);assert.equal(r.remindersScheduled,true);assert.match(r.message,/الدقيقة/);});
 test('enabled adhan with no future times does not claim success',async()=>{const h=harness({platform:'ios',settings:{adhan:true}});const r=await h.service.schedulePrayers({Fajr:'00:00',Dhuhr:'00:00',Asr:'00:00',Maghrib:'00:00',Isha:'00:00'});assert.equal(r.success,false);assert.match(r.message,/لا توجد/);});
+
+test('selected salawat voices reach Android channels and iOS bundled WAVs; mute and invalid values are safe',async()=>{
+ for(const platform of ['android','ios'])for(const voice of ['default','voice1','voice2','invalid']){
+ const h=harness({platform,settings:{hourlySalawat:true,salawatVoice:voice}});await h.service.schedulePrayers();const rules=platform==='android'?h.calls.reminders:h.calls.local;const rule=rules.find(n=>n.extra?.type==='hourly_salawat');const suffix=voice==='voice1'?'_1':voice==='voice2'?'_2':'';assert.equal(rule.sound,'salawat'+suffix+(platform==='ios'?'.wav':'.mp3'));assert.equal(rule.channelId, suffix?'hourly_salawat_'+voice:'hourly_salawat');
+ const filename=platform==='ios'?'ios/App/App/salawat'+suffix+'.wav':'android/app/src/main/res/raw/salawat'+suffix+'.mp3';assert.ok(fs.existsSync(filename));
+ }
+ const h=harness({settings:{hourlySalawat:true,salawatVoice:'voice2',salawatSound:false}});await h.service.schedulePrayers();const rule=h.calls.reminders.find(n=>n.extra.type==='hourly_salawat');assert.equal(rule.sound,null);assert.equal(rule.channelId,'hourly_salawat_silent');
+});

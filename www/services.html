@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>اكتشف خدمات زاد المسلم | دليلك الشامل لجميع الأقسام الإيمانية</title>
     <meta name="description" content="فهرس وخدمات منصة زاد المسلم: القرآن الكريم، مواقيت الصلاة، الأذكار والأدعية، الأربعون النووية، أسماء الله الحسنى، قصص الأنبياء، والمسابقات الإسلامية • صدقة جارية.">
@@ -47,18 +47,18 @@
     
     <!-- تنسيقات الموقع المتطابقة مع النموذج المرجعي -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <link rel="stylesheet" href="assets/css/style.css?v=96">
+    <link rel="stylesheet" href="assets/css/style.css?v=100">
     
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
   
     <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
 <link rel="stylesheet" href="assets/css/radio-player.css?v=5">
-<script src="assets/js/radio-navigation.js?v=2"></script>
+<script src="assets/js/radio-navigation.js?v=3"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
-<link rel="stylesheet" href="assets/css/services-personal.css?v=4">
-<script src="assets/js/services-personal.js?v=3"></script>
+<link rel="stylesheet" href="assets/css/services-personal.css?v=7">
+<script src="assets/js/services-personal.js?v=4"></script>
 </head>
 <body class="services-hub-mode">
 
@@ -100,8 +100,8 @@
         <div class="section-head" style="margin-top: 12px; margin-bottom: 18px;">
             <div>
                 <span class="eyebrow" style="color: var(--green); font-size: 13px; font-weight: 800; display: block; margin-bottom: 4px;">✦ فهرس المنصة الشامل</span>
-                <h1 class="services-page-title" style="margin: 0; font-weight: 900; color: var(--ink);">اكتشف خدمات زاد المسلم</h1>
-                <p class="services-page-desc" style="color: var(--muted); margin: 6px 0 0;">جميع أقسام العبادات، القرآن، الأذكار، والمعرفة الإسلامية مرتبة في مكان واحد.</p>
+                <h1 class="services-page-title" style="margin: 0; font-weight: 900; color: var(--ink);">الخدمات</h1>
+                <p class="services-page-desc" style="color: var(--muted); margin: 6px 0 0;">اختار تصنيفًا أو ابحث عن الخدمة اللي محتاجها.</p>
             </div>
         </div>
 
@@ -116,13 +116,21 @@
 
 
         <!-- أزرار تبويب التصنيفات السريعة والواضحة -->
-        <div class="category-filter-pills">
-            <button type="button" class="cat-pill-btn active" onclick="filterCategory('all', this)">✦ جميع الخدمات</button>
-            <button type="button" class="cat-pill-btn" onclick="filterCategory('الأذكار', this)">🤲 الأذكار وحصن المسلم</button>
-            <button type="button" class="cat-pill-btn" onclick="filterCategory('الصلاة', this)">🕌 الصلاة والقبلة</button>
-            <button type="button" class="cat-pill-btn" onclick="filterCategory('القرآن الكريم', this)">📖 القرآن والختمات</button>
-            <button type="button" class="cat-pill-btn" onclick="filterCategory('المعرفة الإسلامية', this)">📚 المعرفة والقصص</button>
-            <button type="button" class="cat-pill-btn" onclick="filterCategory('الزكاة والصدقة', this)">🤍 الزكاة والصدقة</button>
+        <div class="category-filter-pills" role="group" aria-label="تصنيف الخدمات">
+            <button type="button" class="cat-pill-btn active" data-category-filter="all" aria-pressed="true" onclick="filterCategory('all', this)"><span aria-hidden="true">✦</span><span>الكل</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="القرآن الكريم" aria-pressed="false" onclick="filterCategory('القرآن الكريم', this)"><span aria-hidden="true">📖</span><span>القرآن الكريم</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="الصلاة" aria-pressed="false" onclick="filterCategory('الصلاة', this)"><span aria-hidden="true">🕌</span><span>الصلاة والقبلة</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="الأذكار" aria-pressed="false" onclick="filterCategory('الأذكار', this)"><span aria-hidden="true">📿</span><span>الأذكار والتسبيح</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="الدعاء والسكينة" aria-pressed="false" onclick="filterCategory('الدعاء والسكينة', this)"><span aria-hidden="true">🤲</span><span>الدعاء والسكينة</span></button>
+            <button type="button" id="services-more-categories" class="category-more-btn" aria-expanded="false" aria-controls="services-extra-categories" onclick="toggleMoreCategories()"><span class="more-label">باقي التصنيفات</span><span class="more-arrow" aria-hidden="true"> ▾</span></button>
+            <div id="services-extra-categories" class="services-extra-categories" hidden>
+                <button type="button" class="cat-pill-btn" data-category-filter="الورد والمتابعة" aria-pressed="false" onclick="filterCategory('الورد والمتابعة', this)"><span aria-hidden="true">🌿</span><span>الورد والمتابعة</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المواسم والتقويم" aria-pressed="false" onclick="filterCategory('المواسم والتقويم', this)"><span aria-hidden="true">🗓️</span><span>مواسم الطاعات</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المعرفة الإسلامية" aria-pressed="false" onclick="filterCategory('المعرفة الإسلامية', this)"><span aria-hidden="true">📚</span><span>المعرفة والقصص</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المرئيات" aria-pressed="false" onclick="filterCategory('المرئيات', this)"><span aria-hidden="true">🎬</span><span>مرئيات وبودكاست</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="الزكاة" aria-pressed="false" onclick="filterCategory('الزكاة', this)"><span aria-hidden="true">🧮</span><span>حاسبة الزكاة</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="للمتوفى" aria-pressed="false" onclick="filterCategory('للمتوفى', this)"><span aria-hidden="true">🤍</span><span>صدقة للمتوفى</span></button>
+            </div>
         </div>
 
         <div id="noResultsBox" class="no-results">
@@ -131,91 +139,47 @@
             <p>جرّب البحث بكلمة أخرى مثل: صلاة، قرآن، أذكار، قصص، تسبيح.</p>
         </div>
 
-        <!-- تصنيف 1: الأذكار وحصن المسلم -->
-        <section class="category-block" data-category="الأذكار">
-            <div class="category-title-wrap">
-                <span style="font-size: 22px;">🤲</span>
-                <h2 class="category-title">الأذكار وحصن المسلم</h2>
-                <span class="category-badge">حفظ وبركة يومية</span>
-            </div>
-            <p class="category-desc">أذكار وأدعية وعبادات يومية.</p>
+        <section class="category-block" data-category="القرآن الكريم">
+            <div class="category-title-wrap"><span aria-hidden="true">📖</span><h2 class="category-title">القرآن الكريم</h2></div>
+            <p class="category-desc">قراءة المصحف والاستماع والمشاركة في الختمات.</p>
+            <div id="services-resume" class="services-resume-container" hidden></div>
             <div class="services-grid">
-                <a class="service-card" href="#azkar">
+                <a class="service-card" href="#quran-khatma?tab=mushaf">
                     <div class="service-card-top">
-                        <div class="service-icon-box">🤲</div>
+                        <div class="service-icon-box">📖</div>
                         <div class="service-info">
-                            <h3>أذكار اليوم وحصن المسلم</h3>
-                            <p>أذكار يومك مع حفظ تقدمك.</p>
+                            <h3>المصحف</h3>
+                            <p>اقرأ واستمع واحفظ موضعك.</p>
                         </div>
                     </div>
-                    <span class="service-action-link">تصفح الأذكار ←</span>
+                    <span class="service-action-link">فتح المصحف الشريف ←</span>
                 </a>
-
-                <a class="service-card" href="index.html#smart-dhikr-panel">
+                <a class="service-card" href="#quran-khatma?tab=khatma">
                     <div class="service-card-top">
-                        <div class="service-icon-box">📿</div>
+                        <div class="service-icon-box">🌟</div>
                         <div class="service-info">
-                            <h3>السبحة الإلكترونية التفاعلية</h3>
-                            <p>عداد تسبيح ذكي تفاعلي.</p>
+                            <h3>الختمة الجماعية</h3>
+                            <p>احجز جزءًا وشارك في الختمة.</p>
                         </div>
                     </div>
-                    <span class="service-action-link">فتح السبحة الذكية ←</span>
+                    <span class="service-action-link">حجز جزء في الختمة ←</span>
                 </a>
-
-                <a class="service-card" href="#mood-compass-section" onclick="if(window.MoodCompass && typeof window.MoodCompass.init === 'function') window.MoodCompass.init();">
+                <a class="service-card" href="#radio-panel" data-open-radio="true">
                     <div class="service-card-top">
-                        <div class="service-icon-box">🌿</div>
+                        <div class="service-icon-box">📻</div>
                         <div class="service-info">
-                            <h3>بوصلة القلوب والسكينة</h3>
-                            <p>آيات وأدعية تناسب شعورك.</p>
+                            <h3>إذاعات القرآن</h3>
+                            <p>استمع لإذاعة القاهرة وباقي المحطات.</p>
                         </div>
                     </div>
-                    <span class="service-action-link">افتح بوصلة السكينة 🌿 ←</span>
-                </a>
-
-                <a class="service-card" href="#daily-wird">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">📋</div>
-                        <div class="service-info">
-                            <h3>الورد اليومي والمهام</h3>
-                            <p>تابع عباداتك اليومية.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">متابعة الورد ←</span>
-                </a>
-
-                <a class="service-card" href="#spiritual-garden">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🌱</div>
-                        <div class="service-info">
-                            <h3>حديقة الحسنات وشجرة الذكر</h3>
-                            <p>تابع تقدمك في الذكر والقراءة.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">دخول حديقة الحسنات ←</span>
-                </a>
-
-                <a class="service-card" href="#categorized-duas">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">✨</div>
-                        <div class="service-info">
-                            <h3>الأدعية النبوية والقرآنية</h3>
-                            <p>أدعية مصنفة للنسخ والمشاركة.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">استعراض الأدعية ←</span>
+                    <span class="service-action-link">الاستماع للإذاعات ←</span>
                 </a>
             </div>
         </section>
 
-        <!-- تصنيف 2: الصلاة والقبلة -->
         <section class="category-block" data-category="الصلاة">
-            <div class="category-title-wrap">
-                <span style="font-size: 22px;">🕌</span>
-                <h2 class="category-title">الصلاة والقبلة</h2>
-                <span class="category-badge">عماد الدين</span>
-            </div>
-            <p class="category-desc">مواقيت الصلاة والقبلة والمساجد.</p>
+            <div class="category-title-wrap"><span aria-hidden="true">🕌</span><h2 class="category-title">الصلاة والقبلة والمساجد</h2></div>
+            <p class="category-desc">مواقيت الصلاة واتجاه القبلة وتعلّم الصلاة وأقرب مسجد.</p>
             <div class="services-grid">
                 <a class="service-card" href="#prayer-times">
                     <div class="service-card-top">
@@ -227,18 +191,16 @@
                     </div>
                     <span class="service-action-link">فتح مواقيت الصلاة ←</span>
                 </a>
-
                 <a class="service-card" href="#prayer-guide-section" onclick="if(window.PrayerGuide) PrayerGuide.openPrayerGuideSection();">
                     <div class="service-card-top">
                         <div class="service-icon-box">📖</div>
                         <div class="service-info">
-                            <h3>دليل الصلاة الشامل وفقهها</h3>
+                            <h3>دليل الصلاة</h3>
                             <p>تعلّم الصلاة خطوة بخطوة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">استكشف فقه الصلاة 🕌 ←</span>
                 </a>
-
                 <a class="service-card" href="#nearby-mosques-section">
                     <div class="service-card-top">
                         <div class="service-icon-box">🗺️</div>
@@ -249,9 +211,104 @@
                     </div>
                     <span class="service-action-link">عرض أقرب المساجد ←</span>
                 </a>
+            </div>
+        </section>
 
+        <section class="category-block" data-category="الأذكار">
+            <div class="category-title-wrap"><span aria-hidden="true">📿</span><h2 class="category-title">الأذكار والتسبيح</h2></div>
+            <p class="category-desc">أذكار يومك والسبحة الإلكترونية.</p>
+            <div class="services-grid">
+                <a class="service-card" href="#azkar">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🤲</div>
+                        <div class="service-info">
+                            <h3>أذكار اليوم وحصن المسلم</h3>
+                            <p>أذكار يومك مع حفظ تقدمك.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">تصفح الأذكار ←</span>
+                </a>
+                <a class="service-card" href="index.html#smart-dhikr-panel">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">📿</div>
+                        <div class="service-info">
+                            <h3>السبحة</h3>
+                            <p>عداد تسبيح ذكي تفاعلي.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">فتح السبحة ←</span>
+                </a>
+            </div>
+        </section>
 
+        <section class="category-block" data-category="الدعاء والسكينة">
+            <div class="category-title-wrap"><span aria-hidden="true">🤲</span><h2 class="category-title">الدعاء والسكينة</h2></div>
+            <p class="category-desc">أدعية مأثورة وذكر يناسب شعورك وطلبات الدعاء.</p>
+            <div class="services-grid">
+                <a class="service-card" href="#categorized-duas">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">✨</div>
+                        <div class="service-info">
+                            <h3>الأدعية النبوية والقرآنية</h3>
+                            <p>أدعية مصنفة للنسخ والمشاركة.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">استعراض الأدعية ←</span>
+                </a>
+                <a class="service-card" href="#mood-compass-section" onclick="if(window.MoodCompass && typeof window.MoodCompass.init === 'function') window.MoodCompass.init();">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🌿</div>
+                        <div class="service-info">
+                            <h3>بوصلة القلوب</h3>
+                            <p>اختار شعورك واقرأ ذكرًا مناسبًا.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">اختار شعورك ←</span>
+                </a>
+                <a class="service-card" href="#wall-of-duas">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🤲</div>
+                        <div class="service-info">
+                            <h3>حائط الدعاء</h3>
+                            <p>اطلب الدعاء لنفسك أو لغيرك، وادعُ لأصحاب الطلبات.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">زيارة حائط الدعاء ←</span>
+                </a>
+            </div>
+        </section>
 
+        <section class="category-block" data-category="الورد والمتابعة">
+            <div class="category-title-wrap"><span aria-hidden="true">🌿</span><h2 class="category-title">وردي ومتابعتي</h2></div>
+            <p class="category-desc">تابع وردك ومهامك اليومية وتقدمك في الذكر والقراءة.</p>
+            <div class="services-grid">
+                <a class="service-card" href="#daily-wird">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">📋</div>
+                        <div class="service-info">
+                            <h3>الورد اليومي والمهام</h3>
+                            <p>تابع عباداتك اليومية.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">متابعة الورد ←</span>
+                </a>
+                <a class="service-card" href="#spiritual-garden">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🌱</div>
+                        <div class="service-info">
+                            <h3>حديقة الحسنات وشجرة الذكر</h3>
+                            <p>تابع تقدمك في الذكر والقراءة.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">دخول حديقة الحسنات ←</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-block" data-category="المواسم والتقويم">
+            <div class="category-title-wrap"><span aria-hidden="true">🗓️</span><h2 class="category-title">مواسم الطاعات والتقويم</h2></div>
+            <p class="category-desc">التقويم الهجري والمناسبات ومواسم الطاعات.</p>
+            <div class="services-grid">
                 <a class="service-card" href="#seasons">
                     <div class="service-card-top">
                         <div class="service-icon-box">📅</div>
@@ -265,70 +322,20 @@
             </div>
         </section>
 
-        <!-- تصنيف 3: القرآن الكريم والختمات -->
-        <section class="category-block" data-category="القرآن الكريم">
-            <div class="category-title-wrap">
-                <span style="font-size: 22px;">📖</span>
-                <h2 class="category-title">القرآن الكريم والختمات</h2>
-                <span class="category-badge">نور وهداية</span>
-            </div>
-            <p class="category-desc">قراءة واستماع وختمات جماعية.</p>
-            <div class="services-grid">
-                <a class="service-card" href="#quran-khatma?tab=mushaf">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">📖</div>
-                        <div class="service-info">
-                            <h3>المصحف الشريف الإلكتروني</h3>
-                            <p>اقرأ واستمع واحفظ موضعك.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">فتح المصحف الشريف ←</span>
-                </a>
-
-                <a class="service-card" href="#quran-khatma?tab=khatma">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🌟</div>
-                        <div class="service-info">
-                            <h3>ختمة الـ 30 جزء الجماعية</h3>
-                            <p>احجز جزءًا وشارك في الختمة.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">حجز جزء في الختمة ←</span>
-                </a>
-
-                <a class="service-card" href="#radio-panel" data-open-radio="true">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">📻</div>
-                        <div class="service-info">
-                            <h3>إذاعات القرآن والبث الحي</h3>
-                            <p>استمع لإذاعة القاهرة وباقي المحطات.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">الاستماع للإذاعات ←</span>
-                </a>
-            </div>
-        </section>
-
-        <!-- تصنيف 4: المعرفة والثقافة الإسلامية -->
         <section class="category-block" data-category="المعرفة الإسلامية">
-            <div class="category-title-wrap">
-                <span style="font-size: 22px;">📚</span>
-                <h2 class="category-title">المعرفة والقصص الإسلامية</h2>
-                <span class="category-badge">علم نافع وأثر</span>
-            </div>
-            <p class="category-desc">معرفة دينية وقصص ومسابقات.</p>
+            <div class="category-title-wrap"><span aria-hidden="true">📚</span><h2 class="category-title">تعلّم واكتشف</h2></div>
+            <p class="category-desc">أسماء الله الحسنى وقصص الأنبياء والصحابة واختبار المعلومات.</p>
             <div class="services-grid">
                 <a class="service-card" href="#asmaa-allah">
                     <div class="service-card-top">
                         <div class="service-icon-box">✨</div>
                         <div class="service-info">
-                            <h3>أسماء الله الحسنى ومعانيها</h3>
+                            <h3>أسماء الله الحسنى</h3>
                             <p>تعرّف على الأسماء ومعانيها.</p>
                         </div>
                     </div>
                     <span class="service-action-link">استكشاف الأسماء الحسنى ←</span>
                 </a>
-
                 <a class="service-card" href="#islamic-stories">
                     <div class="service-card-top">
                         <div class="service-icon-box">📜</div>
@@ -339,18 +346,71 @@
                     </div>
                     <span class="service-action-link">قراءة القصص ←</span>
                 </a>
-
                 <a class="service-card" href="#islamic-quiz">
                     <div class="service-card-top">
                         <div class="service-icon-box">🏆</div>
                         <div class="service-info">
-                            <h3>مسابقة اختبر معلوماتك</h3>
+                            <h3>اختبر معلوماتك</h3>
                             <p>اختبر معلوماتك بأسئلة متنوعة.</p>
                         </div>
                     </div>
                     <span class="service-action-link">بدء الاختبار ←</span>
                 </a>
+            </div>
+        </section>
 
+        <section class="category-block" data-category="المرئيات">
+            <div class="category-title-wrap"><span aria-hidden="true">🎬</span><h2 class="category-title">مرئيات وبودكاست</h2></div>
+            <p class="category-desc">شاهد المواعظ والمقاطع أو استمع لها.</p>
+            <div class="services-grid">
+                <a class="service-card" href="#islamic-media">
+                    <div class="service-card-top"><div class="service-icon-box">🎬</div><div class="service-info"><h3>مرئيات وبودكاست</h3><p>شاهد المواعظ أو استمع لها.</p></div></div>
+                    <span class="service-action-link">تصفح المرئيات ←</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-block" data-category="الزكاة">
+            <div class="category-title-wrap"><span aria-hidden="true">🧮</span><h2 class="category-title">الزكاة</h2></div>
+            <p class="category-desc">حساب زكاة المال والذهب والتجارة.</p>
+            <div class="services-grid">
+                <a class="service-card" href="#zakat-calculator-section">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🧮</div>
+                        <div class="service-info">
+                            <h3>حاسبة الزكاة</h3>
+                            <p>احسب زكاة المال والذهب والتجارة.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">احسب زكاتك الآن ←</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-block" data-category="للمتوفى">
+            <div class="category-title-wrap"><span aria-hidden="true">🤍</span><h2 class="category-title">صدقة ودعاء للمتوفى</h2></div>
+            <p class="category-desc">صفحة صدقة جارية ودعوات للمتوفى ودليل الجنائز.</p>
+            <div class="services-grid">
+                <a class="service-card" href="index.html#sadaqa">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🕊️</div>
+                        <div class="service-info">
+                            <h3>صدقة جارية</h3>
+                            <p>أنشئ رابطاً مخصصاً لفقيدك واجمع له الدعوات وقراءات القرآن.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">إنشاء بطاقة الآن ←</span>
+                </a>
+                <a class="service-card" href="#prayers">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🤍</div>
+                        <div class="service-info">
+                            <h3>أدعية الزوار</h3>
+                            <p>اكتب دعاءً للمتوفى أو رسالة مواساة لأهله.</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">إهداء دعاء ←</span>
+                </a>
                 <a class="service-card" href="#islamic-guide">
                     <div class="service-card-top">
                         <div class="service-icon-box">⚖️</div>
@@ -360,59 +420,6 @@
                         </div>
                     </div>
                     <span class="service-action-link">قراءة الأحكام ←</span>
-                </a>
-            </div>
-        </section>
-
-        <!-- تصنيف 5: الصدقة الجارية والوفاء -->
-        <section class="category-block" data-category="الزكاة والصدقة">
-            <div class="category-title-wrap">
-                <span style="font-size: 22px;">🤍</span>
-                <h2 class="category-title">الزكاة والصدقة والدعاء</h2>
-                <span class="category-badge">أجر لا ينقطع</span>
-            </div>
-            <p class="category-desc">الزكاة والصدقة والدعاء لمن تحب.</p>
-            <div class="services-grid">
-                <a class="service-card" href="index.html#sadaqa">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🕊️</div>
-                        <div class="service-info">
-                            <h3>إنشاء بطاقة وصفحة صدقة جارية</h3>
-                            <p>أنشئ رابطاً مخصصاً لفقيدك واجمع له الدعوات وقراءات القرآن.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">إنشاء بطاقة الآن ←</span>
-                </a>
-                <a class="service-card" href="#zakat-calculator-section">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🧮</div>
-                        <div class="service-info">
-                            <h3>حاسبة الزكاة الذكية</h3>
-                            <p>احسب زكاة المال والذهب والتجارة.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">احسب زكاتك الآن ←</span>
-                </a>
-                <a class="service-card" href="#wall-of-duas">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🤲</div>
-                        <div class="service-info">
-                            <h3>حائط الدعاء بظهر الغيب 🌟</h3>
-                            <p>اطلب الدعاء وأمّن على دعوات الآخرين.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">زيارة حائط الدعاء ←</span>
-                </a>
-
-                <a class="service-card" href="#prayers">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🤍</div>
-                        <div class="service-info">
-                            <h3>أدعية الزوار وسجل الوفاء</h3>
-                            <p>شارك دعاءً أو رسالة مواساة.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">إهداء دعاء ←</span>
                 </a>
             </div>
         </section>
@@ -3170,7 +3177,14 @@
                                 <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; margin: 0; cursor: pointer;">
                                     <input type="checkbox" id="notify-salawat-sound" checked style="accent-color: var(--gold-400);"> 🔊 صوت
                                 </label>
-                                <button type="button" class="btn outline" id="btn-test-salawat-sound" style="font-size: 0.72rem; padding: 2px 8px;" title="سماع صوت التذكير">
+                                <label for="select-salawat-voice">صوت التذكير:
+                                <select id="select-salawat-voice" class="azkar-time-input" style="max-width:100%;min-height:44px">
+                                    <option value="default">الصوت الافتراضي</option>
+                                    <option value="voice1">الصوت الأول</option>
+                                    <option value="voice2">الصوت الثاني</option>
+                                </select>
+                            </label>
+                            <button type="button" class="btn outline" id="btn-test-salawat-sound" style="font-size: 0.72rem; padding: 2px 8px;" title="سماع صوت التذكير">
                                     <i class="fa-solid fa-volume-high text-gold"></i>
                                 </button>
                             </div>
@@ -3499,11 +3513,28 @@
                 '#islamic-stories':'قصص قصة نبي انبياء صحابة',
                 '#mood-compass-section':'حزن قلق خوف طمأنينة سكينة',
                 '#categorized-duas':'دعاء ادعية أدعية',
+                '#islamic-media':'فيديو فيديوهات مرئيات بودكاست موعظة مواعظ استماع',
                 '#daily-wird':'ورد مهام يومي متابعة'
             };
             function clearServicesSearch() { document.getElementById('servicesSearch').value='';filterServices();document.getElementById('servicesSearch').focus(); }
+            function setMoreCategories(open) {
+                const extra=document.getElementById('services-extra-categories');
+                const button=document.getElementById('services-more-categories');
+                if (!extra || !button) return;
+                extra.hidden=!open;
+                button.setAttribute('aria-expanded',String(open));
+                const selected=extra.querySelector('.cat-pill-btn.active');
+                button.classList.toggle('has-active-child', !!selected);
+                button.textContent=open?'إخفاء التصنيفات ▴':('باقي التصنيفات'+(selected?' — '+selected.textContent.trim():' ▾'));
+            }
+            function toggleMoreCategories() {
+                setMoreCategories(document.getElementById('services-extra-categories').hidden);
+            }
             function renderServices() {
                 const query = normalizeServiceSearch(document.getElementById('servicesSearch').value);
+                const dir = document.getElementById('services-directory');
+                dir.classList.toggle('is-filtering', !!query || servicesCategory !== 'all');
+                dir.dataset.activeCategory = servicesCategory;
                 let total = 0;
                 document.querySelectorAll('.category-block').forEach(block => {
                     let count = 0;
@@ -3520,9 +3551,11 @@
                     const active = button.getAttribute('onclick').includes("'" + servicesCategory + "'");
                     button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
                 });
+                const extra=document.getElementById('services-extra-categories');
+                setMoreCategories(!!extra.querySelector('.cat-pill-btn.active') || !extra.hidden);
                 document.getElementById('noResultsBox').style.display = total ? 'none' : 'block';
                 document.getElementById('services-clear-search').hidden=!query;
-                document.getElementById('services-search-results').textContent=query?'نتائج البحث: '+total+' خدمة':'';
+                document.getElementById('services-search-results').textContent=query?'نتائج البحث: '+total+' خدمة':(servicesCategory!=='all'?'الخدمات المتاحة: '+total:'');
             }
             function filterServices() { servicesCategory = 'all'; renderServices(); }
             function filterCategory(category) { servicesCategory = category; document.getElementById('servicesSearch').value = ''; renderServices(); }
@@ -3564,15 +3597,15 @@
         <script src="assets/js/media-data.js?v=2"></script>
         <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
-        <script src="assets/js/native-adhan-service.js?v=11"></script>
-        <script src="assets/js/onesignal-service.js?v=1"></script>
+        <script src="assets/js/native-adhan-service.js?v=12"></script>
+        <script src="assets/js/onesignal-service.js?v=2"></script>
         <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=22"></script>
-        <script src="assets/js/quran.js?v=26"></script>
+    <script src="assets/js/app.js?v=23"></script>
+        <script src="assets/js/quran.js?v=27"></script>
         <script src="assets/js/radio-player.js?v=2"></script>
-    <script src="assets/js/extended-modules.js?v=34"></script>
-        <script src="assets/js/smart-khatma.js?v=2"></script>
+    <script src="assets/js/extended-modules.js?v=36"></script>
+        <script src="assets/js/smart-khatma.js?v=3"></script>
         <script src="assets/js/share-card-generator.js?v=1"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
         <script src="assets/js/smart-tasbih.js?v=1"></script>
@@ -3804,19 +3837,19 @@
                 'prayer-times': 'مواقيت الصلاة والقبلة وساعة الاستجابة 🕌',
                 'prayer-guide-section': 'دليل الصلاة الشامل • صفة صلاة النبي ﷺ 📖',
                 'nearby-mosques-section': 'أقرب المساجد إليك 📍',
-                'mood-compass-section': 'بوصلة القلوب والسكينة الإيمانية 🧭',
+                'mood-compass-section': 'بوصلة القلوب',
                 'azkar': 'أذكار اليوم وحصن المسلم 🤲',
                 'spiritual-garden': 'حديقة الحسنات وشجرة الذكر التفاعلية 🌱',
                 'daily-wird': 'الورد اليومي ومهام المسلم 🌿',
                 'seasons': 'مواسم الخيرات والأيام الفاضلة 🌙',
                 'categorized-duas': 'الأدعية النبوية والقرآنية المصنفة 🤲',
                 'asmaa-allah': 'أسماء الله الحسنى ومعانيها ✨',
-                'islamic-media': 'إذاعات القرآن الكريم والبث الحي 📻',
+                'islamic-media': 'مرئيات وبودكاست',
                 'islamic-stories': 'قصص الأنبياء والصحابة الكرام 📜',
                 'islamic-quiz': 'مسابقة اختبر معلوماتك الدينية 🏆',
                 'zakat-calculator-section': 'حاسبة الزكاة الشرعية الشاملة 🪙',
                 'wall-of-duas': 'حائط الدعاء بظهر الغيب 🌟',
-                'prayers': 'أدعية الزوار وسجل الوفاء 🤍',
+                'prayers': 'أدعية الزوار',
                 'quran': 'فضل الدعاء والصدقة للميت 🤍',
                 'islamic-guide': 'دليل أحكام الجنائز وفضل الصدقة ⚖️',
                 'cemetery-guide': 'دليل زيارة القبور وآدابها الشرعية 🌿',
@@ -3855,8 +3888,14 @@
 
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
+                const params = new URLSearchParams(serviceId.split('?')[1] || '');
+                if (cleanId === 'azkar' && ['morning','evening'].includes(params.get('tab'))) {
+                    document.getElementById('tab-'+params.get('tab'))?.click();
+                }
                 if (cleanId === 'quran-khatma') {
-                    const tab=new URLSearchParams(serviceId.split('?')[1] || '').get('tab');
+                    const page = Number(params.get('page'));
+                    if (Number.isInteger(page) && page>=1 && page<=604 && typeof goToMushafPage==='function') goToMushafPage(page);
+                    const tab=params.get('tab');
                     if (tab === 'mushaf' || tab === 'khatma') document.querySelector('.quran-tab-btn[data-tab="'+tab+'"]')?.click();
                 }
                 if (cleanId === 'nearby-mosques-section') {
@@ -3909,6 +3948,12 @@
                     }
                 }
                 closeServiceFocusView(false);
+            });
+
+            window.addEventListener('hashchange', () => {
+                const id=location.hash.slice(1).split('?')[0];
+                if (document.getElementById(id)?.classList.contains('service-view-section')) openServiceView(location.hash,false);
+                else if (!location.hash) closeServiceFocusView(false);
             });
 
             // تفعيل الخدمة تلقائياً إذا فُتحت الصفحة برابط مباشر يحمل هاش
@@ -3979,6 +4024,6 @@
             });
         </script>
 
-    <script src="assets/js/user-tools.js?v=7"></script>
+    <script src="assets/js/user-tools.js?v=9"></script>
 </body>
 </html>

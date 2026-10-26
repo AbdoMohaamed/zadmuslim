@@ -8,6 +8,11 @@ const NativeAdhanService = {
     isNative: false,
     channelsCreated: false,
 
+    getSalawatAudioUrl() {
+        const voice=this.getNotificationSettings().salawatVoice;
+        return 'assets/audio/' + ({voice1:'salawat-1',voice2:'salawat-2'}[voice] || 'salawat') + '.mp3';
+    },
+
     async init() {
         // التحقق مما إذا كان التطبيق يعمل كـ Native App (Capacitor)
         if (typeof window !== "undefined" && window.Capacitor && window.Capacitor.isNativePlatform()) {
@@ -59,6 +64,8 @@ const NativeAdhanService = {
                 { id: "adhan_fajr", name: "أذان الفجر المخصوص", sound: "adhan_fajr", importance: 5 },
                 { id: "daily_adhkar", name: "أذكار الصباح والمساء وسورة الكهف", sound: null, importance: 4 },
                 { id: "hourly_salawat", name: "تذكير الصلاة على النبي ﷺ", sound: "salawat", importance: 4 },
+                { id: "hourly_salawat_voice1", name: "الصلاة على النبي ﷺ — الصوت الأول", sound: "salawat_1", importance: 4 },
+                { id: "hourly_salawat_voice2", name: "الصلاة على النبي ﷺ — الصوت الثاني", sound: "salawat_2", importance: 4 },
                 { id: "hourly_salawat_silent", name: "تذكير الصلاة على النبي ﷺ (بدون صوت)", sound: null, importance: 3 },
                 { id: "zad_cloud_broadcast_channel", name: "إشعارات ورسائل زاد المسلم العامة", sound: null, importance: 4 }
             ];
@@ -175,7 +182,9 @@ const NativeAdhanService = {
         if (settings.sleep) daily(73000,'sleep_azkar','أذكار النوم','باسمك ربي وضعت جنبي وبك أرفعه',settings.sleepTime);
         if (settings.friday !== false) daily(72000,'friday_kahf','جمعة مباركة','تذكير بسورة الكهف والصلاة على النبي ﷺ','09:00',6);
         if (settings.fasting) for (const day of [1,4]) daily(74000+day,'fasting','تذكير بالصيام','غدًا موعد صيام الإثنين أو الخميس','20:00',day);
-        if (settings.hourlySalawat !== false) list.push({id:80001,title:'ﷺ صلِّ على النبي',body:'اللهم صلِّ وسلِّم وبارك على نبينا محمد ﷺ',sound:settings.salawatSound !== false ? 'salawat.mp3':null,channelId:settings.salawatSound !== false ? 'hourly_salawat':'hourly_salawat_silent',extra:{type:'hourly_salawat'},schedule:{every:'minute',count:settings.salawatInterval,allowWhileIdle:true}});
+        const salawatStem = {voice1:'salawat_1',voice2:'salawat_2'}[settings.salawatVoice] || 'salawat';
+        const salawatChannel = {voice1:'hourly_salawat_voice1',voice2:'hourly_salawat_voice2'}[settings.salawatVoice] || 'hourly_salawat';
+        if (settings.hourlySalawat !== false) list.push({id:80001,title:'ﷺ صلِّ على النبي',body:'اللهم صلِّ وسلِّم وبارك على نبينا محمد ﷺ',sound:settings.salawatSound !== false ? salawatStem + (window.Capacitor?.getPlatform?.()==='ios' ? '.wav' : '.mp3'):null,channelId:settings.salawatSound !== false ? salawatChannel:'hourly_salawat_silent',extra:{type:'hourly_salawat'},schedule:{every:'minute',count:settings.salawatInterval,allowWhileIdle:true}});
         if (window.Capacitor?.getPlatform?.() === 'android') {
             const plugin = window.Capacitor.Plugins.AdhanNative;
             if (!plugin?.scheduleReminders) throw new Error('حدّث تطبيق الهاتف لتفعيل التذكيرات المستمرة');
@@ -435,6 +444,7 @@ const NativeAdhanService = {
             const value = Number(settings[key]);
             settings[key] = Number.isInteger(value) && value > 0 && value <= 1440 ? value : defaults[key];
         }
+        settings.salawatVoice = ["voice1","voice2"].includes(settings.salawatVoice) ? settings.salawatVoice : "default";
         return settings;
     },
 
@@ -608,7 +618,7 @@ const NativeAdhanService = {
             return { success: true };
         }
         try {
-            const audio = new Audio("assets/audio/salawat.mp3?v=" + Date.now());
+            const audio = new Audio(this.getSalawatAudioUrl());
             audio.volume = 1.0;
             await audio.play();
             return { success: true };

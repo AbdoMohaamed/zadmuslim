@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A5A100000000000000000006 /* salawat_2.wav in Resources */ = {isa = PBXBuildFile; fileRef = A5A100000000000000000005 /* salawat_2.wav */; };
+		A5A100000000000000000004 /* salawat_1.wav in Resources */ = {isa = PBXBuildFile; fileRef = A5A100000000000000000003 /* salawat_1.wav */; };
+		A5A100000000000000000002 /* salawat.wav in Resources */ = {isa = PBXBuildFile; fileRef = A5A100000000000000000001 /* salawat.wav */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
@@ -33,6 +36,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A5A100000000000000000005 /* salawat_2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = salawat_2.wav; sourceTree = "<group>"; };
+		A5A100000000000000000003 /* salawat_1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = salawat_1.wav; sourceTree = "<group>"; };
+		A5A100000000000000000001 /* salawat.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = salawat.wav; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -115,6 +121,9 @@
 				95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */,
 				95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */,
 				95SW00012DB07C7200EA8C01 /* salawat.mp3 */,
+				A5A100000000000000000005 /* salawat_2.wav */,
+				A5A100000000000000000003 /* salawat_1.wav */,
+				A5A100000000000000000001 /* salawat.wav */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -204,6 +213,9 @@
 				95PR000A2DB07C7200EA8C01 /* pre_isha.mp3 in Resources */,
 				95PR000C2DB07C7200EA8C01 /* pre_prayer.mp3 in Resources */,
 				95SW00022DB07C7200EA8C01 /* salawat.mp3 in Resources */,
+				A5A100000000000000000006 /* salawat_2.wav in Resources */,
+				A5A100000000000000000004 /* salawat_1.wav in Resources */,
+				A5A100000000000000000002 /* salawat.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

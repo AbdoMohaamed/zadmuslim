@@ -1,3 +1,4 @@
+require('./sync-salawat-sounds.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');

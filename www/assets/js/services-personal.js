@@ -17,8 +17,8 @@
   let recent=validList(read('zad_services_recent',[])).slice(0,3);
   let hideRecent=read('zad_services_recent_hidden',false)===true;
   const area=document.createElement('div');area.className='services-personal';area.id='services-personal';
-  area.innerHTML='<div id="services-resume" hidden></div><section id="services-favorites" hidden aria-label="خدماتك المفضلة"><h2>مفضلتك</h2><div class="services-personal-links"></div></section><section id="services-recent" hidden aria-label="آخر الخدمات"><div class="services-personal-heading"><h2>استخدمتها مؤخرًا</h2><button type="button" id="services-hide-recent">إخفاء</button></div><div class="services-personal-links"></div></section><div class="services-personal-tools"><button type="button" id="services-show-recent" hidden>إظهار آخر الخدمات</button><span id="services-offline-count"></span></div><p id="services-personal-status" role="status" aria-live="polite"></p>';
-  (directory.querySelector('#services-search-results') || directory.querySelector('.services-search-wrapper')).after(area);
+  area.innerHTML='<section id="services-favorites" hidden aria-label="خدماتك المفضلة"><h2>مفضلتك</h2><div class="services-personal-links"></div></section><section id="services-recent" hidden aria-label="آخر الخدمات"><div class="services-personal-heading"><h2>استخدمتها مؤخرًا</h2><button type="button" id="services-hide-recent">إخفاء</button></div><div class="services-personal-links"></div></section><div class="services-personal-tools"><button type="button" id="services-show-recent" hidden>إظهار آخر الخدمات</button><span id="services-offline-count"></span></div><p id="services-personal-status" role="status" aria-live="polite"></p>';
+  (directory.querySelector('.category-filter-pills') || directory.querySelector('#services-search-results') || directory.querySelector('.services-search-wrapper')).after(area);
   const $=id=>document.getElementById(id);
   const say=text=>{$('services-personal-status').textContent=text;};
   const title=id=>byId.get(id).querySelector('h3').textContent.trim();
@@ -40,7 +40,13 @@
     favorites=next;render();say(favorites.includes(id)?'تمت الإضافة إلى مفضلتك.':'تمت الإزالة من المفضلة.');};wrap.append(button);
   }
   function resume(){
-   const box=$('services-resume');box.replaceChildren();box.hidden=true;
+    let box=$('services-resume');
+    if(!box){
+      box=document.createElement('div');box.id='services-resume';box.hidden=true;
+      const qBlock=document.querySelector('.category-block[data-category="القرآن الكريم"]');
+      if(qBlock){const g=qBlock.querySelector('.services-grid');if(g)g.before(box);else qBlock.append(box);}
+      else{const p=$('services-personal');if(p)p.prepend(box);}
+    }box.replaceChildren();box.hidden=true;
    if(savedReading&&Number.isInteger(savedReading.pageNumber)&&savedReading.pageNumber>=1&&savedReading.pageNumber<=604){
     const button=document.createElement('button');button.type='button';button.className='services-resume-button';
     const textWrap=document.createElement('div');textWrap.className='services-resume-text';

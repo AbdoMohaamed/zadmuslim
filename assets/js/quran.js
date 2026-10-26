@@ -623,38 +623,44 @@ function setupGoldenTheme() {
 function setupTouchSwipe() {
     const viewport = document.getElementById("golden-mushaf-viewport");
     if (!viewport) return;
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    viewport.addEventListener("touchstart", (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    viewport.addEventListener("touchend", (e) => {
-        const diffX = e.changedTouches[0].clientX - touchStartX;
-        const diffY = e.changedTouches[0].clientY - touchStartY;
-
-        // تجاهل التمرير العمودي
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
-            if (diffX > 0) {
-                // سحب لليمين -> تقدم بالصفحة (التالي)
-                if (currentPageNumber < TOTAL_MUSHAF_PAGES) {
-                    goToMushafPage(currentPageNumber + 1);
-                } else if (typeof showToast === "function") {
-                    showToast("أنت الآن في الصفحة الأخيرة من المصحف الشريف 🌿");
-                }
-            } else {
-                // سحب لليسار -> رجوع بالصفحة (السابق)
-                if (currentPageNumber > 1) {
-                    goToMushafPage(currentPageNumber - 1);
-                } else if (typeof showToast === "function") {
-                    showToast("أنت الآن في أول صفحة من المصحف الشريف (سورة الفاتحة) 🌿");
-                }
-            }
+    let start = null;
+    let suppressClickUntil = 0;
+    const zoomed = () => {
+        let scale = window.visualViewport?.scale || 1;
+        try { scale = Math.max(scale, window.top.visualViewport?.scale || 1); } catch {}
+        return scale > 1.05;
+    };
+    viewport.addEventListener("touchstart", e => {
+        if (e.touches.length !== 1 || zoomed()) {
+            start = null;
+            suppressClickUntil = Date.now() + 700;
+            return;
         }
+        start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }, { passive: true });
+    viewport.addEventListener("touchmove", e => {
+        if (e.touches.length !== 1 || zoomed()) start = null;
+    }, { passive: true });
+    viewport.addEventListener("touchcancel", () => { start = null; }, { passive: true });
+    viewport.addEventListener("touchend", e => {
+        const origin = start;
+        start = null;
+        if (!origin || e.touches.length || !e.changedTouches.length || zoomed()) return;
+        const dx = e.changedTouches[0].clientX - origin.x;
+        const dy = e.changedTouches[0].clientY - origin.y;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) > 10) suppressClickUntil = Date.now() + 700;
+        if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        const base = isDualPageMode() ? currentPageNumber - (currentPageNumber % 2 === 0 ? 1 : 0) : currentPageNumber;
+        const step = isDualPageMode() ? 2 : 1;
+        goToMushafPage(Math.max(1, Math.min(TOTAL_MUSHAF_PAGES, base + (dx > 0 ? step : -step))));
+    }, { passive: true });
+    // Swipes and pinch gestures must not also activate the edge tap zones.
+    viewport.addEventListener("click", e => {
+        if (Date.now() < suppressClickUntil || zoomed()) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }, true);
 }
 
 // التنقل بمفاتيح الأسهم على أجهزة الكمبيوتر
@@ -928,10 +934,12 @@ function initKhatmaTabs() {
 
 // إعادة ضبط العرض تلقائياً عند تغيير مقاس الشاشة بين وضع الصفحة المزدوجة والمفردة
 let goldenResizeDebounce = null;
+let goldenLastDualMode = isDualPageMode();
 window.addEventListener("resize", () => {
     clearTimeout(goldenResizeDebounce);
     goldenResizeDebounce = setTimeout(() => {
-        if (typeof currentPageNumber === "number" && currentPageNumber >= 1) {
+        if (goldenLastDualMode !== isDualPageMode() && typeof currentPageNumber === "number" && currentPageNumber >= 1) {
+            goldenLastDualMode = isDualPageMode();
             goToMushafPage(currentPageNumber);
         }
     }, 150);
@@ -941,90 +949,49 @@ window.addEventListener("resize", () => {
 // 1. وضع ملء الشاشة الكامل (Fullscreen Mode)
 // ==========================================================================
 function setupGoldenFullScreen() {
-    const btnFs = document.getElementById("golden-btn-fullscreen");
-    const iconFs = document.getElementById("golden-fullscreen-icon");
+    const button = document.getElementById("golden-btn-fullscreen");
+    const icon = document.getElementById("golden-fullscreen-icon");
     const wrapper = document.getElementById("golden-quran-wrapper");
-    if (!btnFs || !wrapper) return;
-
-    let toastTimer = null;
-
-    const showArabicFullscreenToast = () => {
-        let toast = document.getElementById("golden-fullscreen-arabic-toast");
-        if (!toast) {
-            toast = document.createElement("div");
-            toast.id = "golden-fullscreen-arabic-toast";
-            toast.className = "golden-fullscreen-arabic-toast";
-            toast.innerHTML = `
-                <i class="fa-solid fa-expand text-gold"></i>
-                <span>وضع ملء الشاشة للمصحف الشريف ⛶</span>
-                <span class="fs-toast-action">اسحب لأسفل أو انقر هنا للخروج</span>
-            `;
-            toast.addEventListener("click", () => {
-                exitFs();
-            });
-            wrapper.appendChild(toast);
-        }
-
-        clearTimeout(toastTimer);
-        // إعادة تفعيل الأنيميشن
-        toast.classList.remove("is-visible");
-        void toast.offsetWidth;
-        toast.classList.add("is-visible");
-
-        toastTimer = setTimeout(() => {
-            if (toast) toast.classList.remove("is-visible");
-        }, 3800);
+    if (!button || !wrapper) return;
+    let placeholder = null;
+    let previousOverflow = "";
+    const updateHeight = () => {
+        if (!placeholder || (window.visualViewport?.scale || 1) > 1.05) return;
+        wrapper.style.setProperty("--mushaf-screen-height", (window.visualViewport?.height || window.innerHeight) + "px");
     };
-
-    const enterFs = () => {
+    const exit = () => {
+        if (!placeholder) return;
+        placeholder.replaceWith(wrapper);
+        placeholder = null;
+        wrapper.classList.remove("is-fullscreen", "is-immersive");
+        wrapper.style.removeProperty("--mushaf-screen-height");
+        document.body.style.overflow = previousOverflow;
+        button.setAttribute("aria-pressed", "false");
+        button.setAttribute("aria-label", "ملء الشاشة");
+        if (icon) icon.className = "fa-solid fa-expand";
+        button.focus({ preventScroll: true });
+    };
+    button.addEventListener("click", () => {
+        if (placeholder) return exit();
+        placeholder = document.createComment("mushaf fullscreen origin");
+        wrapper.before(placeholder);
+        // Escape transformed/clipped service containers on mobile browsers.
+        document.body.appendChild(wrapper);
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        wrapper.classList.remove("is-immersive");
         wrapper.classList.add("is-fullscreen");
-        if (iconFs) iconFs.className = "fa-solid fa-compress";
-        showArabicFullscreenToast();
-    };
-
-    const exitFs = () => {
-        wrapper.classList.remove("is-fullscreen");
-        if (iconFs) iconFs.className = "fa-solid fa-expand";
-        const toast = document.getElementById("golden-fullscreen-arabic-toast");
-        if (toast) toast.classList.remove("is-visible");
-        if (typeof showToast === "function") showToast("تم الخروج من ملء الشاشة");
-    };
-
-    const toggleFs = () => {
-        if (!wrapper.classList.contains("is-fullscreen")) {
-            enterFs();
-        } else {
-            exitFs();
-        }
-    };
-
-    btnFs.addEventListener("click", toggleFs);
-
-    // دعم إيماءة السحب لأسفل من أعلى الشاشة للخروج من وضع ملء الشاشة (Swipe down to exit)
-    let touchStartY = 0;
-    wrapper.addEventListener("touchstart", (e) => {
-        if (wrapper.classList.contains("is-fullscreen") && e.touches.length === 1) {
-            touchStartY = e.touches[0].clientY;
-        }
-    }, { passive: true });
-
-    wrapper.addEventListener("touchend", (e) => {
-        if (wrapper.classList.contains("is-fullscreen") && touchStartY > 0 && touchStartY < 120) {
-            const touchEndY = e.changedTouches[0].clientY;
-            // سحب لأسفل بأكثر من 50 بكسل من أعلى الشاشة
-            if (touchEndY - touchStartY > 50) {
-                exitFs();
-            }
-        }
-        touchStartY = 0;
-    }, { passive: true });
-
-    // الخروج بالضغط على زر Escape في لوحة المفاتيح
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && wrapper.classList.contains("is-fullscreen")) {
-            exitFs();
-        }
+        button.setAttribute("aria-pressed", "true");
+        button.setAttribute("aria-label", "الخروج من ملء الشاشة");
+        if (icon) icon.className = "fa-solid fa-compress";
+        updateHeight();
     });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") exit(); });
+    window.addEventListener("hashchange", exit);
+    window.addEventListener("popstate", exit);
+    document.addEventListener("zad:services-return", exit);
+    window.addEventListener("resize", updateHeight);
+    window.visualViewport?.addEventListener("resize", updateHeight);
 }
 
 // ==========================================================================
@@ -1041,7 +1008,7 @@ function setupGoldenImmersiveMode() {
             e.target.closest(".golden-page-ribbon")) {
             return;
         }
-        wrapper.classList.toggle("is-immersive");
+        if (!wrapper.classList.contains("is-fullscreen")) wrapper.classList.toggle("is-immersive");
     });
 }
 

@@ -10,5 +10,6 @@
       "smallIcon": "ic_stat_icon",
       "iconColor": "#d4af37"
     }
-  }
+  },
+  "zoomEnabled": true
 }

@@ -8,6 +8,22 @@
     const STORAGE_KEY = 'zadmuslim-theme';
     const LEGACY_STORAGE_KEY = 'sadqah_theme';
 
+    // كشف فوري لمنصة التشغيل (iOS / Android / Capacitor) لضبط الرأس والحواف الآمنة فوراً بدون تأخير
+    try {
+        const ua = (typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '';
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (typeof navigator !== 'undefined' && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isAndroid = /Android/i.test(ua) || (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android');
+
+        if (isIOS) {
+            document.documentElement.classList.add('ios-device');
+        } else if (isAndroid) {
+            document.documentElement.classList.add('android-device');
+        }
+        if (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            document.documentElement.classList.add('capacitor-native-app');
+        }
+    } catch(e) {}
+
     /**
      * قراءة المظهر وتحديده بأمان:
      * 1. التحقق من التفضيل المحفوظ تحت 'zadmuslim-theme'

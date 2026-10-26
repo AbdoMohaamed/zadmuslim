@@ -355,7 +355,7 @@
                 const meta = serviceMeta[id] || { fi: '✨', title: name, desc: 'الوصول السريع إلى قسم ' + name };
                 const card = document.createElement('a');
                 card.className = 'feature';
-                card.href = id === 'tasbeeh' ? '#smart-dhikr-panel' : (id === 'sadaqa' ? '#sadaqa' : 'services.html#' + id);
+                card.href = id === 'tasbeeh' ? '#smart-dhikr-panel' : (id === 'sadaqa' ? '#sadaqa' : 'services.html#' + id + (id === 'quran-khatma' ? '?tab=mushaf' : ''));
                 card.dataset.service = id;
                 card.innerHTML = `
                     <div class="fi">${meta.fi}</div>
@@ -497,6 +497,8 @@
         const dhikrVis = isVisible('smart_dhikr');
 
         if (journeyPanel) journeyPanel.style.display = journeyVis ? '' : 'none';
+        const nextPrayerPanel = $('home-next-prayer');
+        if (nextPrayerPanel) nextPrayerPanel.style.display = journeyVis ? '' : 'none';
         if (dhikrPanel) dhikrPanel.style.display = dhikrVis ? '' : 'none';
 
         if (dailyHead) dailyHead.style.display = (!journeyVis && !dhikrVis) ? 'none' : '';
@@ -1194,6 +1196,29 @@
         });
     }
 
+    function revealHomeDestination() {
+        if (!document.getElementById('home')) return;
+        const id = location.hash.slice(1).split('?')[0];
+        if (!['home','daily','services','sadaqa','smart-dhikr-panel','daily-wird'].includes(id)) return;
+        const target = document.getElementById(id);
+        if (!target) return;
+        for (let el=target; el && el!==document.body; el=el.parentElement) {
+            if (el.style.display === 'none') el.style.removeProperty('display');
+        }
+        if (id==='daily') {
+            document.querySelector('.dashboard')?.style.removeProperty('display');
+            document.getElementById('daily-journey-panel')?.style.removeProperty('display');
+        }
+        target.scrollIntoView({block:'start'});
+    }
+    window.addEventListener('hashchange', revealHomeDestination);
+    document.addEventListener('click', event => {
+        const link=event.target.closest?.('a[href^="#"]');
+        if (link && link.hash===location.hash) revealHomeDestination();
+    });
+    if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', revealHomeDestination);
+    else revealHomeDestination();
+
     root.ZadHomeSections = {
         HOME_SECTIONS,
         getHomeSectionsConfig,
@@ -1219,6 +1244,7 @@
         }
     };
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-    else init();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { init(); revealHomeDestination(); });
+    else { init(); revealHomeDestination(); }
+    window.addEventListener('pageshow', () => setTimeout(revealHomeDestination, 0));
 })(typeof window === 'undefined' ? globalThis : window);

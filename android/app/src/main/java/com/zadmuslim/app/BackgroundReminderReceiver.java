@@ -43,13 +43,14 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
     private static void ensureChannels(Context c) {
         if(Build.VERSION.SDK_INT < 26) return;
         NotificationManager manager=(NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE);
-        String[] ids={"daily_adhkar","hourly_salawat","hourly_salawat_silent"};
-        String[] names={"أذكار وتذكيرات يومية","الصلاة على النبي ﷺ","الصلاة على النبي ﷺ بدون صوت"};
+        String[] ids={"daily_adhkar","hourly_salawat","hourly_salawat_silent","hourly_salawat_voice1","hourly_salawat_voice2"};
+        String[] names={"أذكار وتذكيرات يومية","الصلاة على النبي ﷺ","الصلاة على النبي ﷺ بدون صوت","الصلاة على النبي ﷺ — الصوت الأول","الصلاة على النبي ﷺ — الصوت الثاني"};
+        String[] sounds={null,"salawat",null,"salawat_1","salawat_2"};
         for(int i=0;i<ids.length;i++) {
             if(manager.getNotificationChannel(ids[i])!=null) continue;
             NotificationChannel channel=new NotificationChannel(ids[i],names[i],NotificationManager.IMPORTANCE_HIGH);
             channel.enableVibration(true);
-            channel.setSound(i==1 ? android.net.Uri.parse("android.resource://"+c.getPackageName()+"/raw/salawat") : null,
+            channel.setSound(sounds[i]!=null ? android.net.Uri.parse("android.resource://"+c.getPackageName()+"/raw/"+sounds[i]) : null,
                 new android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION).build());
             manager.createNotificationChannel(channel);
         }
@@ -87,6 +88,11 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
                 NotificationCompat.Builder builder=new NotificationCompat.Builder(c,rule.optString("channelId","daily_adhkar"))
                     .setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(rule.getString("title")).setContentText(rule.getString("body"))
                     .setAutoCancel(true).setVisibility(NotificationCompat.VISIBILITY_PUBLIC).setPriority(NotificationCompat.PRIORITY_HIGH);
+                if(Build.VERSION.SDK_INT < 26) {
+                    String sound=rule.optString("sound", "").replace(".mp3", "");
+                    if(sound.equals("salawat") || sound.equals("salawat_1") || sound.equals("salawat_2"))
+                        builder.setSound(android.net.Uri.parse("android.resource://"+c.getPackageName()+"/raw/"+sound));
+                }
                 if(launch!=null) builder.setContentIntent(PendingIntent.getActivity(c,rule.getInt("id"),launch,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
                 ((NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE)).notify(rule.getInt("id"),builder.build());
             }

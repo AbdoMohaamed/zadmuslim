@@ -140,7 +140,7 @@ test('home shortcuts resolve to real sections and notifications deep link opens 
             const target=new URL(link.href);
             assert.ok(['/index.html','/services.html'].includes(target.pathname));
             const html=fs.readFileSync(path.join(root,target.pathname),'utf8');
-            assert.ok(html.includes('id="'+target.hash.slice(1)+'"'),id+' destination exists');
+            assert.ok(html.includes('id="'+target.hash.slice(1).split('?')[0]+'"'),id+' destination exists');
             assert.equal(link.onclick,null,'normal links support native browser navigation');
         }
         assert.equal(d.querySelector('a[href*="app.html"]'),null);
@@ -358,12 +358,12 @@ test('radio starts with Cairo, preserves station on failure, and exposes accessi
  assert.equal(errors.length,0);dom.window.close();
 });
 
-test('services search resets category and zakat lives with charity',async()=>{
+test('services search resets category and zakat has its own category',async()=>{
  const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;
  w.filterCategory('الصلاة');d.getElementById('servicesSearch').value='قصص';w.filterServices();
- assert.match(d.querySelector('.cat-pill-btn.active').textContent,/جميع/);
+ assert.equal(d.querySelector('.cat-pill-btn.active').dataset.categoryFilter,'all');
  assert.equal(d.querySelector('[data-category="المعرفة الإسلامية"]').style.display,'block');
- assert.equal(d.querySelector('a[href="#zakat-calculator-section"]').closest('.category-block').dataset.category,'الزكاة والصدقة');
+ assert.equal(d.querySelector('a[href="#zakat-calculator-section"]').closest('.category-block').dataset.category,'الزكاة');
  assert.equal(d.querySelector('.services-search-hint'),null);assert.deepEqual(errors,[]);w.close();
 });
 test('services open correct Quran tabs and radio, and restore directory position',async()=>{
@@ -384,7 +384,7 @@ test('direct khatma link selects the group tab',async()=>{
 test('personal services start quiet, pin up to four and keep controls separate from links',async()=>{
  const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;
  assert.equal(d.getElementById('services-resume').hidden,true);assert.equal(d.getElementById('services-favorites').hidden,true);assert.equal(d.getElementById('services-recent').hidden,true);
- const stars=[...d.querySelectorAll('.service-favorite')];assert.equal(stars.length,21);assert.equal(d.querySelector('.service-card button'),null);
+ const stars=[...d.querySelectorAll('.service-favorite')];assert.equal(stars.length,22);assert.equal(d.querySelector('.service-card button'),null);
  stars.slice(0,5).forEach(b=>b.click());assert.equal(JSON.parse(w.localStorage.getItem('zad_services_favorites')).length,4);assert.match(d.getElementById('services-personal-status').textContent,/4/);
  assert.equal(d.body.classList.contains('single-service-mode'),false);
  stars[0].click();assert.equal(JSON.parse(w.localStorage.getItem('zad_services_favorites')).length,3);
@@ -436,4 +436,41 @@ test('single service has one return control and preserves directory position',as
  assert.equal(d.querySelectorAll('button[onclick="closeServiceFocusView(true)"]').length,1);assert.equal(d.getElementById('floatingBackToServices'),null);assert.equal(d.getElementById('serviceFocusBottomBar'),null);
  const back=d.getElementById('btnServiceFocusBack');assert.equal(back.textContent.trim(),'رجوع للخدمات');back.click();await new Promise(r=>setTimeout(r,35));
  assert.equal(d.body.classList.contains('services-hub-mode'),true);assert.equal(d.getElementById('serviceFocusHeader').style.display,'none');assert.equal(restored,510);assert.match(d.querySelector('.cat-pill-btn.active').textContent,/الصلاة/);assert.deepEqual(errors,[]);w.close();
+});
+
+
+test('every home local page link resolves, including the deceased guide and Quran tab',async()=>{
+ const {dom,errors}=await load('index.html');const d=dom.window.document;
+ for(const link of d.querySelectorAll('a[href]')){const url=new URL(link.href);if(url.origin!=='http://localhost:4173'||!url.hash||url.hash==='#')continue;const file=path.join(root,url.pathname);if(!fs.existsSync(file))continue;const target=new JSDOM(fs.readFileSync(file,'utf8'));assert.ok(target.window.document.getElementById(url.hash.slice(1).split('?')[0]),link.textContent+' '+url.href);target.window.close();}
+ assert.deepEqual(errors,[]);dom.window.close();
+});
+test('service hash navigation opens hidden sections and selects Quran pages and azkar tabs',async()=>{
+ const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;
+ for(const [hash,id]of [['#islamic-guide','islamic-guide'],['#daily-wird','daily-wird'],['#quran-khatma?tab=mushaf&page=293','quran-khatma'],['#azkar?tab=evening','azkar']]){
+ w.location.hash=hash;await new Promise(r=>setTimeout(r,40));assert.ok(d.getElementById(id).classList.contains('active-service-view'));
+ if(id==='quran-khatma'){assert.equal(d.getElementById('subpart-mushaf').classList.contains('is-hidden'),false);assert.match(d.getElementById('mushaf-real-page-img-right').src,/293\.svg/);}
+ if(id==='azkar')assert.ok(d.getElementById('tab-evening').classList.contains('active'));
+ }
+ assert.deepEqual(errors,[]);w.close();
+});
+test('all timed home reminder actions navigate to current service routes',async()=>{
+ const {dom,errors}=await load('index.html');const w=dom.window,NativeDate=w.Date;let destination;w.zadNavigate=url=>destination=url;
+ const cases=[[30,12,'quran-khatma?tab=mushaf&page=293'],[26,10,'prayer-times'],[25,20,'azkar'],[27,3,'categorized-duas'],[27,6,'azkar?tab=morning'],[27,9,'prayer-guide-section'],[27,12,'quran-khatma?tab=mushaf'],[27,16,'azkar?tab=evening'],[27,19,'smart-dhikr-panel'],[27,22,'quran-khatma?tab=mushaf&page=562']];
+ for(const [day,hour,expected]of cases){const stamp=new NativeDate(2026,9,day,hour).getTime();w.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[stamp]));}};w.initSmartTimelyReminders();w.document.getElementById('btn-reminder-act').click();assert.equal(destination.split('#')[1],expected);}
+ assert.deepEqual(errors,[]);w.close();
+});
+test('a direct home shortcut reveals a hidden section without altering preferences',async()=>{
+ const config=JSON.stringify({smart_dhikr:false,daily_journey:false});const {dom,errors}=await load('index.html',{url:'http://localhost:4173/index.html#smart-dhikr-panel',storage:{zad_home_sections:config}});const w=dom.window,d=w.document;await new Promise(r=>setTimeout(r,30));assert.notEqual(d.getElementById('smart-dhikr-panel').style.display,'none');assert.notEqual(d.querySelector('.dashboard').style.display,'none');assert.equal(w.localStorage.getItem('zad_home_sections'),config);assert.deepEqual(errors,[]);w.close();
+});
+
+test('secondary categories collapse initially, stay searchable and reopen for a restored selection',async()=>{
+ const {dom,errors}=await load('services.html');const w=dom.window,d=w.document,extra=d.getElementById('services-extra-categories'),toggle=d.getElementById('services-more-categories');
+ assert.equal(extra.hidden,true);assert.equal(d.querySelectorAll('.category-filter-pills > .cat-pill-btn').length,5);
+ toggle.click();assert.equal(extra.hidden,false);assert.equal(toggle.getAttribute('aria-expanded'),'true');toggle.click();assert.equal(extra.hidden,true);
+ d.getElementById('servicesSearch').value='مواسم';w.filterServices();assert.equal(d.querySelector('a[href="#seasons"]').style.display,'flex');assert.equal(extra.hidden,true);
+ w.filterCategory('المواسم والتقويم');assert.equal(extra.hidden,false);d.querySelector('a[href="#seasons"]').click();w.closeServiceFocusView();await new Promise(r=>setTimeout(r,35));assert.equal(extra.hidden,false);assert.equal(d.querySelector('.cat-pill-btn.active').dataset.categoryFilter,'المواسم والتقويم');assert.deepEqual(errors,[]);w.close();
+});
+
+test('salawat voice selection persists, drives preview and reschedules native reminders',async()=>{
+ const {dom,errors}=await load('settings.html',{storage:{smart_notify_settings:JSON.stringify({salawatVoice:'voice1'})}});const w=dom.window,d=w.document;assert.equal(d.getElementById('select-salawat-voice').value,'voice1');let calls=0;w.NativeAdhanService.scheduleLocalNotifications=async()=>{calls++;return {success:true};};const select=d.getElementById('select-salawat-voice');select.value='voice2';select.dispatchEvent(new w.Event('change',{bubbles:true}));await new Promise(r=>setTimeout(r,50));assert.equal(JSON.parse(w.localStorage.getItem('smart_notify_settings')).salawatVoice,'voice2');d.getElementById('btn-test-salawat-sound').click();await new Promise(r=>setImmediate(r));assert.match(d.getElementById('audio-salawat-preview').src,/salawat-2\.mp3/);assert.ok(calls>0);assert.deepEqual(errors,[]);w.close();
 });

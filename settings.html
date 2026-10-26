@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- ملفات التنسيق -->
-    <link rel="stylesheet" href="assets/css/style.css?v=96">
+    <link rel="stylesheet" href="assets/css/style.css?v=100">
     <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
     
     <style>
@@ -458,7 +458,7 @@
     <script src="assets/js/theme-controller.js"></script>
 <link rel="stylesheet" href="assets/css/settings-review.css?v=2">
 <script defer src="assets/js/settings-review.js?v=1"></script>
-<script src="assets/js/radio-navigation.js?v=2"></script>
+<script src="assets/js/radio-navigation.js?v=3"></script>
 <link rel="icon" type="image/png" href="assets/icon-192.png?v=2">
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
@@ -715,8 +715,15 @@
                                 <span>🔊 تشغيل الصوت</span>
                             </label>
 
+                            <label for="select-salawat-voice">صوت التذكير:
+                                <select id="select-salawat-voice" class="azkar-time-input" style="max-width:100%;min-height:44px">
+                                    <option value="default">الصوت الافتراضي</option>
+                                    <option value="voice1">الصوت الأول</option>
+                                    <option value="voice2">الصوت الثاني</option>
+                                </select>
+                            </label>
                             <button type="button" class="btn outline" id="btn-test-salawat-sound" style="font-size: 0.78rem; padding: 4px 10px;" title="سماع صوت التذكير">
-                                <i class="fa-solid fa-volume-high text-gold"></i> <span id="btn-test-salawat-text">تجربة الصوت</span>
+                                <i class="fa-solid fa-volume-high text-gold"></i> <span id="btn-test-salawat-text">سماع</span>
                             </button>
                         </div>
                     </div>
@@ -973,8 +980,8 @@
     <audio id="audio-salawat-preview" preload="none"></audio>
 
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/native-adhan-service.js?v=11"></script>
-    <script src="assets/js/user-tools.js?v=7"></script>
+    <script src="assets/js/native-adhan-service.js?v=12"></script>
+    <script src="assets/js/user-tools.js?v=9"></script>
 
     <!-- سكربت التحكم في إعدادات التنبيهات والأذان والمعاينة الصوتية -->
     <script>
@@ -1001,6 +1008,7 @@
             const timeSleep = document.getElementById('time-sleep-azkar');
             const chkSalawat = document.getElementById('notify-hourly-salawat');
             const selectSalawat = document.getElementById('select-salawat-interval');
+            const selectSalawatVoice = document.getElementById('select-salawat-voice');
             const chkSalawatSound = document.getElementById('notify-salawat-sound');
             const btnTestSalawat = document.getElementById('btn-test-salawat-sound');
             const btnTestSalawatText = document.getElementById('btn-test-salawat-text');
@@ -1034,6 +1042,7 @@
                     if (chkSalawat) chkSalawat.checked = settings.hourlySalawat !== false;
                     if (selectSalawat && settings.salawatInterval) selectSalawat.value = String(settings.salawatInterval);
                     if (chkSalawatSound) chkSalawatSound.checked = settings.salawatSound !== false;
+                    if (selectSalawatVoice) selectSalawatVoice.value = ['voice1','voice2'].includes(settings.salawatVoice) ? settings.salawatVoice : 'default';
 
                     if (chkFriday) chkFriday.checked = settings.friday === true;
                     if (chkFasting) chkFasting.checked = settings.fasting === true;
@@ -1076,6 +1085,7 @@
                     hourlySalawat: chkSalawat ? chkSalawat.checked : true,
                     salawatInterval: selectSalawat ? parseInt(selectSalawat.value, 10) : 60,
                     salawatSound: chkSalawatSound ? chkSalawatSound.checked : true,
+                    salawatVoice: selectSalawatVoice?.value || 'default',
                     friday: chkFriday ? chkFriday.checked : false,
                     fasting: chkFasting ? chkFasting.checked : false
                 };
@@ -1131,7 +1141,7 @@
                 chkMorning, timeMorning,
                 chkEvening, timeEvening,
                 chkSleep, timeSleep,
-                chkSalawat, selectSalawat, chkSalawatSound,
+                chkSalawat, selectSalawat, selectSalawatVoice, chkSalawatSound,
                 chkFriday, chkFasting,
                 ...prayerToggles
             ].filter(Boolean);
@@ -1201,29 +1211,35 @@
                 };
             }
 
+            selectSalawatVoice?.addEventListener('change', () => {
+                audioSalawat?.pause();
+                if (audioSalawat) audioSalawat.currentTime=0;
+                if (btnTestSalawatText) btnTestSalawatText.textContent='سماع';
+            });
             // معاينة صوت الصلاة على النبي ﷺ
             if (btnTestSalawat && audioSalawat) {
                 btnTestSalawat.onclick = () => {
                     if (!audioSalawat.paused) {
                         audioSalawat.pause();
                         audioSalawat.currentTime = 0;
-                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'تجربة الصوت';
+                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'سماع';
                         return;
                     }
-                    audioSalawat.src = 'assets/audio/salawat.mp3?v=' + Date.now();
+                    audioSalawat.src = window.NativeAdhanService.getSalawatAudioUrl();
                     try { audioSalawat.volume = 1.0; } catch (_) {}
                     try { audioSalawat.load(); } catch (_) {}
                     const p = audioSalawat.play();
                     if (p && typeof p.then === 'function') {
                         p.then(() => {
-                            if (btnTestSalawatText) btnTestSalawatText.textContent = 'إيقاف ⏹';
+                            if (btnTestSalawatText) btnTestSalawatText.textContent = 'إيقاف';
                         }).catch(e => {
                             console.warn('Salawat test audio error:', e);
-                            if (typeof window.playSalawatAudio === 'function') window.playSalawatAudio(true);
+                            if (btnTestSalawatText) btnTestSalawatText.textContent = 'سماع';
+                            if (typeof showToast === 'function') showToast('تعذّر تشغيل الصوت. حاول مجددًا.');
                         });
                     }
                     audioSalawat.onended = () => {
-                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'تجربة الصوت';
+                        if (btnTestSalawatText) btnTestSalawatText.textContent = 'سماع';
                     };
                 };
             }

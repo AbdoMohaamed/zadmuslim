@@ -18,7 +18,8 @@ test('OneSignalService.handleNotificationUrl correctly resolves services and avo
     // Test 1: Full external URL is stripped to local path and stays in app
     let navigated = null;
     global.window = {
-        location: { pathname: '/index.html', href: 'http://localhost/index.html', hash: '' }
+        location: { origin:'http://localhost', pathname: '/index.html', href: 'http://localhost/index.html', hash: '' },
+        zadNavigate(url) { navigated=url; }
     };
     Object.defineProperty(global.window.location, 'href', {
         set(val) { navigated = val; },
@@ -28,10 +29,10 @@ test('OneSignalService.handleNotificationUrl correctly resolves services and avo
     OneSignalService.handleNotificationUrl('https://zadmuslim-zeta.vercel.app/services.html#prayer-times');
     assert.equal(navigated, 'services.html#prayer-times');
 
-    // Test 2: Legacy index.html#subpart-mushaf is remapped to services.html#subpart-mushaf
+    // Test 2: Legacy Quran link selects the canonical reader tab
     navigated = null;
     OneSignalService.handleNotificationUrl('index.html#subpart-mushaf');
-    assert.equal(navigated, 'services.html#subpart-mushaf');
+    assert.equal(navigated, 'services.html#quran-khatma?tab=mushaf');
 
     // Test 3: Standalone hash for services section maps to services.html if on index.html
     navigated = null;
@@ -41,17 +42,21 @@ test('OneSignalService.handleNotificationUrl correctly resolves services and avo
     // Test 4: If already on services.html, openServiceView is invoked directly
     let openedView = null;
     global.window = {
-        location: { pathname: '/services.html', href: 'http://localhost/services.html', hash: '' },
+        location: { origin:'http://localhost', pathname: '/services.html', href: 'http://localhost/services.html', hash: '' },
+        zadNavigate(url) { navigated=url; },
         openServiceView(hash) { openedView = hash; }
     };
     OneSignalService.handleNotificationUrl('services.html#azkar');
     assert.equal(openedView, '#azkar');
 
-    // Test 5: Empty or ./ does not trigger navigation
+    // Test 5: Home notifications open home, foreign links are ignored
     navigated = null;
     openedView = null;
     OneSignalService.handleNotificationUrl('./');
-    assert.equal(navigated, null);
+    assert.equal(navigated, 'index.html');
+    navigated=null;
+    OneSignalService.handleNotificationUrl('https://outside.test/services.html#azkar');
+    assert.equal(navigated,null);
     assert.equal(openedView, null);
 });
 

@@ -459,24 +459,9 @@
 
         openTodayWirdInMushaf() {
             const wird = this.getTodayWirdPages();
-            try {
-                sessionStorage.setItem("target_mushaf_page", JSON.stringify({ page: wird.fromPage }));
-            } catch (e) {}
-
-            // إذا كنا في صفحة services.html
-            if (window.location.pathname.includes("services.html") || document.getElementById("quran-khatma")) {
-                if (typeof window.switchQuranKhatmaTab === "function") {
-                    window.switchQuranKhatmaTab("mushaf");
-                }
-                if (typeof window.goToMushafPage === "function") {
-                    window.goToMushafPage(wird.fromPage);
-                }
-                const sec = document.getElementById("quran-khatma");
-                if (sec) sec.scrollIntoView({ behavior: "smooth" });
-            } else {
-                // الانتقال إلى services.html
-                (window.zadNavigate || location.assign.bind(location))(`services.html#quran-khatma`);
-            }
+            const destination = 'quran-khatma?tab=mushaf&page=' + wird.fromPage;
+            if (typeof window.openServiceView === 'function') window.openServiceView(destination, true);
+            else (window.zadNavigate || location.assign.bind(location))('services.html#' + destination);
         },
 
         openSetupModal() {

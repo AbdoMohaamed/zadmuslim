@@ -14,11 +14,14 @@ module.exports = async function handler(req, res) {
 
   const session = await authorize(req, res);
   if (!session) return;
-  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !FIREBASE_DB_URL) return res.status(503).json({ error: 'إعدادات الإشعارات غير مكتملة على الخادم.' });
   try {
-    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
     const bodyData = { ...(req.body || {}), appId: process.env.ONESIGNAL_APP_ID, restKey: process.env.ONESIGNAL_REST_API_KEY,
       onesignalAppId: process.env.ONESIGNAL_APP_ID, onesignalRestKey: process.env.ONESIGNAL_REST_API_KEY };
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (bodyData.action && !['test_onesignal','send_onesignal','test_device'].includes(bodyData.action)) return res.status(400).json({error:'عملية إرسال غير معروفة.'});
+    if (bodyData.requestId && !uuid.test(bodyData.requestId)) return res.status(400).json({error:'معرّف طلب الإرسال غير صالح.'});
+    if (bodyData.action === 'test_device' && !uuid.test(bodyData.subscriptionId || '')) return res.status(400).json({error:'أدخل معرّف اشتراك جهاز التجربة (Subscription ID).'});
+    if (bodyData.action === 'send_onesignal' || bodyData.action === 'test_device') bodyData.channel='mobile';
     if (bodyData.action !== 'test_onesignal') {
       if (typeof bodyData.title !== 'string' || !bodyData.title.trim() || bodyData.title.length > 120 ||
           typeof bodyData.body !== 'string' || !bodyData.body.trim() || bodyData.body.length > 2000) return res.status(400).json({ error: 'العنوان والنص مطلوبان، بحد أقصى ١٢٠ و٢٠٠٠ حرف.' });
@@ -36,7 +39,7 @@ module.exports = async function handler(req, res) {
     if (bodyData.action === 'test_onesignal') {
       const { appId, restKey } = bodyData;
       if (!appId || !restKey) {
-        return res.status(400).json({ errors: ['OneSignal App ID and REST API Key are required'] });
+        return res.status(503).json({ error: 'اضبط ONESIGNAL_APP_ID و ONESIGNAL_REST_API_KEY في إعدادات الاستضافة.' });
       }
 
       const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
@@ -48,47 +51,11 @@ module.exports = async function handler(req, res) {
           }
         });
         const osData = await osRes.json();
-        return res.status(osRes.status).json(osData);
+        if (!osRes.ok) return res.status(502).json({error:'تعذّر الاتصال بـ OneSignal. راجع معرّف التطبيق والمفتاح على الخادم.'});
+        return res.status(200).json({success:true,appId:osData.id});
       } catch (osErr) {
         return res.status(500).json({
-          errors: ['فشل الاتصال بخادم OneSignal: ' + osErr.message]
-        });
-      }
-    }
-
-    // -------------------------------------------------------------
-    // 2. OneSignal Proxy Action: Dedicated Push
-    // -------------------------------------------------------------
-    if (bodyData.action === 'send_onesignal') {
-      const { appId, restKey, title, body, url } = bodyData;
-      if (!appId || !restKey || !title || !body) {
-        return res.status(400).json({ errors: ['App ID, REST Key, Title, and Body are required'] });
-      }
-
-      const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
-      try {
-        const osRes = await fetch('https://api.onesignal.com/notifications', {
-          method: 'POST', signal: AbortSignal.timeout(10000),
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Key ${cleanKey}`
-          },
-          body: JSON.stringify({
-            app_id: appId,
-            included_segments: ['Total Subscriptions'],
-            headings: { en: title, ar: title },
-            contents: { en: body, ar: body },
-            ios_sound: 'adhan_makkah.mp3',
-            android_sound: 'adhan_makkah',
-            android_channel_id: 'zad_cloud_broadcast_channel',
-            data: { url: url || './', type: 'admin_broadcast' }
-          })
-        });
-        const osData = await osRes.json();
-        return res.status(osRes.status).json(osData);
-      } catch (osErr) {
-        return res.status(500).json({
-          errors: ['فشل إرسال إشعار OneSignal: ' + osErr.message]
+          error: 'تعذّر الاتصال بخادم OneSignal. حاول لاحقًا.'
         });
       }
     }
@@ -102,10 +69,17 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Title and body are required' });
     }
 
-    const targetChannel = ['all', 'web', 'mobile'].includes(channel) ? channel : 'all';
+    if (!['all','web','mobile'].includes(channel)) return res.status(400).json({error:'قناة الإرسال غير صالحة.'});
+    const targetChannel = channel;
     const hasOneSignalConfig = Boolean(onesignalAppId && onesignalRestKey);
-    const shouldSendMobile = (targetChannel === 'all' || targetChannel === 'mobile') && hasOneSignalConfig;
+    const mobileRequested = targetChannel === 'all' || targetChannel === 'mobile';
+    const shouldSendMobile = mobileRequested && hasOneSignalConfig;
     const shouldSendWeb = targetChannel === 'all' || targetChannel === 'web';
+
+    if (shouldSendWeb) {
+      if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !FIREBASE_DB_URL) return res.status(503).json({error:'إعدادات إشعارات الويب ناقصة. اضبط VAPID وقاعدة البيانات، أو اختر الموبايل فقط.'});
+      webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+    }
 
     if (targetChannel === 'mobile' && !hasOneSignalConfig) {
       return res.status(400).json({ error: 'إعدادات OneSignal غير متوفرة على الخادم.' });
@@ -140,7 +114,7 @@ module.exports = async function handler(req, res) {
 
     // Step 2: Send Mobile Push via OneSignal if targeted
     let onesignalResult = null;
-    let mobileError = null;
+    let mobileError = mobileRequested && !hasOneSignalConfig ? 'إعدادات OneSignal ناقصة على الخادم.' : null;
     let mobileSuccess = false;
 
     if (shouldSendMobile) {
@@ -154,20 +128,22 @@ module.exports = async function handler(req, res) {
           },
           body: JSON.stringify({
             app_id: onesignalAppId,
-            included_segments: ['Total Subscriptions'],
+            ...(bodyData.action === 'test_device' ? {include_subscription_ids:[bodyData.subscriptionId]} : {included_segments:['All']}),
+            ...(bodyData.requestId ? {idempotency_key:bodyData.requestId} : {}),
             headings: { en: title, ar: title },
             contents: { en: body, ar: body },
-            ios_sound: 'adhan_makkah.mp3',
-            android_sound: 'adhan_makkah',
-            android_channel_id: 'zad_cloud_broadcast_channel',
+            ios_sound: 'default',
+            existing_android_channel_id: 'zad_cloud_broadcast_channel',
             data: { url: url || './', type: 'admin_broadcast' }
           })
         });
         onesignalResult = await osRes.json();
-        if (onesignalResult && onesignalResult.id && !onesignalResult.errors) {
+        if (osRes.ok && onesignalResult && onesignalResult.id && !onesignalResult.errors) {
           mobileSuccess = true;
         } else if (onesignalResult && onesignalResult.errors) {
           mobileError = Array.isArray(onesignalResult.errors) ? onesignalResult.errors.join(', ') : String(onesignalResult.errors);
+        } else {
+          mobileError = osRes.ok ? 'لا يوجد اشتراك نشط مطابق للإرسال.' : 'رفضت خدمة OneSignal طلب الإرسال.';
         }
       } catch (osErr) {
         mobileError = osErr.message;
@@ -185,6 +161,7 @@ module.exports = async function handler(req, res) {
       const payload = JSON.stringify({
         title: title,
         body: body,
+        ...(bodyData.requestId ? {tag:bodyData.requestId} : {}),
         icon: icon || '/assets/icon-192.png',
         badge: badge || '/assets/icon-192.png',
         dir: 'rtl',
@@ -246,22 +223,11 @@ module.exports = async function handler(req, res) {
 
     // Overall success if at least one requested channel succeeded
     const overallSuccess = (webAttempted && webSuccess) || (mobileAttempted && mobileSuccess);
-    const partialFailure = (webAttempted && mobileAttempted) && (webSuccess !== mobileSuccess);
-
-    let summaryMessage = '';
-    if (webSuccess && mobileSuccess) {
-      summaryMessage = `تم الإرسال بنجاح إلى ${successCount} متصفح ويب وتطبيق الموبايل (OneSignal).`;
-    } else if (webSuccess && !mobileAttempted) {
-      summaryMessage = `تم الإرسال بنجاح إلى ${successCount} متصفح ويب.`;
-    } else if (mobileSuccess && !webAttempted) {
-      summaryMessage = `تم البث بنجاح إلى تطبيق الموبايل عبر OneSignal.`;
-    } else if (mobileSuccess && webAttempted && !webSuccess) {
-      summaryMessage = `تم البث لهواتف الموبايل بنجاح، ولكن لم تصل لأي متصفح ويب (${subscriberEntries.length ? 'فشل الإرسال' : 'لا يوجد مشتركون'}).`;
-    } else if (webSuccess && mobileAttempted && !mobileSuccess) {
-      summaryMessage = `تم الإرسال لـ ${successCount} متصفح ويب، ولكن فشل إرسال الموبايل (${mobileError || 'خطأ OneSignal'}).`;
-    } else {
-      summaryMessage = 'لم يتم تسليم الإشعار لأي مشترك.';
-    }
+    const partialFailure = overallSuccess && ((shouldSendWeb && (!webSuccess || failureCount > 0)) || (mobileRequested && !mobileSuccess));
+    const summary = [];
+    if (shouldSendWeb) summary.push(webSuccess ? ('قبلت خدمة الويب الإرسال إلى '+successCount+' اشتراك'+(failureCount?'، وتعذّر '+failureCount:'')) : (subscriberEntries.length?'تعذّر إرسال إشعارات الويب':'لا توجد اشتراكات ويب'));
+    if (mobileRequested) summary.push(mobileSuccess ? 'قبلت OneSignal طلب إرسال الموبايل' : (mobileError || 'لم يُقبل إرسال الموبايل'));
+    const summaryMessage = summary.join(' • ') + '. قبول الطلب لا يؤكد وصوله للجهاز.';
 
     return res.status(200).json({
       success: overallSuccess,
@@ -279,7 +245,7 @@ module.exports = async function handler(req, res) {
         mobile: {
           attempted: mobileAttempted,
           success: mobileSuccess,
-          recipients: onesignalResult?.recipients || (mobileSuccess ? 1 : 0),
+          recipients: Number.isFinite(onesignalResult?.recipients) ? onesignalResult.recipients : null,
           id: onesignalResult?.id || null,
           error: mobileError
         }

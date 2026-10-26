@@ -808,6 +808,7 @@ function initSmartNotifications() {
     const chkHourlySalawat = document.getElementById("notify-hourly-salawat");
     const selectSalawatInterval = document.getElementById("select-salawat-interval");
     const chkSalawatSound = document.getElementById("notify-salawat-sound");
+    const selectSalawatVoice = document.getElementById("select-salawat-voice");
     const btnTestSalawatSound = document.getElementById("btn-test-salawat-sound");
 
     const allCheckboxes = [chkMorning, chkEvening, chkSleep, chkFriday, chkFasting, chkPrePrayer, chkAdhan, chkHourlySalawat, chkSalawatSound].filter(Boolean);
@@ -832,6 +833,7 @@ function initSmartNotifications() {
                 if (chkHourlySalawat) chkHourlySalawat.checked = savedSettings.hourlySalawat !== false;
                 if (selectSalawatInterval && savedSettings.salawatInterval) selectSalawatInterval.value = String(savedSettings.salawatInterval);
                 if (chkSalawatSound) chkSalawatSound.checked = savedSettings.salawatSound !== false;
+                if (selectSalawatVoice) selectSalawatVoice.value = ['voice1','voice2'].includes(savedSettings.salawatVoice) ? savedSettings.salawatVoice : 'default';
             } else {
                 // الإعداد الافتراضي الذكي: الأذان والتنبيه المسبق والصلاة على النبي مفعلة تلقائياً
                 if (chkPrePrayer) chkPrePrayer.checked = true;
@@ -1024,11 +1026,28 @@ function initSmartNotifications() {
         btnTestAdhanBackground.addEventListener("click", () => triggerAdhan2MinTest(btnTestAdhanBackground));
     }
 
+    let salawatPreview = null;
+    const stopSalawatPreview = () => {
+        salawatPreview?.pause(); salawatPreview=null;
+        if (btnTestSalawatSound) btnTestSalawatSound.textContent='سماع';
+    };
+    selectSalawatVoice?.addEventListener('change', async () => {
+        stopSalawatPreview();
+        let settings={};try { settings=JSON.parse(localStorage.getItem('smart_notify_settings') || '{}') || {}; } catch {}
+        settings.salawatVoice=selectSalawatVoice.value;
+        localStorage.setItem('smart_notify_settings',JSON.stringify(settings));
+        try { await window.NativeAdhanService?.scheduleLocalNotifications?.(); }
+        catch { if (typeof showToast==='function') showToast('تم حفظ الصوت، لكن تعذّر تحديث التنبيهات. حاول مجددًا.'); }
+    });
+    window.addEventListener('pagehide',stopSalawatPreview);
     if (btnTestSalawatSound) {
-        btnTestSalawatSound.addEventListener("click", () => {
-            if (typeof window.playSalawatAudio === "function") {
-                window.playSalawatAudio(true);
-            }
+        btnTestSalawatSound.textContent='سماع';
+        btnTestSalawatSound.addEventListener('click', async () => {
+            if (salawatPreview) return stopSalawatPreview();
+            const audio = new Audio(window.NativeAdhanService?.getSalawatAudioUrl() || 'assets/audio/salawat.mp3');
+            salawatPreview=audio; audio.onended=stopSalawatPreview;
+            try { await audio.play(); if (salawatPreview===audio) btnTestSalawatSound.textContent='إيقاف'; }
+            catch { if (salawatPreview===audio) stopSalawatPreview(); if (typeof showToast==='function') showToast('تعذّر تشغيل الصوت. حاول مجددًا.'); }
         });
     }
 
@@ -1053,7 +1072,8 @@ function initSmartNotifications() {
                 adhan: chkAdhan ? chkAdhan.checked : true,
                 hourlySalawat: chkHourlySalawat ? chkHourlySalawat.checked : true,
                 salawatInterval: (selectSalawatInterval && selectSalawatInterval.value) ? parseInt(selectSalawatInterval.value, 10) : 60,
-                salawatSound: chkSalawatSound ? chkSalawatSound.checked : true
+                salawatSound: chkSalawatSound ? chkSalawatSound.checked : true,
+                salawatVoice: selectSalawatVoice?.value || window.NativeAdhanService?.getNotificationSettings().salawatVoice || 'default'
             };
             localStorage.setItem("smart_notify_settings", JSON.stringify(settings));
             localStorage.setItem("smart_notify_configured", "true");
@@ -1134,7 +1154,7 @@ function initSmartNotifications() {
  */
 window.playSalawatAudio = function(isUserTest = false) {
     try {
-        const audio = new Audio("assets/audio/salawat.mp3?v=" + Date.now());
+        const audio = new Audio(window.NativeAdhanService?.getSalawatAudioUrl() || "assets/audio/salawat.mp3");
         audio.volume = 1.0;
         const playPromise = audio.play();
         if (playPromise !== undefined) {
@@ -3106,16 +3126,7 @@ function initSmartTimelyReminders() {
             title: "اليوم الجمعة المباركة • نور ما بين الجمعتين 🌸",
             desc: "خير يوم طلعت عليه الشمس؛ لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة والسلام على النبي ﷺ، والدعاء في ساعة الاستجابة.",
             actionText: "قراءة سورة الكهف 📖",
-            actionCallback: () => {
-                const quranSec = document.getElementById("quran-khatma");
-                if (quranSec) {
-                    if (typeof goToMushafPage === "function") goToMushafPage(293, 18);
-                    quranSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    sessionStorage.setItem("target_mushaf_page", JSON.stringify({ page: 293, surah: 18 }));
-                    (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma");
-                }
-            }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma?tab=mushaf&page=293"); }
         };
     }
     // 2. سنة صيام الإثنين والخميس (نهار الإثنين حتى 15:30، أو نهار الخميس حتى 15:30)
@@ -3126,15 +3137,8 @@ function initSmartTimelyReminders() {
             icon: "fa-solid fa-hand-holding-heart",
             title: `سنة صيام ${dayName} • ترفع فيه الأعمال 🌿`,
             desc: "قال ﷺ: 'تُعرض الأعمال يوم الاثنين والخميس، فأحب أن يُعرض عملي وأنا صائم'. هنيئاً للصائمين وبشرى بباب الريان.",
-            actionText: "تتبع صيام النوافل 🤲",
-            actionCallback: () => {
-                const fastingSec = document.getElementById("fasting-tracker") || document.getElementById("hero-prayers-strip");
-                if (fastingSec) {
-                    fastingSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    (window.zadNavigate || location.assign.bind(location))("services.html#fasting-tracker");
-                }
-            }
+            actionText: "مواقيت الصلاة والصيام 🤲",
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#prayer-times"); }
         };
     }
     // 3. التذكير بصيام الغد (ليلة الإثنين: الأحد بعد 18:30، أو ليلة الخميس: الأربعاء بعد 18:30)
@@ -3146,14 +3150,7 @@ function initSmartTimelyReminders() {
             title: `غداً سنة صيام ${targetDay} المبارك 🌙`,
             desc: "بيّت النية لصيام الغد؛ تُعرض الأعمال على الله تعالى ويُباعد الله وجه الصائم عن النار سبعين خريفاً.",
             actionText: "أذكار وطاعات الصيام 🤲",
-            actionCallback: () => {
-                const azkarSec = document.getElementById("azkar");
-                if (azkarSec) {
-                    azkarSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    (window.zadNavigate || location.assign.bind(location))("services.html#azkar");
-                }
-            }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#azkar"); }
         };
     }
     // 4. الثلث الأخير من الليل • قيام الليل والاستغفار بالأسحار (02:00 إلى 05:00 فجراً)
@@ -3163,15 +3160,8 @@ function initSmartTimelyReminders() {
             icon: "fa-solid fa-mosque",
             title: "قيام الليل والأسحار • شرف المؤمن 🌌",
             desc: "ينزل ربنا تبارك وتعالى إلى السماء الدنيا: 'هل من داعٍ فأستجيب له؟'... صلِّ ركعتين خاشعتين واختم ليلتك بالوتر واستغفر بالأسحار.",
-            actionText: "أدعية قيام الليل والوتر 🤲",
-            actionCallback: () => {
-                const duaaSec = document.getElementById("daily-duas") || document.getElementById("azkar");
-                if (duaaSec) {
-                    duaaSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    (window.zadNavigate || location.assign.bind(location))("services.html#daily-duas");
-                }
-            }
+            actionText: "تصفح الأدعية 🤲",
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#categorized-duas"); }
         };
     }
     // 5. أذكار الصباح وحصن المسلم (05:00 إلى 08:30 صباحاً)
@@ -3182,17 +3172,7 @@ function initSmartTimelyReminders() {
             title: "ألا بذكر الله تطمئن القلوب • أذكار الصباح 🌅",
             desc: "ابدأ يومك بحفظ الله ورعايته؛ أذكار الصباح حصن منيع وانشراح للصدر وبركة في الرزق ليومك كله.",
             actionText: "أذكار الصباح 🛡️",
-            actionCallback: () => {
-                const azkarSec = document.getElementById("azkar");
-                if (azkarSec) {
-                    const azkarTab = document.getElementById("tab-morning");
-                    if (azkarTab) azkarTab.click();
-                    azkarSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    sessionStorage.setItem("target_azkar_tab", "tab-morning");
-                    (window.zadNavigate || location.assign.bind(location))("services.html#azkar");
-                }
-            }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#azkar?tab=morning"); }
         };
     }
     // 6. صلاة الضحى • صلاة الأوابين وصدقة المفاصل (08:30 إلى 11:30 صباحاً)
@@ -3202,15 +3182,8 @@ function initSmartTimelyReminders() {
             icon: "fa-solid fa-cloud-sun",
             title: "صلاة الضحى • صدقة عن كل مفصل ☀️",
             desc: "يصبح على كل سلامى من أحدكم صدقة، وتجزئ عن ذلك ركعتان يركعهما من الضحى صلاة الأوابين لجلب البركة والسكينة.",
-            actionText: "فضل صلاة الضحى 🕌",
-            actionCallback: () => {
-                const prayersSec = document.getElementById("prayer-times") || document.getElementById("azkar");
-                if (prayersSec) {
-                    prayersSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    (window.zadNavigate || location.assign.bind(location))("services.html#prayer-times");
-                }
-            }
+            actionText: "دليل الصلاة والسنن 🕌",
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#prayer-guide-section"); }
         };
     }
     // 7. وقت الظهيرة وما بعد الظهر • ورد القرآن وذكر الله (11:30 إلى 15:30 عصراً)
@@ -3221,14 +3194,7 @@ function initSmartTimelyReminders() {
             title: "طيّب وقتك بذكر الله وتلاوة كتابه 📖",
             desc: "اجعل لقلبك نصيباً من كتاب الله في منتصف يومك؛ تلاوة صفحة من المصحف الشريف والصلاة على النبي ﷺ تنير دربك وتبارك وقتك.",
             actionText: "ورد القرآن اليومي 📖",
-            actionCallback: () => {
-                const quranSec = document.getElementById("quran-khatma");
-                if (quranSec) {
-                    quranSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma");
-                }
-            }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma?tab=mushaf"); }
         };
     }
     // 8. أذكار المساء وحفظ الرحمن (15:30 إلى 18:30 مساءً)
@@ -3239,17 +3205,7 @@ function initSmartTimelyReminders() {
             title: "حصّن نفسك وأهلك • أذكار المساء 🌇",
             desc: "أمسينا وأمسى الملك لله؛ حان وقت أذكار المساء لطمأنينة القلب والوقاية من كل سوء والتحصين الشامل حتى تصبح.",
             actionText: "أذكار المساء 🛡️",
-            actionCallback: () => {
-                const azkarSec = document.getElementById("azkar");
-                if (azkarSec) {
-                    const azkarTab = document.getElementById("tab-evening");
-                    if (azkarTab) azkarTab.click();
-                    azkarSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    sessionStorage.setItem("target_azkar_tab", "tab-evening");
-                    (window.zadNavigate || location.assign.bind(location))("services.html#azkar");
-                }
-            }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#azkar?tab=evening"); }
         };
     }
     // 9. ما بين المغرب والعشاء • روضة الطاعات والسنن (18:30 إلى 20:30 مساءً)
@@ -3260,14 +3216,7 @@ function initSmartTimelyReminders() {
             title: "ما بين المغرب والعشاء • روضة الطاعات 🕌",
             desc: "وقت مبارك لشهود السنن الرواتب، وتدبر آيات الذكر الحكيم، ومداومة الاستغفار والتسبيح قبل صلاة العشاء.",
             actionText: "السبحة والأذكار 📿",
-            actionCallback: () => {
-                const sebhaSec = document.getElementById("sebha") || document.getElementById("azkar");
-                if (sebhaSec) {
-                    sebhaSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    (window.zadNavigate || location.assign.bind(location))("services.html#sebha");
-                }
-            }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("index.html#smart-dhikr-panel"); }
         };
     }
     // 10. سكينة الليل وسورة الملك وركعة الوتر (20:30 إلى 02:00 بعد منتصف الليل)
@@ -3278,16 +3227,7 @@ function initSmartTimelyReminders() {
             title: "سكينة الليل ونور القبر 🌙",
             desc: "سورة الملك تنجي من عذاب القبر وتشفع لصاحبها، واختم ليلتك بركعة الوتر قبل النوم لتنام على طاعة.",
             actionText: "قراءة سورة الملك 📖",
-            actionCallback: () => {
-                const quranSec = document.getElementById("quran-khatma");
-                if (quranSec) {
-                    if (typeof goToMushafPage === "function") goToMushafPage(562, 67);
-                    quranSec.scrollIntoView({ behavior: "smooth" });
-                } else {
-                    sessionStorage.setItem("target_mushaf_page", JSON.stringify({ page: 562, surah: 67 }));
-                    (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma");
-                }
-            }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma?tab=mushaf&page=562"); }
         };
     }
 
