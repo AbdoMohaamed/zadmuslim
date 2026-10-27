@@ -412,6 +412,7 @@ function initSeasonsOfWorship() {
         localStorage.setItem("zad_hijri_offset", hijriOffset.toString());
         renderHijriCalendar();
         renderSeasons();
+        if (typeof window.initHijriDate === "function") window.initHijriDate();
         if (typeof window.showToast === "function") {
             const msg = hijriOffset === 0 
                 ? "تمت استعادة تقويم أم القرى الافتراضي 🌙" 

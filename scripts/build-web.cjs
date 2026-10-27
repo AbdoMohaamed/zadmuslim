@@ -1,3 +1,4 @@
+require('./sync-prayer-images.cjs');
 require('./sync-salawat-sounds.cjs');
 const fs = require('node:fs');
 const path = require('node:path');

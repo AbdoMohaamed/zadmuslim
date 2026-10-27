@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v92";
+const CACHE_NAME = "zad-muslim-v93";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/services-personal.js?v=4",
@@ -99,11 +99,11 @@ const ASSETS_TO_CACHE = [
   "./assets/audio/adhan/abdulbasit.mp3",
   "./assets/audio/adhan/refaat.mp3",
   "./assets/audio/adhan/fajr.mp3",
-  "./assets/images/prayers/pre_fajr.jpeg",
-  "./assets/images/prayers/pre_dhuhr.jpeg",
-  "./assets/images/prayers/pre_asr.jpeg",
-  "./assets/images/prayers/pre_maghrib.jpeg",
-  "./assets/images/prayers/pre_isha.jpeg",
+  "./assets/images/prayers/pre_fajr.jpg",
+  "./assets/images/prayers/pre_dhuhr.jpg",
+  "./assets/images/prayers/pre_asr.jpg",
+  "./assets/images/prayers/pre_maghrib.jpg",
+  "./assets/images/prayers/pre_isha.jpg",
   "./assets/share-preview.jpg",
   "./manifest.json",
   "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap",
@@ -354,7 +354,7 @@ function armBackgroundPrayerAlarms() {
     const preAlertDelay = delay - (5 * 60 * 1000);
     if (preAlertDelay > 0 && preAlertDelay <= 86400000) {
       const preTimer = setTimeout(() => {
-        const preImage = showPrayerImagesPreference ? `./assets/images/prayers/pre_${prayer.key}.jpeg` : null;
+        const preImage = showPrayerImagesPreference ? `./assets/images/prayers/pre_${prayer.key}.jpg` : null;
         showDeviceNotification(
           `⏳ اقتربت ${prayer.name}`,
           `بقي 5 دقائق على دخول وقت ${prayer.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
@@ -381,7 +381,7 @@ function showPrayerNotification(prayer) {
   const muazzinAudioFile = isFajr ? "fajr.mp3" : `${selectedMuazzinPreference || "qatami"}.mp3`;
   const soundUrl = `./assets/audio/adhan/${muazzinAudioFile}`;
   const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayer.key}&muazzin=${selectedMuazzinPreference || "qatami"}&t=${Date.now()}`;
-  const prayerImage = `./assets/images/prayers/pre_${prayer.key}.jpeg`;
+  const prayerImage = `./assets/images/prayers/pre_${prayer.key}.jpg`;
 
   const options = {
     body: `الله أكبر، الله أكبر.. حان الآن موعد ${prayer.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕌`,

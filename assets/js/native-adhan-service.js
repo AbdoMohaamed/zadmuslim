@@ -20,6 +20,7 @@ const NativeAdhanService = {
             console.log("🕌 Native Adhan Service: Running on Native Platform (Android / iOS)");
             await this.requestPermissions();
             await this.createNotificationChannels();
+            await this.registerPrayerActions();
             this.setupListeners();
             if (localStorage.getItem('smart_notify_configured') === 'true') await this.scheduleLocalNotifications();
         } else {
@@ -35,6 +36,19 @@ const NativeAdhanService = {
         const saved = typeof localStorage !== "undefined" ? localStorage.getItem("zad_selected_muazzin") : null;
         const valid = ["qatami", "abdulbasit", "refaat", "makkah", "madinah", "aqsa"];
         return (saved && valid.includes(saved)) ? saved : "qatami";
+    },
+
+    prayerImageOptions(prayerKey) {
+        const enabled = this.getNotificationSettings().prayerImages === true || localStorage.getItem('zad_show_prayer_images') === '1';
+        if (!enabled || window.Capacitor?.getPlatform?.() !== 'ios' || !['fajr','dhuhr','asr','maghrib','isha'].includes(prayerKey)) return {};
+        return {attachments:[{id:'prayer-'+prayerKey,url:'res:///assets/images/prayers/pre_'+prayerKey+'.jpg'}]};
+    },
+
+    async registerPrayerActions() {
+        const plugin = window.Capacitor?.Plugins?.LocalNotifications;
+        if (window.Capacitor?.getPlatform?.() !== 'ios' || this.prayerActionsRegistered || !plugin?.registerActionTypes) return;
+        await plugin.registerActionTypes({types:[{id:'OPEN_PRAYER',actions:[{id:'dismiss_adhan',title:'إغلاق التنبيه',foreground:false}]}]});
+        this.prayerActionsRegistered = true;
     },
 
     async requestPermissions() {
@@ -115,6 +129,10 @@ const NativeAdhanService = {
             LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
                 console.log("🕌 Native Notification Action performed:", action);
                 const notif = action.notification;
+                if (action.actionId === "dismiss_adhan") {
+                    LocalNotifications.removeDeliveredNotifications({notifications:[{id:notif.id}]}).catch(e=>console.warn("Dismiss notification failed",e));
+                    return;
+                }
                 if (notif && notif.extra) {
                     // تشغيل صوت الأذان داخل التطبيق فقط إذا ضغط المستخدم عمداً وبشكل صريح على زر "سماع الأذان" (actionId === 'play_adhan')
                     // أما إذا نقر على الإشعار لفتح التطبيق، فلن يتم تشغيل الصوت مجدداً لأن الأذان أذّن في وقته بالفعل
@@ -254,6 +272,7 @@ const NativeAdhanService = {
             // التأكد من الصلاحيات والقنوات أولاً
             if (!await this.requestPermissions()) return { success: false, message: 'إذن الإشعارات غير متاح؛ فعّله من إعدادات الهاتف.' };
             await this.createNotificationChannels();
+            await this.registerPrayerActions();
 
             const selectedMuazzin = this.getSelectedMuazzin();
             const enabledPrayers = this.getEnabledPrayers();
@@ -304,6 +323,8 @@ const NativeAdhanService = {
                             const preSoundName = `pre_${p.key}.mp3`;
                             notificationsToSchedule.push({
                                 id: preNotifId,
+                                ...this.prayerImageOptions(p.key),
+                                actionTypeId: "OPEN_PRAYER",
                                 title: `⏳ اقتربت ${p.name}`,
                                 body: `بقي ${preInterval} دقائق على دخول وقت ${p.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
                                 schedule: {
@@ -332,6 +353,7 @@ const NativeAdhanService = {
 
                         notificationsToSchedule.push({
                             id: notifId,
+                            ...this.prayerImageOptions(p.key),
                             title: `🕌 حَانَ الآنَ مَوْعِدُ ${p.name}`,
                             body: `الله أكبر، الله أكبر.. حان الآن موعد ${p.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕋`,
                             schedule: {
@@ -492,6 +514,7 @@ const NativeAdhanService = {
         try {
             if (!await this.requestPermissions()) return { success: false, message: 'إذن الإشعارات غير متاح؛ فعّله من إعدادات الهاتف.' };
             await this.createNotificationChannels();
+            await this.registerPrayerActions();
 
             const notifySettings = this.getNotificationSettings();
             if (notifySettings.adhan === false && notifySettings.prePrayer === false) await this.cancelPrayerAlarms();
@@ -649,6 +672,7 @@ const NativeAdhanService = {
             if (window.Capacitor?.isNativePlatform?.()) {
                 if (!await this.requestPermissions()) return { success: false, message: 'اسمح بالإشعارات من إعدادات الهاتف.' };
                 await this.createNotificationChannels();
+            await this.registerPrayerActions();
                 const plugins = window.Capacitor.Plugins;
                 if (plugins.AdhanNative) {
                     await plugins.AdhanNative.testAdhanNotification({ prayerKey, prayerName, muazzin });
@@ -744,6 +768,7 @@ const NativeAdhanService = {
         if (!window.Capacitor?.isNativePlatform?.()) return { success: false, message: 'اختبار الخلفية يحتاج تطبيق الهاتف؛ المتصفح لا يضمن التنبيه عند قفل الشاشة.' };
         if (!await this.requestPermissions()) return { success: false, message: 'فعّل إذن الإشعارات قبل الاختبار.' };
         await this.createNotificationChannels();
+            await this.registerPrayerActions();
         if (window.Capacitor.getPlatform?.() === 'android' && !await this.checkExactAlarmPermission()) return { success: false, message: 'فعّل إذن المنبّهات الدقيقة من إعدادات الهاتف ثم أعد الاختبار.' };
         if (!delaySeconds) {
             delaySeconds = (type === "pre_prayer") ? 60 : 120;
@@ -780,11 +805,14 @@ const NativeAdhanService = {
         // iOS أو Fallback عبر LocalNotifications
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
             try {
+                await this.registerPrayerActions();
                 const soundFile = isPreAlert ? "pre_asr.mp3" : `adhan_${muazzin}.mp3`;
                 const channelId = isPreAlert ? "prayer_pre_asr" : `adhan_${muazzin}`;
                 await window.Capacitor.Plugins.LocalNotifications.schedule({
                     notifications: [{
                         id: isPreAlert ? 99981 : 99982,
+                        ...this.prayerImageOptions("asr"),
+                        actionTypeId: "OPEN_PRAYER",
                         title: testTitle,
                         body: testBody,
                         schedule: { at: triggerTime, allowWhileIdle: true },

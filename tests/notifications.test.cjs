@@ -226,3 +226,29 @@ test('selected salawat voices reach Android channels and iOS bundled WAVs; mute 
  }
  const h=harness({settings:{hourlySalawat:true,salawatVoice:'voice2',salawatSound:false}});await h.service.schedulePrayers();const rule=h.calls.reminders.find(n=>n.extra.type==='hourly_salawat');assert.equal(rule.sound,null);assert.equal(rule.channelId,'hourly_salawat_silent');
 });
+
+test('prayer images are attached on iOS only when enabled and bundled paths exist',async()=>{
+ for(const platform of ['ios','android'])for(const enabled of [true,false]){
+  const h=harness({platform,settings:{adhan:true,prePrayer:true,prayerImages:enabled}});
+  await h.service.schedulePrayers();
+  for(const prayer of ['fajr','dhuhr','asr','maghrib','isha']){
+   const options=h.service.prayerImageOptions(prayer);
+   if(platform==='ios' && enabled){assert.equal(options.attachments[0].url,'res:///assets/images/prayers/pre_'+prayer+'.jpg');assert.ok(fs.existsSync(options.attachments[0].url.replace('res:///','')));}else assert.equal(options.attachments,undefined);
+  }
+  if(platform==='ios'){for(const n of h.calls.local.filter(n=>n.id<70000)){assert.equal(n.actionTypeId,'OPEN_PRAYER');assert.equal(Boolean(n.attachments),enabled);}}
+ }
+});
+test('iOS dismiss action removes the delivered alert without cancelling future prayers',async()=>{
+ const h=harness({platform:'ios'});let listener,types,removed;
+ h.local.registerActionTypes=async value=>types=value;
+ h.local.addListener=(name,fn)=>{if(name==='localNotificationActionPerformed')listener=fn;};
+ h.local.removeDeliveredNotifications=async value=>removed=value;
+ await h.service.registerPrayerActions();h.service.setupListeners();
+ assert.equal(types.types[0].actions[0].id,'dismiss_adhan');
+ listener({actionId:'dismiss_adhan',notification:{id:123}});
+ assert.equal(removed.notifications[0].id,123);assert.equal(h.calls.cancel.length,0);
+});
+test('prayer image references in page and service worker point at actual jpg resources',()=>{
+ for(const file of ['assets/js/app.js','sw.js'])assert.doesNotMatch(fs.readFileSync(file,'utf8'),/prayers\/pre_[^\n]*\.jpeg/);
+ for(const prayer of ['fajr','dhuhr','asr','maghrib','isha'])assert.ok(fs.readFileSync('assets/images/prayers/pre_'+prayer+'.jpg').equals(fs.readFileSync('android/app/src/main/res/drawable/pre_'+prayer+'.jpg')));
+});

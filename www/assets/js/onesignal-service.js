@@ -1,41 +1,47 @@
 /**
  * onesignal-service.js
  * خدمة استقبال الإشعارات السحابية الفورية للأجهزة المغلقة والشاشة مقفلة
- * تدعم إيقاظ أجهزة iOS (Apple APNs) و Android (Google FCM) في نفس اللحظة
+ * استقبال إشعارات الموبايل عبر APNs وFCM بحسب التسجيل والأذونات والاتصال.
  */
 
 const OneSignalService = {
     initialized: false,
 
     async init() {
+        if (this.initialized) return this.refreshStatus();
+        if (this.pending) return this.pending;
+        this.pending = this.initializeDevice().finally(() => { this.pending = null; });
+        return this.pending;
+    },
+
+    async initializeDevice() {
         if (this.initialized) return;
 
         try {
             // التحقق مما إذا كان التطبيق يعمل داخل بيئة الموبايل الأصلية المزودة بـ OneSignal
             if (typeof window === "undefined" || !window.plugins || !window.plugins.OneSignal) {
+                if (typeof window !== "undefined" && window.Capacitor?.isNativePlatform?.()) this.renderStatus("خدمة رسائل الإدارة غير متاحة في هذه النسخة. حدّث التطبيق ثم أعد التحقق.");
                 return;
             }
 
             // جلب App ID من التخزين المحلي أو من قاعدة بيانات فايربيز تلقائياً
             let appId = localStorage.getItem("zad_onesignal_app_id");
 
-            if (!appId && typeof getSafeFirebaseDb === "function") {
+            if (window.FIREBASE_CONFIG?.databaseURL && typeof fetch === 'function') {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 8000);
                 try {
-                    const db = getSafeFirebaseDb();
-                    if (db) {
-                        const snap = await db.ref("public_config/onesignal_app_id").once("value");
-                        if (snap.exists() && snap.val()) {
-                            appId = snap.val().trim();
-                            localStorage.setItem("zad_onesignal_app_id", appId);
-                        }
+                    const response = await fetch(window.FIREBASE_CONFIG.databaseURL.replace(/\/$/,'') + '/public_config/onesignal_app_id.json', {signal:controller.signal});
+                    const configured = response.ok ? await response.json() : null;
+                    if (typeof configured === 'string' && /^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(configured)) {
+                        appId=configured;localStorage.setItem('zad_onesignal_app_id',appId);
                     }
-                } catch (dbErr) {
-                    console.warn("OneSignal config fetch warning:", dbErr);
-                }
+                } catch {} finally { clearTimeout(timeout); }
             }
 
             if (!appId || appId === "00000000-0000-0000-0000-000000000000") {
                 console.log("ℹ️ OneSignal: App ID not configured yet in admin panel");
+                this.renderStatus('إعداد استقبال رسائل الإدارة غير متاح. اتصل بالإنترنت وأعد المحاولة.');
                 return;
             }
 
@@ -45,8 +51,9 @@ const OneSignalService = {
             // طلب الصلاحية للإشعارات في نظامي iOS و Android
             if (OneSignal.Notifications && typeof OneSignal.Notifications.requestPermission === "function") {
                 OneSignal.Notifications.requestPermission(true).then((accepted) => {
+                    this.refreshStatus();
                     console.log("✅ OneSignal Notification Permission status:", accepted);
-                });
+                }).catch(() => this.renderStatus("تعذّر طلب إذن الإشعارات. أعد المحاولة."));
             }
 
             // الاستماع للنقر على الإشعار من شاشة القفل لفتح الرابط المطلوب
@@ -65,12 +72,37 @@ const OneSignalService = {
                 });
             }
 
+            OneSignal.User?.pushSubscription?.addEventListener?.('change', () => this.refreshStatus());
+            OneSignal.Notifications?.addEventListener?.('permissionChange', () => this.refreshStatus());
             this.initialized = true;
+            await this.refreshStatus();
             console.log("✅ OneSignal Push Service initialized successfully on device");
 
         } catch (e) {
             console.warn("OneSignal initialization notice:", e);
         }
+    },
+
+    renderStatus(message, id = '') {
+        if (typeof document === 'undefined' || !document.body?.hasAttribute('data-settings-page')) return;
+        let panel=document.getElementById('zad-admin-push-status');
+        if(!panel){
+            panel=document.createElement('div');panel.id='zad-admin-push-status';panel.className='settings-delivery-status';
+            panel.innerHTML='<strong>رسائل الإدارة خارج التطبيق</strong><p role="status"></p><label>معرّف الجهاز للتجربة<input readonly aria-label="معرّف الجهاز لتجربة إشعار الإدارة" style="width:100%;direction:ltr"></label><button type="button" class="btn outline">إعادة التحقق</button>';
+            document.getElementById('notifications-section')?.append(panel);
+            panel.querySelector('button').onclick=()=>this.init();
+        }
+        panel.querySelector('p').textContent=message;panel.querySelector('input').value=id;
+        panel.querySelector('label').hidden=!id;
+    },
+
+    async refreshStatus() {
+        try {
+            const subscription=window.plugins?.OneSignal?.User?.pushSubscription;
+            if(!subscription) return;
+            const [id,token,optedIn]=await Promise.all([subscription.getIdAsync(),subscription.getTokenAsync(),subscription.getOptedInAsync()]);
+            this.renderStatus(id && token && optedIn ? 'الجهاز مسجّل لاستقبال رسائل الإدارة. تأكيد الوصول يحتاج تجربة إرسال والتطبيق مقفول.' : 'اشتراك رسائل الإدارة غير جاهز. راجع إذن الإشعارات والاتصال؛ ظهور الرسالة داخل التطبيق لا يؤكد استقبالها في الخلفية.',id || '');
+        } catch { this.renderStatus('تعذّر التحقق من اشتراك رسائل الإدارة. أعد المحاولة.'); }
     },
 
     // معالجة رابط الإشعار بدقة ومنع أي أخطاء في العناوين أو الهروب خارج التطبيق
@@ -97,13 +129,14 @@ const OneSignalService = {
 
 };
 
-// تهيئة الخدمة تلقائياً عند تشغيل التطبيق
-if (typeof document !== "undefined") {
-    document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-            OneSignalService.init();
-        }, 1500);
-    });
+// Retry when the native bridge or network becomes available; do not depend on one timer.
+if (typeof document !== 'undefined') {
+    const start=()=>OneSignalService.init();
+    document.addEventListener('deviceready',start);
+    window.addEventListener?.('online',start);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)start();});
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
+    else start();
 }
 
 if (typeof module !== "undefined" && module.exports) {

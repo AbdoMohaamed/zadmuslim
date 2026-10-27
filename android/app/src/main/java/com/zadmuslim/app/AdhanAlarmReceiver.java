@@ -337,6 +337,10 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
+        Intent stopIntent = new Intent(context, AdhanAlarmReceiver.class).setAction(ACTION_STOP_ADHAN);
+        PendingIntent pendingStop = PendingIntent.getBroadcast(context, 9991, stopIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
         String minutesWord = (intervalMinutes == 1) ? "دقيقة واحدة" : (intervalMinutes == 2) ? "دقيقتين" : (intervalMinutes <= 10) ? (intervalMinutes + " دقائق") : (intervalMinutes + " دقيقة");
         String contentText = "بقي " + minutesWord + " على دخول وقت " + prayerName + ". تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿";
 
@@ -345,6 +349,8 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setContentTitle("⏳ اقتربت " + prayerName)
                 .setContentText(contentText)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(contentText))
+                .addAction(R.drawable.ic_stat_icon, "إيقاف الصوت", pendingStop)
+                .setDeleteIntent(pendingStop)
                 .setContentIntent(pendingOpen)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

@@ -303,6 +303,15 @@ body.light-theme {
     font-weight: 800;
 }
 
+#today {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
 .hero h1 {
   font-size: 38px;
   line-height: 1.6;
@@ -1482,8 +1491,8 @@ html[data-theme="dark"] .panel h3,
 
 html[data-theme="dark"] .prayer,
 [data-theme="dark"] .prayer .prayer {
-  background: #1D4033 !important;
-  border: 1px solid #315346 !important;
+    background: radial-gradient(circle at 8% 20%, rgb(33, 111, 90) 0%, transparent 36%), linear-gradient(115deg, rgb(6, 64, 52), rgb(13, 90, 73)) !important;
+    border: 1px solid #315346 !important;
 }
 
 html[data-theme="dark"] .prayer strong,

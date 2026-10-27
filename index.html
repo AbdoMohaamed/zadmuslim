@@ -538,7 +538,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/native-adhan-service.js?v=12"></script>
-    <script src="assets/js/onesignal-service.js?v=2"></script>
+    <script src="assets/js/onesignal-service.js?v=3"></script>
     <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
     <script src="assets/js/app.js?v=23"></script>
@@ -897,7 +897,23 @@
         const todayKey = new Date().toLocaleDateString('en-CA');
         const todayEl = document.getElementById('today');
         if (todayEl) {
-            todayEl.textContent = new Intl.DateTimeFormat('ar', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+            if (typeof getFullFormattedDate === 'function') {
+                todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 6px; opacity: 0.85;"></i>${getFullFormattedDate()}`;
+            } else {
+                try {
+                    let offsetDays = 0;
+                    try { offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0; } catch(e) {}
+                    const now = new Date();
+                    const hDate = new Date(now.getTime() + (offsetDays * 86400000));
+                    const wDay = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(now);
+                    let hPart = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(hDate);
+                    if (!hPart.includes('هـ')) hPart += ' هـ';
+                    const gPart = new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(now) + ' م';
+                    todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 6px; opacity: 0.85;"></i>${wDay}، ${hPart} • ${gPart}`;
+                } catch(e) {
+                    todayEl.textContent = new Intl.DateTimeFormat('ar', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+                }
+            }
         }
         let c = Number(localStorage.getItem('zadCount') || 0);
         function paint() {

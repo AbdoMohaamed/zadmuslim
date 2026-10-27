@@ -210,30 +210,120 @@ function initDeceasedInfo() {
 }
 
 /**
- * حساب وعرض التاريخ الهجري المبارك بتنسيق أم القرى الفاخر
+ * حساب وعرض التاريخ الهجري والميلادي واليوم بتنسيق عربي كامل وفاخر
+ */
+function getFullFormattedDate(date = new Date()) {
+    let offsetDays = 0;
+    try {
+        offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0;
+    } catch (e) {}
+    const hijriDate = new Date(date.getTime() + (offsetDays * 86400000));
+
+    // 1. اليوم (اسم يوم الأسبوع)
+    let weekday = "";
+    try {
+        weekday = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(date);
+    } catch (e) {
+        const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+        weekday = days[date.getDay()];
+    }
+
+    // 2. التاريخ الهجري (يوم، شهر، سنة)
+    let hijriPart = "";
+    try {
+        const hFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        hijriPart = hFormatter.format(hijriDate);
+        if (!hijriPart.includes("هـ")) hijriPart += " هـ";
+    } catch (e) {
+        try {
+            const hFallback = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            hijriPart = hFallback.format(hijriDate);
+            if (!hijriPart.includes("هـ")) hijriPart += " هـ";
+        } catch (err) {
+            hijriPart = "";
+        }
+    }
+
+    // 3. التاريخ الميلادي (يوم، شهر، سنة)
+    let gregPart = "";
+    try {
+        const gFormatter = new Intl.DateTimeFormat('ar-SA', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        gregPart = gFormatter.format(date) + " م";
+    } catch (e) {
+        try {
+            const gFallback = new Intl.DateTimeFormat('ar', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            gregPart = gFallback.format(date) + " م";
+        } catch (err) {
+            gregPart = "";
+        }
+    }
+
+    // دمج اليوم والتاريخ الهجري والتاريخ الميلادي
+    if (weekday && hijriPart && gregPart) {
+        return `${weekday}، ${hijriPart} • ${gregPart}`;
+    } else if (hijriPart && gregPart) {
+        return `${hijriPart} • ${gregPart}`;
+    } else if (weekday && gregPart) {
+        return `${weekday}، ${gregPart}`;
+    }
+    return gregPart || weekday || "تاريخ اليوم المبارك";
+}
+window.getFullFormattedDate = getFullFormattedDate;
+
+/**
+ * حساب وعرض التاريخ الهجري والميلادي واليوم في الواجهة
  */
 function initHijriDate() {
     const heroHijriEl = document.getElementById("hero-hijri-date-text");
     const prayerHijriEl = document.getElementById("prayer-hijri-text");
+    const todayEl = document.getElementById("today");
+
+    const fullDate = getFullFormattedDate();
+
+    if (todayEl) {
+        todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 6px; opacity: 0.85;"></i>${fullDate}`;
+    }
 
     let formattedDate = "";
     try {
+        let offsetDays = 0;
+        try { offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0; } catch (e) {}
+        const hDate = new Date(Date.now() + (offsetDays * 86400000));
         const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
             year: 'numeric'
         });
-        formattedDate = formatter.format(new Date());
+        formattedDate = formatter.format(hDate);
     } catch (e) {
         try {
+            let offsetDays = 0;
+            try { offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0; } catch (e) {}
+            const hDate = new Date(Date.now() + (offsetDays * 86400000));
             const fallback = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
                 weekday: 'long',
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             });
-            formattedDate = fallback.format(new Date());
+            formattedDate = fallback.format(hDate);
         } catch (err) {
             formattedDate = "التقويم الهجري المبارك";
         }
@@ -246,6 +336,7 @@ function initHijriDate() {
         prayerHijriEl.textContent = formattedDate;
     }
 }
+window.initHijriDate = initHijriDate;
 
 /* ==========================================================================
    2. سلايدر الأدعية (Swiper.js) والمزامنة السحابية (Firebase Realtime)
@@ -3657,7 +3748,7 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
         const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayerKey}&muazzin=${currentMuazzin}&t=${Date.now()}`;
         
         const showImages = localStorage.getItem('zad_show_prayer_images') === '1';
-        const prayerImg = showImages ? `assets/images/prayers/pre_${prayerKey}.jpeg` : null;
+        const prayerImg = showImages ? `assets/images/prayers/pre_${prayerKey}.jpg` : null;
 
         const notifOptions = {
             body: notifBody,
@@ -3750,7 +3841,7 @@ function showAdhanAutoplayBanner(prayerName, prayerKey, muazzin) {
     }
 
     const showImages = localStorage.getItem('zad_show_prayer_images') === '1';
-    const prayerImg = (showImages && prayerKey && prayerKey !== "prayer") ? `assets/images/prayers/pre_${prayerKey}.jpeg` : null;
+    const prayerImg = (showImages && prayerKey && prayerKey !== "prayer") ? `assets/images/prayers/pre_${prayerKey}.jpg` : null;
 
     banner.innerHTML = `
         <div class="adhan-banner-inner">

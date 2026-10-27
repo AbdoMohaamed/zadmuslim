@@ -143,7 +143,7 @@ public class AdhanActivity extends Activity {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
         btnParams.setMargins(32, 16, 32, 20);
-        root.addView(stopBtn, btnParams);
+        stopBtn.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
 
         // تلميح أزرار الصوت وزر القفل
         TextView hintView = new TextView(this);
@@ -160,7 +160,14 @@ public class AdhanActivity extends Activity {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
         ));
-        setContentView(scrollView);
+        LinearLayout screen = new LinearLayout(this);
+        screen.setOrientation(LinearLayout.VERTICAL);
+        screen.setBackgroundColor(0xFF042B23);
+        screen.setFitsSystemWindows(true);
+        screen.addView(scrollView, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        screen.addView(stopBtn, btnParams);
+        setContentView(screen);
 
         // استقبال أمر إغلاق الشاشة عند إيقاف الأذان من أي مكان
         dismissReceiver = new BroadcastReceiver() {
