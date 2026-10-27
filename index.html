@@ -160,16 +160,25 @@
     <main class="shell container" id="home">
         <section class="hero home-hero-compact">
             <div>
-                <div class="eyebrow">✦ رفيقك في رحلة الطمأنينة</div>
+                <span class="eyebrow" id="today"></span>
+                <div class="eyebrow">  رفيقك في رحلة الطمأنينة</div>
                 <h1>زادٌ لقلبك، ونورٌ ليومك.</h1>
-                <p>صلاتك وقرآنك وأذكارك… زاد يومك في مكان واحد.</p>
-                <div class="hero-actions">
-                    <a class="btn gold" href="#daily">ابدأ يومك الآن ←</a>
-                    <a class="btn glass" href="#services">اختصاراتك</a>
-                </div>
+                <p>صلاتك وقرآنك وأذكارك…</p>
+                <!--<div class="hero-actions">
+        <a class="btn gold" href="#daily">ابدأ يومك الآن ←</a>
+        <a class="btn glass" href="#services">اختصاراتك</a>
+    </div>-->
             </div>
             <div class="moon">☾</div>
         </section>
+        <div class="prayer panel home-next-prayer" id="home-next-prayer">
+            <div>
+                <div class="small">🕌 الصلاة القادمة</div>
+                <strong id="daily-next-prayer-name">صلاتك في وقتها</strong>
+                <div class="small" id="daily-next-prayer-time">تختلف المواقيت حسب مدينتك</div>
+            </div>
+            <a class="btn outline" href="services.html#prayer-times">عرض التفاصيل ←</a>
+        </div>
 
         <!-- بنر التذكير الذكي بالسياق الزمني (Smart Contextual Reminder Banner) -->
         <div class="smart-reminder-banner container" id="smart-reminder-banner" style="display: none; margin-top: 1rem; margin-bottom: 1.5rem;">
@@ -188,64 +197,65 @@
             </div>
         </div>
 
-                <div class="prayer panel home-next-prayer" id="home-next-prayer">
-                    <div>
-                        <div class="small">🕌 الصلاة القادمة</div>
-                        <strong id="daily-next-prayer-name">صلاتك في وقتها</strong>
-                        <div class="small" id="daily-next-prayer-time">تختلف المواقيت حسب مدينتك</div>
-                    </div>
-                    <a class="btn outline" href="services.html#prayer-times">عرض التفاصيل ←</a>
-                </div>
 
         <div id="home-services-section">
             <div class="section-head" id="services">
-                <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom:20PX;">
-                    <div>
-                        <h2>اختصاراتك</h2>
-                        <p>اختصاراتك السريعة والمخصصة في الصفحة الرئيسية</p>
-                    </div>
+                <div class="container" style="display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                         <a class="subtle" href="settings.html#settings-shortcuts-section" title="تخصيص وترتيب اختصارات الصفحة الرئيسية" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--gold-400); font-weight: 700; font-size: 0.85rem; text-decoration: none;">
                             <i class="fa-solid fa-star"></i>
                             <span>تخصيص الاختصارات</span>
                         </a>
-                        <a class="subtle" href="services.html" style="font-size: 0.88rem;">كل الخدمات ←</a>
                     </div>
                 </div>
             </div>
 
-            <!-- القسم 3: بطاقات الوصول السريع الافتراضية -->
-            <section class="features quick-access-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <a class="feature" href="services.html#quran-khatma?tab=mushaf" data-service="quran-khatma">
-                    <div class="fi">📖</div>
-                    <h3>القرآن الكريم</h3>
-                    <p>تلاوة وتدبر ومتابعة الورد والختمة القرآنية</p>
+            <!-- بطاقات الوصول السريع الافتراضية -->
+            <section class="features quick-access-grid">
+                <a class="feature home-quick-card" href="services.html#quran-khatma?tab=mushaf" data-service="quran-khatma">
+                    <div class="home-quick-icon-box">
+                        <i class="fa-solid fa-book-quran" aria-hidden="true"></i>
+                    </div>
+                    <span class="home-quick-title">المصحف</span>
                 </a>
-                <a class="feature" href="services.html#azkar" data-service="azkar">
-                    <div class="fi">🤲</div>
-                    <h3>الأذكار والأدعية</h3>
-                    <p>حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة</p>
+                <a class="feature home-quick-card" href="services.html#azkar" data-service="azkar">
+                    <div class="home-quick-icon-box">
+                        <i class="fa-solid fa-hands-praying" aria-hidden="true"></i>
+                    </div>
+                    <span class="home-quick-title">أذكاري</span>
+                </a>
+                <a class="feature home-quick-card" href="services.html#smart-dhikr-panel" data-service="tasbeeh">
+                    <div class="home-quick-icon-box">
+                        <i class="fa-solid fa-ring" aria-hidden="true"></i>
+                    </div>
+                    <span class="home-quick-title">السبحة</span>
+                </a>
+                <a class="feature home-quick-card" href="services.html#seasons" data-service="seasons">
+                    <div class="home-quick-icon-box">
+                        <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+                    </div>
+                    <span class="home-quick-title">مواسم الطاعات</span>
                 </a>
             </section>
 
-            <!-- القسم 4: استكشف المزيد من الخدمات -->
-            <div style="text-align: center; margin: 28px 0 35px;">
-                <a class="btn outline explore-all-btn" href="services.html" style="font-size: 15px; padding: 14px 28px; border-radius: 16px; border: 1.5px solid var(--border-color); display: inline-flex; align-items: center; gap: 8px;">
-                    <span>استكشف جميع خدمات زاد المسلم</span>
-                    <span style="font-size: 18px;">←</span>
+            <!-- باقي الخدمات -->
+            <div class="home-services-more-wrap">
+                <a class="btn outline explore-all-btn home-more-services-btn" href="services.html">
+                    <span>باقي الخدمات</span>
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                 </a>
             </div>
         </div>
 
-        <div class="section-head" id="daily">
+        <!--<div class="section-head" id="daily">
             <div>
                 <h2>🌿 يومي مع الله</h2>
                 <p>خطوات صغيرة، وأثر كبير في يومك</p>
             </div>
             <span class="subtle" id="today"></span>
-        </div>
+        </div>-->
 
-        <section class="dashboard">
+        <section class="dashboard" id="daily">
             <article class="panel" id="daily-journey-panel">
                 <div class="journey-heading">
                     <div class="journey-heading-main">
@@ -354,62 +364,7 @@
                 </div>
             </article>
 
-            <article class="panel dhikr smart-dhikr-panel" id="smart-dhikr-panel">
-                <div class="dhikr-panel-top">
-                    <div class="small"><i class="fa-solid fa-hand-dots text-gold"></i> السبحة</div>
-                </div>
 
-                <!-- شريط التبديل السريع بين الأذكار -->
-                <div class="dhikr-chips-strip" id="dhikr-chips-strip"></div>
-
-                <!-- مساحة عرض الذكر وفضله مع أسهم التنقل -->
-                <div class="dhikr-card-display">
-                    <button type="button" class="btn-dhikr-arrow prev" onclick="if(window.SmartTasbih) SmartTasbih.prevZkr();" title="الذكر السابق" aria-label="الذكر السابق">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                    <div class="dhikr-text-wrapper">
-                        <div class="quote dhikr-quote-text" id="quick-dhikr-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
-                        <div class="dhikr-virtue-subtext" id="quick-dhikr-virtue">حبيبتان إلى الرحمن، خفيفتان على اللسان، ثقيلتان في الميزان.</div>
-                    </div>
-                    <button type="button" class="btn-dhikr-arrow next" onclick="if(window.SmartTasbih) SmartTasbih.nextZkr();" title="الذكر التالي" aria-label="الذكر التالي">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                </div>
-
-                <!-- مساحة زر التسبيح التفاعلي الكبير النابض مع مؤشر الهدف -->
-                <div class="quick-tasbih-action-zone">
-                    <button type="button" class="btn-quick-bead" id="btn-quick-bead-tap" onclick="if(window.SmartTasbih){ SmartTasbih.tapBead(event); } else { increment(); }" oncontextmenu="return false;" title="انقر هنا للتسبيح">
-                        <span class="quick-bead-number" id="counter">0</span>
-                        <span class="quick-bead-target" id="quick-bead-target">الهدف: 33</span>
-                        <span class="quick-bead-label">ردّد الذكر</span>
-                    </button>
-                </div>
-
-                <!-- أدوات التحكم والهدف ومشاركة الأجر مدمجة بالكامل في اللوحة -->
-                <div class="dhikr-panel-controls">
-                    <div class="dhikr-targets-selector">
-                        <span class="dhikr-target-label-txt">دورة الهدف:</span>
-                        <div class="dhikr-target-pills" id="dhikr-target-pills">
-                            <button type="button" class="dhikr-target-pill active" data-target="33" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(33, this);">33</button>
-                            <button type="button" class="dhikr-target-pill" data-target="100" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(100, this);">100</button>
-                            <button type="button" class="dhikr-target-pill" data-target="0" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(0, this);">مفتوح ∞</button>
-                        </div>
-                    </div>
-
-                    <div class="dhikr-quick-action-buttons">
-                        <button type="button" class="btn-compact-chip" id="dhikr-sound-toggle-btn" onclick="if(window.SmartTasbih) SmartTasbih.toggleSound();" title="تشغيل / كتم صوت الخرزات">
-                            <i class="fa-solid fa-volume-high text-gold" id="dhikr-sound-icon"></i>
-                            <span id="dhikr-sound-text">صوت</span>
-                        </button>
-                        <button type="button" class="btn-compact-chip" id="btn-share-dhikr-story" onclick="if(window.SmartTasbih) SmartTasbih.shareCurrentZkr();" title="مشاركة هذا الذكر كستوري">
-                            <i class="fa-solid fa-camera-retro text-gold"></i> <span>شارك كستوري 📷</span>
-                        </button>
-                        <button type="button" class="btn-compact-chip" id="btn-reset-dhikr" onclick="if(window.SmartTasbih){ SmartTasbih.resetCurrentRound(); } if(typeof resetCount==='function'){ resetCount(); }" title="تصفير العداد">
-                            <i class="fa-solid fa-rotate-right"></i> <span>تصفير</span>
-                        </button>
-                    </div>
-                </div>
-            </article>
         </section>
 
         <!-- كارت الختمة الذكية والورد اليومي (Personal Smart Khatma Planner & Tracker) -->
@@ -452,13 +407,13 @@
         </article>
 
         <!-- القسم 5: بطاقة الصدقة الجارية والتحدي المميزة -->
-        <section class="bottom" id="sadaqa">
+        <section class="bottom" id="sadaqa" style="grid-template-columns: 1fr;">
             <article class="panel sadaqa">
                 <div class="sadaqa-top-row">
                     <span class="sadaqa-badge"><i class="fa-solid fa-heart-pulse"></i> أثرٌ طيب لا ينقطع</span>
                     <span class="sadaqa-subtle-tag"><i class="fa-solid fa-seedling"></i> صدقة جارية</span>
                 </div>
-                
+
                 <div class="sadaqa-header">
                     <div class="sadaqa-icon-aura" aria-hidden="true">
                         <i class="fa-solid fa-hand-holding-heart"></i>
@@ -493,39 +448,7 @@
                 </div>
             </article>
 
-            <article class="panel challenge">
-                <div class="sadaqa-top-row">
-                    <span class="challenge-badge"><i class="fa-solid fa-fire text-gold"></i> استقامة وذكر</span>
-                    <span class="sadaqa-subtle-tag"><i class="fa-solid fa-calendar-check"></i> 7 أيام</span>
-                </div>
 
-                <div class="challenge-header">
-                    <div class="challenge-icon-aura" aria-hidden="true">
-                        <i class="fa-solid fa-seedling"></i>
-                    </div>
-                    <div class="challenge-header-text">
-                        <h2>تحدي 7 أيام إيماني 🌟</h2>
-                        <p>ابدأ خطوة ثابتة في بناء عادة يومية خفيفة ترتقي بها من الذكر وتلاوة القرآن.</p>
-                    </div>
-                </div>
-
-                <div class="challenge-quote-card">
-                    <p class="challenge-quote-text">«أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ»</p>
-                    <span class="challenge-quote-ref"><i class="fa-solid fa-check"></i> متفق عليه</span>
-                </div>
-
-                <div class="sadaqa-features-pills">
-                    <div class="challenge-pill"><i class="fa-solid fa-clock-rotate-left"></i><span>دقائق يسيرة كل يوم</span></div>
-                    <div class="challenge-pill"><i class="fa-solid fa-chart-line"></i><span>متابعة تشجيعية للتقدم</span></div>
-                </div>
-
-                <div class="sadaqa-actions">
-                    <button class="btn outline challenge-cta-btn" id="btn-open-7days-challenge" type="button">
-                        <i class="fa-solid fa-compass"></i>
-                        <span>اكتشف التحدي وابدأ اليوم ←</span>
-                    </button>
-                </div>
-            </article>
         </section>
 
         <!-- تنبيه عند إخفاء جميع الأقسام -->
@@ -1009,17 +932,8 @@
         };
         function showModal(k) {
             if (k === 'challenge') {
-                const cm = document.getElementById('challenge-modal');
-                if (cm) {
-                    const btn = document.getElementById('btn-open-7days-challenge');
-                    if (btn && !cm.classList.contains('active')) {
-                        btn.click();
-                    } else {
-                        cm.classList.add('active');
-                        document.body.style.overflow = 'hidden';
-                    }
-                    return;
-                }
+                (window.zadNavigate || location.assign.bind(location))('services.html#seven-day-challenge');
+                return;
             }
             const mc = document.getElementById('modalContent');
             if (mc) mc.innerHTML = content[k] || '';

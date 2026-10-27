@@ -71,7 +71,7 @@
             </a>
             <nav class="links">
                 <a href="index.html#home">الرئيسية</a>
-                <a href="#islamic-media">مرئيات وبودكاست</a>
+                <a href="#islamic-media">مقتطفات</a>
             </nav>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <a class="btn outline" id="btn-open-settings-nav" href="settings.html" title="الإعدادات والتخصيص" style="padding: 16px; font-size: 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
@@ -127,7 +127,7 @@
                 <button type="button" class="cat-pill-btn" data-category-filter="الورد والمتابعة" aria-pressed="false" onclick="filterCategory('الورد والمتابعة', this)"><span aria-hidden="true">🌿</span><span>الورد والمتابعة</span></button>
                 <button type="button" class="cat-pill-btn" data-category-filter="المواسم والتقويم" aria-pressed="false" onclick="filterCategory('المواسم والتقويم', this)"><span aria-hidden="true">🗓️</span><span>مواسم الطاعات</span></button>
                 <button type="button" class="cat-pill-btn" data-category-filter="المعرفة الإسلامية" aria-pressed="false" onclick="filterCategory('المعرفة الإسلامية', this)"><span aria-hidden="true">📚</span><span>المعرفة والقصص</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="المرئيات" aria-pressed="false" onclick="filterCategory('المرئيات', this)"><span aria-hidden="true">🎬</span><span>مرئيات وبودكاست</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المرئيات" aria-pressed="false" onclick="filterCategory('المرئيات', this)"><span aria-hidden="true">🎬</span><span>مقتطفات</span></button>
                 <button type="button" class="cat-pill-btn" data-category-filter="الزكاة" aria-pressed="false" onclick="filterCategory('الزكاة', this)"><span aria-hidden="true">🧮</span><span>حاسبة الزكاة</span></button>
                 <button type="button" class="cat-pill-btn" data-category-filter="للمتوفى" aria-pressed="false" onclick="filterCategory('للمتوفى', this)"><span aria-hidden="true">🤍</span><span>صدقة للمتوفى</span></button>
             </div>
@@ -228,7 +228,7 @@
                     </div>
                     <span class="service-action-link">تصفح الأذكار ←</span>
                 </a>
-                <a class="service-card" href="index.html#smart-dhikr-panel">
+                <a class="service-card" href="#smart-dhikr-panel">
                     <div class="service-card-top">
                         <div class="service-icon-box">📿</div>
                         <div class="service-info">
@@ -292,6 +292,7 @@
                     </div>
                     <span class="service-action-link">متابعة الورد ←</span>
                 </a>
+                <a class="service-card" href="#seven-day-challenge"><div class="service-card-top"><div class="service-icon-box">🌟</div><div class="service-info"><h3>تحدي 7 أيام</h3><p>ابدأ عادة يومية وتابع تقدمك خلال أسبوع.</p></div></div><span class="service-action-link">ابدأ التحدي ←</span></a>
                 <a class="service-card" href="#spiritual-garden">
                     <div class="service-card-top">
                         <div class="service-icon-box">🌱</div>
@@ -359,13 +360,13 @@
             </div>
         </section>
 
-        <section class="category-block" data-category="المرئيات">
-            <div class="category-title-wrap"><span aria-hidden="true">🎬</span><h2 class="category-title">مرئيات وبودكاست</h2></div>
+        <section class="category-block" data-category="المقتطفات">
+            <div class="category-title-wrap"><span aria-hidden="true">🎬</span><h2 class="category-title">مقتطفات</h2></div>
             <p class="category-desc">شاهد المواعظ والمقاطع أو استمع لها.</p>
             <div class="services-grid">
                 <a class="service-card" href="#islamic-media">
-                    <div class="service-card-top"><div class="service-icon-box">🎬</div><div class="service-info"><h3>مرئيات وبودكاست</h3><p>شاهد المواعظ أو استمع لها.</p></div></div>
-                    <span class="service-action-link">تصفح المرئيات ←</span>
+                    <div class="service-card-top"><div class="service-icon-box">🎬</div><div class="service-info"><h3>مقتطفات</h3><p>شاهد المواعظ أو استمع لها.</p></div></div>
+                    <span class="service-action-link">تصفح المقتطفات ←</span>
                 </a>
             </div>
         </section>
@@ -1472,6 +1473,95 @@
         <!-- ==========================================
          قسم مواسم الطاعات والتقويم الهجري (Seasons of Worship)
          ========================================== -->
+        <section id="smart-dhikr-panel" class="service-view-section"><div class="container">            <article class="panel dhikr smart-dhikr-panel">
+                <div class="dhikr-panel-top">
+                    <div class="small"><i class="fa-solid fa-hand-dots text-gold"></i> السبحة</div>
+                </div>
+
+                <!-- شريط التبديل السريع بين الأذكار -->
+                <div class="dhikr-chips-strip" id="dhikr-chips-strip"></div>
+
+                <!-- مساحة عرض الذكر وفضله مع أسهم التنقل -->
+                <div class="dhikr-card-display">
+                    <button type="button" class="btn-dhikr-arrow prev" onclick="if(window.SmartTasbih) SmartTasbih.prevZkr();" title="الذكر السابق" aria-label="الذكر السابق">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <div class="dhikr-text-wrapper">
+                        <div class="quote dhikr-quote-text" id="quick-dhikr-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+                        <div class="dhikr-virtue-subtext" id="quick-dhikr-virtue">حبيبتان إلى الرحمن، خفيفتان على اللسان، ثقيلتان في الميزان.</div>
+                    </div>
+                    <button type="button" class="btn-dhikr-arrow next" onclick="if(window.SmartTasbih) SmartTasbih.nextZkr();" title="الذكر التالي" aria-label="الذكر التالي">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- مساحة زر التسبيح التفاعلي الكبير النابض مع مؤشر الهدف -->
+                <div class="quick-tasbih-action-zone">
+                    <button type="button" class="btn-quick-bead" id="btn-quick-bead-tap" onclick="if(window.SmartTasbih){ SmartTasbih.tapBead(event); } else { increment(); }" oncontextmenu="return false;" title="انقر هنا للتسبيح">
+                        <span class="quick-bead-number" id="counter">0</span>
+                        <span class="quick-bead-target" id="quick-bead-target">الهدف: 33</span>
+                        <span class="quick-bead-label">ردّد الذكر</span>
+                    </button>
+                </div>
+
+                <!-- أدوات التحكم والهدف ومشاركة الأجر مدمجة بالكامل في اللوحة -->
+                <div class="dhikr-panel-controls">
+                    <div class="dhikr-targets-selector">
+                        <span class="dhikr-target-label-txt">دورة الهدف:</span>
+                        <div class="dhikr-target-pills" id="dhikr-target-pills">
+                            <button type="button" class="dhikr-target-pill active" data-target="33" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(33, this);">33</button>
+                            <button type="button" class="dhikr-target-pill" data-target="100" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(100, this);">100</button>
+                            <button type="button" class="dhikr-target-pill" data-target="0" onclick="if(window.SmartTasbih) SmartTasbih.setTarget(0, this);">مفتوح ∞</button>
+                        </div>
+                    </div>
+
+                    <div class="dhikr-quick-action-buttons">
+                        <button type="button" class="btn-compact-chip" id="dhikr-sound-toggle-btn" onclick="if(window.SmartTasbih) SmartTasbih.toggleSound();" title="تشغيل / كتم صوت الخرزات">
+                            <i class="fa-solid fa-volume-high text-gold" id="dhikr-sound-icon"></i>
+                            <span id="dhikr-sound-text">صوت</span>
+                        </button>
+                        <button type="button" class="btn-compact-chip" id="btn-share-dhikr-story" onclick="if(window.SmartTasbih) SmartTasbih.shareCurrentZkr();" title="مشاركة هذا الذكر كستوري">
+                            <i class="fa-solid fa-camera-retro text-gold"></i> <span>شارك كستوري 📷</span>
+                        </button>
+                        <button type="button" class="btn-compact-chip" id="btn-reset-dhikr" onclick="if(window.SmartTasbih){ SmartTasbih.resetCurrentRound(); } if(typeof resetCount==='function'){ resetCount(); }" title="تصفير العداد">
+                            <i class="fa-solid fa-rotate-right"></i> <span>تصفير</span>
+                        </button>
+                    </div>
+                </div>
+            </article></div></section>
+        <section id="seven-day-challenge" class="service-view-section"><div class="container">            <article class="panel challenge">
+                <div class="sadaqa-top-row">
+                    <span class="challenge-badge"><i class="fa-solid fa-fire text-gold"></i> استقامة وذكر</span>
+                    <span class="sadaqa-subtle-tag"><i class="fa-solid fa-calendar-check"></i> 7 أيام</span>
+                </div>
+
+                <div class="challenge-header">
+                    <div class="challenge-icon-aura" aria-hidden="true">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div class="challenge-header-text">
+                        <h2>تحدي 7 أيام إيماني 🌟</h2>
+                        <p>ابدأ خطوة ثابتة في بناء عادة يومية خفيفة ترتقي بها من الذكر وتلاوة القرآن.</p>
+                    </div>
+                </div>
+
+                <div class="challenge-quote-card">
+                    <p class="challenge-quote-text">«أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ»</p>
+                    <span class="challenge-quote-ref"><i class="fa-solid fa-check"></i> متفق عليه</span>
+                </div>
+
+                <div class="sadaqa-features-pills">
+                    <div class="challenge-pill"><i class="fa-solid fa-clock-rotate-left"></i><span>دقائق يسيرة كل يوم</span></div>
+                    <div class="challenge-pill"><i class="fa-solid fa-chart-line"></i><span>متابعة تشجيعية للتقدم</span></div>
+                </div>
+
+                <div class="sadaqa-actions">
+                    <button class="btn outline challenge-cta-btn" id="btn-open-7days-challenge" type="button">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>اكتشف التحدي وابدأ اليوم ←</span>
+                    </button>
+                </div>
+            </article></div></section>
         <section id="seasons" class="service-view-section seasons-section">
             <div class="container">
                 <div class="section-header">
@@ -1620,8 +1710,8 @@
         <section id="islamic-media" class="service-view-section islamic-media-section">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-tag"><i class="fa-solid fa-video"></i> مرئيات وبودكاست إسلامي</span>
-                    <h2 class="section-title">مرئيات وبودكاست زاد المسلم</h2>
+                    <span class="section-tag"><i class="fa-solid fa-video"></i> مقتطفات إسلامي</span>
+                    <h2 class="section-title">مقتطفات زاد المسلم</h2>
                     <p class="section-desc">
                         حلقات بودكاست نافعة، مواعظ خاشعة، تأملات قرآنية، وقصص ملهمة تثري عقلك وتطمئن قلبك بنية الصدقة الجارية.
                     </p>
@@ -1688,16 +1778,16 @@
                     </div>
                 </div>
 
-                <!-- شبكة بطاقات المرئيات -->
+                <!-- شبكة بطاقات الالمقتطفات-->
                 <div class="media-grid" id="islamic-media-grid">
                     <!-- يتم توليد البطاقات ديناميكياً بواسطة JavaScript -->
                 </div>
 
-                <!-- زر عرض المزيد من المرئيات (Pagination / Load More) -->
+                <!-- زر عرض المزيد من الالمقتطفات(Pagination / Load More) -->
                 <div class="media-load-more-wrapper" id="media-load-more-wrapper">
                     <button type="button" class="btn-load-more-media" id="btn-load-more-media">
                         <i class="fa-solid fa-angles-down"></i>
-                        <span>عرض المزيد من المرئيات</span>
+                        <span>عرض المزيد من المقتطفات</span>
                         <span class="load-more-badge" id="load-more-remaining-badge">+9 مقاطع</span>
                     </button>
                 </div>
@@ -1705,7 +1795,7 @@
                 <!-- حالة عدم وجود نتائج -->
                 <div class="media-empty-state" id="media-empty-state" style="display: none;">
                     <i class="fa-solid fa-film text-gold"></i>
-                    <h3>لم نجد مرئيات مطابقة للبحث</h3>
+                    <h3>لم نجد مقتطفات مطابقة للبحث</h3>
                     <p>جرّب البحث بكلمات أخرى أو اختر تصنيفاً مختلفاً.</p>
                     <button type="button" class="btn btn-gold btn-sm" id="btn-reset-media-filter">عرض جميع المقاطع</button>
                 </div>
@@ -3354,7 +3444,7 @@
         ويدجت إذاعة القرآن الكريم المباشرة (24/7 Live Radio)
         ========================================== -->
         <script src="assets/js/radio-widget.js?v=2"></script>
-        <!-- نافذة مشغل المرئيات والبودكاست (Islamic Media Video Modal) -->
+        <!-- نافذة مشغل الالمقتطفاتوالبودكاست (Islamic Media Video Modal) -->
         <div class="modal-overlay" id="media-player-modal" role="dialog" aria-modal="true">
             <div class="modal-card modal-card-media-player">
                 <!-- شريط رأس المشغل البسيط والمباشر -->
@@ -3502,7 +3592,7 @@
             const normalizeServiceSearch = value => value.trim().replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[\u064B-\u065F\u0670ـ]/g,'').toLowerCase();
             const serviceSearchAliases = {
                 '#nearby-mosques-section':'جامع جوامع مسجد مساجد قريب قريبة خريطة خرائط',
-                'index.html#smart-dhikr-panel':'تسبيح سبحة سبح عداد',
+                '#smart-dhikr-panel':'تسبيح سبحة سبح عداد',
                 '#radio-panel':'راديو اذاعة اذاعات بث سماع استماع قران قرآن',
                 '#quran-khatma?tab=mushaf':'مصحف قران قرآن قراءة سورة سور تلاوة',
                 '#quran-khatma?tab=khatma':'ختمة ختم ختمات اجزاء جزء جماعية',
@@ -3512,7 +3602,7 @@
                 '#islamic-stories':'قصص قصة نبي انبياء صحابة',
                 '#mood-compass-section':'حزن قلق خوف طمأنينة سكينة',
                 '#categorized-duas':'دعاء ادعية أدعية',
-                '#islamic-media':'فيديو فيديوهات مرئيات بودكاست موعظة مواعظ استماع',
+                '#islamic-media':'فيديو فيديوهات مقتطفات بودكاست موعظة مواعظ استماع',
                 '#daily-wird':'ورد مهام يومي متابعة'
             };
             function clearServicesSearch() { document.getElementById('servicesSearch').value='';filterServices();document.getElementById('servicesSearch').focus(); }
@@ -3833,6 +3923,8 @@
 
             // خريطة أسماء وأيقونات الخدمات لوضع التركيز
             const SERVICE_TITLES = {
+                'smart-dhikr-panel': 'السبحة',
+                'seven-day-challenge': 'تحدي 7 أيام',
                 'prayer-times': 'مواقيت الصلاة والقبلة وساعة الاستجابة 🕌',
                 'prayer-guide-section': 'دليل الصلاة الشامل • صفة صلاة النبي ﷺ 📖',
                 'nearby-mosques-section': 'أقرب المساجد إليك 📍',
@@ -3843,7 +3935,7 @@
                 'seasons': 'مواسم الخيرات والأيام الفاضلة 🌙',
                 'categorized-duas': 'الأدعية النبوية والقرآنية المصنفة 🤲',
                 'asmaa-allah': 'أسماء الله الحسنى ومعانيها ✨',
-                'islamic-media': 'مرئيات وبودكاست',
+                'islamic-media': 'مقتطفات',
                 'islamic-stories': 'قصص الأنبياء والصحابة الكرام 📜',
                 'islamic-quiz': 'مسابقة اختبر معلوماتك الدينية 🏆',
                 'zakat-calculator-section': 'حاسبة الزكاة الشرعية الشاملة 🪙',

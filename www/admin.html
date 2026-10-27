@@ -1273,7 +1273,7 @@
         </button>
         <button type="button" class="admin-tab-btn" data-tab="tab-media">
             <i class="fa-solid fa-film text-gold"></i>
-            <span>مرئيات وبودكاست</span>
+            <span>مقتطفات</span>
         </button>
         <button type="button" class="admin-tab-btn" data-tab="tab-reports">
             <i class="fa-solid fa-flag text-gold"></i>
@@ -1723,7 +1723,7 @@
                     <div>
                         <h2 style="font-size: 20px; font-weight: 800; color: var(--gold-light); margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
                             <i class="fa-solid fa-film text-gold"></i>
-                            <span>إدارة مكتبة المرئيات والبودكاست الإسلامي</span>
+                            <span>إدارة مكتبة المقتطفات</span>
                         </h2>
                         <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.6;">
                             أضف، عدّل، واحذف المقاطع والبودكاست والمواعظ الخاشعة المعروضة لجميع زوار ومستخدمي زاد المسلم. يمكنك وضع رابط يوتيوب وسيتولى النظام استخراج الصورة والمعلومات تلقائياً، مع إمكانية إرسال إشعار فوري لأي مقطع بضغطة زر واحدة.
@@ -2426,7 +2426,7 @@
                 let statusBadge = '';
                 let retryButtons = '';
 
-                const isFailed = (b.webSuccess === false && b.mobileSuccess === false) || (b.webSent === 0 && !b.mobileSuccess && b.partialFailure === false && (b.message && b.message.includes('تعذّر')));
+                const isFailed = b.success === false || (b.webSuccess === false && b.mobileSuccess === false) || (b.webSent === 0 && !b.mobileSuccess && b.partialFailure === false && (b.message && b.message.includes('تعذّر')));
 
                 if (b.partialFailure) {
                     statusBadge = `<span class="status-badge" style="background: rgba(234, 179, 8, 0.18); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.4);" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-triangle-exclamation"></i> إرسال جزئي</span>`;
@@ -2452,7 +2452,7 @@
                 } else if (b.webSent > 0) {
                     statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-globe"></i> ويب (${b.webSent})</span>`;
                 } else {
-                    statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-check"></i> تم البث</span>`;
+                    statusBadge = `<span class="status-badge sent" title="${escapeHtml(b.message || '')}"><i class="fa-solid fa-circle-info"></i> نتيجة غير مسجلة</span>`;
                 }
 
                 const msgDetail = b.message ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.3;">${escapeHtml(b.message)}</div>` : '';
@@ -2532,9 +2532,12 @@
         });
 
         let pendingBroadcast = null;
+        let pendingDeviceTest = null;
+        const pendingResends = new Map();
+        const activeResends = new Set();
         async function saveBroadcastHistory(record) {
             try { if (!db) throw new Error(); await db.ref('push_broadcasts').push(record); return ''; }
-            catch { return ' • تم قبول الإرسال لكن تعذّر حفظ السجل؛ لا تعِد الإرسال لهذا السبب.'; }
+            catch { return record.success === false ? ' • تعذّر أيضًا حفظ المحاولة في السجل.' : ' • تم قبول الإرسال لكن تعذّر حفظ السجل؛ لا تعِد الإرسال لهذا السبب.'; }
         }
         // Form Submit -> Send Broadcast
         document.getElementById("broadcast-form").addEventListener("submit", async (e) => {
@@ -2559,7 +2562,7 @@
                 if (!pendingBroadcast || pendingBroadcast.signature!==signature) pendingBroadcast={signature,requestId:crypto.randomUUID()};
                 const result = await adminRequest('/api/send-push', { title, body, url, channel, requestId:pendingBroadcast.requestId });
                 if (result.success && !result.partialFailure) pendingBroadcast=null;
-                if (!result.success) throw new Error(result.message || 'لم يتم إرسال أي إشعار. راجع المشتركين وإعدادات الخدمة.');
+
 
                 const webCount = result.channels?.web?.sentCount ?? (result.sentCount || 0);
                 const mobileOk = Boolean(result.channels?.mobile?.success || result.onesignal?.id);
@@ -2573,6 +2576,8 @@
                         body,
                         url,
                         channel: result.channel || channel,
+                        success: Boolean(result.success),
+                        webFailed: result.channels?.web?.failedCount || 0,
                         webSent: webCount,
                         webSuccess: Boolean(result.channels?.web?.success),
                         mobileSuccess: mobileOk,
@@ -2583,7 +2588,9 @@
                     });
                 }
 
-                if (isPartial) {
+                if (!result.success) {
+                    showAdminToast((result.message || 'لم يُقبل الإرسال لأي مشترك.') + historyWarning, true);
+                } else if (isPartial) {
                     showAdminToast('⚠️ تنبيه: إرسال جزئي — ' + (result.message || 'راجع السجل.') + historyWarning, true);
                 } else {
                     showAdminToast('✅ ' + (result.message || 'تم قبول الإرسال بنجاح.') + historyWarning);
@@ -2640,7 +2647,7 @@
             const badge = document.getElementById('os-status-badge');
             try {
                 const appId = document.getElementById('os-app-id').value.trim();
-                if (!/^[a-f0-9-]{36}$/i.test(appId)) throw new Error('معرّف التطبيق غير صالح');
+                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(appId)) throw new Error('معرّف التطبيق غير صالح');
                 await db.ref('public_config/onesignal_app_id').set(appId);
                 if (badge) { badge.textContent = 'تم الحفظ ✓'; badge.style.color = '#10b981'; }
                 showAdminToast('تم حفظ المعرّف العام. اضبط المفتاح الخاص على الخادم.');
@@ -2680,7 +2687,11 @@
             if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subscriptionId)) { status.textContent='أدخل معرّف اشتراك صالحًا لجهازك.';return; }
             button.disabled=true;status.textContent='جارٍ إرسال التجربة لجهازك…';
             try {
-                const result=await adminRequest('/api/send-push',{action:'test_device',subscriptionId,requestId:crypto.randomUUID(),title:titleInput.value.trim() || 'زاد المسلم • تجربة',body:bodyInput.value.trim() || 'تجربة إشعار من لوحة الإدارة',url:document.getElementById('notify-target-url').value});
+                const payload={action:'test_device',subscriptionId,title:titleInput.value.trim() || 'زاد المسلم • تجربة',body:bodyInput.value.trim() || 'تجربة إشعار من لوحة الإدارة',url:document.getElementById('notify-target-url').value};
+                const signature=JSON.stringify(payload);
+                if (!pendingDeviceTest || pendingDeviceTest.signature!==signature) pendingDeviceTest={signature,requestId:crypto.randomUUID()};
+                const result=await adminRequest('/api/send-push',{...payload,requestId:pendingDeviceTest.requestId});
+                if (result.success) pendingDeviceTest=null;
                 status.textContent=result.success?'قبلت الخدمة إرسال التجربة. تأكد من ظهورها على جهازك.':(result.message || 'لم يُقبل إرسال التجربة.');
             } catch(e) { status.textContent=e.message; }
             finally { button.disabled=false; }
@@ -2689,14 +2700,19 @@
         // Resend Broadcast with target channel support
         window.resendBroadcast = async function(id, targetChannel) {
             if (!db) return;
+            const resendKey=String(id)+':'+String(targetChannel || 'saved');
+            if (activeResends.has(resendKey)) return;
             const chanName = targetChannel === 'web' ? 'للمتصفحات فقط' : (targetChannel === 'mobile' ? 'لتطبيقات الموبايل فقط' : 'للجميع');
             if (!confirm(`إعادة إرسال هذا الإشعار ${chanName}؟`)) return;
+            activeResends.add(resendKey);
             try {
                 const val = (await db.ref('push_broadcasts/' + id).once('value')).val();
                 if (!val) throw new Error('الإشعار غير موجود');
                 const reqChannel = targetChannel || val.channel || 'all';
-                const result = await adminRequest('/api/send-push', { title: val.title, body: val.body, url: val.url, channel: reqChannel, requestId:crypto.randomUUID() });
-                if (!result.success) throw new Error(result.message || 'لم يتم إرسال أي إشعار');
+                if (!pendingResends.has(resendKey)) pendingResends.set(resendKey,crypto.randomUUID());
+                const result = await adminRequest('/api/send-push', { title: val.title, body: val.body, url: val.url, channel: reqChannel, requestId:pendingResends.get(resendKey) });
+                if (result.success && !result.partialFailure) pendingResends.delete(resendKey);
+
 
                 const webCount = result.channels?.web?.sentCount ?? (result.sentCount || 0);
                 const mobileOk = Boolean(result.channels?.mobile?.success || result.onesignal?.id);
@@ -2707,6 +2723,8 @@
                     body: val.body,
                     url: val.url,
                     channel: reqChannel,
+                    success: Boolean(result.success),
+                    webFailed: result.channels?.web?.failedCount || 0,
                     webSent: webCount,
                     webSuccess: Boolean(result.channels?.web?.success),
                     mobileSuccess: mobileOk,
@@ -2716,12 +2734,15 @@
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
 
-                if (isPartial) {
+                if (!result.success) {
+                    showAdminToast((result.message || 'لم يُقبل الإرسال لأي مشترك.') + historyWarning, true);
+                } else if (isPartial) {
                     showAdminToast('⚠️ إرسال جزئي: ' + result.message + historyWarning, true);
                 } else {
                     showAdminToast('✅ تم قبول إعادة الإرسال: ' + result.message + historyWarning);
                 }
             } catch(e) { showAdminToast(e.message, true); }
+            finally { activeResends.delete(resendKey); }
         };
 
         // Delete Broadcast

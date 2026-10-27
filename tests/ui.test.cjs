@@ -94,7 +94,7 @@ test('standalone settings persist shortcuts independently of Save, theme, and pr
         assert.deepEqual(errors,[]);
         const ids=[...d.querySelectorAll('[id]')].map(e=>e.id);
         assert.equal(new Set(ids).size,ids.length,'duplicate element IDs');
-        assert.equal(d.querySelectorAll('.settings-fav-card').length,7);
+        assert.equal(d.querySelectorAll('.settings-fav-card').length,8);
         assert.equal(d.documentElement.dataset.theme,'light');
         d.querySelector('.btn-theme-toggle').click();
         assert.equal(w.localStorage.getItem('zadmuslim-theme'),'dark');
@@ -281,20 +281,14 @@ test('home section toggles in settings persist and control visibility on index.h
         const w=dom.window,d=w.document;
         assert.deepEqual(errors,[]);
         const cards=d.querySelectorAll('.settings-home-section-card');
-        assert.equal(cards.length,8,'all 8 home sections must be controllable');
+        assert.equal(cards.length,7,'remaining home sections must be controllable');
         
-        const dhikrCard=d.querySelector('[data-section-id="smart_dhikr"]');
-        assert.ok(dhikrCard);
-        assert.equal(dhikrCard.getAttribute('aria-checked'),'true');
-        dhikrCard.click();
-        assert.equal(dhikrCard.getAttribute('aria-checked'),'false');
-        
+        assert.equal(d.querySelector('[data-section-id="smart_dhikr"]'),null);
         const clipCard=d.querySelector('[data-section-id="daily_clip"]');
         clipCard.click();
         assert.equal(clipCard.getAttribute('aria-checked'),'false');
 
         const config=JSON.parse(w.localStorage.getItem('zad_home_sections'));
-        assert.equal(config.smart_dhikr,false);
         assert.equal(config.daily_clip,false);
         saved=Object.fromEntries(Object.keys(w.localStorage).map(k=>[k,w.localStorage.getItem(k)]));
     }finally{dom.window.close();}
@@ -303,7 +297,7 @@ test('home section toggles in settings persist and control visibility on index.h
     try{
         const hd=home.dom.window.document;
         assert.deepEqual(home.errors,[]);
-        assert.equal(hd.getElementById('smart-dhikr-panel').style.display,'none');
+        assert.equal(hd.getElementById('smart-dhikr-panel'),null);
         assert.equal(hd.getElementById('daily-featured-media-card').style.display,'none');
         assert.notEqual(hd.getElementById('daily-journey-panel').style.display,'none');
     }finally{home.dom.window.close();}
@@ -355,6 +349,8 @@ test('radio starts with Cairo, preserves station on failure, and exposes accessi
  const fab=d.getElementById('radio-fab-btn');const panel=d.getElementById('radio-panel');
  fab.click();assert.equal(panel.classList.contains('open'),true);
  w.pageYOffset=100;w.dispatchEvent(new w.Event('scroll'));assert.equal(panel.classList.contains('open'),false);
+ w.pageYOffset=500;w.ZadRadioHost.openPanel();w.dispatchEvent(new w.Event('scroll'));assert.equal(panel.classList.contains('open'),true);
+ w.pageYOffset=600;w.dispatchEvent(new w.Event('scroll'));assert.equal(panel.classList.contains('open'),false);
  assert.equal(errors.length,0);dom.window.close();
 });
 
@@ -384,7 +380,7 @@ test('direct khatma link selects the group tab',async()=>{
 test('personal services start quiet, pin up to four and keep controls separate from links',async()=>{
  const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;
  assert.equal(d.getElementById('services-resume').hidden,true);assert.equal(d.getElementById('services-favorites').hidden,true);assert.equal(d.getElementById('services-recent').hidden,true);
- const stars=[...d.querySelectorAll('.service-favorite')];assert.equal(stars.length,22);assert.equal(d.querySelector('.service-card button'),null);
+ const stars=[...d.querySelectorAll('.service-favorite')];assert.equal(stars.length,23);assert.equal(d.querySelector('.service-card button'),null);
  stars.slice(0,5).forEach(b=>b.click());assert.equal(JSON.parse(w.localStorage.getItem('zad_services_favorites')).length,4);assert.match(d.getElementById('services-personal-status').textContent,/4/);
  assert.equal(d.body.classList.contains('single-service-mode'),false);
  stars[0].click();assert.equal(JSON.parse(w.localStorage.getItem('zad_services_favorites')).length,3);
@@ -412,7 +408,7 @@ test('personal offline badges reflect actual cached pages and disappear after de
 
 test('service search understands synonyms, Arabic spelling and clear action',async()=>{
  const {dom,errors}=await load('services.html');const w=dom.window,d=w.document,input=d.getElementById('servicesSearch');
- for(const [query,href]of [['جامع قريب','#nearby-mosques-section'],['تسبيح','index.html#smart-dhikr-panel'],['راديو','#radio-panel'],['قُرآن','#quran-khatma?tab=mushaf'],['زكاه','#zakat-calculator-section']]){
+ for(const [query,href]of [['جامع قريب','#nearby-mosques-section'],['تسبيح','#smart-dhikr-panel'],['راديو','#radio-panel'],['قُرآن','#quran-khatma?tab=mushaf'],['زكاه','#zakat-calculator-section']]){
  input.value=query;w.filterServices();assert.equal(d.querySelector('a[href="'+href+'"]').style.display,'flex');assert.equal(d.getElementById('services-clear-search').hidden,false);
  }
  input.value='خدمة غير موجودة';w.filterServices();assert.equal(d.getElementById('noResultsBox').style.display,'block');d.getElementById('services-clear-search').click();assert.equal(input.value,'');assert.equal(d.activeElement,input);assert.equal(d.getElementById('services-clear-search').hidden,true);
@@ -460,7 +456,7 @@ test('all timed home reminder actions navigate to current service routes',async(
  assert.deepEqual(errors,[]);w.close();
 });
 test('a direct home shortcut reveals a hidden section without altering preferences',async()=>{
- const config=JSON.stringify({smart_dhikr:false,daily_journey:false});const {dom,errors}=await load('index.html',{url:'http://localhost:4173/index.html#smart-dhikr-panel',storage:{zad_home_sections:config}});const w=dom.window,d=w.document;await new Promise(r=>setTimeout(r,30));assert.notEqual(d.getElementById('smart-dhikr-panel').style.display,'none');assert.notEqual(d.querySelector('.dashboard').style.display,'none');assert.equal(w.localStorage.getItem('zad_home_sections'),config);assert.deepEqual(errors,[]);w.close();
+ const config=JSON.stringify({smart_dhikr:false,daily_journey:false});const {dom,errors}=await load('index.html',{url:'http://localhost:4173/index.html#daily-wird',storage:{zad_home_sections:config}});const w=dom.window,d=w.document;await new Promise(r=>setTimeout(r,30));assert.notEqual(d.getElementById('daily-journey-panel').style.display,'none');assert.notEqual(d.querySelector('.dashboard').style.display,'none');assert.equal(w.localStorage.getItem('zad_home_sections'),config);assert.deepEqual(errors,[]);w.close();
 });
 
 test('secondary categories collapse initially, stay searchable and reopen for a restored selection',async()=>{
@@ -473,4 +469,9 @@ test('secondary categories collapse initially, stay searchable and reopen for a 
 
 test('salawat voice selection persists, drives preview and reschedules native reminders',async()=>{
  const {dom,errors}=await load('settings.html',{storage:{smart_notify_settings:JSON.stringify({salawatVoice:'voice1'})}});const w=dom.window,d=w.document;assert.equal(d.getElementById('select-salawat-voice').value,'voice1');let calls=0;w.NativeAdhanService.scheduleLocalNotifications=async()=>{calls++;return {success:true};};const select=d.getElementById('select-salawat-voice');select.value='voice2';select.dispatchEvent(new w.Event('change',{bubbles:true}));await new Promise(r=>setTimeout(r,50));assert.equal(JSON.parse(w.localStorage.getItem('smart_notify_settings')).salawatVoice,'voice2');d.getElementById('btn-test-salawat-sound').click();await new Promise(r=>setImmediate(r));assert.match(d.getElementById('audio-salawat-preview').src,/salawat-2\.mp3/);assert.ok(calls>0);assert.deepEqual(errors,[]);w.close();
+});
+
+test('moved tasbeeh and challenge work in services and legacy tasbeeh links redirect',async()=>{
+ const h=await load('index.html',{url:'http://localhost:4173/index.html#smart-dhikr-panel',setup:w=>{w.zadNavigate=url=>w.__destination=url;}});try{h.dom.window.zadNavigate=url=>h.dom.window.__destination=url;h.dom.window.dispatchEvent(new h.dom.window.HashChangeEvent('hashchange'));assert.equal(h.dom.window.__destination,'services.html#smart-dhikr-panel');assert.equal(h.dom.window.document.querySelector('.panel.challenge'),null);assert.deepEqual(h.errors,[]);}finally{h.dom.window.close();}
+ const h2=await load('services.html',{url:'http://localhost:4173/services.html#smart-dhikr-panel'});try{const w=h2.dom.window,d=w.document;assert.ok(d.getElementById('smart-dhikr-panel').classList.contains('active-service-view'));const before=Number(d.getElementById('counter').textContent);d.getElementById('btn-quick-bead-tap').click();assert.equal(Number(d.getElementById('counter').textContent),before+1);w.openServiceView('#seven-day-challenge');d.getElementById('btn-open-7days-challenge').click();assert.ok(d.getElementById('challenge-modal').classList.contains('active'));assert.equal(d.getElementById('challenge-days-list').children.length,7);assert.deepEqual(h2.errors,[]);}finally{h2.dom.window.close();}
 });

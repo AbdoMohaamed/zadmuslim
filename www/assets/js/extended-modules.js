@@ -2820,7 +2820,13 @@ function initLiveRadioWidgetWithSleepTimer() {
    closePanel();
   }
  },{passive:true});
- if(window.ZadRadioHost)window.ZadRadioHost.closePanel=closePanel;
+ if(window.ZadRadioHost){
+  window.ZadRadioHost.closePanel=closePanel;
+  window.ZadRadioHost.openPanel=()=>{
+   lastScrollY=window.pageYOffset||document.documentElement.scrollTop||0;
+   panel.classList.add('open');fab.setAttribute('aria-expanded','true');
+  };
+ }
  const quick=document.createElement('button');quick.type='button';quick.className='btn outline radio-cairo-shortcut';quick.textContent='سماع إذاعة القرآن الكريم من القاهرة';quick.onclick=()=>{const cairo=stations.find(s=>s.id==='cairo');if(cairo){setStation(cairo,false);start();}};panel.querySelector('.radio-controls-row').after(quick);
  const favorite=document.createElement('button');favorite.type='button';favorite.className='btn outline';
  let favorites;try{favorites=JSON.parse(read('zadmuslim_radio_favorites','[]'));if(!Array.isArray(favorites))favorites=[];}catch{favorites=[];}
@@ -3216,7 +3222,7 @@ function initSmartTimelyReminders() {
             title: "ما بين المغرب والعشاء • روضة الطاعات 🕌",
             desc: "وقت مبارك لشهود السنن الرواتب، وتدبر آيات الذكر الحكيم، ومداومة الاستغفار والتسبيح قبل صلاة العشاء.",
             actionText: "السبحة والأذكار 📿",
-            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("index.html#smart-dhikr-panel"); }
+            actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#smart-dhikr-panel"); }
         };
     }
     // 10. سكينة الليل وسورة الملك وركعة الوتر (20:30 إلى 02:00 بعد منتصف الليل)
@@ -4144,6 +4150,7 @@ function initDailyFeaturedMediaClip() {
 
     if (catTag) catTag.textContent = item.badge || categoryNames[item.category] || "موعظة اليوم";
     if (thumbImg) {
+        thumbImg.onerror = () => { thumbImg.onerror = null; thumbImg.src = 'assets/images/logo.png'; };
         thumbImg.src = `https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg`;
         thumbImg.alt = item.title;
     }

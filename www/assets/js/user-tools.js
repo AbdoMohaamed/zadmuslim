@@ -65,31 +65,31 @@
     const read = (key, fallback) => { try { return JSON.parse(store.getItem(key)) ?? fallback; } catch { return fallback; } };
 
     const services = [
-        ['quran-khatma', 'القرآن', 'book-quran'],
-        ['azkar', 'الأذكار', 'hands-praying'],
-        ['prayer-times', 'المواقيت', 'mosque'],
+        ['quran-khatma', 'المصحف', 'book-quran'],
+        ['azkar', 'أذكاري', 'hands-praying'],
         ['tasbeeh', 'السبحة', 'ring'],
-        ['islamic-media', 'المرئيات', 'circle-play'],
+        ['seasons', 'مواسم الطاعات', 'calendar-days'],
+        ['prayer-times', 'المواقيت', 'mosque'],
+        ['islamic-media', 'مقتطفات', 'circle-play'],
         ['zakat-calculator-section', 'الزكاة', 'calculator'],
         ['sadaqa', 'الصدقة', 'heart']
     ];
 
     const serviceMeta = {
-        'quran-khatma': { fi: '📖', title: 'القرآن الكريم', desc: 'تلاوة وتدبر ومتابعة الورد والختمة القرآنية' },
-        'azkar': { fi: '🤲', title: 'الأذكار والأدعية', desc: 'حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة' },
-        'prayer-times': { fi: '🕌', title: 'مواقيت الصلاة', desc: 'تحديد دقيق للمواقيت واتجاه القبلة مع تنبيهات الأذان' },
-        'tasbeeh': { fi: '📿', title: 'السبحة الإلكترونية', desc: 'تسبيح ذكي مع عداد تفاعلي وأهداف يومية مباركة' },
-        'islamic-media': { fi: '🎥', title: 'مرئيات وبودكاست', desc: 'محاضرات ودروس وبث إذاعي إسلامي مباشر خاشع' },
-        'zakat-calculator-section': { fi: '🪙', title: 'حاسبة الزكاة', desc: 'حساب زكاة المال والذهب بسهولة ودقة شرعية' },
-        'sadaqa': { fi: '🤍', title: 'الصدقة الجارية', desc: 'بطاقات دعاء للمتوفى ومشاركة الدعاء' }
+        'quran-khatma': { fi: '📖', icon: 'book-quran', shortTitle: 'المصحف', title: 'المصحف الشريف', desc: 'تلاوة وتدبر ومتابعة الورد والختمة القرآنية' },
+        'azkar': { fi: '🤲', icon: 'hands-praying', shortTitle: 'أذكاري', title: 'الأذكار والأدعية', desc: 'حصن المسلم وأذكار الصباح والمساء والأدعية المأثورة' },
+        'prayer-times': { fi: '🕌', icon: 'mosque', shortTitle: 'المواقيت', title: 'مواقيت الصلاة', desc: 'تحديد دقيق للمواقيت واتجاه القبلة مع تنبيهات الأذان' },
+        'seasons': { icon: 'calendar-days', shortTitle: 'مواسم الطاعات', title: 'مواسم الطاعات والتقويم', desc: 'مواسم الطاعات والتقويم الهجري' },
+        'tasbeeh': { fi: '📿', icon: 'ring', shortTitle: 'السبحة', title: 'السبحة', desc: 'تسبيح ذكي مع عداد تفاعلي وأهداف يومية مباركة' },
+        'islamic-media': { fi: '🎥', icon: 'circle-play', shortTitle: 'مقتطفات', title: 'مقتطفات', desc: 'محاضرات ودروس وبث إذاعي إسلامي مباشر خاشع' },
+        'zakat-calculator-section': { fi: '🪙', icon: 'calculator', shortTitle: 'الزكاة', title: 'حاسبة الزكاة', desc: 'حساب زكاة المال والذهب بسهولة ودقة شرعية' },
+        'sadaqa': { fi: '🤍', icon: 'heart', shortTitle: 'الصدقة', title: 'الصدقة الجارية', desc: 'بطاقات دعاء للمتوفى ومشاركة الدعاء' }
     };
 
     function go(id) {
         close();
         if (id === 'tasbeeh') {
-            const el = document.getElementById('smart-dhikr-panel');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-            else (window.zadNavigate || location.assign.bind(location))('index.html#smart-dhikr-panel');
+            (window.zadNavigate || location.assign.bind(location))('services.html#smart-dhikr-panel');
         } else if (id === 'sadaqa') {
             const el = document.getElementById('sadaqa');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -290,7 +290,7 @@
         }
     }
 
-    const defaultFavorites = ['quran-khatma', 'azkar'];
+    const defaultFavorites = ['quran-khatma', 'azkar', 'tasbeeh', 'seasons'];
     function getFavorites() {
         const saved = read('zad_favorites', null);
         const valid = Array.isArray(saved) ? [...new Set(saved)].filter(id => services.some(s => s[0] === id)) : [];
@@ -344,23 +344,25 @@
         renderSettingsShortcuts();
         const favoriteIds = getFavorites();
         const activeServices = services.filter(s => favoriteIds.includes(s[0]));
-        const listToRender = activeServices.length ? activeServices : services.slice(0, 2);
+        const listToRender = activeServices.length ? activeServices : services.slice(0, 4);
 
         // 1. تحديث شبكة اختصارات الصفحة الرئيسية في التطبيق
         const webGrid = document.querySelector('.features.quick-access-grid');
         if (webGrid) {
             webGrid.replaceChildren();
-            webGrid.style.gridTemplateColumns = `repeat(${Math.min(listToRender.length, 4)}, 1fr)`;
-            listToRender.forEach(([id, name]) => {
-                const meta = serviceMeta[id] || { fi: '✨', title: name, desc: 'الوصول السريع إلى قسم ' + name };
+            webGrid.style.setProperty('--shortcut-columns', Math.min(listToRender.length, 4));
+            listToRender.forEach(([id, name, iconClass]) => {
+                const meta = serviceMeta[id] || { fi: '✨', icon: iconClass || 'star', shortTitle: name, title: name, desc: 'الوصول السريع إلى قسم ' + name };
                 const card = document.createElement('a');
-                card.className = 'feature';
-                card.href = id === 'tasbeeh' ? '#smart-dhikr-panel' : (id === 'sadaqa' ? '#sadaqa' : 'services.html#' + id + (id === 'quran-khatma' ? '?tab=mushaf' : ''));
+                card.className = 'feature home-quick-card';
+                card.href = id === 'tasbeeh' ? 'services.html#smart-dhikr-panel' : (id === 'sadaqa' ? '#sadaqa' : 'services.html#' + id + (id === 'quran-khatma' ? '?tab=mushaf' : ''));
                 card.dataset.service = id;
+                const iconName = meta.icon || iconClass || 'star';
                 card.innerHTML = `
-                    <div class="fi">${meta.fi}</div>
-                    <h3>${meta.title}</h3>
-                    <p>${meta.desc}</p>
+                    <div class="home-quick-icon-box">
+                        <i class="fa-solid fa-${iconName}" aria-hidden="true"></i>
+                    </div>
+                    <span class="home-quick-title">${meta.shortTitle || meta.title || name}</span>
                 `;
                 webGrid.appendChild(card);
             });
@@ -403,12 +405,6 @@
             icon: 'fa-calendar-check'
         },
         {
-            id: 'smart_dhikr',
-            name: 'السبحة الإلكترونية التفاعلية',
-            desc: 'لوحة التسبيح السريع التفاعلية، أهداف الأذكار، ومشاركة الاستوري',
-            icon: 'fa-hand-dots'
-        },
-        {
             id: 'smart_khatma',
             name: 'الختمة القرآنية الذكية',
             desc: 'بطاقة خطة الختمة الشخصية والصفحات المتبقية ومتابعة القراءة اليومية',
@@ -428,8 +424,8 @@
         },
         {
             id: 'sadaqa_challenge',
-            name: 'الصدقة الجارية وتحدي 7 أيام',
-            desc: 'إنشاء صفحة صدقة جارية للأحباب وتحدي البدايات الإيمانية السبع',
+            name: 'الصدقة الجارية',
+            desc: 'إنشاء صفحة صدقة جارية للأحباب ومشاركة الدعاء',
             icon: 'fa-hand-holding-heart'
         }
     ];
@@ -490,11 +486,11 @@
 
         // 3. Daily Journey & 4. Smart Dhikr
         const journeyPanel = $('daily-journey-panel');
-        const dhikrPanel = $('smart-dhikr-panel');
+        const dhikrPanel = null;
         const dailyHead = $('daily');
         const dashboardSec = document.querySelector('section.dashboard');
         const journeyVis = isVisible('daily_journey');
-        const dhikrVis = isVisible('smart_dhikr');
+        const dhikrVis = false;
 
         if (journeyPanel) journeyPanel.style.display = journeyVis ? '' : 'none';
         const nextPrayerPanel = $('home-next-prayer');
@@ -1199,6 +1195,10 @@
     function revealHomeDestination() {
         if (!document.getElementById('home')) return;
         const id = location.hash.slice(1).split('?')[0];
+        if (id === 'smart-dhikr-panel') {
+            (window.zadNavigate || location.replace.bind(location))('services.html#smart-dhikr-panel');
+            return;
+        }
         if (!['home','daily','services','sadaqa','smart-dhikr-panel','daily-wird'].includes(id)) return;
         const target = document.getElementById(id);
         if (!target) return;
