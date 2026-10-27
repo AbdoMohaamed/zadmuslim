@@ -276,9 +276,9 @@ function getFullFormattedDate(date = new Date()) {
 
     // دمج اليوم والتاريخ الهجري والتاريخ الميلادي
     if (weekday && hijriPart && gregPart) {
-        return `${weekday}، ${hijriPart} • ${gregPart}`;
+        return `${weekday}، ${hijriPart} - ${gregPart}`;
     } else if (hijriPart && gregPart) {
-        return `${hijriPart} • ${gregPart}`;
+        return `${hijriPart} - ${gregPart}`;
     } else if (weekday && gregPart) {
         return `${weekday}، ${gregPart}`;
     }
@@ -297,7 +297,7 @@ function initHijriDate() {
     const fullDate = getFullFormattedDate();
 
     if (todayEl) {
-        todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 6px; opacity: 0.85;"></i>${fullDate}`;
+        todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 2px; opacity: 0.85;"></i>${fullDate}`;
     }
 
     let formattedDate = "";
