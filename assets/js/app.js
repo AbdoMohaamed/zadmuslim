@@ -300,7 +300,7 @@ function initHijriDate() {
         todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 2px; opacity: 0.85;"></i>${fullDate}`;
     }
 
-    let formattedDate = "";
+    let formattedDate = ""; 
     try {
         let offsetDays = 0;
         try { offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0; } catch (e) {}
