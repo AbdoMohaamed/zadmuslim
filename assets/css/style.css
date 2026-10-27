@@ -5714,6 +5714,28 @@ html[data-theme="light"] .nav-links a.active {
   gap: 0.4rem;
 }
 
+.prayer-item-thumb {
+  display: none;
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 8px);
+  margin-bottom: 0.35rem;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.prayer-time-item:hover .prayer-item-thumb {
+  transform: scale(1.03);
+  border-color: var(--gold-400);
+}
+
+body.show-prayer-images .prayer-item-thumb,
+.prayer-times-grid.show-prayer-images .prayer-item-thumb {
+  display: block;
+}
+
 .prayer-time-item:hover {
   border-color: rgba(212, 175, 55, 0.4);
   transform: translateY(-3px);
@@ -8628,15 +8650,11 @@ body.light-theme .offset-current-val {
 }
 
 .azkar-time-picker-wrapper {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  margin: 6px 0;
   background: rgba(255, 255, 255, 0.04);
   padding: 4px 10px;
   border-radius: 8px;
   border: 1px solid rgba(var(--gold-rgb, 212, 175, 55), 0.2);
-  width: fit-content;
 }
 
 .azkar-time-picker-wrapper label {
@@ -16020,6 +16038,23 @@ html.light-theme .muazzin-modal-tip {
   align-items: center;
   justify-content: space-between;
   gap: 0.85rem;
+}
+
+.adhan-banner-media {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--gold-400);
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.adhan-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .adhan-banner-icon {

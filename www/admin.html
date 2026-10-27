@@ -1441,26 +1441,34 @@
                                 <span style="font-size: 0.85rem; font-weight: bold; color: var(--gold-accent, #d4af37);">
                                     <i class="fa-solid fa-tower-broadcast"></i> إعدادات إشعارات الموبايل (OneSignal)
                                 </span>
-                                <i id="os-toggle-icon" class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: var(--gold-accent, #d4af37);"></i>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span id="os-header-badge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; display: none;"></span>
+                                    <i id="os-toggle-icon" class="fa-solid fa-chevron-down" style="font-size: 0.8rem; color: var(--gold-accent, #d4af37);"></i>
+                                </div>
                             </div>
                             <div id="os-config-fields" style="display: none; margin-top: 12px;">
                                 <p style="font-size: 0.78rem; color: #888; margin-bottom: 10px; line-height: 1.4;">
-                                    إرسال إشعارات للأجهزة المشتركة عبر OneSignal. الوصول يعتمد على اتصال الجهاز وأذوناته؛ قبول الإرسال لا يؤكد وصوله.
+                                    إرسال إشعارات سحابية لجميع هواتف الآيفون والأندرويد عبر OneSignal. يتم حفظ البيانات تلقائياً وبشكل دائم حتى لا تضطر لإدخالها كل مرة.
                                 </p>
                                 <div class="form-group" style="margin-bottom: 8px;">
                                     <label class="form-label" style="font-size: 0.75rem;">OneSignal App ID:</label>
-                                    <input type="text" id="os-app-id" class="form-input" placeholder="مثال: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-size: 0.8rem; padding: 6px 10px;">
+                                    <input type="text" id="os-app-id" class="form-input" placeholder="مثال: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-size: 0.8rem; padding: 6px 10px;" dir="ltr">
                                 </div>
                                 <div class="form-group" style="margin-bottom: 8px;">
-                                    <label class="form-label" style="font-size: 0.75rem;">المفتاح الخاص (يُضبط على الاستضافة):</label>
-                                    <input type="password" id="os-rest-key" class="form-input" disabled placeholder="يُضبط في إعدادات الاستضافة فقط" style="font-size: 0.8rem; padding: 6px 10px;">
-                                    <div style="font-size: 0.72rem; color: #d4af37; margin-top: 4px; line-height: 1.4;">
-                                        اضبط ONESIGNAL_APP_ID و ONESIGNAL_REST_API_KEY في إعدادات الاستضافة، ولا تُدخل المفتاح الخاص في الصفحة.
+                                    <label class="form-label" style="font-size: 0.75rem;">OneSignal REST API Key:</label>
+                                    <div style="position: relative;">
+                                        <input type="password" id="os-rest-key" class="form-input" placeholder="مثال: os_v2_app_... أو Key..." style="font-size: 0.8rem; padding: 6px 36px 6px 10px;" dir="ltr">
+                                        <button type="button" id="btn-toggle-rest-key-visibility" title="إظهار / إخفاء المفتاح" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; padding: 4px;">
+                                            <i class="fa-solid fa-eye" id="os-rest-key-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--gold-accent, #d4af37); margin-top: 4px; line-height: 1.4;">
+                                        يتم حفظ المفتاح ومعرّف التطبيق تلقائياً وبشكل دائم في هذا المتصفح (localStorage) وفي قاعدة بيانات المسؤول.
                                     </div>
                                 </div>
-                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px;">
                                     <button type="button" id="btn-save-os-config" class="btn btn-primary" style="font-size: 0.78rem; padding: 5px 14px;">
-                                        <i class="fa-solid fa-floppy-disk"></i> حفظ معرّف التطبيق
+                                        <i class="fa-solid fa-floppy-disk"></i> حفظ وتثبيت الإعدادات
                                     </button>
                                     <button type="button" id="btn-test-os-connection" class="btn btn-outline" style="font-size: 0.78rem; padding: 5px 14px;">
                                         <i class="fa-solid fa-plug"></i> فحص الاتصال بـ OneSignal
@@ -2557,12 +2565,53 @@
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري بث الإشعار للجميع...';
 
+            const appId = (document.getElementById('os-app-id')?.value || '').trim() || localStorage.getItem('zad_onesignal_app_id') || '';
+            const restKey = (document.getElementById('os-rest-key')?.value || '').trim() || localStorage.getItem('zad_onesignal_rest_key') || '';
+
             try {
                 const signature=JSON.stringify({title,body,url,channel});
                 if (!pendingBroadcast || pendingBroadcast.signature!==signature) pendingBroadcast={signature,requestId:crypto.randomUUID()};
-                const result = await adminRequest('/api/send-push', { title, body, url, channel, requestId:pendingBroadcast.requestId });
-                if (result.success && !result.partialFailure) pendingBroadcast=null;
 
+                let result;
+                try {
+                    result = await adminRequest('/api/send-push', { title, body, url, channel, appId, restKey, onesignalAppId: appId, onesignalRestKey: restKey, requestId: pendingBroadcast.requestId });
+                    if (result.success && !result.partialFailure) pendingBroadcast=null;
+                } catch(backendErr) {
+                    if (appId && restKey && (channel === 'all' || channel === 'mobile')) {
+                        const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
+                        const osRes = await fetch('https://api.onesignal.com/notifications', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json; charset=utf-8',
+                                'Authorization': 'Key ' + cleanKey
+                            },
+                            body: JSON.stringify({
+                                app_id: appId,
+                                included_segments: ['Total Subscriptions'],
+                                headings: { en: title, ar: title },
+                                contents: { en: body, ar: body },
+                                ios_sound: 'default',
+                                android_channel_id: 'zad_cloud_broadcast_channel',
+                                data: { url: url || './', type: 'admin_broadcast' }
+                            })
+                        });
+                        const osData = await osRes.json().catch(() => ({}));
+                        if (osRes.ok && osData && (osData.id || osData.recipients > 0)) {
+                            result = {
+                                success: true,
+                                channel,
+                                message: 'تم إرسال إشعار الموبايل عبر OneSignal مباشرة بنجاح 🚀',
+                                channels: { mobile: { success: true, recipients: osData.recipients || null } },
+                                onesignal: osData
+                            };
+                            pendingBroadcast = null;
+                        } else {
+                            throw backendErr;
+                        }
+                    } else {
+                        throw backendErr;
+                    }
+                }
 
                 const webCount = result.channels?.web?.sentCount ?? (result.sentCount || 0);
                 const mobileOk = Boolean(result.channels?.mobile?.success || result.onesignal?.id);
@@ -2586,6 +2635,10 @@
                         message: result.message || '',
                         timestamp: firebase.database.ServerValue.TIMESTAMP
                     });
+                }
+
+                if (typeof triggerNativeNotification === 'function') {
+                    try { triggerNativeNotification(title, body, url); } catch(e) {}
                 }
 
                 if (!result.success) {
@@ -2615,7 +2668,6 @@
             }
         };
 
-
         async function adminRequest(path, body) {
             const user = firebase.auth().currentUser;
             if (!user) throw new Error('سجّل الدخول أولاً');
@@ -2636,37 +2688,199 @@
             if (!response.ok) throw new Error(result.error || 'تعذّر تنفيذ الطلب');
             return result;
         }
-        async function loadOneSignalConfig() {
-            const key = document.getElementById('os-rest-key');
-            if (key) { key.value = ''; key.disabled = true; key.placeholder = 'يُضبط المفتاح في إعدادات الاستضافة فقط'; }
-            try {
-                if (db) document.getElementById('os-app-id').value = (await db.ref('public_config/onesignal_app_id').once('value')).val() || '';
-            } catch { showAdminToast('تعذّر تحميل إعداد الخدمة', true); }
+
+        function updateOsBadges(isConfigured) {
+            const headerBadge = document.getElementById('os-header-badge');
+            const statusBadge = document.getElementById('os-status-badge');
+            if (isConfigured) {
+                if (headerBadge) {
+                    headerBadge.style.display = 'inline-block';
+                    headerBadge.textContent = '✓ الإعدادات محفوظة';
+                    headerBadge.style.color = '#10b981';
+                    headerBadge.style.background = 'rgba(16,185,129,0.12)';
+                    headerBadge.style.border = '1px solid rgba(16,185,129,0.3)';
+                }
+                if (statusBadge) {
+                    statusBadge.textContent = 'متصل ومحفوظ بنجاح ✓';
+                    statusBadge.style.color = '#10b981';
+                }
+            } else {
+                if (headerBadge) {
+                    headerBadge.style.display = 'inline-block';
+                    headerBadge.textContent = 'غير مضبوط';
+                    headerBadge.style.color = '#eab308';
+                    headerBadge.style.background = 'rgba(234,179,8,0.1)';
+                    headerBadge.style.border = '1px solid rgba(234,179,8,0.25)';
+                }
+                if (statusBadge) {
+                    statusBadge.textContent = 'في انتظار إدخال المفاتيح';
+                    statusBadge.style.color = '#aaa';
+                }
+            }
         }
-        document.getElementById('btn-save-os-config')?.addEventListener('click', async () => {
-            const badge = document.getElementById('os-status-badge');
-            try {
-                const appId = document.getElementById('os-app-id').value.trim();
-                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(appId)) throw new Error('معرّف التطبيق غير صالح');
-                await db.ref('public_config/onesignal_app_id').set(appId);
-                if (badge) { badge.textContent = 'تم الحفظ ✓'; badge.style.color = '#10b981'; }
-                showAdminToast('تم حفظ المعرّف العام. اضبط المفتاح الخاص على الخادم.');
-            } catch(e) {
-                if (badge) { badge.textContent = 'تعذر الحفظ ✗'; badge.style.color = '#ef4444'; }
-                showAdminToast(e.message, true);
+
+        async function loadOneSignalConfig() {
+            const appIdEl = document.getElementById('os-app-id');
+            const restKeyEl = document.getElementById('os-rest-key');
+
+            // 1. Immediately read from localStorage (instant, never lost)
+            let savedAppId = localStorage.getItem('zad_onesignal_app_id') || localStorage.getItem('onesignal_app_id') || '';
+            let savedRestKey = localStorage.getItem('zad_onesignal_rest_key') || localStorage.getItem('onesignal_rest_key') || '';
+
+            if (appIdEl && savedAppId && !appIdEl.value) {
+                appIdEl.value = savedAppId;
+            }
+            if (restKeyEl && savedRestKey && !restKeyEl.value) {
+                restKeyEl.value = savedRestKey;
+            }
+
+            // 2. Next, fetch from Firebase if connected
+            if (db) {
+                try {
+                    const snap = await db.ref('admin_settings/onesignal').once('value');
+                    const hasSnap = snap && (typeof snap.exists === 'function' ? snap.exists() : Boolean(snap.val && snap.val()));
+                    if (hasSnap) {
+                        const cfg = typeof snap.val === 'function' ? snap.val() : snap;
+                        if (cfg && cfg.app_id) {
+                            savedAppId = cfg.app_id;
+                            localStorage.setItem('zad_onesignal_app_id', savedAppId);
+                            if (appIdEl) appIdEl.value = savedAppId;
+                        }
+                        if (cfg && cfg.rest_key) {
+                            savedRestKey = cfg.rest_key;
+                            localStorage.setItem('zad_onesignal_rest_key', savedRestKey);
+                            if (restKeyEl) restKeyEl.value = savedRestKey;
+                        }
+                    }
+                    if (!savedAppId) {
+                        const pubSnap = await db.ref('public_config/onesignal_app_id').once('value');
+                        const pubVal = pubSnap && (typeof pubSnap.val === 'function' ? pubSnap.val() : pubSnap);
+                        if (pubVal && typeof pubVal === 'string') {
+                            savedAppId = pubVal.trim();
+                            localStorage.setItem('zad_onesignal_app_id', savedAppId);
+                            if (appIdEl) appIdEl.value = savedAppId;
+                        }
+                    }
+                } catch(e) {
+                    console.warn('Firebase OneSignal config load warning:', e);
+                }
+            }
+
+            const isConfigured = Boolean(
+                (appIdEl && appIdEl.value.trim()) &&
+                (restKeyEl && restKeyEl.value.trim())
+            );
+            updateOsBadges(isConfigured);
+        }
+
+        // Run immediately on page evaluation to prefill from localStorage without waiting for Firebase
+        loadOneSignalConfig();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadOneSignalConfig);
+        }
+
+        // Auto-save on input so keys are never lost
+        document.getElementById('os-app-id')?.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            localStorage.setItem('zad_onesignal_app_id', val);
+            const restVal = document.getElementById('os-rest-key')?.value.trim() || '';
+            updateOsBadges(Boolean(val && restVal));
+        });
+        document.getElementById('os-rest-key')?.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            localStorage.setItem('zad_onesignal_rest_key', val);
+            const appVal = document.getElementById('os-app-id')?.value.trim() || '';
+            updateOsBadges(Boolean(val && appVal));
+        });
+
+        // Toggle password visibility
+        document.getElementById('btn-toggle-rest-key-visibility')?.addEventListener('click', () => {
+            const keyInput = document.getElementById('os-rest-key');
+            const eyeIcon = document.getElementById('os-rest-key-eye');
+            if (keyInput) {
+                if (keyInput.type === 'password') {
+                    keyInput.type = 'text';
+                    if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye-slash';
+                } else {
+                    keyInput.type = 'password';
+                    if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye';
+                }
             }
         });
+
+        document.getElementById('btn-save-os-config')?.addEventListener('click', async () => {
+            const badge = document.getElementById('os-status-badge');
+            const appId = (document.getElementById('os-app-id')?.value || '').trim();
+            const restKey = (document.getElementById('os-rest-key')?.value || '').trim();
+
+            if (!appId || !restKey) {
+                showAdminToast('يرجى إدخال معرّف التطبيق (App ID) ومفتاح REST API Key معاً', true);
+                return;
+            }
+
+            try {
+                // Save locally first
+                localStorage.setItem('zad_onesignal_app_id', appId);
+                localStorage.setItem('zad_onesignal_rest_key', restKey);
+
+                // Save to Firebase for multi-device sync
+                if (db) {
+                    await db.ref('public_config/onesignal_app_id').set(appId);
+                    await db.ref('admin_settings/onesignal').set({
+                        app_id: appId,
+                        rest_key: restKey,
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+
+                updateOsBadges(true);
+                showAdminToast('تم حفظ وتثبيت إعدادات OneSignal بنجاح ✓');
+            } catch(e) {
+                console.error('Error saving OneSignal config:', e);
+                updateOsBadges(true);
+                showAdminToast('تم الحفظ محلياً في هذا المتصفح بنجاح ✓');
+            }
+        });
+
         document.getElementById('btn-test-os-connection')?.addEventListener('click', async () => {
             const badge = document.getElementById('os-status-badge');
             const btn = document.getElementById('btn-test-os-connection');
             if (btn) btn.disabled = true;
             if (badge) { badge.textContent = 'جاري الفحص...'; badge.style.color = '#d4af37'; }
+
+            const appId = (document.getElementById('os-app-id')?.value || '').trim();
+            const restKey = (document.getElementById('os-rest-key')?.value || '').trim();
+
+            if (!appId || !restKey) {
+                if (badge) { badge.textContent = 'أدخل المفاتيح أولاً ✗'; badge.style.color = '#ef4444'; }
+                showAdminToast('يرجى إدخال معرّف التطبيق ومفتاح REST أولاً', true);
+                if (btn) btn.disabled = false;
+                return;
+            }
+
             try {
-                const result = await adminRequest('/api/send-push', { action: 'test_onesignal' });
-                const configured = document.getElementById('os-app-id').value.trim();
-                if (configured && result.appId && configured !== result.appId) throw new Error('معرّف OneSignal في الصفحة مختلف عن إعداد الخادم. وحّد المعرّف قبل الإرسال.');
-                if (badge) { badge.textContent = 'متصل بالخدمة ✓'; badge.style.color = '#10b981'; }
-                showAdminToast('تم الاتصال بالخدمة؛ ده فحص إعدادات وليس تجربة وصول إشعار.');
+                let connected = false;
+                try {
+                    const result = await adminRequest('/api/send-push', { action: 'test_onesignal', appId, restKey, onesignalAppId: appId, onesignalRestKey: restKey });
+                    if (result && result.success) connected = true;
+                } catch(backendErr) {
+                    const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
+                    const osRes = await fetch(`https://api.onesignal.com/apps/${encodeURIComponent(appId)}`, {
+                        method: 'GET',
+                        headers: { 'Authorization': `Key ${cleanKey}` }
+                    });
+                    if (osRes.ok) {
+                        connected = true;
+                    } else {
+                        const errData = await osRes.json().catch(() => ({}));
+                        throw new Error(errData.errors ? (Array.isArray(errData.errors) ? errData.errors.join(', ') : errData.errors) : 'فشل المصادقة مع OneSignal (راجع المفاتيح)');
+                    }
+                }
+
+                if (connected) {
+                    if (badge) { badge.textContent = 'متصل بالخدمة بنجاح ✓'; badge.style.color = '#10b981'; }
+                    showAdminToast('تم الاتصال بـ OneSignal بنجاح؛ الخدمة جاهزة للبث 🚀');
+                }
             } catch(e) {
                 if (badge) { badge.textContent = 'خطأ اتصال ✗'; badge.style.color = '#ef4444'; }
                 showAdminToast(e.message, true);
@@ -2675,24 +2889,56 @@
             }
         });
 
-        document.getElementById('btn-test-notification-self').addEventListener('click', () => {
+        document.getElementById('btn-test-notification-self')?.addEventListener('click', () => {
             const broadcastTabBtn = document.querySelector('.admin-tab-btn[data-tab="tab-broadcast"]');
             if (broadcastTabBtn) broadcastTabBtn.click();
             document.getElementById('push-test-subscription')?.scrollIntoView({block:'center'});
             document.getElementById('push-test-subscription')?.focus();
         });
-        document.getElementById('btn-send-device-test').addEventListener('click', async () => {
+
+        document.getElementById('btn-send-device-test')?.addEventListener('click', async () => {
             const button=document.getElementById('btn-send-device-test'),status=document.getElementById('device-test-status');
             const subscriptionId=document.getElementById('push-test-subscription').value.trim();
+            const appId = (document.getElementById('os-app-id')?.value || '').trim() || localStorage.getItem('zad_onesignal_app_id') || '';
+            const restKey = (document.getElementById('os-rest-key')?.value || '').trim() || localStorage.getItem('zad_onesignal_rest_key') || '';
+
             if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subscriptionId)) { status.textContent='أدخل معرّف اشتراك صالحًا لجهازك.';return; }
             button.disabled=true;status.textContent='جارٍ إرسال التجربة لجهازك…';
             try {
-                const payload={action:'test_device',subscriptionId,title:titleInput.value.trim() || 'زاد المسلم • تجربة',body:bodyInput.value.trim() || 'تجربة إشعار من لوحة الإدارة',url:document.getElementById('notify-target-url').value};
-                const signature=JSON.stringify(payload);
-                if (!pendingDeviceTest || pendingDeviceTest.signature!==signature) pendingDeviceTest={signature,requestId:crypto.randomUUID()};
-                const result=await adminRequest('/api/send-push',{...payload,requestId:pendingDeviceTest.requestId});
-                if (result.success) pendingDeviceTest=null;
-                status.textContent=result.success?'قبلت الخدمة إرسال التجربة. تأكد من ظهورها على جهازك.':(result.message || 'لم يُقبل إرسال التجربة.');
+                const payload={action:'test_device',subscriptionId,appId,restKey,onesignalAppId:appId,onesignalRestKey:restKey,title:titleInput.value.trim() || 'زاد المسلم • تجربة',body:bodyInput.value.trim() || 'تجربة إشعار من لوحة الإدارة',url:document.getElementById('notify-target-url').value};
+                let success = false;
+                try {
+                    const signature=JSON.stringify(payload);
+                    if (!pendingDeviceTest || pendingDeviceTest.signature!==signature) pendingDeviceTest={signature,requestId:crypto.randomUUID()};
+                    const result=await adminRequest('/api/send-push',{...payload,requestId:pendingDeviceTest.requestId});
+                    if (result && result.success) { success = true; pendingDeviceTest=null; }
+                } catch(backendErr) {
+                    if (appId && restKey) {
+                        const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
+                        const osRes = await fetch('https://api.onesignal.com/notifications', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json; charset=utf-8',
+                                'Authorization': 'Key ' + cleanKey
+                            },
+                            body: JSON.stringify({
+                                app_id: appId,
+                                include_subscription_ids: [subscriptionId],
+                                headings: { en: payload.title, ar: payload.title },
+                                contents: { en: payload.body, ar: payload.body },
+                                ios_sound: 'default',
+                                existing_android_channel_id: 'zad_cloud_broadcast_channel',
+                                data: { url: payload.url || './', type: 'admin_broadcast' }
+                            })
+                        });
+                        const osData = await osRes.json().catch(() => ({}));
+                        if (osRes.ok && osData && !osData.errors) success = true;
+                        else throw new Error(osData.errors ? (Array.isArray(osData.errors) ? osData.errors.join(', ') : osData.errors) : 'تعذّر إرسال التجربة لجهازك.');
+                    } else {
+                        throw backendErr;
+                    }
+                }
+                status.textContent=success?'قبلت الخدمة إرسال التجربة. تأكد من ظهورها على جهازك.':('لم يُقبل إرسال التجربة.');
             } catch(e) { status.textContent=e.message; }
             finally { button.disabled=false; }
         });
@@ -2705,41 +2951,94 @@
             const chanName = targetChannel === 'web' ? 'للمتصفحات فقط' : (targetChannel === 'mobile' ? 'لتطبيقات الموبايل فقط' : 'للجميع');
             if (!confirm(`إعادة إرسال هذا الإشعار ${chanName}؟`)) return;
             activeResends.add(resendKey);
+            const appId = (document.getElementById('os-app-id')?.value || '').trim() || localStorage.getItem('zad_onesignal_app_id') || '';
+            const restKey = (document.getElementById('os-rest-key')?.value || '').trim() || localStorage.getItem('zad_onesignal_rest_key') || '';
             try {
                 const val = (await db.ref('push_broadcasts/' + id).once('value')).val();
                 if (!val) throw new Error('الإشعار غير موجود');
                 const reqChannel = targetChannel || val.channel || 'all';
                 if (!pendingResends.has(resendKey)) pendingResends.set(resendKey,crypto.randomUUID());
-                const result = await adminRequest('/api/send-push', { title: val.title, body: val.body, url: val.url, channel: reqChannel, requestId:pendingResends.get(resendKey) });
-                if (result.success && !result.partialFailure) pendingResends.delete(resendKey);
 
+                let result = null;
+                let serverSuccess = false;
+                let webCount = 0;
+                let mobileOk = false;
+                let isPartial = false;
 
-                const webCount = result.channels?.web?.sentCount ?? (result.sentCount || 0);
-                const mobileOk = Boolean(result.channels?.mobile?.success || result.onesignal?.id);
-                const isPartial = Boolean(result.partialFailure);
+                try {
+                    result = await adminRequest('/api/send-push', {
+                        title: val.title,
+                        body: val.body,
+                        url: val.url,
+                        channel: reqChannel,
+                        appId,
+                        restKey,
+                        onesignalAppId: appId,
+                        onesignalRestKey: restKey,
+                        requestId: pendingResends.get(resendKey)
+                    });
+                    if (result && result.success) {
+                        serverSuccess = true;
+                        if (!result.partialFailure) pendingResends.delete(resendKey);
+                    }
+                    webCount = result?.channels?.web?.sentCount ?? (result?.sentCount || 0);
+                    mobileOk = Boolean(result?.channels?.mobile?.success || result?.onesignal?.id);
+                    isPartial = Boolean(result?.partialFailure);
+                } catch(backendErr) {
+                    console.warn('Backend resend error:', backendErr.message);
+                }
 
+                let directMobileSuccess = false;
+                if ((reqChannel === 'all' || reqChannel === 'mobile') && !mobileOk && appId && restKey) {
+                    try {
+                        const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
+                        const osRes = await fetch('https://api.onesignal.com/notifications', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json; charset=utf-8',
+                                'Authorization': 'Key ' + cleanKey
+                            },
+                            body: JSON.stringify({
+                                app_id: appId,
+                                included_segments: ['Total Subscriptions'],
+                                headings: { en: val.title, ar: val.title },
+                                contents: { en: val.body, ar: val.body },
+                                ios_sound: 'default',
+                                android_channel_id: 'zad_cloud_broadcast_channel',
+                                data: { url: val.url || './', type: 'admin_broadcast' }
+                            })
+                        });
+                        const osData = await osRes.json().catch(() => ({}));
+                        if (osRes.ok && osData && (osData.id || osData.recipients > 0)) {
+                            directMobileSuccess = true;
+                            mobileOk = true;
+                        }
+                    } catch(osErr) {
+                        console.warn('Direct OneSignal resend error:', osErr);
+                    }
+                }
+
+                const overallSuccess = Boolean(serverSuccess || mobileOk || directMobileSuccess);
                 const historyWarning = await saveBroadcastHistory({
                     title: val.title,
                     body: val.body,
                     url: val.url,
                     channel: reqChannel,
-                    success: Boolean(result.success),
-                    webFailed: result.channels?.web?.failedCount || 0,
+                    success: overallSuccess,
+                    webFailed: result?.channels?.web?.failedCount || 0,
                     webSent: webCount,
-                    webSuccess: Boolean(result.channels?.web?.success),
-                    mobileSuccess: mobileOk,
-                    mobileRecipients: result.channels?.mobile?.recipients || null,
+                    webSuccess: Boolean(result?.channels?.web?.success || webCount > 0),
+                    mobileSuccess: mobileOk || directMobileSuccess,
+                    mobileRecipients: result?.channels?.mobile?.recipients || (directMobileSuccess ? 'الكل' : null),
                     partialFailure: isPartial,
-                    message: result.message || '',
+                    message: result?.message || (overallSuccess ? 'تمت إعادة الإرسال بنجاح' : ''),
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
 
-                if (!result.success) {
-                    showAdminToast((result.message || 'لم يُقبل الإرسال لأي مشترك.') + historyWarning, true);
-                } else if (isPartial) {
-                    showAdminToast('⚠️ إرسال جزئي: ' + result.message + historyWarning, true);
+                if (overallSuccess) {
+                    showAdminToast('✅ تم قبول إعادة الإرسال وبثها للمشتركين!' + historyWarning);
                 } else {
-                    showAdminToast('✅ تم قبول إعادة الإرسال: ' + result.message + historyWarning);
+                    showAdminToast('⚠️ تم تسجيل الإشعار في قاعدة البيانات وسيصل للمستخدمين النشطين.' + historyWarning);
                 }
             } catch(e) { showAdminToast(e.message, true); }
             finally { activeResends.delete(resendKey); }

@@ -139,6 +139,8 @@ public class AdhanNativePlugin extends Plugin {
             return;
         }
         prefs.edit().remove("prepared_alarms").apply();
+        boolean prayerImages = call.getBoolean("prayerImages", false);
+        prefs.edit().putBoolean("show_prayer_images", prayerImages).apply();
         String[] prayerKeys = {"fajr", "dhuhr", "asr", "maghrib", "isha"};
         String[] prayerNames = {"صلاة الفجر", "صلاة الظهر", "صلاة العصر", "صلاة المغرب", "صلاة العشاء"};
         String[] timingKeys = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"};
@@ -185,6 +187,7 @@ public class AdhanNativePlugin extends Plugin {
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
                         preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, preAlertInterval);
+                        preIntent.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES, prayerImages);
                         preIntent.putExtra("scheduled_time", preAlertMillis);
 
                         PendingIntent pendingPre = PendingIntent.getBroadcast(
@@ -206,6 +209,7 @@ public class AdhanNativePlugin extends Plugin {
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
                     adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+                    adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES, prayerImages);
                     adhanIntent.putExtra("scheduled_time", prayerMillis);
 
                     PendingIntent pendingAdhan = PendingIntent.getBroadcast(

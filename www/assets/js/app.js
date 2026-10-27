@@ -3402,17 +3402,47 @@ const MUAZZIN_LIST = [
         city: "جمهورية مصر العربية",
         file: "assets/audio/adhan/refaat.mp3",
         icon: "fa-radio"
+    },
+    {
+        id: "makkah",
+        name: "أذان الحرم المكي الشريف",
+        title: "أذان بيت الله الحرام بمكة المكرمة",
+        city: "مكة المكرمة",
+        file: "assets/audio/adhan/makkah.mp3",
+        icon: "fa-kaaba"
+    },
+    {
+        id: "madinah",
+        name: "أذان الحرم المدني الشريف",
+        title: "أذان المسجد النبوي الشريف",
+        city: "المدينة المنورة",
+        file: "assets/audio/adhan/madinah.mp3",
+        icon: "fa-mosque"
+    },
+    {
+        id: "aqsa",
+        name: "أذان المسجد الأقصى المبارك",
+        title: "أذان القدس الشريف والمسجد الأقصى",
+        city: "القدس الشريف",
+        file: "assets/audio/adhan/aqsa.mp3",
+        icon: "fa-place-of-worship"
     }
 ];
 
 function getSelectedMuazzinId() {
     const saved = localStorage.getItem("zad_selected_muazzin");
-    if (saved === "qatami" || saved === "abdulbasit" || saved === "refaat") {
+    const valid = ["qatami", "abdulbasit", "refaat", "makkah", "madinah", "aqsa"];
+    if (saved && valid.includes(saved)) {
         return saved;
     }
-    // إعادة ضبط أي قيمة قديمة غير مدعومة إلى الشيخ ناصر القطامي كافتراضي دائم
-    localStorage.setItem("zad_selected_muazzin", "qatami");
-    return "qatami";
+    // إذا لم تكن هناك قيمة محفوظة أو كانت غير صالحة، اعتمد الشيخ ناصر القطامي كافتراضي
+    if (!saved) {
+        localStorage.setItem("zad_selected_muazzin", "qatami");
+    }
+    return saved && valid.includes(saved) ? saved : "qatami";
+}
+if (typeof window !== "undefined") {
+    window.getSelectedMuazzinId = getSelectedMuazzinId;
 }
 
 function getSelectedMuazzin() {
@@ -3626,10 +3656,14 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
         const currentMuazzin = getSelectedMuazzinId();
         const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayerKey}&muazzin=${currentMuazzin}&t=${Date.now()}`;
         
+        const showImages = localStorage.getItem('zad_show_prayer_images') === '1';
+        const prayerImg = showImages ? `assets/images/prayers/pre_${prayerKey}.jpeg` : null;
+
         const notifOptions = {
             body: notifBody,
             icon: "assets/icon-192.png",
             badge: "assets/icon-192.png",
+            ...(prayerImg ? { image: prayerImg } : {}),
             vibrate: [500, 200, 500, 200, 500, 200, 800, 400, 800, 400, 1200],
             tag: `prayer_${prayerKey}_${new Date().toISOString().slice(0, 10)}`,
             renotify: true,
@@ -3715,11 +3749,18 @@ function showAdhanAutoplayBanner(prayerName, prayerKey, muazzin) {
         document.body.appendChild(banner);
     }
 
+    const showImages = localStorage.getItem('zad_show_prayer_images') === '1';
+    const prayerImg = (showImages && prayerKey && prayerKey !== "prayer") ? `assets/images/prayers/pre_${prayerKey}.jpeg` : null;
+
     banner.innerHTML = `
         <div class="adhan-banner-inner">
+            ${prayerImg ? `
+            <div class="adhan-banner-media">
+                <img src="${prayerImg}" alt="${prayerName}" class="adhan-banner-img" />
+            </div>` : `
             <div class="adhan-banner-icon">
                 <i class="fa-solid fa-mosque fa-bounce text-gold"></i>
-            </div>
+            </div>`}
             <div class="adhan-banner-text">
                 <strong class="adhan-banner-title">🕌 حَانَ الآنَ مَوْعِدُ ${prayerName}</strong>
                 <span class="adhan-banner-sub">اضغط هنا لسماع الأذان المبارك بصوت ${muazzin.name || 'المؤذن'} 🔊</span>
@@ -4337,5 +4378,22 @@ function initNativeEdgeSwipeBack() {
         }
     }, { passive: true });
 }
+
+function syncPrayerImagesClass() {
+    try {
+        const show = localStorage.getItem('zad_show_prayer_images') === '1';
+        if (document.body) {
+            document.body.classList.toggle('show-prayer-images', show);
+        }
+    } catch (_) {}
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncPrayerImagesClass);
+} else {
+    syncPrayerImagesClass();
+}
+window.addEventListener('storage', (e) => {
+    if (e.key === 'zad_show_prayer_images') syncPrayerImagesClass();
+});
 
 

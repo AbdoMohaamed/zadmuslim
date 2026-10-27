@@ -606,8 +606,8 @@
                     <div class="toggle-switch-info" style="flex: 1;">
                         <span class="toggle-switch-title">⏳ اقتربت الصلاة (تنبيه مسبق ناطق)</span>
                         <span class="toggle-switch-desc">تنبيه صوتي ناطق يذكّرك بالوضوء والاستعداد قبل دخول الوقت</span>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
-                            <div class="azkar-time-picker-wrapper" style="margin: 0;">
+                        <div style="display:grid; align-items: center;  margin-top: 8px; ">
+                            <div class="azkar-time-picker-wrapper" style="margin-bottom: 8px;">
                                 <label for="select-pre-prayer-interval"><i class="fa-solid fa-clock text-gold"></i> قبل الموعد بـ:</label>
                                 <select id="select-pre-prayer-interval" class="azkar-time-input" style="padding: 4px 8px; cursor: pointer;">
                                     <option value="5" selected>5 دقائق</option>
@@ -623,6 +623,18 @@
                     </div>
                     <label class="custom-switch" style="align-self: flex-start; margin-top: 4px;">
                         <input type="checkbox" id="notify-pre-prayer" checked>
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <!-- عرض صورة الصلاة مع الأذان والإشعارات (Default: OFF) -->
+                <div class="toggle-switch-row" style="background: rgba(0,0,0,0.1); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="toggle-switch-info" style="flex: 1;">
+                        <span class="toggle-switch-title">🖼️ عرض صورة الصلاة مع الأذان والإشعارات</span>
+                        <span class="toggle-switch-desc">إظهار الصورة المخصصة لكل صلاة على شاشة الأذان وبطاقات المواقيت والإشعارات</span>
+                    </div>
+                    <label class="custom-switch" style="align-self: flex-start; margin-top: 4px;">
+                        <input type="checkbox" id="notify-prayer-images">
                         <span class="slider-round"></span>
                     </label>
                 </div>
@@ -767,7 +779,7 @@
         2. قسم تخصيص ما يظهر في الصفحة الرئيسية بالكامل
         ========================================== -->
         <section class="settings-section-card" id="settings-home-customization-section">
-            <div class="settings-section-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div class="settings-section-title" style="gap: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-table-cells-large text-gold"></i>
                     <span>تخصيص ما يظهر في الصفحة الرئيسية</span>
@@ -996,6 +1008,7 @@
             const audioAdhan = document.getElementById('audio-adhan-preview');
 
             const chkPrePrayer = document.getElementById('notify-pre-prayer');
+            const chkPrayerImages = document.getElementById('notify-prayer-images');
             const selectPreInterval = document.getElementById('select-pre-prayer-interval');
             const btnTestPreSound = document.getElementById('btn-test-pre-prayer-sound');
             const audioPre = document.getElementById('audio-pre-prayer-preview');
@@ -1021,7 +1034,15 @@
             const feedbackNotif = document.getElementById('notif-settings-feedback');
             const prayerToggles = document.querySelectorAll('.prayer-sub-toggle');
 
-            let feedbackTimeout = null;
+            // دالة استرجاع المؤذن المعتمد لضمان التوافق مع كل بلجنات وخدمات التطبيق
+            window.getSelectedMuazzinId = function() {
+                const saved = localStorage.getItem('zad_selected_muazzin');
+                const valid = ['qatami', 'abdulbasit', 'refaat', 'makkah', 'madinah', 'aqsa'];
+                if (saved && valid.includes(saved)) return saved;
+                const select = document.getElementById('select-adhan-muazzin');
+                if (select && select.value && valid.includes(select.value)) return select.value;
+                return 'qatami';
+            };
 
             function loadSettings() {
                 try {
@@ -1030,6 +1051,7 @@
 
                     if (chkAdhan) chkAdhan.checked = settings.adhan !== false;
                     if (chkPrePrayer) chkPrePrayer.checked = settings.prePrayer !== false;
+                    if (chkPrayerImages) chkPrayerImages.checked = settings.prayerImages === true || localStorage.getItem('zad_show_prayer_images') === '1';
                     if (selectPreInterval && settings.prePrayerInterval) selectPreInterval.value = String(settings.prePrayerInterval);
 
                     if (chkMorning) chkMorning.checked = settings.morning === true;
@@ -1049,7 +1071,7 @@
                 } catch (_) {}
 
                 // المؤذن المحفوظ
-                const savedMuazzin = localStorage.getItem('zad_selected_muazzin') || 'qatami';
+                const savedMuazzin = (typeof window.getSelectedMuazzinId === 'function') ? window.getSelectedMuazzinId() : (localStorage.getItem('zad_selected_muazzin') || 'qatami');
                 if (selectMuazzin) selectMuazzin.value = savedMuazzin;
 
                 // مستوى الصوت المحفوظ
@@ -1075,6 +1097,7 @@
                 const settings = {
                     adhan: chkAdhan ? chkAdhan.checked : true,
                     prePrayer: chkPrePrayer ? chkPrePrayer.checked : true,
+                    prayerImages: chkPrayerImages ? chkPrayerImages.checked : false,
                     prePrayerInterval: selectPreInterval ? parseInt(selectPreInterval.value, 10) : 5,
                     morning: chkMorning ? chkMorning.checked : false,
                     morningTime: timeMorning ? timeMorning.value : '06:30',
@@ -1090,9 +1113,26 @@
                     fasting: chkFasting ? chkFasting.checked : false
                 };
                 localStorage.setItem('smart_notify_settings', JSON.stringify(settings));
+                localStorage.setItem('zad_show_prayer_images', chkPrayerImages && chkPrayerImages.checked ? '1' : '0');
+                if ('serviceWorker' in navigator && navigator.serviceWorker?.controller) {
+                    try {
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'SET_PRAYER_IMAGES',
+                            showImages: chkPrayerImages && chkPrayerImages.checked
+                        });
+                    } catch (_) {}
+                }
 
                 if (selectMuazzin) {
                     localStorage.setItem('zad_selected_muazzin', selectMuazzin.value);
+                    if ('serviceWorker' in navigator && navigator.serviceWorker?.controller) {
+                        try {
+                            navigator.serviceWorker.controller.postMessage({
+                                type: 'SET_MUAZZIN',
+                                muazzin: selectMuazzin.value
+                            });
+                        } catch (_) {}
+                    }
                 }
 
                 if (sliderVolume) {
@@ -1137,7 +1177,7 @@
             // ربط الحفظ التلقائي اللحظي بكل أداة وخيار
             const reactiveInputs = [
                 chkAdhan, selectMuazzin,
-                chkPrePrayer, selectPreInterval,
+                chkPrePrayer, chkPrayerImages, selectPreInterval,
                 chkMorning, timeMorning,
                 chkEvening, timeEvening,
                 chkSleep, timeSleep,

@@ -99,6 +99,11 @@ const ASSETS_TO_CACHE = [
   "./assets/audio/adhan/abdulbasit.mp3",
   "./assets/audio/adhan/refaat.mp3",
   "./assets/audio/adhan/fajr.mp3",
+  "./assets/images/prayers/pre_fajr.jpeg",
+  "./assets/images/prayers/pre_dhuhr.jpeg",
+  "./assets/images/prayers/pre_asr.jpeg",
+  "./assets/images/prayers/pre_maghrib.jpeg",
+  "./assets/images/prayers/pre_isha.jpeg",
   "./assets/share-preview.jpg",
   "./manifest.json",
   "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap",
@@ -123,6 +128,7 @@ function cleanResponse(response) {
 let scheduledPrayerAlarms = [];
 let activeAlarmTimers = [];
 let selectedMuazzinPreference = "qatami";
+let showPrayerImagesPreference = false;
 
 // مرحلة التثبيت وتخزين الملفات الأساسية بأمان
 self.addEventListener("install", (event) => {
@@ -311,6 +317,9 @@ self.addEventListener("message", (event) => {
     if (event.data.muazzin) {
       selectedMuazzinPreference = event.data.muazzin;
     }
+    if (event.data.prayerImages !== undefined) {
+      showPrayerImagesPreference = event.data.prayerImages === true;
+    }
     armBackgroundPrayerAlarms();
   }
 
@@ -318,6 +327,10 @@ self.addEventListener("message", (event) => {
     if (event.data.muazzin) {
       selectedMuazzinPreference = event.data.muazzin;
     }
+  }
+
+  if (event.data.type === "SET_PRAYER_IMAGES") {
+    showPrayerImagesPreference = event.data.showImages === true;
   }
 
   if (event.data.type === "TRIGGER_NOTIFICATION") {
@@ -341,11 +354,13 @@ function armBackgroundPrayerAlarms() {
     const preAlertDelay = delay - (5 * 60 * 1000);
     if (preAlertDelay > 0 && preAlertDelay <= 86400000) {
       const preTimer = setTimeout(() => {
+        const preImage = showPrayerImagesPreference ? `./assets/images/prayers/pre_${prayer.key}.jpeg` : null;
         showDeviceNotification(
           `⏳ اقتربت ${prayer.name}`,
           `بقي 5 دقائق على دخول وقت ${prayer.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
           `./#prayer-times`,
-          `pre_prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`
+          `pre_prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`,
+          preImage
         );
       }, preAlertDelay);
       activeAlarmTimers.push(preTimer);
@@ -366,6 +381,7 @@ function showPrayerNotification(prayer) {
   const muazzinAudioFile = isFajr ? "fajr.mp3" : `${selectedMuazzinPreference || "qatami"}.mp3`;
   const soundUrl = `./assets/audio/adhan/${muazzinAudioFile}`;
   const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayer.key}&muazzin=${selectedMuazzinPreference || "qatami"}&t=${Date.now()}`;
+  const prayerImage = `./assets/images/prayers/pre_${prayer.key}.jpeg`;
 
   const options = {
     body: `الله أكبر، الله أكبر.. حان الآن موعد ${prayer.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕌`,
@@ -390,10 +406,14 @@ function showPrayerNotification(prayer) {
     ]
   };
 
+  if (showPrayerImagesPreference) {
+    options.image = prayerImage;
+  }
+
   self.registration.showNotification(`🕌 حان الآن موعد ${prayer.name}`, options);
 }
 
-function showDeviceNotification(title, body, url, tag) {
+function showDeviceNotification(title, body, url, tag, image = null) {
   const options = {
     body: body || "تذكير بذكر الله والصلاة على النبي ﷺ 🌿",
     icon: "./assets/icon-192.png",
@@ -409,6 +429,9 @@ function showDeviceNotification(title, body, url, tag) {
       { action: "close", title: "إغلاق" }
     ]
   };
+  if (image) {
+    options.image = image;
+  }
 
   self.registration.showNotification(title || "زاد المسلم 🌿", options);
 }

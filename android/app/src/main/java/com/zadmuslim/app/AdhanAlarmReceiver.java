@@ -37,6 +37,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
     public static final String EXTRA_PRAYER_KEY = "prayer_key";
     public static final String EXTRA_MUAZZIN = "muazzin";
     public static final String EXTRA_PRE_ALERT_INTERVAL = "pre_alert_interval";
+    public static final String EXTRA_SHOW_PRAYER_IMAGES = "show_prayer_images";
 
     public static final int ADHAN_NOTIFICATION_ID = 99992;
 
@@ -90,6 +91,10 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         String prayerKey = intent.getStringExtra(EXTRA_PRAYER_KEY);
         String muazzin = intent.getStringExtra(EXTRA_MUAZZIN);
         int preAlertInterval = intent.getIntExtra(EXTRA_PRE_ALERT_INTERVAL, 5);
+        boolean showPrayerImages = intent.getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, false);
+        if (!intent.hasExtra(EXTRA_SHOW_PRAYER_IMAGES)) {
+            try { showPrayerImages = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch(Exception ignored) {}
+        }
 
         // صمام أمان: تجاهل أي برودكاست عشوائي ليس مخصصاً لمنبه الصلاة
         if (!ACTION_PRAYER_ALARM.equals(action) && !intent.hasExtra(EXTRA_PRAYER_KEY)) {
@@ -144,6 +149,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 serviceIntent.putExtra(EXTRA_PRAYER_NAME, prayerName);
                 serviceIntent.putExtra(EXTRA_PRAYER_KEY, prayerKey);
                 serviceIntent.putExtra(EXTRA_PRE_ALERT_INTERVAL, preAlertInterval);
+                serviceIntent.putExtra(EXTRA_SHOW_PRAYER_IMAGES, showPrayerImages);
                 try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(serviceIntent);
                     else context.startService(serviceIntent);
@@ -188,6 +194,8 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 try {
                     Intent activityIntent = new Intent(context, AdhanActivity.class);
                     activityIntent.putExtra(AdhanActivity.EXTRA_PRAYER_NAME, prayerName);
+                    activityIntent.putExtra(AdhanActivity.EXTRA_PRAYER_KEY, prayerKey);
+                    activityIntent.putExtra(EXTRA_SHOW_PRAYER_IMAGES, showPrayerImages);
                     activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     context.startActivity(activityIntent);
                 } catch (Exception actErr) {
@@ -236,6 +244,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         // نية فتح شاشة الأذان الكاملة على شاشة القفل (Full Screen Intent)
         Intent fullScreenIntent = new Intent(context, AdhanActivity.class);
         fullScreenIntent.putExtra(AdhanActivity.EXTRA_PRAYER_NAME, prayerName);
+        fullScreenIntent.putExtra(AdhanActivity.EXTRA_PRAYER_KEY, prayerKey);
         fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingFullScreen = PendingIntent.getActivity(
                 context, 9993, fullScreenIntent,
@@ -250,7 +259,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        return new NotificationCompat.Builder(context, ADHAN_ALARM_CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, ADHAN_ALARM_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_icon)
                 .setContentTitle("🕌 حَانَ الآنَ مَوْعِدُ " + prayerName)
                 .setContentText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح")
@@ -263,8 +272,30 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setColor(0xFFD4AF37)
                 .setOngoing(true)
-                .setAutoCancel(false)
-                .build();
+                .setAutoCancel(false);
+
+        // إرفاق صورة الصلاة الخاصة بدخول الوقت للأذان
+        boolean showImagesPref = false;
+        try { showImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch(Exception ignored) {}
+        if (showImagesPref && prayerKey != null && !prayerKey.isEmpty()) {
+            try {
+                int resId = context.getResources().getIdentifier("pre_" + prayerKey, "drawable", context.getPackageName());
+                if (resId != 0) {
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeResource(context.getResources(), resId);
+                    if (bitmap != null) {
+                        builder.setLargeIcon(bitmap);
+                        builder.setStyle(new NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .setBigContentTitle("🕌 حَانَ الآنَ مَوْعِدُ " + prayerName)
+                                .setSummaryText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح"));
+                    }
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "Error attaching prayer image to adhan notification: " + t.getMessage());
+            }
+        }
+
+        return builder.build();
     }
 
     private void showAdhanAlarmNotification(Context context, String prayerName, String prayerKey) {
@@ -318,6 +349,27 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setColor(0xFFD4AF37);
+
+        // إرفاق صورة الصلاة لتنبيه اقتراب موعد الصلاة
+        boolean showPreImagesPref = false;
+        try { showPreImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch(Exception ignored) {}
+        if (showPreImagesPref && prayerKey != null && !prayerKey.isEmpty()) {
+            try {
+                int resId = context.getResources().getIdentifier("pre_" + prayerKey, "drawable", context.getPackageName());
+                if (resId != 0) {
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeResource(context.getResources(), resId);
+                    if (bitmap != null) {
+                        builder.setLargeIcon(bitmap);
+                        builder.setStyle(new NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .setBigContentTitle("⏳ اقتربت " + prayerName)
+                                .setSummaryText(contentText));
+                    }
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "Error attaching prayer image to pre-prayer notification: " + t.getMessage());
+            }
+        }
 
         return builder.build();
     }

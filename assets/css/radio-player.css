@@ -34,7 +34,7 @@
 #radio-panel :focus-visible { outline:2px solid var(--gold-400,#d4af37); outline-offset:3px; }
 @media(max-width:767px) {
  #radio-panel {
-  --radio-bottom:calc(88px + env(safe-area-inset-bottom,0px));
+  --radio-bottom:calc(105px + env(safe-area-inset-bottom,0px));
   left:max(12px,env(safe-area-inset-left,0px))!important;
   right:auto!important;
   bottom:var(--radio-bottom)!important;

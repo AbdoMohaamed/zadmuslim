@@ -27,6 +27,16 @@ const NativeAdhanService = {
         }
     },
 
+    getSelectedMuazzin() {
+        if (typeof window !== "undefined" && typeof window.getSelectedMuazzinId === "function") {
+            const id = window.getSelectedMuazzinId();
+            if (id) return id;
+        }
+        const saved = typeof localStorage !== "undefined" ? localStorage.getItem("zad_selected_muazzin") : null;
+        const valid = ["qatami", "abdulbasit", "refaat", "makkah", "madinah", "aqsa"];
+        return (saved && valid.includes(saved)) ? saved : "qatami";
+    },
+
     async requestPermissions() {
         try {
             if (!window.Capacitor || !window.Capacitor.Plugins) return;
@@ -245,7 +255,7 @@ const NativeAdhanService = {
             if (!await this.requestPermissions()) return { success: false, message: 'إذن الإشعارات غير متاح؛ فعّله من إعدادات الهاتف.' };
             await this.createNotificationChannels();
 
-            const selectedMuazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami";
+            const selectedMuazzin = this.getSelectedMuazzin();
             const enabledPrayers = this.getEnabledPrayers();
             const now = new Date();
 
@@ -374,15 +384,17 @@ const NativeAdhanService = {
                         gregorianDateStr = gregFormatter.format(new Date()) + " م";
                     } catch(e) {}
 
+                    const showPrayerImages = notifySettings.prayerImages === true || localStorage.getItem('zad_show_prayer_images') === '1';
                     await window.Capacitor.Plugins.AdhanNative.setAdhanVolume?.({volume:Math.max(0.1,Math.min(1,Number(localStorage.getItem('zad_adhan_volume') || 1)))});
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
-                        alarmSchedule: notificationsToSchedule.filter(n => n.id < 70000).map(n => ({at:n.schedule.at.getTime(),prayerKey:n.extra.prayerKey,prayerName:n.extra.prayerName,isPreAlert:n.extra.type==='pre_prayer_alert',muazzin:selectedMuazzin,preAlertInterval:preInterval})),
+                        alarmSchedule: notificationsToSchedule.filter(n => n.id < 70000).map(n => ({at:n.schedule.at.getTime(),prayerKey:n.extra.prayerKey,prayerName:n.extra.prayerName,isPreAlert:n.extra.type==='pre_prayer_alert',muazzin:selectedMuazzin,preAlertInterval:preInterval,showImages:showPrayerImages})),
                         timings: prayersTimings,
                         muazzin: selectedMuazzin,
                         preAlert: notifySettings.prePrayer !== false,
                         preAlertInterval: preInterval,
                         adhan: notifySettings.adhan !== false,
                         enabledPrayers: enabledPrayers,
+                        prayerImages: showPrayerImages,
                         hijriDate: hijriDateStr,
                         gregorianDate: gregorianDateStr
                     });
@@ -587,7 +599,7 @@ const NativeAdhanService = {
      * تجربة صوت الأذان
      */
     async testAdhanAudio(muazzin) {
-        const m = muazzin || ((typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami");
+        const m = muazzin || this.getSelectedMuazzin();
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
             try {
                 return await window.Capacitor.Plugins.AdhanNative.testAdhanAudio({ muazzin: m });
@@ -632,7 +644,7 @@ const NativeAdhanService = {
      * اختبار إرسال إشعار الأذان الفوري
      */
     async testNotification(prayerKey = "asr", prayerName = "صلاة العصر") {
-        const muazzin = typeof getSelectedMuazzinId === 'function' ? getSelectedMuazzinId() : 'qatami';
+        const muazzin = this.getSelectedMuazzin();
         try {
             if (window.Capacitor?.isNativePlatform?.()) {
                 if (!await this.requestPermissions()) return { success: false, message: 'اسمح بالإشعارات من إعدادات الهاتف.' };
@@ -736,7 +748,7 @@ const NativeAdhanService = {
         if (!delaySeconds) {
             delaySeconds = (type === "pre_prayer") ? 60 : 120;
         }
-        const muazzin = (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : "qatami";
+        const muazzin = this.getSelectedMuazzin();
         const triggerTime = new Date(Date.now() + (delaySeconds * 1000));
         const timeStr = triggerTime.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
         const isPreAlert = (type === "pre_prayer");

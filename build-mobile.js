@@ -185,4 +185,20 @@ if (fs.existsSync(pbxPath)) {
     }
 }
 
+// Sync prayer images to Android drawable & iOS App bundle
+const prayerImagesSrc = path.join(srcDir, 'assets', 'images', 'prayers');
+const androidDrawableDir = path.join(srcDir, 'android', 'app', 'src', 'main', 'res', 'drawable');
+if (fs.existsSync(prayerImagesSrc)) {
+    const pFiles = fs.readdirSync(prayerImagesSrc);
+    pFiles.forEach(f => {
+        const src = path.join(prayerImagesSrc, f);
+        if (f.endsWith('.jpg') && fs.existsSync(androidDrawableDir)) {
+            fs.copyFileSync(src, path.join(androidDrawableDir, f));
+        }
+        if (fs.existsSync(iosAppDir)) {
+            fs.copyFileSync(src, path.join(iosAppDir, f));
+        }
+    });
+}
+
 console.log('Mobile assets successfully packaged into ./www directory and native sound resources synced!');

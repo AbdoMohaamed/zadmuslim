@@ -15,12 +15,17 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class AdhanActivity extends Activity {
     public static final String ACTION_DISMISS_ADHAN_ACTIVITY = "com.zadmuslim.app.ACTION_DISMISS_ADHAN_ACTIVITY";
     public static final String EXTRA_PRAYER_NAME = "prayer_name";
+    public static final String EXTRA_PRAYER_KEY = "prayer_key";
+    public static final String EXTRA_SHOW_PRAYER_IMAGES = "show_prayer_images";
 
     private BroadcastReceiver dismissReceiver;
 
@@ -44,12 +49,17 @@ public class AdhanActivity extends Activity {
         if (prayerName == null || prayerName.isEmpty()) {
             prayerName = "الصلاة";
         }
+        String prayerKey = getIntent().getStringExtra(EXTRA_PRAYER_KEY);
+        boolean showImages = getIntent().getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, false);
+        if (!getIntent().hasExtra(EXTRA_SHOW_PRAYER_IMAGES)) {
+            try { showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch (Exception ignored) {}
+        }
 
         // بناء واجهة إسلامية راقية برمجياً
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER);
-        root.setPadding(48, 64, 48, 64);
+        root.setPadding(48, 48, 48, 48);
 
         // خلفية خضراء داكنة إسلامية
         GradientDrawable bg = new GradientDrawable(
@@ -58,12 +68,41 @@ public class AdhanActivity extends Activity {
         );
         root.setBackground(bg);
 
-        // أيقونة المسجد
-        TextView iconView = new TextView(this);
-        iconView.setText("🕌");
-        iconView.setTextSize(64);
-        iconView.setGravity(Gravity.CENTER);
-        root.addView(iconView);
+        // عرض صورة الصلاة المباركة إن وجدت
+        int imgResId = (showImages && prayerKey != null && !prayerKey.isEmpty())
+                ? getResources().getIdentifier("pre_" + prayerKey, "drawable", getPackageName())
+                : 0;
+
+        if (imgResId != 0) {
+            ImageView iv = new ImageView(this);
+            iv.setImageResource(imgResId);
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            iv.setAdjustViewBounds(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                iv.setClipToOutline(true);
+                iv.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, android.graphics.Outline outline) {
+                        outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 28f);
+                    }
+                });
+            }
+            int imageMaxHeight = (int) (220 * getResources().getDisplayMetrics().density);
+            iv.setMaxHeight(imageMaxHeight);
+            LinearLayout.LayoutParams ivParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    imageMaxHeight
+            );
+            ivParams.setMargins(16, 0, 16, 20);
+            root.addView(iv, ivParams);
+        } else {
+            // أيقونة المسجد كبديل
+            TextView iconView = new TextView(this);
+            iconView.setText("🕌");
+            iconView.setTextSize(64);
+            iconView.setGravity(Gravity.CENTER);
+            root.addView(iconView);
+        }
 
         // عنوان حان الآن موعد
         TextView titleView = new TextView(this);
@@ -72,7 +111,7 @@ public class AdhanActivity extends Activity {
         titleView.setTextColor(0xFFD4AF37); // Gold
         titleView.setTypeface(Typeface.DEFAULT_BOLD);
         titleView.setGravity(Gravity.CENTER);
-        titleView.setPadding(0, 32, 0, 16);
+        titleView.setPadding(0, 16, 0, 12);
         root.addView(titleView);
 
         // نص التكبير
@@ -81,7 +120,7 @@ public class AdhanActivity extends Activity {
         descView.setTextSize(16);
         descView.setTextColor(0xFFE2E8F0);
         descView.setGravity(Gravity.CENTER);
-        descView.setPadding(0, 0, 0, 48);
+        descView.setPadding(0, 0, 0, 32);
         root.addView(descView);
 
         // زر إيقاف الأذان الكبير
@@ -103,7 +142,7 @@ public class AdhanActivity extends Activity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        btnParams.setMargins(32, 16, 32, 24);
+        btnParams.setMargins(32, 16, 32, 20);
         root.addView(stopBtn, btnParams);
 
         // تلميح أزرار الصوت وزر القفل
@@ -112,10 +151,16 @@ public class AdhanActivity extends Activity {
         hintView.setTextSize(13);
         hintView.setTextColor(0xFFA0AEC0);
         hintView.setGravity(Gravity.CENTER);
-        hintView.setPadding(16, 16, 16, 0);
+        hintView.setPadding(16, 12, 16, 0);
         root.addView(hintView);
 
-        setContentView(root);
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setFillViewport(true);
+        scrollView.addView(root, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        ));
+        setContentView(scrollView);
 
         // استقبال أمر إغلاق الشاشة عند إيقاف الأذان من أي مكان
         dismissReceiver = new BroadcastReceiver() {

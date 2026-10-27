@@ -475,3 +475,22 @@ test('moved tasbeeh and challenge work in services and legacy tasbeeh links redi
  const h=await load('index.html',{url:'http://localhost:4173/index.html#smart-dhikr-panel',setup:w=>{w.zadNavigate=url=>w.__destination=url;}});try{h.dom.window.zadNavigate=url=>h.dom.window.__destination=url;h.dom.window.dispatchEvent(new h.dom.window.HashChangeEvent('hashchange'));assert.equal(h.dom.window.__destination,'services.html#smart-dhikr-panel');assert.equal(h.dom.window.document.querySelector('.panel.challenge'),null);assert.deepEqual(h.errors,[]);}finally{h.dom.window.close();}
  const h2=await load('services.html',{url:'http://localhost:4173/services.html#smart-dhikr-panel'});try{const w=h2.dom.window,d=w.document;assert.ok(d.getElementById('smart-dhikr-panel').classList.contains('active-service-view'));const before=Number(d.getElementById('counter').textContent);d.getElementById('btn-quick-bead-tap').click();assert.equal(Number(d.getElementById('counter').textContent),before+1);w.openServiceView('#seven-day-challenge');d.getElementById('btn-open-7days-challenge').click();assert.ok(d.getElementById('challenge-modal').classList.contains('active'));assert.equal(d.getElementById('challenge-days-list').children.length,7);assert.deepEqual(h2.errors,[]);}finally{h2.dom.window.close();}
 });
+
+test('selected muazzin persists and reaches native scheduler without resetting to default',async()=>{
+ const {dom,errors}=await load('settings.html',{storage:{zad_selected_muazzin:'makkah'}});
+ const w=dom.window,d=w.document;
+ assert.equal(d.getElementById('select-adhan-muazzin').value,'makkah');
+ let scheduledMuazzin=null;
+ w.NativeAdhanService.scheduleLocalNotifications=async()=>{
+  scheduledMuazzin=w.NativeAdhanService.getSelectedMuazzin();
+  return {success:true};
+ };
+ const select=d.getElementById('select-adhan-muazzin');
+ select.value='madinah';
+ select.dispatchEvent(new w.Event('change',{bubbles:true}));
+ await new Promise(r=>setTimeout(r,50));
+ assert.equal(w.localStorage.getItem('zad_selected_muazzin'),'madinah');
+ assert.equal(scheduledMuazzin,'madinah');
+ assert.deepEqual(errors,[]);w.close();
+});
+
