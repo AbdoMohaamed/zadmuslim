@@ -1,6 +1,6 @@
 {
   "name": "zad-muslim-pwa",
-  "version": "3.6.9",
+  "version": "3.6.8",
   "description": "زاد المسلم - تطبيق إسلامي متكامل وصدقة جارية",
   "main": "index.html",
   "scripts": {

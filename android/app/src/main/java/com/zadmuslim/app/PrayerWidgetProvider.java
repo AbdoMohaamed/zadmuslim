@@ -67,12 +67,14 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
     public static void updateAllWidgets(Context context) {
         try {
             AppWidgetManager manager = AppWidgetManager.getInstance(context);
-            ComponentName widgetComponent = new ComponentName(context, PrayerWidgetProvider.class);
+            for (Class<?> provider : new Class<?>[]{PrayerWidgetProvider.class, PrayerWidgetNightProvider.class, PrayerWidgetIvoryProvider.class, PrayerWidgetHorizonProvider.class, PrayerWidgetArchProvider.class, PrayerWidgetAgendaProvider.class}) {
+            ComponentName widgetComponent = new ComponentName(context, provider);
             int[] widgetIds = manager.getAppWidgetIds(widgetComponent);
             if (widgetIds != null && widgetIds.length > 0) {
                 for (int id : widgetIds) {
                     updateWidget(context, manager, id);
                 }
+            }
             }
         } catch (Exception e) {
             Log.e(TAG, "Error updating all prayer widgets: ", e);
@@ -81,7 +83,9 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
 
     public static void updateWidget(Context context, AppWidgetManager appWidgetManager, int widgetId) {
         try {
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.prayer_widget_layout);
+            android.appwidget.AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(widgetId);
+            int layout = info != null ? info.initialLayout : R.layout.prayer_widget_layout;
+            RemoteViews views = new RemoteViews(context.getPackageName(), layout);
 
             // 1. فتح التطبيق عند النقر على الويدجت
             Intent appIntent = new Intent(context, MainActivity.class);
@@ -102,6 +106,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             // 3. قراءة البيانات المحفوظة لمواقيت الصلاة والتاريخ
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             String timingsJson = prefs.getString("last_timings_json", null);
+            views.setTextViewText(R.id.widget_city, prefs.getString("widget_city", "اختر المدينة من التطبيق"));
             String savedHijri = prefs.getString("widget_hijri_date", null);
             String savedGregorian = prefs.getString("widget_gregorian_date", null);
 
@@ -151,6 +156,10 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
                 resetPrayerColumnBackgrounds(views);
             }
 
+            // Light design needs dark type even after the shared active-prayer styling.
+            if (layout == R.layout.prayer_widget_center) {
+                for (int id : new int[]{R.id.widget_label_fajr,R.id.widget_label_dhuhr,R.id.widget_label_asr,R.id.widget_label_maghrib,R.id.widget_label_isha,R.id.widget_time_fajr,R.id.widget_time_dhuhr,R.id.widget_time_asr,R.id.widget_time_maghrib,R.id.widget_time_isha}) views.setTextColor(id, 0xFF493B29);
+            }
             appWidgetManager.updateAppWidget(widgetId, views);
         } catch (Exception e) {
             Log.e(TAG, "Failed to render prayer widget: ", e);
@@ -333,7 +342,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             res.prayerKey = "fajr";
             res.prayerName = "مواقيت الصلاة";
             res.prayerTime12H = "--:--";
-            res.countdownText = "زاد المسلم 🌿";
+            res.countdownText = "افتح التطبيق لتحديث المواقيت";
         }
         return res;
     }

@@ -13,6 +13,14 @@ const NativeAdhanService = {
         return 'assets/audio/' + ({voice1:'salawat-1',voice2:'salawat-2'}[voice] || 'salawat') + '.mp3';
     },
 
+    widgetCityName() {
+        const key = localStorage.getItem('selected_prayer_city');
+        if (!key) return 'اختر المدينة من التطبيق';
+        if (key === 'gps') return 'موقعك الحالي';
+        const option = Array.from(document.getElementById('select-prayer-city')?.options || []).find(o => o.value === key);
+        return option?.textContent?.trim() || window.ZadPrayerCities?.[key]?.label || window.ZadPrayerCities?.[key]?.city || key;
+    },
+
     async init() {
         // التحقق مما إذا كان التطبيق يعمل كـ Native App (Capacitor)
         if (typeof window !== "undefined" && window.Capacitor && window.Capacitor.isNativePlatform()) {
@@ -416,6 +424,7 @@ const NativeAdhanService = {
                         preAlertInterval: preInterval,
                         adhan: notifySettings.adhan !== false,
                         enabledPrayers: enabledPrayers,
+                        cityName: this.widgetCityName(),
                         prayerImages: showPrayerImages,
                         hijriDate: hijriDateStr,
                         gregorianDate: gregorianDateStr
@@ -582,6 +591,7 @@ const NativeAdhanService = {
                 })();
 
                 await window.Capacitor.Plugins.AdhanNative.updatePrayerWidget({
+                    cityName: this.widgetCityName(),
                     timings: finalTimings,
                     timingsJson: JSON.stringify(finalTimings || {}),
                     hijriDate: hDate,

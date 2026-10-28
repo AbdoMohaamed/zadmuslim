@@ -106,6 +106,7 @@ public class AdhanNativePlugin extends Plugin {
 
         // حفظ الإعدادات في SharedPreferences للاسترجاع
         String hijriDate = call.getString("hijriDate", null);
+        String widgetCity = call.getString("cityName", null);
         String gregorianDate = call.getString("gregorianDate", null);
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit()
@@ -126,7 +127,8 @@ public class AdhanNativePlugin extends Plugin {
         if (enabledPrayers != null) {
             editor.putString("enabled_prayers_json", enabledPrayers.toString());
         }
-        editor.apply();
+        if (widgetCity != null && !widgetCity.trim().isEmpty()) editor.putString("widget_city", widgetCity.trim());
+            editor.apply();
 
         // إلغاء الجدولة القديمة أولاً
         cancelExistingAlarms(context, alarmManager);
@@ -248,6 +250,7 @@ public class AdhanNativePlugin extends Plugin {
     public void updatePrayerWidget(PluginCall call) {
         JSObject timingsObj = call.getObject("timings");
         String hijriDate = call.getString("hijriDate", null);
+        String widgetCity = call.getString("cityName", null);
         String gregorianDate = call.getString("gregorianDate", null);
         Context context = getContext();
         if (timingsObj != null) {
@@ -260,6 +263,7 @@ public class AdhanNativePlugin extends Plugin {
             if (gregorianDate != null && !gregorianDate.isEmpty()) {
                 editor.putString("widget_gregorian_date", gregorianDate);
             }
+            if (widgetCity != null && !widgetCity.trim().isEmpty()) editor.putString("widget_city", widgetCity.trim());
             editor.apply();
         }
         PrayerWidgetProvider.updateAllWidgets(context);
