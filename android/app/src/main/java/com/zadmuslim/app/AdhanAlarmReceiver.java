@@ -91,9 +91,9 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         String prayerKey = intent.getStringExtra(EXTRA_PRAYER_KEY);
         String muazzin = intent.getStringExtra(EXTRA_MUAZZIN);
         int preAlertInterval = intent.getIntExtra(EXTRA_PRE_ALERT_INTERVAL, 5);
-        boolean showPrayerImages = intent.getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, false);
+        boolean showPrayerImages = intent.getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, true);
         if (!intent.hasExtra(EXTRA_SHOW_PRAYER_IMAGES)) {
-            try { showPrayerImages = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch(Exception ignored) {}
+            try { showPrayerImages = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", true); } catch(Exception ignored) {}
         }
 
         // صمام أمان: تجاهل أي برودكاست عشوائي ليس مخصصاً لمنبه الصلاة
@@ -245,6 +245,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         Intent fullScreenIntent = new Intent(context, AdhanActivity.class);
         fullScreenIntent.putExtra(AdhanActivity.EXTRA_PRAYER_NAME, prayerName);
         fullScreenIntent.putExtra(AdhanActivity.EXTRA_PRAYER_KEY, prayerKey);
+        fullScreenIntent.putExtra(AdhanActivity.EXTRA_SHOW_PRAYER_IMAGES, true);
         fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingFullScreen = PendingIntent.getActivity(
                 context, 9993, fullScreenIntent,
@@ -275,11 +276,19 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(false);
 
         // إرفاق صورة الصلاة الخاصة بدخول الوقت للأذان
-        boolean showImagesPref = false;
-        try { showImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch(Exception ignored) {}
+        boolean showImagesPref = true;
+        try { showImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", true); } catch(Exception ignored) {}
         if (showImagesPref && prayerKey != null && !prayerKey.isEmpty()) {
             try {
-                int resId = context.getResources().getIdentifier("pre_" + prayerKey, "drawable", context.getPackageName());
+                String normKey = (prayerKey != null) ? prayerKey.trim().toLowerCase(java.util.Locale.US) : "";
+        if (normKey.isEmpty() && prayerName != null) {
+            if (prayerName.contains("فجر")) normKey = "fajr";
+            else if (prayerName.contains("ظهر")) normKey = "dhuhr";
+            else if (prayerName.contains("عصر")) normKey = "asr";
+            else if (prayerName.contains("مغرب")) normKey = "maghrib";
+            else if (prayerName.contains("عشاء")) normKey = "isha";
+        }
+        int resId = (!normKey.isEmpty()) ? context.getResources().getIdentifier("pre_" + normKey, "drawable", context.getPackageName()) : 0;
                 if (resId != 0) {
                     android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeResource(context.getResources(), resId);
                     if (bitmap != null) {

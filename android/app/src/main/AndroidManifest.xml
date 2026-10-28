@@ -24,13 +24,13 @@
 
         </activity>
 
-        <!-- ???? ?????? ??????? ???????? ??? ???? ????? ??? ???? ????? -->
+        <!-- شاشة الأذان الكاملة المنبثقة فوق شاشة القفل عند دخول الوقت -->
         <activity
             android:name=".AdhanActivity"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:exported="false"
-            android:theme="@style/AppTheme.NoActionBarLaunch" />
+            android:theme="@style/AdhanTheme" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

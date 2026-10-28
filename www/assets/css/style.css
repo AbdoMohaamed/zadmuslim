@@ -3072,18 +3072,18 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .toast {
-  background: #0f1c30;
-  border: 1px solid var(--gold-500);
-  color: #fff;
-  padding: 0.9rem 1.6rem;
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-md), 0 0 20px rgba(212, 175, 55, 0.3);
-  font-size: 0.95rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  animation: toastIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: #163329;
+    border: 1px solid var(--gold-500);
+    color: #fff;
+    padding: 0.9rem 1.6rem;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md), 0 0 20px rgba(212, 175, 55, 0.3);
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    animation: toastIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes toastIn {

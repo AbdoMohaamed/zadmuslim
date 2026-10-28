@@ -62,6 +62,8 @@ public class AdhanNativePlugin extends Plugin {
 
     private static int restorePrepared(Context context, org.json.JSONArray alarms) throws org.json.JSONException {
         AlarmManager manager=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean defaultShowImages = prefs.getBoolean("show_prayer_images", true);
         int count=0;
         for(int i=0;i<alarms.length() && i<300;i++) {
             JSONObject alarm=alarms.getJSONObject(i);
@@ -73,6 +75,7 @@ public class AdhanNativePlugin extends Plugin {
             intent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME,alarm.getString("prayerName"));
             intent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN,alarm.optString("muazzin","qatami"));
             intent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL,alarm.optInt("preAlertInterval",5));
+            intent.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES, alarm.optBoolean("showImages", defaultShowImages));
             intent.putExtra("scheduled_time",at);
             scheduleExactAlarmStatic(context,manager,at,PendingIntent.getBroadcast(context,60000+i,intent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
             count++;
@@ -112,6 +115,8 @@ public class AdhanNativePlugin extends Plugin {
                 .putInt("pre_alert_interval", preAlertInterval)
                 .putBoolean("pre_alert_enabled", preAlert)
                 .putBoolean("adhan_enabled", adhanEnabled);
+        boolean prayerImages = call.getBoolean("prayerImages", true);
+        editor.putBoolean("show_prayer_images", prayerImages);
         if (hijriDate != null && !hijriDate.isEmpty()) {
             editor.putString("widget_hijri_date", hijriDate);
         }
@@ -139,8 +144,6 @@ public class AdhanNativePlugin extends Plugin {
             return;
         }
         prefs.edit().remove("prepared_alarms").apply();
-        boolean prayerImages = call.getBoolean("prayerImages", false);
-        prefs.edit().putBoolean("show_prayer_images", prayerImages).apply();
         String[] prayerKeys = {"fajr", "dhuhr", "asr", "maghrib", "isha"};
         String[] prayerNames = {"صلاة الفجر", "صلاة الظهر", "صلاة العصر", "صلاة المغرب", "صلاة العشاء"};
         String[] timingKeys = {"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"};
@@ -637,6 +640,7 @@ public class AdhanNativePlugin extends Plugin {
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName + " (اختبار)");
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKey);
         testIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+        testIntent.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES, true);
         testIntent.putExtra("is_test", true);
         testIntent.putExtra("scheduled_time", System.currentTimeMillis());
         context.sendBroadcast(testIntent);

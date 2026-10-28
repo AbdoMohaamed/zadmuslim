@@ -6,13 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -45,129 +48,187 @@ public class AdhanActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
         );
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(0xFF03231C);
+            getWindow().setNavigationBarColor(0xFF021611);
+        }
+
         String prayerName = getIntent().getStringExtra(EXTRA_PRAYER_NAME);
-        if (prayerName == null || prayerName.isEmpty()) {
+        if (prayerName == null || prayerName.trim().isEmpty()) {
             prayerName = "الصلاة";
         }
+
         String prayerKey = getIntent().getStringExtra(EXTRA_PRAYER_KEY);
-        boolean showImages = getIntent().getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, false);
-        if (!getIntent().hasExtra(EXTRA_SHOW_PRAYER_IMAGES)) {
-            try { showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch (Exception ignored) {}
+        if (prayerKey != null) {
+            prayerKey = prayerKey.trim().toLowerCase(java.util.Locale.US);
+        }
+        if ((prayerKey == null || prayerKey.isEmpty()) && prayerName != null) {
+            if (prayerName.contains("فجر")) prayerKey = "fajr";
+            else if (prayerName.contains("ظهر")) prayerKey = "dhuhr";
+            else if (prayerName.contains("عصر")) prayerKey = "asr";
+            else if (prayerName.contains("مغرب")) prayerKey = "maghrib";
+            else if (prayerName.contains("عشاء")) prayerKey = "isha";
         }
 
-        // بناء واجهة إسلامية راقية برمجياً
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setGravity(Gravity.CENTER);
-        root.setPadding(48, 48, 48, 48);
+        boolean showImages = getIntent().getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, true);
+        if (!getIntent().hasExtra(EXTRA_SHOW_PRAYER_IMAGES)) {
+            try {
+                showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE)
+                        .getBoolean("show_prayer_images", true);
+            } catch (Exception ignored) {}
+        }
 
-        // خلفية خضراء داكنة إسلامية
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        float density = dm.density;
+        int screenHeightPx = dm.heightPixels;
+
+        // Container رئيسي
+        LinearLayout mainLayout = new LinearLayout(this);
+        mainLayout.setOrientation(LinearLayout.VERTICAL);
+        mainLayout.setFitsSystemWindows(true);
+
         GradientDrawable bg = new GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0xFF042B23, 0xFF064034, 0xFF021B16}
+                new int[]{0xFF03231C, 0xFF063D31, 0xFF021611}
         );
-        root.setBackground(bg);
+        mainLayout.setBackground(bg);
 
-        // عرض صورة الصلاة المباركة إن وجدت
-        int imgResId = (showImages && prayerKey != null && !prayerKey.isEmpty())
-                ? getResources().getIdentifier("pre_" + prayerKey, "drawable", getPackageName())
-                : 0;
+        // ScrollView لملاءمة جميع أحجام الشاشات
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setFillViewport(true);
 
-        if (imgResId != 0) {
-            ImageView iv = new ImageView(this);
-            iv.setImageResource(imgResId);
-            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            iv.setAdjustViewBounds(true);
+        LinearLayout contentLayout = new LinearLayout(this);
+        contentLayout.setOrientation(LinearLayout.VERTICAL);
+        contentLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+        int horizPadding = (int) (20 * density);
+        int vertPadding = (int) (18 * density);
+        contentLayout.setPadding(horizPadding, vertPadding, horizPadding, vertPadding);
+
+        // 1. آية قرآنية عليا راقية
+        TextView ayahView = new TextView(this);
+        ayahView.setText("« إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا »");
+        ayahView.setTextSize(13);
+        ayahView.setTextColor(0xFFA7D7C5);
+        ayahView.setTypeface(Typeface.DEFAULT_BOLD);
+        ayahView.setGravity(Gravity.CENTER);
+        ayahView.setPadding(0, 0, 0, (int) (8 * density));
+        contentLayout.addView(ayahView);
+
+        // 2. عنوان حان الآن موعد الصلاة
+        TextView titleView = new TextView(this);
+        titleView.setText("حَانَ الآنَ مَوْعِدُ " + prayerName);
+        titleView.setTextSize(22);
+        titleView.setTextColor(0xFFD4AF37); // Gold
+        titleView.setTypeface(Typeface.DEFAULT_BOLD);
+        titleView.setGravity(Gravity.CENTER);
+        titleView.setPadding(0, 0, 0, (int) (6 * density));
+        contentLayout.addView(titleView);
+
+        // 3. نص التكبير
+        TextView descView = new TextView(this);
+        descView.setText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح");
+        descView.setTextSize(14);
+        descView.setTextColor(0xFFE2E8F0);
+        descView.setGravity(Gravity.CENTER);
+        descView.setPadding(0, 0, 0, (int) (14 * density));
+        contentLayout.addView(descView);
+
+        // 4. عرض صورة الصلاة المخصصة المباركة
+        int imgResId = 0;
+        if (prayerKey != null && !prayerKey.isEmpty()) {
+            imgResId = getResources().getIdentifier("pre_" + prayerKey, "drawable", getPackageName());
+        }
+
+        if (imgResId != 0 && showImages) {
+            FrameLayout imageCard = new FrameLayout(this);
+            GradientDrawable cardBg = new GradientDrawable();
+            cardBg.setColor(0xFF042820);
+            cardBg.setCornerRadius(22 * density);
+            cardBg.setStroke((int) (2 * density), 0xFFD4AF37); // إطار ذهبي راقٍ
+            imageCard.setBackground(cardBg);
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                iv.setClipToOutline(true);
-                iv.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                imageCard.setClipToOutline(true);
+                imageCard.setOutlineProvider(new ViewOutlineProvider() {
                     @Override
-                    public void getOutline(View view, android.graphics.Outline outline) {
-                        outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 28f);
+                    public void getOutline(View view, Outline outline) {
+                        outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 22 * density);
                     }
                 });
             }
-            int imageMaxHeight = (int) (220 * getResources().getDisplayMetrics().density);
-            iv.setMaxHeight(imageMaxHeight);
-            LinearLayout.LayoutParams ivParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    imageMaxHeight
+
+            ImageView iv = new ImageView(this);
+            iv.setImageResource(imgResId);
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            int targetHeight = (int) Math.min(screenHeightPx * 0.45f, 320 * density);
+            if (targetHeight < (int) (180 * density)) {
+                targetHeight = (int) (180 * density);
+            }
+
+            FrameLayout.LayoutParams ivParams = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
             );
-            ivParams.setMargins(16, 0, 16, 20);
-            root.addView(iv, ivParams);
+            imageCard.addView(iv, ivParams);
+
+            LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    targetHeight
+            );
+            cardParams.setMargins((int) (6 * density), 0, (int) (6 * density), (int) (16 * density));
+            contentLayout.addView(imageCard, cardParams);
         } else {
-            // أيقونة المسجد كبديل
+            // بديل في حال عدم توفر الصورة
             TextView iconView = new TextView(this);
             iconView.setText("🕌");
             iconView.setTextSize(64);
             iconView.setGravity(Gravity.CENTER);
-            root.addView(iconView);
+            iconView.setPadding(0, (int) (24 * density), 0, (int) (24 * density));
+            contentLayout.addView(iconView);
         }
 
-        // عنوان حان الآن موعد
-        TextView titleView = new TextView(this);
-        titleView.setText("حَانَ الآنَ مَوْعِدُ " + prayerName);
-        titleView.setTextSize(24);
-        titleView.setTextColor(0xFFD4AF37); // Gold
-        titleView.setTypeface(Typeface.DEFAULT_BOLD);
-        titleView.setGravity(Gravity.CENTER);
-        titleView.setPadding(0, 16, 0, 12);
-        root.addView(titleView);
+        // إضافة محتوى الـ ScrollView
+        scrollView.addView(contentLayout, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        ));
 
-        // نص التكبير
-        TextView descView = new TextView(this);
-        descView.setText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح");
-        descView.setTextSize(16);
-        descView.setTextColor(0xFFE2E8F0);
-        descView.setGravity(Gravity.CENTER);
-        descView.setPadding(0, 0, 0, 32);
-        root.addView(descView);
-
-        // زر إيقاف الأذان الكبير
+        // 5. زر إيقاف الأذان الكبير في الأسفل
         Button stopBtn = new Button(this);
         stopBtn.setText("إيقاف الأذان ⏹");
         stopBtn.setTextSize(18);
         stopBtn.setTextColor(Color.WHITE);
         stopBtn.setTypeface(Typeface.DEFAULT_BOLD);
-        stopBtn.setPadding(40, 24, 40, 24);
 
         GradientDrawable btnBg = new GradientDrawable();
         btnBg.setColor(0xFFB91C1C); // أحمر أنيق للإيقاف
-        btnBg.setCornerRadius(30);
-        btnBg.setStroke(3, 0xFFD4AF37); // إطار ذهبي
+        btnBg.setCornerRadius(28 * density);
+        btnBg.setStroke((int) (2.5f * density), 0xFFD4AF37); // إطار ذهبي
         stopBtn.setBackground(btnBg);
         stopBtn.setOnClickListener(v -> stopAdhanAndFinish());
 
         LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                (int) (52 * density)
         );
-        btnParams.setMargins(32, 16, 32, 20);
-        stopBtn.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+        btnParams.setMargins((int) (24 * density), (int) (8 * density), (int) (24 * density), (int) (6 * density));
 
-        // تلميح أزرار الصوت وزر القفل
+        // 6. تلميح أزرار الصوت
         TextView hintView = new TextView(this);
-        hintView.setText("🔕 يمكنك أيضاً إيقاف الأذان بالضغط على أي من أزرار الصوت");
-        hintView.setTextSize(13);
+        hintView.setText("🔕 يمكنك أيضاً إيقاف الأذان بالضغط على أزرار الصوت");
+        hintView.setTextSize(12);
         hintView.setTextColor(0xFFA0AEC0);
         hintView.setGravity(Gravity.CENTER);
-        hintView.setPadding(16, 12, 16, 0);
-        root.addView(hintView);
+        hintView.setPadding(0, 0, 0, (int) (14 * density));
 
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.setFillViewport(true);
-        scrollView.addView(root, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-        ));
-        LinearLayout screen = new LinearLayout(this);
-        screen.setOrientation(LinearLayout.VERTICAL);
-        screen.setBackgroundColor(0xFF042B23);
-        screen.setFitsSystemWindows(true);
-        screen.addView(scrollView, new LinearLayout.LayoutParams(
+        // بناء الشاشة الكاملة
+        mainLayout.addView(scrollView, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-        screen.addView(stopBtn, btnParams);
-        setContentView(screen);
+        mainLayout.addView(stopBtn, btnParams);
+        mainLayout.addView(hintView);
+
+        setContentView(mainLayout);
 
         // استقبال أمر إغلاق الشاشة عند إيقاف الأذان من أي مكان
         dismissReceiver = new BroadcastReceiver() {
@@ -176,11 +237,16 @@ public class AdhanActivity extends Activity {
                 finish();
             }
         };
-        androidx.core.content.ContextCompat.registerReceiver(this, dismissReceiver, new IntentFilter(ACTION_DISMISS_ADHAN_ACTIVITY), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
+        androidx.core.content.ContextCompat.registerReceiver(
+                this,
+                dismissReceiver,
+                new IntentFilter(ACTION_DISMISS_ADHAN_ACTIVITY),
+                androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+        );
     }
 
     /**
-     * اعتراض أزرار الهاتف المادية (Volume Up/Down و Power) لإيقاف الأذان فوراً
+     * اعتراض أزرار الهاتف المادية (Volume Up/Down) لإيقاف الأذان فوراً
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -207,7 +273,6 @@ public class AdhanActivity extends Activity {
             try {
                 unregisterReceiver(dismissReceiver);
             } catch (Exception ignored) {}
-            dismissReceiver = null;
         }
     }
 }
