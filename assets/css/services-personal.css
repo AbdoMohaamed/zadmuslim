@@ -505,7 +505,7 @@
   background: rgba(10, 30, 24, 0.65);
   backdrop-filter: blur(8px);
   color: rgba(255, 255, 255, 0.45);
-  font-size: 1.05rem;
+  font-size: 1.50rem;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -582,7 +582,7 @@
 /* Desktop Extra: Category pills styling on wide screens */
 @media(min-width: 1024px) {
   #services-directory .category-filter-pills {
-    max-width: 1040px;
+    max-width: 100%;
     justify-content: center;
     gap: 10px;
   }
@@ -609,7 +609,6 @@
   }
   #services-directory .category-filter-pills {
     justify-content: center;
-    margin: 10px auto 18px;
   }
   .service-card-shell .service-card {
     padding: 14px 14px !important;
@@ -909,7 +908,7 @@ html.android-device body.single-service-mode #serviceFocusHeader, .android-devic
   justify-content: center;
   gap: 8px 10px;
   width: 100%;
-  max-width: 980px;
+  max-width: 100%;
   margin: 12px auto 24px;
   padding: 10px 12px;
   background: linear-gradient(180deg, rgba(16, 44, 37, 0.5) 0%, rgba(8, 28, 23, 0.65) 100%);

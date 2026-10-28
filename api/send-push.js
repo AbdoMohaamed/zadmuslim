@@ -32,6 +32,10 @@ module.exports = async function handler(req, res) {
         const base = process.env.PUBLIC_SITE_URL || 'https://zadmuslim-zeta.vercel.app';
         const target = new URL(bodyData.url || './', base);
         if (target.origin !== new URL(base).origin || !['https:', 'http:'].includes(target.protocol)) throw new Error();
+        // Admin notification taps navigate only; they must never auto-play prayer audio.
+        target.searchParams.delete('playAdhan');
+        const hashParts=target.hash.split('?');
+        if(hashParts.length>1){const params=new URLSearchParams(hashParts.slice(1).join('?'));params.delete('playAdhan');target.hash=hashParts[0]+(params.toString()?'?'+params.toString():'');}
         bodyData.url = target.pathname + target.search + target.hash;
       } catch { return res.status(400).json({ error: 'الرابط يجب أن يكون داخل التطبيق.' }); }
     }

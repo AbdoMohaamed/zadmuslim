@@ -299,8 +299,8 @@ body.light-theme {
 
 .eyebrow {
     color: #bd8819 !important;
-    font-size: 13px;
-    font-weight: 800;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 #today {
@@ -1489,12 +1489,6 @@ html[data-theme="dark"] .panel h3,
   color: #F3F8F4 !important;
 }
 
-html[data-theme="dark"] .prayer,
-[data-theme="dark"] .prayer .prayer {
-    background: radial-gradient(circle at 8% 20%, rgb(33, 111, 90) 0%, transparent 36%), linear-gradient(115deg, rgb(6, 64, 52), rgb(13, 90, 73)) !important;
-    border: 1px solid #315346 !important;
-}
-
 html[data-theme="dark"] .prayer strong,
 [data-theme="dark"] .prayer strong .prayer strong {
   color: #F3F8F4 !important;
@@ -1993,13 +1987,13 @@ html[data-theme="light"] .prayer-city-select, [data-theme="light"] .prayer-city-
   .mobilebar a.active {
     color: var(--green);
   }
-  .mobilebar span {
+  .mobilebar i {
     display: block;
     font-size: 20px;
     line-height: 1.2;
     transition: transform 0.2s ease;
   }
-  .mobilebar a:active span {
+  .mobilebar a:active i {
     transform: scale(1.15);
   }
   body {
@@ -4261,7 +4255,7 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .khatma-summary-card {
-  margin: 0 auto 2.5rem;
+    margin-bottom:20px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -4408,10 +4402,9 @@ html[data-theme="light"] .nav-links a.active {
   }
 
     .khatma-summary-card {
-        padding: 1.2rem 0.9rem !important;
+        padding: 1.2rem 0rem !important;
         border-radius: 14px !important;
         margin-bottom: 1.5rem !important;
-        margin: 0 1.5rem 0;
     }
     .khatma-summary-card {
         background: var(--bg-card);
@@ -8539,7 +8532,7 @@ body.light-theme .offset-current-val {
 }
 
 .countdown-label {
-  font-size: 0.7rem;
+  font-size: 1.2rem;
   color: var(--text-muted);
 }
 
@@ -17132,6 +17125,9 @@ html, body {
     overflow-x: hidden;
     overflow-x: clip;
     max-width: 100vw;
+    touch-action: pan-y;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 #services-interactive-hub {
@@ -26132,12 +26128,406 @@ body.light-theme .btn-focus-back-bottom {
 #home .home-hero-compact p { margin: 4px 0; line-height: 1.7; }
 #home .home-hero-compact .hero-actions { margin-top: 12px; flex-wrap: wrap; }
 #home .home-hero-compact .moon { font-size: 64px; flex-shrink: 0; }
-#home .home-next-prayer { margin: 16px 0; padding: 16px 20px; gap: 12px; flex-wrap: wrap; }
-#home .home-next-prayer strong { display: block; font-size: 1.25rem; margin: 4px 0; }
+/* ==========================================================================
+   تصميم الواجهة الرئيسية المطور (Hero Prayer Cards & Strip - Luxury Edition)
+   ========================================================================== */
+
+/* 1. بطاقة الصلاة القادمة الرئيسية (Card 1: Next Prayer Hero Card) */
+#home .home-prayer-hero-card {
+    display: flex;
+    flex-direction: column;
+    padding: 22px 20px;
+    margin: 18px 0 0 0;
+    background: linear-gradient(160deg, #09261f 0%, #051c16 100%);
+    border: 1px solid rgba(49, 83, 70, 0.75);
+    border-radius: 22px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+#home .home-prayer-hero-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(230, 189, 112, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.home-prayer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    width:100%;
+}
+
+.home-prayer-badge {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(230, 189, 112, 0.9);
+    letter-spacing: -0.2px;
+}
+
+.home-prayer-countdown {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e6bd70;
+}
+
+.home-prayer-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+#home .home-prayer-hero-card strong.home-prayer-name {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.home-prayer-exact-time {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #e6bd70;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.home-prayer-progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.home-prayer-progress-fill {
+    height: 100%;
+    background: #e6bd70;
+    border-radius: 9999px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.home-prayer-action-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #e6bd70;
+    color: #061d17 !important;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 13px 20px;
+    border-radius: 9999px;
+    text-decoration: none !important;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(230, 189, 112, 0.25);
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.home-prayer-action-btn:hover,
+.home-prayer-action-btn:focus-visible {
+    background: #f0c97e;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(230, 189, 112, 0.35);
+}
+
+.home-prayer-action-btn i {
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+}
+
+.home-prayer-action-btn:hover i {
+    transform: translateX(-3px);
+}
+
+/* 2. شريط الصلوات الخمس لليوم (Card 2: Today's 5 Prayers Strip) */
+.home-prayers-strip-card {
+    margin-top: 14px;
+    background: linear-gradient(160deg, #09261f 0%, #051c16 100%);
+    border: 1px solid rgba(49, 83, 70, 0.75);
+    border-radius: 20px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    align-items: center;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.home-strip-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    border-radius: 14px;
+    text-align: center;
+    border: 1.5px solid transparent;
+    transition: all 0.25s ease;
+}
+
+.home-strip-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.home-strip-time {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+/* العنصر النشط (الصلاة القادمة) داخل شريط الصلوات الخمس */
+.home-strip-item.is-active {
+    border-color: rgba(230, 189, 112, 0.55);
+    background: rgba(230, 189, 112, 0.10);
+    box-shadow: 0 0 14px rgba(230, 189, 112, 0.12);
+}
+
+.home-strip-item.is-active .home-strip-name {
+    color: #e6bd70;
+}
+
+.home-strip-item.is-active .home-strip-time {
+    color: #ffffff;
+    font-weight: 800;
+}
+
+/* 3. بنر التذكير الذكي بالسياق والسنن (Card 3: Smart Reminder / Sunnah Banner) */
+.smart-reminder-banner.home-sunnah-reminder-card {
+    margin-top: 14px;
+    margin-bottom: 18px;
+    background: linear-gradient(160deg, #09261f 0%, #051c16 100%);
+    border: 1px solid rgba(49, 83, 70, 0.75);
+    border-right: 4px solid #e6bd70 !important;
+    border-radius: 20px;
+    padding: 16px 20px;
+    position: relative;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+    gap: 6px;
+    animation: slideDownFade 0.35s ease;
+}
+.smart-reminder-content {
+    padding:5px 0;
+    display: flex;
+    flex-direction: column;
+}
+.smart-reminder-content p{
+    padding: 5px 0;
+}
+
+
+.smart-reminder-banner.home-sunnah-reminder-card::before {
+    display: none !important;
+}
+
+.smart-reminder-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.smart-reminder-banner.home-sunnah-reminder-card .smart-reminder-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #e6bd70;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.smart-reminder-banner.home-sunnah-reminder-card .btn-dismiss-reminder {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+}
+
+.smart-reminder-banner.home-sunnah-reminder-card .btn-dismiss-reminder:hover {
+    color: #ffffff;
+}
+
+.smart-reminder-banner.home-sunnah-reminder-card .smart-reminder-desc {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.6;
+    margin: 2px 0 8px 0;
+}
+
+.smart-reminder-banner.home-sunnah-reminder-card .smart-reminder-actions {
+    display: flex;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.smart-reminder-banner.home-sunnah-reminder-card .btn-reminder-act {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    border: 1.5px solid rgba(230, 189, 112, 0.65);
+    background: rgba(230, 189, 112, 0.08);
+    color: #e6bd70 !important;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    width: fit-content;
+}
+
+.smart-reminder-banner.home-sunnah-reminder-card .btn-reminder-act:hover {
+    background: rgba(230, 189, 112, 0.18);
+    border-color: #e6bd70;
+    transform: translateY(-1px);
+}
+
+/* تنسيقات الوضع النهاري (Light Mode) */
+body.light-theme #home .home-prayer-hero-card,
+html[data-theme="light"] #home .home-prayer-hero-card,
+body.light-theme .home-prayers-strip-card,
+html[data-theme="light"] .home-prayers-strip-card,
+body.light-theme .smart-reminder-banner.home-sunnah-reminder-card,
+html[data-theme="light"] .smart-reminder-banner.home-sunnah-reminder-card {
+    background: #ffffff !important;
+    border-color: rgba(184, 134, 11, 0.3) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.light-theme #home .home-prayer-hero-card strong.home-prayer-name,
+html[data-theme="light"] #home .home-prayer-hero-card strong.home-prayer-name {
+    color: #0d3b30 !important;
+}
+
+body.light-theme .home-prayer-badge,
+html[data-theme="light"] .home-prayer-badge,
+body.light-theme .home-prayer-countdown,
+html[data-theme="light"] .home-prayer-countdown,
+body.light-theme .home-prayer-exact-time,
+html[data-theme="light"] .home-prayer-exact-time {
+    color: #b8860b !important;
+}
+
+body.light-theme .home-prayer-progress-track,
+html[data-theme="light"] .home-prayer-progress-track {
+    background: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .home-prayer-progress-fill,
+html[data-theme="light"] .home-prayer-progress-fill {
+    background: #b8860b !important;
+}
+
+body.light-theme .home-prayer-action-btn,
+html[data-theme="light"] .home-prayer-action-btn {
+    background: #b8860b !important;
+    color: #ffffff !important;
+}
+
+body.light-theme .home-strip-name,
+html[data-theme="light"] .home-strip-name {
+    color: #64748b !important;
+}
+
+body.light-theme .home-strip-time,
+html[data-theme="light"] .home-strip-time {
+    color: #1e293b !important;
+}
+
+body.light-theme .home-strip-item.is-active,
+html[data-theme="light"] .home-strip-item.is-active {
+    background: rgba(184, 134, 11, 0.12) !important;
+    border-color: rgba(184, 134, 11, 0.6) !important;
+}
+
+body.light-theme .home-strip-item.is-active .home-strip-name,
+html[data-theme="light"] .home-strip-item.is-active .home-strip-name {
+    color: #b8860b !important;
+}
+
+body.light-theme .home-strip-item.is-active .home-strip-time,
+html[data-theme="light"] .home-strip-item.is-active .home-strip-time {
+    color: #0d3b30 !important;
+}
+
+body.light-theme .smart-reminder-banner.home-sunnah-reminder-card,
+html[data-theme="light"] .smart-reminder-banner.home-sunnah-reminder-card {
+    border-right: 4px solid #b8860b !important;
+}
+
+body.light-theme .smart-reminder-banner.home-sunnah-reminder-card .smart-reminder-title,
+html[data-theme="light"] .smart-reminder-banner.home-sunnah-reminder-card .smart-reminder-title {
+    color: #b8860b !important;
+}
+
+body.light-theme .smart-reminder-banner.home-sunnah-reminder-card .smart-reminder-desc,
+html[data-theme="light"] .smart-reminder-banner.home-sunnah-reminder-card .smart-reminder-desc {
+    color: #334155 !important;
+}
+
+body.light-theme .smart-reminder-banner.home-sunnah-reminder-card .btn-dismiss-reminder,
+html[data-theme="light"] .smart-reminder-banner.home-sunnah-reminder-card .btn-dismiss-reminder {
+    color: #94a3b8 !important;
+}
+
+body.light-theme .smart-reminder-banner.home-sunnah-reminder-card .btn-dismiss-reminder:hover,
+html[data-theme="light"] .smart-reminder-banner.home-sunnah-reminder-card .btn-dismiss-reminder:hover {
+    color: #1e293b !important;
+}
+
+body.light-theme .smart-reminder-banner.home-sunnah-reminder-card .btn-reminder-act,
+html[data-theme="light"] .smart-reminder-banner.home-sunnah-reminder-card .btn-reminder-act {
+    border-color: #b8860b !important;
+    background: rgba(184, 134, 11, 0.08) !important;
+    color: #b8860b !important;
+}
+
 @media (max-width: 480px) {
-  #home .home-hero-compact { padding: 18px 16px; }
-  #home .home-hero-compact .moon { display: none; }
-  #home .home-next-prayer { padding: 14px 16px; }
+    #home .home-hero-compact { padding: 18px 16px; }
+    #home .home-hero-compact .moon { display: none; }
+    #home .home-prayer-hero-card {
+        padding: 18px 16px;
+    }
+    #home .home-prayer-hero-card strong.home-prayer-name {
+        font-size: 1.65rem;
+    }
+    .home-prayer-exact-time {
+        font-size: 1.45rem;
+    }
+    .home-strip-name {
+        font-size: 0.82rem;
+    }
+    .home-strip-time {
+        font-size: 0.78rem;
+    }
+    .smart-reminder-banner.home-sunnah-reminder-card {
+        padding: 14px 16px;
+    }
 }
 
 /* ==========================================================================

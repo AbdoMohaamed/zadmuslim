@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>زاد المسلم | القرآن الكريم، مواقيت الصلاة، الأذكار والسبحة (صدقة جارية)</title>
     <meta name="description" content="تطبيق زاد المسلم الشامل للقرآن الكريم، مواقيت الصلاة والأذان، الأذكار وحصن المسلم، إذاعات القرآن 24/7، الأربعون النووية، أسماء الله الحسنى، قصص الأنبياء، والمسابقات الإسلامية • صدقة جارية.">
@@ -170,29 +170,67 @@
             </div>
             <div class="moon">☾</div>
         </section>
-        <div class="prayer panel home-next-prayer" id="home-next-prayer">
-            <div>
-                <div class="small">🕌 الصلاة القادمة</div>
-                <strong id="daily-next-prayer-name">صلاتك في وقتها</strong>
-                <div class="small" id="daily-next-prayer-time">تختلف المواقيت حسب مدينتك</div>
+        <!-- البطاقة الأولى: بطاقة الصلاة القادمة الكبرى (Hero Next Prayer Card) -->
+        <div class="prayer panel home-next-prayer home-prayer-hero-card" id="home-next-prayer">
+            <div class="home-prayer-header">
+                <span class="home-prayer-badge">الصلاة القادمة</span>
+                <span class="home-prayer-countdown" id="home-prayer-remaining">متبقي -- س و -- د</span>
             </div>
-            <a class="btn outline" href="services.html#prayer-times">عرض التفاصيل ←</a>
+            <div class="home-prayer-main-row">
+                <strong class="home-prayer-name" id="daily-next-prayer-name">صلاتك في وقتها</strong>
+                <span class="home-prayer-exact-time" id="home-prayer-time">--:--</span>
+            </div>
+            <div class="small" id="daily-next-prayer-time" style="display:none;" aria-hidden="true">تختلف المواقيت حسب مدينتك</div>
+            <div class="home-prayer-progress-track" aria-hidden="true">
+                <div class="home-prayer-progress-fill" id="home-prayer-progress-bar" style="width: 60%;"></div>
+            </div>
+            <a class="home-prayer-action-btn" href="services.html#prayer-times">
+                <span>عرض التفاصيل</span>
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </a>
         </div>
 
-        <!-- بنر التذكير الذكي بالسياق الزمني (Smart Contextual Reminder Banner) -->
-        <div class="smart-reminder-banner container" id="smart-reminder-banner" style="display: none; margin-top: 1rem; margin-bottom: 1.5rem;">
-            <div class="smart-reminder-main">
-                <div class="smart-reminder-icon"><i class="fa-solid fa-moon text-gold" id="reminder-icon"></i></div>
-                <div class="smart-reminder-text-group">
-                    <span class="smart-reminder-title" id="reminder-title">زاد المسلم • رفيق طاعاتك اليومية</span>
-                    <span class="smart-reminder-desc" id="reminder-desc">تذكير مبارك يتجدد تلقائياً بحسب الوقت وسياق اليوم</span>
-                </div>
+        <!-- البطاقة الثانية: شريط مواقيت الصلوات الخمس اليومية (Today's 5 Prayers Strip) -->
+        <div class="home-prayers-strip-card" id="home-prayers-strip">
+            <div class="home-strip-item" id="home-strip-fajr">
+                <span class="home-strip-name">الفجر</span>
+                <span class="home-strip-time" id="home-time-fajr">--:--</span>
             </div>
-            <div class="smart-reminder-actions">
-                <button type="button" class="btn gold btn-reminder-act" id="btn-reminder-act" style="padding: 8px 16px;">
-                    <span id="reminder-act-text">فتح 📖</span>
-                </button>
-                <button type="button" class="btn-close-radio btn-dismiss-reminder" id="btn-dismiss-reminder" style="font-size: 1.3rem; background: none; border: none; cursor: pointer; color: var(--muted);" title="إغلاق">&times;</button>
+            <div class="home-strip-item is-active" id="home-strip-dhuhr">
+                <span class="home-strip-name">الظهر</span>
+                <span class="home-strip-time" id="home-time-dhuhr">--:--</span>
+            </div>
+            <div class="home-strip-item" id="home-strip-asr">
+                <span class="home-strip-name">العصر</span>
+                <span class="home-strip-time" id="home-time-asr">--:--</span>
+            </div>
+            <div class="home-strip-item" id="home-strip-maghrib">
+                <span class="home-strip-name">المغرب</span>
+                <span class="home-strip-time" id="home-time-maghrib">--:--</span>
+            </div>
+            <div class="home-strip-item" id="home-strip-isha">
+                <span class="home-strip-name">العشاء</span>
+                <span class="home-strip-time" id="home-time-isha">--:--</span>
+            </div>
+        </div>
+
+        <!-- البطاقة الثالثة: بنر السنن والتذكير الذكي بالسياق الزمني (Smart Contextual Sunnah / Reminder Banner) -->
+        <div class="smart-reminder-banner home-sunnah-reminder-card container" id="smart-reminder-banner" style="display: none;">
+            <div class="smart-reminder-top">
+                <div class="smart-reminder-title-wrap">
+                    <i class="fa-solid fa-moon text-gold" id="reminder-icon" style="display:none;" aria-hidden="true"></i>
+                    <h3 class="smart-reminder-title" id="reminder-title">صلاة الضحى • صدقة عن كل مفصل</h3>
+                </div>
+                <button type="button" class="btn-dismiss-reminder" id="btn-dismiss-reminder" aria-label="إغلاق">&times;</button>
+            </div>
+            <div class="smart-reminder-content">
+                <p class="smart-reminder-desc" id="reminder-desc">ركعتان تجزئان عن الصدقات، وتجلبان البركة والسكينة.</p>
+                <div class="smart-reminder-actions">
+                    <button type="button" class="btn gold btn-reminder-act" id="btn-reminder-act">
+                        <span id="reminder-act-text">دليل الصلاة والسنن</span>
+                        <i class="fa-solid fa-chevron-left" aria-hidden="true" style="font-size: 0.8rem; margin-right: 4px;"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -541,7 +579,7 @@
     <script src="assets/js/onesignal-service.js?v=3"></script>
     <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=23"></script>
+    <script src="assets/js/app.js?v=24"></script>
     <script src="assets/js/quran.js?v=27"></script>
     <script src="assets/js/radio-player.js?v=2"></script>
     <script src="assets/js/extended-modules.js?v=36"></script>
@@ -769,10 +807,10 @@
 
     <!-- شريط التنقل السفلي للهواتف (Mobile Bar) من النموذج المرجعي -->
     <nav class="mobilebar">
-        <a href="#home"><span>⌂</span>الرئيسية</a>
-        <a href="#daily"><span>🌿</span>يومي</a>
-        <a href="services.html#islamic-media"><span>🎬</span>مقتطفات</a>
-        <a href="services.html"><span>📖</span>الخدمات</a>
+        <a href="#home"><i class="fa-solid fa-house text-gold"></i>الرئيسية</a>
+        <a href="#daily"><i class="fa-solid fa-leaf text-gold"></i>يومي</a>
+        <a href="services.html#islamic-media">  <i class="fa-solid fa-circle-play text-gold"></i>مقتطفات</a>
+        <a href="services.html"><i class="fa-solid fa-layer-group text-gold"></i>الخدمات</a>
     </nav>
 
     <!-- نافذة مشغل المرئيات والبودكاست (Islamic Media Video Modal) -->
@@ -905,10 +943,18 @@
                     try { offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0; } catch(e) {}
                     const now = new Date();
                     const hDate = new Date(now.getTime() + (offsetDays * 86400000));
-                    const wDay = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(now);
+                    const WEEKDAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+                    const wDay = WEEKDAYS[now.getDay()] || "";
                     let hPart = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(hDate);
                     if (!hPart.includes('هـ')) hPart += ' هـ';
-                    const gPart = new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(now) + ' م';
+                    let gPart = "";
+                    try {
+                        gPart = new Intl.DateTimeFormat('ar-EG-u-ca-gregory', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+                        if (!gPart.includes('م')) gPart += ' م';
+                    } catch(err) {
+                        const GMONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+                        gPart = `${now.getDate()} ${GMONTHS[now.getMonth()]} ${now.getFullYear()} م`;
+                    }
                     todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 6px; opacity: 0.85;"></i>${wDay}، ${hPart} • ${gPart}`;
                 } catch(e) {
                     todayEl.textContent = new Intl.DateTimeFormat('ar', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());

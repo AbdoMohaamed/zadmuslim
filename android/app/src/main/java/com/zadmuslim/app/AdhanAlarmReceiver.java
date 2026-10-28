@@ -73,15 +73,15 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             BackgroundReminderReceiver.restore(context);
             AdhanNativePlugin.rescheduleAlarmsFromPrefs(context);
             PrayerWidgetProvider.updateAllWidgets(context);
-            checkCloudBroadcastsInBackground(context);
-            scheduleNextBroadcastCheck(context);
+
+            cancelLegacyBroadcastCheck(context);
             if (pendingResult != null) pendingResult.finish();
             return;
         }
 
         if (ACTION_CHECK_CLOUD_BROADCASTS.equals(action)) {
-            checkCloudBroadcastsInBackground(context);
-            scheduleNextBroadcastCheck(context);
+
+            cancelLegacyBroadcastCheck(context);
             if (pendingResult != null) pendingResult.finish();
             return;
         }
@@ -380,132 +380,20 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         return builder.build();
     }
 
+    // Compatibility entry points cancel old polling alarms after an app update.
+    // OneSignal is the only owner of remote admin notifications.
     public static void triggerImmediateBroadcastCheck(Context context) {
-        checkCloudBroadcastsInBackground(context);
+        cancelLegacyBroadcastCheck(context);
     }
 
-    public static void checkCloudBroadcastsInBackground(Context context) {
-        new Thread(() -> {
-            try {
-                URL url = new URL(FIREBASE_BROADCASTS_URL);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setConnectTimeout(8000);
-                conn.setReadTimeout(8000);
-
-                if (conn.getResponseCode() == 200) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = in.readLine()) != null) {
-                        sb.append(line);
-                    }
-                    in.close();
-
-                    String json = sb.toString();
-                    if (!json.equals("null") && !json.trim().isEmpty()) {
-                        processBroadcastsPayload(context, json);
-                    }
-                }
-                conn.disconnect();
-            } catch (Exception e) {
-                Log.w(TAG, "Error checking cloud broadcasts: " + e.getMessage());
-            }
-        }).start();
-    }
-
-    private static void processBroadcastsPayload(Context context, String json) {
-        try {
-            JSONObject obj = new JSONObject(json);
-            SharedPreferences prefs = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE);
-
-            Iterator<String> keys = obj.keys();
-            long now = System.currentTimeMillis();
-
-            while (keys.hasNext()) {
-                String id = keys.next();
-                if (prefs.getBoolean("broadcast_seen_" + id, false)) continue;
-
-                JSONObject item = obj.getJSONObject(id);
-                String title = item.optString("title", "رسالة من زاد المسلم 🌿");
-                String body = item.optString("body", "");
-                long timestamp = item.optLong("timestamp", 0L);
-
-                if (timestamp > 0 && Math.abs(now - timestamp) > 24 * 60 * 60 * 1000L) {
-                    prefs.edit().putBoolean("broadcast_seen_" + id, true).apply();
-                    continue;
-                }
-
-                if (!body.isEmpty()) {
-                    showCloudBroadcastNotification(context, title, body);
-                    prefs.edit().putBoolean("broadcast_seen_" + id, true).apply();
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "Error processing cloud broadcasts payload: " + e.getMessage());
+    public static void cancelLegacyBroadcastCheck(Context context) {
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AdhanAlarmReceiver.class).setAction(ACTION_CHECK_CLOUD_BROADCASTS);
+        PendingIntent pending = PendingIntent.getBroadcast(context, 77701, intent,
+                PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+        if (pending != null) {
+            if (manager != null) manager.cancel(pending);
+            pending.cancel();
         }
-    }
-
-    public static void scheduleNextBroadcastCheck(Context context) {
-        try {
-            android.app.AlarmManager am = (android.app.AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            if (am == null) return;
-
-            Intent intent = new Intent(context, AdhanAlarmReceiver.class);
-            intent.setAction(ACTION_CHECK_CLOUD_BROADCASTS);
-            PendingIntent pi = PendingIntent.getBroadcast(
-                    context, 77701, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-            );
-
-            long triggerAt = System.currentTimeMillis() + (3 * 60 * 60 * 1000L); // كل 3 ساعات
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                am.setAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, triggerAt, pi);
-            } else {
-                am.set(android.app.AlarmManager.RTC_WAKEUP, triggerAt, pi);
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "Error scheduling broadcast check: " + e.getMessage());
-        }
-    }
-
-    private static void showCloudBroadcastNotification(Context context, String title, String body) {
-        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nm == null) return;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    BROADCAST_CHANNEL_ID,
-                    "إشعارات ورسائل زاد المسلم العامة",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            channel.enableVibration(true);
-            channel.enableLights(true);
-            channel.setLightColor(0xFFD4AF37);
-            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            nm.createNotificationChannel(channel);
-        }
-
-        Intent openIntent = new Intent(context, MainActivity.class);
-        openIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingOpen = PendingIntent.getActivity(
-                context, 0, openIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, BROADCAST_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_stat_icon)
-                .setContentTitle(title)
-                .setContentText(body)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
-                .setContentIntent(pendingOpen)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setColor(0xFFD4AF37);
-
-        nm.notify((int) (System.currentTimeMillis() % 100000), builder.build());
     }
 }

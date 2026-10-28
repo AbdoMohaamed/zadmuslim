@@ -219,16 +219,16 @@ function getFullFormattedDate(date = new Date()) {
     } catch (e) {}
     const hijriDate = new Date(date.getTime() + (offsetDays * 86400000));
 
-    // 1. اليوم (اسم يوم الأسبوع)
-    let weekday = "";
-    try {
-        weekday = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(date);
-    } catch (e) {
-        const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
-        weekday = days[date.getDay()];
-    }
+    // 1. اليوم (اسم يوم الأسبوع بالعربية)
+    const WEEKDAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    const weekday = WEEKDAYS[date.getDay()] || "";
 
-    // 2. التاريخ الهجري (يوم، شهر، سنة)
+    // 2. التاريخ الهجري (أم القرى مع الاحتياطي الخوارزمي)
+    const HIJRI_MONTHS = [
+        "المحرّم", "صفر", "ربيع الأول", "ربيع الآخر",
+        "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
+        "رمضان", "شوّال", "ذو القعدة", "ذو الحجة"
+    ];
     let hijriPart = "";
     try {
         const hFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
@@ -248,30 +248,38 @@ function getFullFormattedDate(date = new Date()) {
             hijriPart = hFallback.format(hijriDate);
             if (!hijriPart.includes("هـ")) hijriPart += " هـ";
         } catch (err) {
-            hijriPart = "";
+            const jd = Math.floor(hijriDate.getTime() / 86400000) + 2440587.5;
+            const l = Math.floor(jd - 1948440 + 10632);
+            const n = Math.floor((l - 1) / 10631);
+            const l2 = l - 10631 * n + 354;
+            const j = (Math.floor((10985 - l2) / 5316)) * (Math.floor((50 * l2) / 17719)) + (Math.floor(l2 / 5670)) * (Math.floor((43 * l2) / 15238));
+            const l3 = l2 - (Math.floor((30 - j) / 15)) * (Math.floor((17719 * j) / 50)) - (Math.floor(j / 16)) * (Math.floor((15238 * j) / 43)) + 29;
+            const m = Math.floor((24 * l3) / 709);
+            const d = l3 - Math.floor((709 * m) / 24);
+            const y = 30 * n + j - 30;
+            hijriPart = `${d} ${HIJRI_MONTHS[(m - 1 + 12) % 12]} ${y} هـ`;
         }
     }
 
-    // 3. التاريخ الميلادي (يوم، شهر، سنة)
+    // 3. التاريخ الميلادي (محدد صراحة بتقويم gregory لتفادي فرض التقويم الهجري في بيئات ar-SA)
+    const GREGORIAN_MONTHS = [
+        "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+    ];
     let gregPart = "";
     try {
-        const gFormatter = new Intl.DateTimeFormat('ar-SA', {
+        const gFormatter = new Intl.DateTimeFormat('ar-EG-u-ca-gregory', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
         });
-        gregPart = gFormatter.format(date) + " م";
+        gregPart = gFormatter.format(date);
+        if (!gregPart.includes("م")) gregPart += " م";
     } catch (e) {
-        try {
-            const gFallback = new Intl.DateTimeFormat('ar', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-            gregPart = gFallback.format(date) + " م";
-        } catch (err) {
-            gregPart = "";
-        }
+        const d = date.getDate();
+        const m = GREGORIAN_MONTHS[date.getMonth()];
+        const y = date.getFullYear();
+        gregPart = `${d} ${m} ${y} م`;
     }
 
     // دمج اليوم والتاريخ الهجري والتاريخ الميلادي
@@ -4486,5 +4494,13 @@ if (document.readyState === 'loading') {
 window.addEventListener('storage', (e) => {
     if (e.key === 'zad_show_prayer_images') syncPrayerImagesClass();
 });
+
+// منع تصغير أو تكبير واجهة التطبيق بالإيماءات على الهواتف مع استثناء قارئ المصحف
+document.addEventListener('gesturestart', function (e) {
+    if (!e.target || !e.target.closest || !e.target.closest('#golden-mushaf-viewport')) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
 
 

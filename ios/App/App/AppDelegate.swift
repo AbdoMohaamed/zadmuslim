@@ -4,7 +4,7 @@ import AVFoundation
 import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
@@ -17,14 +17,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             print("Failed to configure AVAudioSession:", error)
         }
 
-        // Enable iOS Background Fetch to check for admin broadcasts in background
-        UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
+        // Disable the retired polling fallback; remote push is delivered by APNs.
+        UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalNever)
 
         // Request native iOS notification permission immediately upon launch
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             print("iOS Notification Authorization: \(granted)")
         }
-        UNUserNotificationCenter.current().delegate = self
+        // Notification delegates are owned by OneSignal and Capacitor.
 
         // Enable native back/forward swipe gesture in iOS WKWebView
         DispatchQueue.main.async {
@@ -33,89 +33,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        // Check for latest admin broadcasts immediately on app launch
-        checkCloudBroadcastsInBackground { _ in }
+        // Retire locally replayed admin messages; OneSignal owns remote delivery.
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let legacy = requests.map { $0.identifier }.filter { $0.hasPrefix("broadcast_") }
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: legacy)
+        }
 
         return true
-    }
-
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        if #available(iOS 14.0, *) {
-            completionHandler([.banner, .sound, .badge, .list])
-        } else {
-            completionHandler([.alert, .sound, .badge])
-        }
-    }
-
-    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        checkCloudBroadcastsInBackground(completionHandler: completionHandler)
-    }
-
-    private func checkCloudBroadcastsInBackground(completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        guard let url = URL(string: "https://sadqah-jaddi-default-rtdb.firebaseio.com/push_broadcasts.json") else {
-            completionHandler(.failed)
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.timeoutInterval = 10.0
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data, error == nil else {
-                completionHandler(.failed)
-                return
-            }
-
-            do {
-                guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: [String: Any]] else {
-                    completionHandler(.noData)
-                    return
-                }
-
-                let sortedKeys = json.keys.sorted()
-                guard let lastKey = sortedKeys.last, let broadcast = json[lastKey] else {
-                    completionHandler(.noData)
-                    return
-                }
-
-                let lastSeenKey = UserDefaults.standard.string(forKey: "zad_last_seen_broadcast_id") ?? ""
-                if lastKey == lastSeenKey {
-                    completionHandler(.noData)
-                    return
-                }
-
-                let title = broadcast["title"] as? String ?? "زاد المسلم 🌿"
-                let body = broadcast["body"] as? String ?? ""
-                let timestamp = broadcast["timestamp"] as? Double ?? 0
-
-                let now = Date().timeIntervalSince1970 * 1000
-                if timestamp > 0 && (now - timestamp) > (24 * 60 * 60 * 1000) {
-                    completionHandler(.noData)
-                    return
-                }
-
-                guard !body.isEmpty else {
-                    completionHandler(.noData)
-                    return
-                }
-
-                let content = UNMutableNotificationContent()
-                content.title = title
-                content.body = body
-                content.sound = UNNotificationSound(named: UNNotificationSoundName("adhan_makkah.mp3"))
-                content.badge = 1
-
-                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-                let notifRequest = UNNotificationRequest(identifier: "broadcast_\(lastKey)", content: content, trigger: trigger)
-
-                UNUserNotificationCenter.current().add(notifRequest) { _ in
-                    UserDefaults.standard.set(lastKey, forKey: "zad_last_seen_broadcast_id")
-                    completionHandler(.newData)
-                }
-            } catch {
-                completionHandler(.failed)
-            }
-        }.resume()
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

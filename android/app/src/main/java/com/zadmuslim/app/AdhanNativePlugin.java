@@ -131,7 +131,7 @@ public class AdhanNativePlugin extends Plugin {
                 org.json.JSONArray alarms=call.getArray("alarmSchedule");
                 prefs.edit().putString("prepared_alarms",alarms.toString()).apply();
                 int count=restorePrepared(context,alarms);
-                schedulePeriodicBroadcastCheck(context,alarmManager);
+                cancelLegacyBroadcastPolling(context,alarmManager);
                 PrayerWidgetProvider.updateAllWidgets(context);
                 updateStickyNotificationInternal(context);
                 JSObject result=new JSObject();result.put("success",true);result.put("scheduledCount",count);call.resolve(result);
@@ -224,7 +224,7 @@ public class AdhanNativePlugin extends Plugin {
         }
 
         // جدولة فحص الإشعارات السحابية دورياً حتى والتطبيق مغلق
-        schedulePeriodicBroadcastCheck(context, alarmManager);
+        cancelLegacyBroadcastPolling(context, alarmManager);
 
         // تحديث ويدجت الشاشة الرئيسية وشاشة القفل فوراً
         try {
@@ -371,9 +371,9 @@ public class AdhanNativePlugin extends Plugin {
         }
     }
 
-    private void schedulePeriodicBroadcastCheck(Context context, AlarmManager alarmManager) {
+    private void cancelLegacyBroadcastPolling(Context context, AlarmManager alarmManager) {
         try {
-            AdhanAlarmReceiver.scheduleNextBroadcastCheck(context);
+            AdhanAlarmReceiver.cancelLegacyBroadcastCheck(context);
         } catch (Exception e) {
             Log.w(TAG, "Failed to schedule periodic broadcast check", e);
         }

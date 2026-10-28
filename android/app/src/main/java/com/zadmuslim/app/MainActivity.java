@@ -56,9 +56,8 @@ public class MainActivity extends BridgeActivity {
 
         // LocalNotifications owns the runtime permission request and its completion.
 
-        // فحص البث السحابي فوراً عند فتح التطبيق وتفعيل الجدولة الدورية
-        AdhanAlarmReceiver.triggerImmediateBroadcastCheck(this);
-        AdhanAlarmReceiver.scheduleNextBroadcastCheck(this);
+        // Retire the old polling alarm; OneSignal owns admin push delivery.
+        AdhanAlarmReceiver.cancelLegacyBroadcastCheck(this);
 
         // تهيئة إعدادات الـ WebView لتشغيل مرئيات YouTube والوسائط المتعددة بسلاسة ودون حظر
         try {

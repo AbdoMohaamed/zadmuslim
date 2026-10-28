@@ -1422,7 +1422,7 @@ function listenToCloudBroadcastNotifications() {
         broadcastRef.on("child_added", (snapshot) => {
             const data = snapshot.val();
             const broadcastId = snapshot.key;
-            if (!data) return;
+            if (!data || data.success === false) return;
 
             const seenKey = "zad_seen_broadcast_" + broadcastId;
             const hasSeen = localStorage.getItem(seenKey);
@@ -1445,13 +1445,14 @@ function listenToCloudBroadcastNotifications() {
             localStorage.setItem(seenKey, "true");
 
             // تشغيل نغمة الإشعار العذبة
-            playNotificationChime();
+            const nativePush = window.Capacitor?.isNativePlatform?.();
+            if (!nativePush) playNotificationChime();
 
             // إظهار البنر المنبثق الأنيق داخل الموقع دائماً
             showInAppPushBanner(data);
 
             // إظهار إشعار النظام الأصلي للموبايل والمتصفح (بدون صوت الأذان إطلاقاً)
-            triggerNativeNotification(data.title || "زاد المسلم • تذكير بالطاعة", data.body || "", data.url || "./");
+            if (!nativePush) triggerNativeNotification(data.title || "زاد المسلم • تذكير بالطاعة", data.body || "", data.url || "./");
         });
 
         // بعد انتهاء التحميل الأولي
@@ -4362,6 +4363,18 @@ function initModernZadDashboard() {
                 } catch (_) {}
             }
 
+            const toArabicDigits = (str) => String(str).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+            const formatPrayerTime12H = (timeStr) => {
+                if (!timeStr) return "--:--";
+                const clean = timeStr.split(" ")[0];
+                const [h, m] = clean.split(":").map(Number);
+                if (isNaN(h) || isNaN(m)) return "--:--";
+                const period = h >= 12 ? "م" : "ص";
+                const formattedHour = h % 12 || 12;
+                return `${toArabicDigits(formattedHour)}:${toArabicDigits(String(m).padStart(2, "0"))} ${period}`;
+            };
+
             if (timings && ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].every(k => timings[k])) {
                 const now = new Date();
                 const prayersList = [
@@ -4374,8 +4387,12 @@ function initModernZadDashboard() {
                 ];
 
                 let nextP = null;
+                let nextPIndex = -1;
+                let nextPDate = null;
                 let minDiff = Infinity;
-                for (const p of prayersList) {
+
+                for (let i = 0; i < prayersList.length; i++) {
+                    const p = prayersList[i];
                     if (!p.time) continue;
                     const clean = p.time.split(" ")[0];
                     const [h, m] = clean.split(":").map(Number);
@@ -4385,8 +4402,11 @@ function initModernZadDashboard() {
                     if (diff > 0 && diff < minDiff) {
                         minDiff = diff;
                         nextP = { ...p, diffMs: diff, cleanTime: clean };
+                        nextPIndex = i;
+                        nextPDate = pDate;
                     }
                 }
+
                 if (!nextP) {
                     const fajrClean = timings.Fajr ? timings.Fajr.split(" ")[0] : "05:00";
                     const [fh, fm] = fajrClean.split(":").map(Number);
@@ -4398,29 +4418,91 @@ function initModernZadDashboard() {
                         cleanTime: fajrClean,
                         diffMs: Math.max(0, tomorrowFajr.getTime() - now.getTime())
                     };
+                    nextPIndex = 0;
+                    nextPDate = tomorrowFajr;
                 }
 
+                // اسم الصلاة في البطاقة الرئيسية
                 prayerNameEl.textContent = nextP.name;
 
+                // حساب الوقت المتبقي
                 const totalMins = Math.max(0, Math.floor(nextP.diffMs / 60000));
                 const hours = Math.floor(totalMins / 60);
                 const mins = totalMins % 60;
-                let remainingText = '';
+                let remainingBadgeText = '';
+                let remainingLegacyText = '';
+
                 if (hours > 0) {
-                    remainingText = ` (متبقي ${hours} س و ${mins} د)`;
+                    remainingBadgeText = `متبقي ${toArabicDigits(hours)} س و ${toArabicDigits(mins)} د`;
+                    remainingLegacyText = ` (متبقي ${hours} س و ${mins} د)`;
                 } else if (mins > 0) {
-                    remainingText = ` (متبقي ${mins} د)`;
+                    remainingBadgeText = `متبقي ${toArabicDigits(mins)} د`;
+                    remainingLegacyText = ` (متبقي ${mins} د)`;
                 } else {
-                    remainingText = ` (حان موعد الصلاة)`;
+                    remainingBadgeText = `حان موعد الصلاة`;
+                    remainingLegacyText = ` (حان موعد الصلاة)`;
                 }
 
+                // تحديث العداد والموعد في البطاقة الرئيسية
+                const homeRemainingEl = document.getElementById("home-prayer-remaining");
+                if (homeRemainingEl) homeRemainingEl.textContent = remainingBadgeText;
+
+                const homeTimeEl = document.getElementById("home-prayer-time");
+                if (homeTimeEl) homeTimeEl.textContent = formatPrayerTime12H(nextP.time);
+
+                // حساب نسبة شريط التقدم بين الصلاة السابقة والقادمة
+                const progressBarEl = document.getElementById("home-prayer-progress-bar");
+                if (progressBarEl) {
+                    let prevPDate = null;
+                    if (nextPIndex > 0) {
+                        const prevP = prayersList[nextPIndex - 1];
+                        const [ph, pm] = (prevP.time || "00:00").split(" ")[0].split(":").map(Number);
+                        prevPDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ph, pm, 0);
+                    } else {
+                        const [ih, im] = (timings.Isha || "20:00").split(" ")[0].split(":").map(Number);
+                        prevPDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, ih, im, 0);
+                    }
+                    let pct = 60;
+                    if (prevPDate && nextPDate && nextPDate > prevPDate) {
+                        const elapsed = now.getTime() - prevPDate.getTime();
+                        const total = nextPDate.getTime() - prevPDate.getTime();
+                        if (total > 0) {
+                            pct = Math.min(100, Math.max(5, Math.round((elapsed / total) * 100)));
+                        }
+                    }
+                    progressBarEl.style.width = `${pct}%`;
+                }
+
+                // تحديث شريط الصلوات الخمس وتحديد الصلاة القادمة
+                const setStripVal = (id, time) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = formatPrayerTime12H(time);
+                };
+                setStripVal("home-time-fajr", timings.Fajr);
+                setStripVal("home-time-dhuhr", timings.Dhuhr);
+                setStripVal("home-time-asr", timings.Asr);
+                setStripVal("home-time-maghrib", timings.Maghrib);
+                setStripVal("home-time-isha", timings.Isha);
+
+                const activeKey = (nextP.key === "sunrise") ? "dhuhr" : nextP.key;
+                ["fajr", "dhuhr", "asr", "maghrib", "isha"].forEach(k => {
+                    const stripItem = document.getElementById(`home-strip-${k}`);
+                    if (stripItem) {
+                        if (k === activeKey) {
+                            stripItem.classList.add("is-active");
+                        } else {
+                            stripItem.classList.remove("is-active");
+                        }
+                    }
+                });
+
+                // النص للتوافق القديم
                 const clean = nextP.cleanTime;
                 const [h, m] = clean.split(":").map(Number);
                 const period = h >= 12 ? "م" : "ص";
                 const formattedHour = h % 12 || 12;
                 const formattedTime = `${formattedHour}:${String(m).padStart(2, "0")} ${period}`;
-
-                prayerTimeEl.textContent = `موعد الأذان: ${formattedTime}${remainingText}`;
+                prayerTimeEl.textContent = `موعد الأذان: ${formattedTime}${remainingLegacyText}`;
                 return;
             }
 
@@ -4429,6 +4511,10 @@ function initModernZadDashboard() {
                 prayerNameEl.textContent = 'صلاتك في وقتها';
                 prayerTimeEl.textContent = 'تختلف المواقيت حسب مدينتك';
             }
+            const fallbackRem = document.getElementById("home-prayer-remaining");
+            if (fallbackRem) fallbackRem.textContent = 'مواقيت الصلاة اليومية';
+            const fallbackTime = document.getElementById("home-prayer-time");
+            if (fallbackTime) fallbackTime.textContent = '--:--';
         }
 
         updateModernPrayerStrip();

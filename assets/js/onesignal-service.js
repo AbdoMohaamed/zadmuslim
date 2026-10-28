@@ -113,6 +113,10 @@ const OneSignalService = {
             const target=new URL(rawUrl || './',base);
             if (!['https:','http:'].includes(target.protocol) || target.username || target.password) return;
             if (![new URL(base).origin,window.location.origin].includes(target.origin)) return;
+            // Admin notification taps navigate only; they must never auto-play prayer audio.
+            target.searchParams.delete('playAdhan');
+            const hashParts=target.hash.split('?');
+            if(hashParts.length>1){const params=new URLSearchParams(hashParts.slice(1).join('?'));params.delete('playAdhan');target.hash=hashParts[0]+(params.toString()?'?'+params.toString():'');}
             let file=target.pathname.replace(/^\//,'') || 'index.html';
             if (!['index.html','services.html','settings.html','privacy.html','app.html'].includes(file)) return;
             let hash=target.hash;
