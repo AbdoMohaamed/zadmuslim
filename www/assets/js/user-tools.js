@@ -312,7 +312,8 @@
             card.type = 'button'; card.className = 'settings-fav-card' + (active.includes(id) ? ' active' : '');
             card.dataset.id = id; card.setAttribute('aria-pressed', String(active.includes(id)));
             const meta = serviceMeta[id];
-            card.innerHTML = '<span class="settings-fav-icon"><i class="fa-solid fa-' + icon + '" aria-hidden="true"></i></span><span class="settings-fav-info"><span class="settings-fav-name"></span><span class="settings-fav-desc"></span></span><span class="settings-fav-check" aria-hidden="true">✓</span>';
+            const iconHtml = (icon === 'ring' || id === 'tasbeeh') ? '<span aria-hidden="true">📿</span>' : '<i class="fa-solid fa-' + icon + '" aria-hidden="true"></i>';
+            card.innerHTML = '<span class="settings-fav-icon">' + iconHtml + '</span><span class="settings-fav-info"><span class="settings-fav-name"></span><span class="settings-fav-desc"></span></span><span class="settings-fav-check" aria-hidden="true">✓</span>';
             card.querySelector('.settings-fav-name').textContent = meta?.title || name;
             card.querySelector('.settings-fav-desc').textContent = meta?.desc || '';
             card.onclick = () => {
@@ -358,9 +359,10 @@
                 card.href = id === 'tasbeeh' ? 'services.html#smart-dhikr-panel' : (id === 'sadaqa' ? '#sadaqa' : 'services.html#' + id + (id === 'quran-khatma' ? '?tab=mushaf' : ''));
                 card.dataset.service = id;
                 const iconName = meta.icon || iconClass || 'star';
+                const iconHtml = (iconName === 'ring' || id === 'tasbeeh') ? '<span aria-hidden="true">📿</span>' : `<i class="fa-solid fa-${iconName}" aria-hidden="true"></i>`;
                 card.innerHTML = `
                     <div class="home-quick-icon-box">
-                        <i class="fa-solid fa-${iconName}" aria-hidden="true"></i>
+                        ${iconHtml}
                     </div>
                     <span class="home-quick-title">${meta.shortTitle || meta.title || name}</span>
                 `;
@@ -375,10 +377,17 @@
                 const btn = document.createElement('button');
                 btn.className = 'btn outline';
                 btn.type = 'button';
-                const glyph = document.createElement('i');
-                glyph.className = 'fa-solid fa-' + icon + ' text-gold';
-                glyph.setAttribute('aria-hidden', 'true');
-                btn.append(glyph, document.createTextNode(' ' + name));
+                if (icon === 'ring' || id === 'tasbeeh') {
+                    const glyph = document.createElement('span');
+                    glyph.textContent = '📿 ';
+                    glyph.setAttribute('aria-hidden', 'true');
+                    btn.append(glyph, document.createTextNode(name));
+                } else {
+                    const glyph = document.createElement('i');
+                    glyph.className = 'fa-solid fa-' + icon + ' text-gold';
+                    glyph.setAttribute('aria-hidden', 'true');
+                    btn.append(glyph, document.createTextNode(' ' + name));
+                }
                 btn.onclick = (e) => { e.preventDefault(); go(id); };
                 container.append(btn);
             });

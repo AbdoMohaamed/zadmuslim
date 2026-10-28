@@ -512,3 +512,16 @@ test('prayer image preview initializes after markup, switches every prayer and c
   d.getElementById('btn-close-prayer-preview').click();assert.equal(modal.style.display,'none');
  }finally{dom.window.close();}
 });
+
+test('every category filter has content and excerpts opens its populated media library',async()=>{
+ const {dom,errors}=await load('services.html');try{
+ const d=dom.window.document;assert.deepEqual(errors,[]);
+ for(const button of d.querySelectorAll('[data-category-filter]')){
+  button.click();assert.ok([...d.querySelectorAll('.service-card')].some(c=>c.style.display!=='none'),button.dataset.categoryFilter);
+ }
+ d.querySelector('[data-category-filter="المرئيات"]').click();
+ const card=d.querySelector('.service-card[href="#islamic-media"]');assert.notEqual(card.style.display,'none');card.click();
+ assert.ok(d.body.classList.contains('single-service-mode'));
+ assert.ok(d.getElementById('islamic-media-grid').children.length>0);
+ }finally{dom.window.close();}
+});
