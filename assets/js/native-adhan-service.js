@@ -47,7 +47,7 @@ const NativeAdhanService = {
     },
 
     prayerImageOptions(prayerKey) {
-        const enabled = this.getNotificationSettings().prayerImages === true || localStorage.getItem('zad_show_prayer_images') === '1';
+        const enabled = this.getNotificationSettings().prayerImages !== false && localStorage.getItem('zad_show_prayer_images') !== '0';
         if (!enabled || window.Capacitor?.getPlatform?.() !== 'ios' || !['fajr','dhuhr','asr','maghrib','isha'].includes(prayerKey)) return {};
         return {attachments:[{id:'prayer-'+prayerKey,url:'res:///assets/images/prayers/pre_'+prayerKey+'.jpg'}]};
     },
@@ -414,7 +414,7 @@ const NativeAdhanService = {
                         gregorianDateStr = gregFormatter.format(new Date()) + " م";
                     } catch(e) {}
 
-                    const showPrayerImages = notifySettings.prayerImages === true || localStorage.getItem('zad_show_prayer_images') === '1';
+                    const showPrayerImages = notifySettings.prayerImages !== false && localStorage.getItem('zad_show_prayer_images') !== '0';
                     await window.Capacitor.Plugins.AdhanNative.setAdhanVolume?.({volume:Math.max(0.1,Math.min(1,Number(localStorage.getItem('zad_adhan_volume') || 1)))});
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
                         alarmSchedule: notificationsToSchedule.filter(n => n.id < 70000).map(n => ({at:n.schedule.at.getTime(),prayerKey:n.extra.prayerKey,prayerName:n.extra.prayerName,isPreAlert:n.extra.type==='pre_prayer_alert',muazzin:selectedMuazzin,preAlertInterval:preInterval,showImages:showPrayerImages})),
@@ -476,7 +476,7 @@ const NativeAdhanService = {
     },
 
     getNotificationSettings() {
-        const defaults = { morning: true, morningTime: '06:30', evening: true, eveningTime: '17:00', sleep: true, sleepTime: '22:30', friday: true, hourlySalawat: true, salawatInterval: 60, prePrayer: true, prePrayerInterval: 5, adhan: true };
+        const defaults = { morning: true, morningTime: '06:30', evening: true, eveningTime: '17:00', sleep: true, sleepTime: '22:30', friday: true, hourlySalawat: true, salawatInterval: 60, prePrayer: true, prePrayerInterval: 5, adhan: true, prayerImages: true };
         let saved;
         try { saved = JSON.parse(localStorage.getItem('smart_notify_settings')); } catch {}
         const settings = { ...defaults, ...(saved && typeof saved === 'object' ? saved : {}) };

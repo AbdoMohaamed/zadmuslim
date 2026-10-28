@@ -34,6 +34,7 @@ public class AdhanActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
 
         // إضاءة الشاشة والظهور فوق شاشة القفل عند الأذان
@@ -70,11 +71,11 @@ public class AdhanActivity extends Activity {
             else if (prayerName.contains("عشاء")) prayerKey = "isha";
         }
 
-        boolean showImages = getIntent().getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, false);
+        boolean showImages = getIntent().getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, true);
         if (!getIntent().hasExtra(EXTRA_SHOW_PRAYER_IMAGES)) {
             try {
                 showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE)
-                        .getBoolean("show_prayer_images", false);
+                        .getBoolean("show_prayer_images", true);
             } catch (Exception ignored) {}
         }
 
@@ -137,6 +138,9 @@ public class AdhanActivity extends Activity {
         int imgResId = 0;
         if (prayerKey != null && !prayerKey.isEmpty()) {
             imgResId = getResources().getIdentifier("pre_" + prayerKey, "drawable", getPackageName());
+        }
+        if (imgResId == 0) {
+            imgResId = getResources().getIdentifier("pre_fajr", "drawable", getPackageName());
         }
 
         if (imgResId != 0 && showImages) {

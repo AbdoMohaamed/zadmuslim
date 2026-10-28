@@ -1058,7 +1058,7 @@
 
                     if (chkAdhan) chkAdhan.checked = settings.adhan !== false;
                     if (chkPrePrayer) chkPrePrayer.checked = settings.prePrayer !== false;
-                    if (chkPrayerImages) chkPrayerImages.checked = settings.prayerImages === true || localStorage.getItem('zad_show_prayer_images') === '1';
+                    if (chkPrayerImages) chkPrayerImages.checked = settings.prayerImages !== false && localStorage.getItem('zad_show_prayer_images') !== '0';
                     if (selectPreInterval && settings.prePrayerInterval) selectPreInterval.value = String(settings.prePrayerInterval);
 
                     if (chkMorning) chkMorning.checked = settings.morning === true;

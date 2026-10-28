@@ -63,7 +63,7 @@ public class AdhanNativePlugin extends Plugin {
     private static int restorePrepared(Context context, org.json.JSONArray alarms) throws org.json.JSONException {
         AlarmManager manager=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        boolean defaultShowImages = prefs.getBoolean("show_prayer_images", false);
+        boolean defaultShowImages = prefs.getBoolean("show_prayer_images", true);
         int count=0;
         for(int i=0;i<alarms.length() && i<300;i++) {
             JSONObject alarm=alarms.getJSONObject(i);
@@ -678,6 +678,7 @@ public class AdhanNativePlugin extends Plugin {
         intent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerName + " (اختبار التشخيص)");
         intent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKey);
         intent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+        intent.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES, true);
         intent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, 1);
         intent.putExtra("is_test", true);
         intent.putExtra("scheduled_time", triggerMillis);

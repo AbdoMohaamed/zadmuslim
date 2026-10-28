@@ -24,6 +24,9 @@
     <style name="AdhanTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">#03231C</item>
         <item name="android:statusBarColor">#03231C</item>
         <item name="android:navigationBarColor">#021611</item>
