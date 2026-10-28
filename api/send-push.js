@@ -83,22 +83,20 @@ module.exports = async function handler(req, res) {
     const shouldSendMobile = mobileRequested && hasOneSignalConfig;
     const shouldSendWeb = targetChannel === 'all' || targetChannel === 'web';
 
-    if (shouldSendWeb) {
-      if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !FIREBASE_DB_URL) return res.status(503).json({error:'إعدادات إشعارات الويب ناقصة. اضبط VAPID وقاعدة البيانات، أو اختر الموبايل فقط.'});
-      webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-    }
+    const webConfigured = Boolean(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY && FIREBASE_DB_URL);
+    const webConfigError = 'إعدادات إشعارات الويب ناقصة. اضبط VAPID وقاعدة البيانات.';
+    if (shouldSendWeb && !webConfigured && targetChannel === 'web') return res.status(503).json({error:webConfigError});
+    if (shouldSendWeb && webConfigured) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
     if (targetChannel === 'mobile' && !hasOneSignalConfig) {
       return res.status(400).json({ error: 'إعدادات OneSignal غير متوفرة على الخادم.' });
     }
 
-    // Step 1: Pre-fetch Web subscribers BEFORE triggering mobile push.
-    // If reading database fails, abort now before any notifications are dispatched.
-    // This prevents sending to mobile then failing on web, which would cause duplicate mobile pushes on retry.
+    // Web failures must not block independently configured mobile push.
     let subscribersData = null;
-    let webFetchError = null;
+    let webFetchError = shouldSendWeb && !webConfigured ? webConfigError : null;
 
-    if (shouldSendWeb) {
+    if (shouldSendWeb && webConfigured) {
       try {
         const fbResponse = await fetch(`${FIREBASE_DB_URL}/push_subscribers.json?auth=${encodeURIComponent(session.token)}`, { signal: AbortSignal.timeout(10000) });
         if (!fbResponse.ok) {
@@ -232,7 +230,7 @@ module.exports = async function handler(req, res) {
     const overallSuccess = (webAttempted && webSuccess) || (mobileAttempted && mobileSuccess);
     const partialFailure = overallSuccess && ((shouldSendWeb && (!webSuccess || failureCount > 0)) || (mobileRequested && !mobileSuccess));
     const summary = [];
-    if (shouldSendWeb) summary.push(webSuccess ? ('قبلت خدمة الويب الإرسال إلى '+successCount+' اشتراك'+(failureCount?'، وتعذّر '+failureCount:'')) : (subscriberEntries.length?'تعذّر إرسال إشعارات الويب':'لا توجد اشتراكات ويب'));
+    if (shouldSendWeb) summary.push(webSuccess ? ('قبلت خدمة الويب الإرسال إلى '+successCount+' اشتراك'+(failureCount?'، وتعذّر '+failureCount:'')) : (webFetchError || (subscriberEntries.length?'تعذّر إرسال إشعارات الويب':'لا توجد اشتراكات ويب')));
     if (mobileRequested) summary.push(mobileSuccess ? 'قبلت OneSignal طلب إرسال الموبايل' : (mobileError || 'لم يُقبل إرسال الموبايل'));
     const summaryMessage = summary.join(' • ') + '. قبول الطلب لا يؤكد وصوله للجهاز.';
 
@@ -247,7 +245,7 @@ module.exports = async function handler(req, res) {
           sentCount: successCount,
           failedCount: failureCount,
           totalSubscribers: subscriberEntries.length,
-          error: webAttempted && !webSuccess && subscriberEntries.length > 0 ? 'تعذّر الإرسال لجميع المتصفحات' : null
+          error: webFetchError || (webAttempted && !webSuccess && subscriberEntries.length > 0 ? 'تعذّر الإرسال لجميع المتصفحات' : null)
         },
         mobile: {
           attempted: mobileAttempted,

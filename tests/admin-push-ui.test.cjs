@@ -9,3 +9,16 @@ test('rejected broadcast is recorded as failed without a success toast',async()=
 test('device retry retains its request ID after a connection failure',async()=>{const h=setup({failFirst:true});try{h.w.document.getElementById('push-test-subscription').value='11111111-2222-4333-8444-555555555555';h.w.document.getElementById('btn-send-device-test').click();await settle();h.w.document.getElementById('btn-send-device-test').click();await settle();assert.equal(h.calls.length,2);assert.equal(h.calls[0].requestId,h.calls[1].requestId);}finally{h.w.close();}});
 test('resend blocks concurrent submissions and preserves the ID for transport retries',async()=>{const h=setup({failFirst:true});try{await Promise.all([h.w.resendBroadcast('one','mobile'),h.w.resendBroadcast('one','mobile')]);assert.equal(h.calls.length,1);await h.w.resendBroadcast('one','mobile');assert.equal(h.calls.length,2);assert.equal(h.calls[0].requestId,h.calls[1].requestId);}finally{h.w.close();}});
 test('rejected resend is saved as failure',async()=>{const h=setup({response:{success:false,message:'Rejected'}});try{await h.w.resendBroadcast('one','mobile');assert.equal(h.records[0].success,false);assert.doesNotMatch(h.toasts.at(-1),/✅/);}finally{h.w.close();}});
+
+test('admin transport failure with stored OneSignal keys never bypasses the server or claims delivery',async()=>{
+ for(const mode of ['broadcast','device','resend']){
+  const h=setup({failFirst:true});try{
+   h.w.localStorage.setItem('zad_onesignal_app_id','11111111-2222-4333-8444-555555555555');
+   h.w.localStorage.setItem('zad_onesignal_rest_key','test-key');
+   if(mode==='broadcast')h.w.document.getElementById('broadcast-form').dispatchEvent(new h.w.Event('submit',{cancelable:true}));
+   if(mode==='device'){h.w.document.getElementById('push-test-subscription').value='11111111-2222-4333-8444-555555555555';h.w.document.getElementById('btn-send-device-test').click();}
+   if(mode==='resend')await h.w.resendBroadcast('one','mobile');
+   await settle();assert.equal(h.calls.length,1);assert.ok(h.records.every(r=>!r.success));
+  }finally{h.w.close();}
+ }
+});

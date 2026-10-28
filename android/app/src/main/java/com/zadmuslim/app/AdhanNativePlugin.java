@@ -63,7 +63,7 @@ public class AdhanNativePlugin extends Plugin {
     private static int restorePrepared(Context context, org.json.JSONArray alarms) throws org.json.JSONException {
         AlarmManager manager=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        boolean defaultShowImages = prefs.getBoolean("show_prayer_images", true);
+        boolean defaultShowImages = prefs.getBoolean("show_prayer_images", false);
         int count=0;
         for(int i=0;i<alarms.length() && i<300;i++) {
             JSONObject alarm=alarms.getJSONObject(i);
@@ -115,7 +115,7 @@ public class AdhanNativePlugin extends Plugin {
                 .putInt("pre_alert_interval", preAlertInterval)
                 .putBoolean("pre_alert_enabled", preAlert)
                 .putBoolean("adhan_enabled", adhanEnabled);
-        boolean prayerImages = call.getBoolean("prayerImages", true);
+        boolean prayerImages = call.getBoolean("prayerImages", false);
         editor.putBoolean("show_prayer_images", prayerImages);
         if (hijriDate != null && !hijriDate.isEmpty()) {
             editor.putString("widget_hijri_date", hijriDate);

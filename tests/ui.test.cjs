@@ -494,3 +494,21 @@ test('selected muazzin persists and reaches native scheduler without resetting t
  assert.deepEqual(errors,[]);w.close();
 });
 
+
+test('prayer image preview initializes after markup, switches every prayer and closes safely',async()=>{
+ const {dom,errors}=await load('settings.html');
+ try{
+  const d=dom.window.document,modal=d.getElementById('modal-prayer-image-preview');
+  assert.deepEqual(errors,[]);
+  d.getElementById('btn-preview-prayer-image').click();
+  assert.equal(modal.style.display,'flex');
+  for(const key of ['fajr','dhuhr','asr','maghrib','isha']){
+   const button=d.querySelector('#prayer-preview-tabs [data-prayer="'+key+'"]');button.click();
+   assert.ok(d.getElementById('prayer-preview-img').src.endsWith('pre_'+key+'.jpg'));
+   assert.ok(button.classList.contains('gold'));
+  }
+  d.getElementById('btn-mock-stop-adhan').click();assert.equal(modal.style.display,'none');
+  d.getElementById('btn-preview-prayer-image').click();
+  d.getElementById('btn-close-prayer-preview').click();assert.equal(modal.style.display,'none');
+ }finally{dom.window.close();}
+});

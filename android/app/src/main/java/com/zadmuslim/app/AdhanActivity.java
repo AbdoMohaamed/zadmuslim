@@ -70,11 +70,11 @@ public class AdhanActivity extends Activity {
             else if (prayerName.contains("عشاء")) prayerKey = "isha";
         }
 
-        boolean showImages = getIntent().getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, true);
+        boolean showImages = getIntent().getBooleanExtra(EXTRA_SHOW_PRAYER_IMAGES, false);
         if (!getIntent().hasExtra(EXTRA_SHOW_PRAYER_IMAGES)) {
             try {
                 showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE)
-                        .getBoolean("show_prayer_images", true);
+                        .getBoolean("show_prayer_images", false);
             } catch (Exception ignored) {}
         }
 

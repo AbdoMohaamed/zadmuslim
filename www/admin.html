@@ -2572,46 +2572,8 @@
                 const signature=JSON.stringify({title,body,url,channel});
                 if (!pendingBroadcast || pendingBroadcast.signature!==signature) pendingBroadcast={signature,requestId:crypto.randomUUID()};
 
-                let result;
-                try {
-                    result = await adminRequest('/api/send-push', { title, body, url, channel, appId, restKey, onesignalAppId: appId, onesignalRestKey: restKey, requestId: pendingBroadcast.requestId });
-                    if (result.success && !result.partialFailure) pendingBroadcast=null;
-                } catch(backendErr) {
-                    if (appId && restKey && (channel === 'all' || channel === 'mobile')) {
-                        const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
-                        const osRes = await fetch('https://api.onesignal.com/notifications', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json; charset=utf-8',
-                                'Authorization': 'Key ' + cleanKey
-                            },
-                            body: JSON.stringify({
-                                app_id: appId,
-                                included_segments: ['Total Subscriptions'],
-                                headings: { en: title, ar: title },
-                                contents: { en: body, ar: body },
-                                ios_sound: 'default',
-                                android_channel_id: 'zad_cloud_broadcast_channel',
-                                data: { url: url || './', type: 'admin_broadcast' }
-                            })
-                        });
-                        const osData = await osRes.json().catch(() => ({}));
-                        if (osRes.ok && osData && (osData.id || osData.recipients > 0)) {
-                            result = {
-                                success: true,
-                                channel,
-                                message: 'تم إرسال إشعار الموبايل عبر OneSignal مباشرة بنجاح 🚀',
-                                channels: { mobile: { success: true, recipients: osData.recipients || null } },
-                                onesignal: osData
-                            };
-                            pendingBroadcast = null;
-                        } else {
-                            throw backendErr;
-                        }
-                    } else {
-                        throw backendErr;
-                    }
-                }
+                const result = await adminRequest('/api/send-push', { title, body, url, channel, appId, restKey, onesignalAppId: appId, onesignalRestKey: restKey, requestId: pendingBroadcast.requestId });
+                if (result.success && !result.partialFailure) pendingBroadcast=null;
 
                 const webCount = result.channels?.web?.sentCount ?? (result.sentCount || 0);
                 const mobileOk = Boolean(result.channels?.mobile?.success || result.onesignal?.id);
@@ -2879,7 +2841,7 @@
 
                 if (connected) {
                     if (badge) { badge.textContent = 'متصل بالخدمة بنجاح ✓'; badge.style.color = '#10b981'; }
-                    showAdminToast('تم الاتصال بـ OneSignal بنجاح؛ الخدمة جاهزة للبث 🚀');
+                    showAdminToast('المفتاح ومعرّف التطبيق صالحان. تأكيد استقبال الموبايل يحتاج تجربة على جهاز مقفول.');
                 }
             } catch(e) {
                 if (badge) { badge.textContent = 'خطأ اتصال ✗'; badge.style.color = '#ef4444'; }
@@ -2906,38 +2868,11 @@
             button.disabled=true;status.textContent='جارٍ إرسال التجربة لجهازك…';
             try {
                 const payload={action:'test_device',subscriptionId,appId,restKey,onesignalAppId:appId,onesignalRestKey:restKey,title:titleInput.value.trim() || 'زاد المسلم • تجربة',body:bodyInput.value.trim() || 'تجربة إشعار من لوحة الإدارة',url:document.getElementById('notify-target-url').value};
-                let success = false;
-                try {
-                    const signature=JSON.stringify(payload);
-                    if (!pendingDeviceTest || pendingDeviceTest.signature!==signature) pendingDeviceTest={signature,requestId:crypto.randomUUID()};
-                    const result=await adminRequest('/api/send-push',{...payload,requestId:pendingDeviceTest.requestId});
-                    if (result && result.success) { success = true; pendingDeviceTest=null; }
-                } catch(backendErr) {
-                    if (appId && restKey) {
-                        const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
-                        const osRes = await fetch('https://api.onesignal.com/notifications', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json; charset=utf-8',
-                                'Authorization': 'Key ' + cleanKey
-                            },
-                            body: JSON.stringify({
-                                app_id: appId,
-                                include_subscription_ids: [subscriptionId],
-                                headings: { en: payload.title, ar: payload.title },
-                                contents: { en: payload.body, ar: payload.body },
-                                ios_sound: 'default',
-                                existing_android_channel_id: 'zad_cloud_broadcast_channel',
-                                data: { url: payload.url || './', type: 'admin_broadcast' }
-                            })
-                        });
-                        const osData = await osRes.json().catch(() => ({}));
-                        if (osRes.ok && osData && !osData.errors) success = true;
-                        else throw new Error(osData.errors ? (Array.isArray(osData.errors) ? osData.errors.join(', ') : osData.errors) : 'تعذّر إرسال التجربة لجهازك.');
-                    } else {
-                        throw backendErr;
-                    }
-                }
+                const signature=JSON.stringify(payload);
+                if (!pendingDeviceTest || pendingDeviceTest.signature!==signature) pendingDeviceTest={signature,requestId:crypto.randomUUID()};
+                const result=await adminRequest('/api/send-push',{...payload,requestId:pendingDeviceTest.requestId});
+                const success=Boolean(result && result.success);
+                if(success) pendingDeviceTest=null;
                 status.textContent=success?'قبلت الخدمة إرسال التجربة. تأكد من ظهورها على جهازك.':('لم يُقبل إرسال التجربة.');
             } catch(e) { status.textContent=e.message; }
             finally { button.disabled=false; }
@@ -2988,37 +2923,7 @@
                     console.warn('Backend resend error:', backendErr.message);
                 }
 
-                let directMobileSuccess = false;
-                if ((reqChannel === 'all' || reqChannel === 'mobile') && !mobileOk && appId && restKey) {
-                    try {
-                        const cleanKey = restKey.replace(/^(Key|Basic)\s+/i, '').trim();
-                        const osRes = await fetch('https://api.onesignal.com/notifications', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json; charset=utf-8',
-                                'Authorization': 'Key ' + cleanKey
-                            },
-                            body: JSON.stringify({
-                                app_id: appId,
-                                included_segments: ['Total Subscriptions'],
-                                headings: { en: val.title, ar: val.title },
-                                contents: { en: val.body, ar: val.body },
-                                ios_sound: 'default',
-                                android_channel_id: 'zad_cloud_broadcast_channel',
-                                data: { url: val.url || './', type: 'admin_broadcast' }
-                            })
-                        });
-                        const osData = await osRes.json().catch(() => ({}));
-                        if (osRes.ok && osData && (osData.id || osData.recipients > 0)) {
-                            directMobileSuccess = true;
-                            mobileOk = true;
-                        }
-                    } catch(osErr) {
-                        console.warn('Direct OneSignal resend error:', osErr);
-                    }
-                }
-
-                const overallSuccess = Boolean(serverSuccess || mobileOk || directMobileSuccess);
+                const overallSuccess = Boolean(serverSuccess || mobileOk);
                 const historyWarning = await saveBroadcastHistory({
                     title: val.title,
                     body: val.body,
@@ -3028,8 +2933,8 @@
                     webFailed: result?.channels?.web?.failedCount || 0,
                     webSent: webCount,
                     webSuccess: Boolean(result?.channels?.web?.success || webCount > 0),
-                    mobileSuccess: mobileOk || directMobileSuccess,
-                    mobileRecipients: result?.channels?.mobile?.recipients || (directMobileSuccess ? 'الكل' : null),
+                    mobileSuccess: mobileOk,
+                    mobileRecipients: result?.channels?.mobile?.recipients ?? null,
                     partialFailure: isPartial,
                     message: result?.message || (overallSuccess ? 'تمت إعادة الإرسال بنجاح' : ''),
                     timestamp: firebase.database.ServerValue.TIMESTAMP

@@ -1336,6 +1336,7 @@
             }
             window.addEventListener('hashchange', checkHashScroll);
             checkHashScroll();
+            document.addEventListener('DOMContentLoaded', function initPrayerImagePreview() {
             // معاينة وتجربة شاشة الأذان بالصورة
             const btnPreviewPrayerImg = document.getElementById('btn-preview-prayer-image');
             const modalPrayerPreview = document.getElementById('modal-prayer-image-preview');
@@ -1380,12 +1381,13 @@
             if (btnMockStopAdhan && modalPrayerPreview) {
                 btnMockStopAdhan.onclick = () => {
                     modalPrayerPreview.style.display = 'none';
-                    if (typeof showToast === 'function') showToast('تم إيقاف الأذان بنجاح ⏹');
+                    if (typeof showToast === 'function') showToast('تم إغلاق المعاينة');
                 };
             }
             previewTabs.forEach(tab => {
                 tab.onclick = () => setPrayerPreview(tab.dataset.prayer);
             });
+            }, { once: true });
         })();
     </script>
 
@@ -1415,7 +1417,7 @@
 
             <!-- زر إيقاف الأذان -->
             <button type="button" id="btn-mock-stop-adhan" style="background: #b91c1c; border: 2px solid #d4af37; color: #fff; font-size: 1rem; font-weight: 800; padding: 12px 28px; border-radius: 30px; cursor: pointer; width: 100%; margin-bottom: 12px;">إيقاف الأذان ⏹</button>
-            <div style="font-size: 0.78rem; color: #a0aec0;">🔕 هذه المعاينة تطابق تماماً الشاشة التي تظهر على الأندرويد عند قفل الهاتف</div>
+            <div style="font-size: 0.78rem; color: #a0aec0;">هذه معاينة للصورة فقط؛ شكل شاشة الأذان الفعلية قد يختلف حسب الهاتف</div>
         </div>
     </div>
 </body>
