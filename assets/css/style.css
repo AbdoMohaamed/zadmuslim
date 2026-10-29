@@ -1451,7 +1451,7 @@ html[data-theme="dark"] .outline,
 
 html[data-theme="dark"] .outline:hover,
 [data-theme="dark"] .outline:hover .outline:hover {
-  border-color: #73D3AB !important;
+  border-color: #73D3AB !important; 
   color: #73D3AB !important;
 }
 
