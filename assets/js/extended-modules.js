@@ -3113,32 +3113,61 @@ function initSpiritualGarden() {
    - ما بين المغرب والعشاء وروضة الطاعات
    - سكينة الليل وسورة الملك وركعة الوتر
    ========================================================================== */
+function getHomePrayerTimings() {
+    let timings = window.prayerTimings || (typeof window.getPrayerTimings === 'function' ? window.getPrayerTimings() : null);
+    if (!timings) { try { timings = JSON.parse(localStorage.getItem('last_active_prayer_timings') || 'null'); } catch (_) {} }
+    return timings && ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].every(key => /^(?:[01]\d|2[0-3]):[0-5]\d(?:\s|$)/.test(timings[key] || '')) ? timings : null;
+}
+
+function getHomeReminderSlot(now, timings) {
+    if (!timings) return 'noon_quran';
+    const minute = key => { const m = /^(\d{2}):(\d{2})/.exec(timings[key] || ''); return m ? Number(m[1]) * 60 + Number(m[2]) : NaN; };
+    const t = now.getHours() * 60 + now.getMinutes();
+    const fajr = minute('Fajr'), sunrise = minute('Sunrise'), dhuhr = minute('Dhuhr'), asr = minute('Asr'), maghrib = minute('Maghrib'), isha = minute('Isha');
+    const nightLength = (fajr - maghrib + 1440) % 1440, sinceSunset = (t - maghrib + 1440) % 1440;
+    if (sinceSunset >= nightLength * 2 / 3 && sinceSunset < nightLength) return 'night_qiyam_sahoor';
+    const morningEnd = Number.isFinite(sunrise) ? Math.min(sunrise + 60, dhuhr) : Math.min(fajr + 180, dhuhr);
+    if (t >= fajr && t < morningEnd) return 'morning_azkar';
+    if (Number.isFinite(sunrise) && t >= morningEnd && t < dhuhr - 15) return 'duha_prayer';
+    if (t >= asr && t < maghrib) return 'evening_azkar';
+    // Weekly reminders never displace the time-specific daily adhkar.
+    const day = now.getDay();
+    if ((day === 4 && t >= maghrib && t < isha) || (day === 5 && t >= dhuhr - 15 && t < asr)) return 'friday_kahf';
+    if ((day === 1 || day === 4) && t >= dhuhr - 15 && t < asr) return 'fasting';
+    if ((day === 0 || day === 3) && t >= maghrib && t < isha) return 'eve_fasting';
+    if (t >= maghrib && t < isha) return 'maghrib_isha_awabin';
+    if (t >= isha || t < fajr) return 'night_mulk';
+    return 'noon_quran';
+}
+
 function initSmartTimelyReminders() {
     const now = new Date();
     const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, 4 = Thursday, 5 = Friday
-    const hour = now.getHours();
-    const minutes = now.getMinutes();
-    const timeVal = hour + (minutes / 60);
 
     const banner = document.getElementById("smart-reminder-banner");
     if (!banner) return;
 
+    // Refresh even when the current reminder has already been dismissed.
+    if (!window._smartReminderTimerInitialized) {
+        window._smartReminderTimerInitialized = true;
+        setInterval(initSmartTimelyReminders, 60000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) initSmartTimelyReminders(); });
+        document.addEventListener('zad:prayer-updated', () => setTimeout(initSmartTimelyReminders, 0));
+    }
+    const slot = getHomeReminderSlot(now, getHomePrayerTimings());
     let reminderConfig = null;
 
-    // 1. يوم الجمعة المباركة (من مغرب الخميس 18:30 وحتى مغرب الجمعة 18:00)
-    const isFridayTime = (dayOfWeek === 4 && timeVal >= 18.5) || (dayOfWeek === 5 && timeVal < 18.0);
-    if (isFridayTime) {
+    if (slot === 'friday_kahf') {
         reminderConfig = {
             id: "friday_kahf",
             icon: "fa-solid fa-star-and-crescent",
-            title: "اليوم الجمعة المباركة • نور ما بين الجمعتين 🌸",
+            title: "تذكير الجمعة • سورة الكهف والصلاة على النبي ﷺ",
             desc: "خير يوم طلعت عليه الشمس؛ لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة والسلام على النبي ﷺ، والدعاء في ساعة الاستجابة.",
             actionText: "قراءة سورة الكهف 📖",
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma?tab=mushaf&page=293"); }
         };
     }
-    // 2. سنة صيام الإثنين والخميس (نهار الإثنين حتى 15:30، أو نهار الخميس حتى 15:30)
-    else if ((dayOfWeek === 1 && timeVal >= 5.0 && timeVal < 15.5) || (dayOfWeek === 4 && timeVal >= 5.0 && timeVal < 15.5)) {
+    else if (slot === 'fasting') {
         const dayName = dayOfWeek === 1 ? "الإثنين" : "الخميس";
         reminderConfig = {
             id: `fasting_${dayName}`,
@@ -3149,8 +3178,7 @@ function initSmartTimelyReminders() {
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#prayer-times"); }
         };
     }
-    // 3. التذكير بصيام الغد (ليلة الإثنين: الأحد بعد 18:30، أو ليلة الخميس: الأربعاء بعد 18:30)
-    else if ((dayOfWeek === 0 && timeVal >= 18.5 && timeVal < 23.5) || (dayOfWeek === 3 && timeVal >= 18.5 && timeVal < 23.5)) {
+    else if (slot === 'eve_fasting') {
         const targetDay = dayOfWeek === 0 ? "الإثنين" : "الخميس";
         reminderConfig = {
             id: `eve_fasting_${targetDay}`,
@@ -3161,8 +3189,7 @@ function initSmartTimelyReminders() {
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#azkar"); }
         };
     }
-    // 4. الثلث الأخير من الليل • قيام الليل والاستغفار بالأسحار (02:00 إلى 05:00 فجراً)
-    else if (timeVal >= 2.0 && timeVal < 5.0) {
+    else if (slot === 'night_qiyam_sahoor') {
         reminderConfig = {
             id: "night_qiyam_sahoor",
             icon: "fa-solid fa-mosque",
@@ -3172,8 +3199,7 @@ function initSmartTimelyReminders() {
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#categorized-duas"); }
         };
     }
-    // 5. أذكار الصباح وحصن المسلم (05:00 إلى 08:30 صباحاً)
-    else if (timeVal >= 5.0 && timeVal < 8.5) {
+    else if (slot === 'morning_azkar') {
         reminderConfig = {
             id: "morning_azkar",
             icon: "fa-solid fa-sun",
@@ -3183,8 +3209,7 @@ function initSmartTimelyReminders() {
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#azkar?tab=morning"); }
         };
     }
-    // 6. صلاة الضحى • صلاة الأوابين وصدقة المفاصل (08:30 إلى 11:30 صباحاً)
-    else if (timeVal >= 8.5 && timeVal < 11.5) {
+    else if (slot === 'duha_prayer') {
         reminderConfig = {
             id: "duha_prayer",
             icon: "fa-solid fa-cloud-sun",
@@ -3194,19 +3219,17 @@ function initSmartTimelyReminders() {
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#prayer-guide-section"); }
         };
     }
-    // 7. وقت الظهيرة وما بعد الظهر • ورد القرآن وذكر الله (11:30 إلى 15:30 عصراً)
-    else if (timeVal >= 11.5 && timeVal < 15.5) {
+    else if (slot === 'noon_quran') {
         reminderConfig = {
             id: "noon_quran",
             icon: "fa-solid fa-book-quran",
             title: "طيّب وقتك بذكر الله وتلاوة كتابه 📖",
-            desc: "اجعل لقلبك نصيباً من كتاب الله في منتصف يومك؛ تلاوة صفحة من المصحف الشريف والصلاة على النبي ﷺ تنير دربك وتبارك وقتك.",
+            desc: "اجعل لقلبك نصيباً من كتاب الله خلال يومك؛ تلاوة صفحة من المصحف الشريف والصلاة على النبي ﷺ تنير دربك وتبارك وقتك.",
             actionText: "ورد القرآن اليومي 📖",
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#quran-khatma?tab=mushaf"); }
         };
     }
-    // 8. أذكار المساء وحفظ الرحمن (15:30 إلى 18:30 مساءً)
-    else if (timeVal >= 15.5 && timeVal < 18.5) {
+    else if (slot === 'evening_azkar') {
         reminderConfig = {
             id: "evening_azkar",
             icon: "fa-solid fa-cloud-sun",
@@ -3216,8 +3239,7 @@ function initSmartTimelyReminders() {
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#azkar?tab=evening"); }
         };
     }
-    // 9. ما بين المغرب والعشاء • روضة الطاعات والسنن (18:30 إلى 20:30 مساءً)
-    else if (timeVal >= 18.5 && timeVal < 20.5) {
+    else if (slot === 'maghrib_isha_awabin') {
         reminderConfig = {
             id: "maghrib_isha_awabin",
             icon: "fa-solid fa-hands-praying",
@@ -3227,7 +3249,6 @@ function initSmartTimelyReminders() {
             actionCallback: () => { (window.zadNavigate || location.assign.bind(location))("services.html#smart-dhikr-panel"); }
         };
     }
-    // 10. سكينة الليل وسورة الملك وركعة الوتر (20:30 إلى 02:00 بعد منتصف الليل)
     else {
         reminderConfig = {
             id: "night_mulk",
@@ -3240,9 +3261,11 @@ function initSmartTimelyReminders() {
     }
 
     if (reminderConfig) {
-        const dismissKey = `reminder_dismissed_${reminderConfig.id}_${now.toISOString().slice(0, 10)}`;
+        const dismissKey = `reminder_dismissed_${reminderConfig.id}_${[now.getFullYear(), now.getMonth() + 1, now.getDate()].join("-")}`;
 
-        if (sessionStorage.getItem(dismissKey)) {
+        let dismissed = false;
+        try { dismissed = sessionStorage.getItem(dismissKey) === "1"; } catch (_) {}
+        if (dismissed) {
             banner.style.display = "none";
             return;
         }
@@ -3266,19 +3289,12 @@ function initSmartTimelyReminders() {
         if (dismissBtn) {
             dismissBtn.onclick = () => {
                 banner.style.display = "none";
-                sessionStorage.setItem(dismissKey, "1");
+                try { sessionStorage.setItem(dismissKey, "1"); } catch (_) {}
             };
         }
     }
 
-    // جدولة التحديث الدوري كل دقيقة ليتغير المحتوى تلقائياً بالثانية
-    if (!window._smartReminderTimerInitialized) {
-        window._smartReminderTimerInitialized = true;
-        setInterval(initSmartTimelyReminders, 60000);
-        document.addEventListener("visibilitychange", () => {
-            if (!document.hidden) initSmartTimelyReminders();
-        });
-    }
+
 }
 
 /* ==========================================================================
@@ -4329,39 +4345,7 @@ function initModernZadDashboard() {
             const prayerTimeEl = document.getElementById("daily-next-prayer-time");
             if (!prayerNameEl || !prayerTimeEl) return;
 
-            const existingName = document.getElementById("next-prayer-name");
-            const existingTimer = document.getElementById("next-prayer-timer");
-
-            if (existingName && existingName.textContent && existingName.textContent !== "..." && existingName.textContent !== "المواقيت غير متاحة") {
-                const pName = existingName.textContent;
-                const pTime = existingTimer ? existingTimer.textContent : "";
-                prayerNameEl.textContent = pName;
-                prayerTimeEl.textContent = pTime ? `متبقي على دخول الوقت: ${pTime}` : "صلاتك في وقتها نور وطمأنينة";
-                return;
-            }
-
-            // جلب المواقيت: من الذاكرة أو من التخزين المحلي للأوفلاين فوراً
-            let timings = window.prayerTimings || (typeof window.getPrayerTimings === "function" ? window.getPrayerTimings() : null);
-            if (!timings) {
-                try {
-                    const saved = localStorage.getItem("last_active_prayer_timings");
-                    if (saved) timings = JSON.parse(saved);
-                } catch (_) {}
-            }
-            if (!timings) {
-                try {
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        if (k && k.startsWith("prayer_times_")) {
-                            const val = localStorage.getItem(k);
-                            if (val && val.includes('"Fajr"') && val.includes('"Isha"')) {
-                                timings = JSON.parse(val);
-                                break;
-                            }
-                        }
-                    }
-                } catch (_) {}
-            }
+            const timings = getHomePrayerTimings();
 
             const toArabicDigits = (str) => String(str).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
@@ -4379,7 +4363,6 @@ function initModernZadDashboard() {
                 const now = new Date();
                 const prayersList = [
                     { name: "صلاة الفجر", key: "fajr", time: timings.Fajr },
-                    { name: "الشروق", key: "sunrise", time: timings.Sunrise },
                     { name: "صلاة الظهر", key: "dhuhr", time: timings.Dhuhr },
                     { name: "صلاة العصر", key: "asr", time: timings.Asr },
                     { name: "صلاة المغرب", key: "maghrib", time: timings.Maghrib },
@@ -4439,8 +4422,8 @@ function initModernZadDashboard() {
                     remainingBadgeText = `متبقي ${toArabicDigits(mins)} د`;
                     remainingLegacyText = ` (متبقي ${mins} د)`;
                 } else {
-                    remainingBadgeText = `حان موعد الصلاة`;
-                    remainingLegacyText = ` (حان موعد الصلاة)`;
+                    remainingBadgeText = `متبقي أقل من دقيقة`;
+                    remainingLegacyText = ` (متبقي أقل من دقيقة)`;
                 }
 
                 // تحديث العداد والموعد في البطاقة الرئيسية
@@ -4460,14 +4443,14 @@ function initModernZadDashboard() {
                         prevPDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ph, pm, 0);
                     } else {
                         const [ih, im] = (timings.Isha || "20:00").split(" ")[0].split(":").map(Number);
-                        prevPDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, ih, im, 0);
+                        prevPDate = new Date(nextPDate.getFullYear(), nextPDate.getMonth(), nextPDate.getDate() - 1, ih, im, 0);
                     }
-                    let pct = 60;
+                    let pct = 0;
                     if (prevPDate && nextPDate && nextPDate > prevPDate) {
                         const elapsed = now.getTime() - prevPDate.getTime();
                         const total = nextPDate.getTime() - prevPDate.getTime();
                         if (total > 0) {
-                            pct = Math.min(100, Math.max(5, Math.round((elapsed / total) * 100)));
+                            pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
                         }
                     }
                     progressBarEl.style.width = `${pct}%`;
@@ -4511,6 +4494,8 @@ function initModernZadDashboard() {
                 prayerNameEl.textContent = 'صلاتك في وقتها';
                 prayerTimeEl.textContent = 'تختلف المواقيت حسب مدينتك';
             }
+            const fallbackProgress = document.getElementById("home-prayer-progress-bar");
+            if (fallbackProgress) fallbackProgress.style.width = "0%";
             const fallbackRem = document.getElementById("home-prayer-remaining");
             if (fallbackRem) fallbackRem.textContent = 'مواقيت الصلاة اليومية';
             const fallbackTime = document.getElementById("home-prayer-time");

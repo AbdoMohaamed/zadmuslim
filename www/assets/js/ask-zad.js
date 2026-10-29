@@ -11,13 +11,15 @@
     // حالة المحادثة
     let isInitialized = false;
     let isOpen = false;
+    let generation = 0;
+    const pendingReplies = new Set();
 
     // استرجاع التاريخ من التخزين المحلي
     function loadHistory() {
         try {
             if (typeof localStorage === 'undefined') return [];
             const raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) : [];
+            const data=raw?JSON.parse(raw):[]; return Array.isArray(data)?data.filter(m=>m && typeof m.text==='string' && ['user','bot'].includes(m.sender)).slice(-MAX_HISTORY):[];
         } catch (e) {
             return [];
         }
@@ -266,6 +268,7 @@
 
     // مسح المحادثة
     function clearChat() {
+        generation++; pendingReplies.forEach(clearTimeout); pendingReplies.clear();
         try {
             if (typeof localStorage !== 'undefined') {
                 localStorage.removeItem(STORAGE_KEY);
@@ -276,7 +279,7 @@
             // الإبقاء فقط على بطاقة الترحيب
             const welcome = document.getElementById('ask-zad-welcome');
             messagesContainer.innerHTML = '';
-            if (welcome) messagesContainer.appendChild(welcome);
+            if (welcome) { welcome.style.display=""; messagesContainer.appendChild(welcome); }
         }
     }
 
@@ -299,6 +302,7 @@
             time: Date.now()
         };
         history.push(userMsg);
+        saveHistory(history);
         appendMessageRow(userMsg, messagesContainer);
 
         // التمرير لأسفل
@@ -309,7 +313,10 @@
         scrollToBottom(messagesContainer);
 
         // 3. استدعاء محرك المعرفة
-        setTimeout(() => {
+        const currentGeneration=generation;
+        const timer=setTimeout(() => {
+            pendingReplies.delete(timer);
+            if(currentGeneration!==generation)return;
             if (typingEl && typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
 
             const result = (window.AskZadKnowledge && typeof window.AskZadKnowledge.findBestAnswer === 'function')
@@ -336,18 +343,20 @@
                     sender: 'bot',
                     text: 'مرحباً بك، أنا في خدمتك دائماً في زاد المسلم. يمكنك سؤالي عن كيفية صلاة الجنازة، أحكام سجود السهو، آيات الصبر وتفسيرها، أو أذكار اليوم.',
                     actions: [
-                        { label: '📖 المصحف الشريف', href: 'services.html#quran-reading-section', type: 'link' },
+                        { label: '📖 المصحف الشريف', href: 'services.html#quran-khatma?tab=mushaf', type: 'link' },
                         { label: '🤲 الأذكار وحصن المسلم', href: 'services.html#azkar', type: 'link' }
                     ],
                     time: Date.now()
                 };
             }
 
-            history.push(botMsg);
-            saveHistory(history);
+            const latestHistory=loadHistory();
+            latestHistory.push(botMsg);
+            saveHistory(latestHistory);
             appendMessageRow(botMsg, messagesContainer);
             scrollToBottom(messagesContainer);
         }, 350);
+        pendingReplies.add(timer);
     }
 
     // إلحاق سطر رسالة في الـ DOM

@@ -14,6 +14,7 @@
             .replace(/ة/g, 'ه')                    // توحيد التاء المربوطة
             .replace(/ى/g, 'ي')                    // توحيد الياء
             .replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, ' ') // إزالة علامات الترقيم
+            .replace(/[؟،؛]/g, ' ')
             .replace(/\s+/g, ' ')
             .trim()
             .toLowerCase();
@@ -21,6 +22,7 @@
 
     // بنك المعرفة الإسلامية الشامل والموثوق لزاد المسلم
     const KNOWLEDGE_BASE = [
+        {id:'app_notification_settings', title:'إعدادات التنبيهات', keywords:['إلغاء إشعارات الصلاة','إيقاف التنبيهات','تفعيل التنبيهات'], answer:'لتغيير التنبيهات افتح الإعدادات، ثم فعّل أو أوقف التذكير المطلوب. تُحفظ اختياراتك تلقائيًا. تغيير الاختيار لا يتم من المحادثة نفسها.', actions:[{label:'فتح إعدادات التنبيهات',href:'settings.html#notifications-section',type:'link'}]},
         // ==================== القرآن الكريم والآيات ====================
         {
             id: 'quran_sabr',
@@ -36,7 +38,7 @@
 • الصابرون يُجازون في الجنة بغير كيل ولا ميزان، فجزاء الصبر عظيم لا يُقاس.
 • اعلم أن أمر المؤمن كله له خير؛ إن أصابته سراء شكر فكان خيراً له، وإن أصابته ضراء صبر فكان خيراً له كما أخبر النبي ﷺ.`,
             actions: [
-                { label: '📖 فتح المصحف الشريف', href: 'services.html#quran-reading-section', type: 'link' },
+                { label: '📖 فتح المصحف الشريف', href: 'services.html#quran-khatma?tab=mushaf', type: 'link' },
                 { label: '🤲 أدعية تفريج الكرب', href: 'services.html#categorized-duas', type: 'link' }
             ]
         },
@@ -94,7 +96,7 @@
 «وَالَّذِي نَفْسِي بِيَدِهِ لَوْ لَمْ تُذْنِبُوا لَذَهَبَ اللَّهُ بِكُمْ، وَلَجَاءَ بِقَوْمٍ يُذْنِبُونَ فَيَسْتَغْفِرُونَ اللَّهَ فَيَغْفِرُ لَهُمْ».`,
             actions: [
                 { label: '🤲 سيد الاستغفار', href: 'services.html#azkar', type: 'link' },
-                { label: '📖 قراءة القرآن', href: 'services.html#quran-reading-section', type: 'link' }
+                { label: '📖 قراءة القرآن', href: 'services.html#quran-khatma?tab=mushaf', type: 'link' }
             ]
         },
         {
@@ -112,7 +114,7 @@
 • آية الكرسي والمعوذتين وسورة الإخلاص.
 • دعاء النبي ﷺ للمريض: «اللَّهُمَّ رَبَّ النَّاسِ، أَذْهِبِ الْبَاسَ، اشْفِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا».`,
             actions: [
-                { label: '🛡️ فتح الرقية الشرعية كاملة', href: 'services.html#ruqyah-section', type: 'link' }
+                { label: '🛡️ فتح الرقية الشرعية كاملة', href: 'services.html#azkar?tab=roqya', type: 'link' }
             ]
         },
 
@@ -380,7 +382,7 @@
 • يعمل 100% بدون إنترنت (أوفلاين).
 • فهرس كامل للسور والأجزاء مع علامات الحفظ والتفسير الميسر.`,
             actions: [
-                { label: '📖 فتح المصحف الشريف', href: 'services.html#quran-reading-section', type: 'link' }
+                { label: '📖 فتح المصحف الشريف', href: 'services.html#quran-khatma?tab=mushaf', type: 'link' }
             ]
         },
         {
@@ -409,7 +411,7 @@
 «إِنَّ لِلَّهِ تِسْعَةً وَتِسْعِينَ اسْمًا، مِائَةً إِلَّا وَاحِدًا، مَنْ أَحْصَاهَا دَخَلَ الْجَنَّةَ».
 تصفح أسماء الله الحسنى الـ 99 في زاد المسلم مع شرح وتفسير ميسر لمعنى كل اسم، وطريقة التعبد به والدعاء به.`,
             actions: [
-                { label: '✨ استعراض أسماء الله الحسنى', href: 'services.html#asmaa-allah-grid', type: 'link' }
+                { label: '✨ استعراض أسماء الله الحسنى', href: 'services.html#asmaa-allah', type: 'link' }
             ]
         },
         {
@@ -422,8 +424,8 @@
 • قصص الأنبياء المفصلة (آدم، نوح، إبراهيم، موسى، عيسى، ومحمد ﷺ وغيرهم).
 • مسابقة إسلامية تفاعلية مشوقة لاختبار معلوماتك وثقافتك الدينية.`,
             actions: [
-                { label: '📚 فتح قصص الأنبياء', href: 'services.html#islamic-stories-grid', type: 'link' },
-                { label: '🏆 فتح المسابقة الإسلامية', href: 'services.html#quiz-container', type: 'link' }
+                { label: '📚 فتح قصص الأنبياء', href: 'services.html#islamic-stories', type: 'link' },
+                { label: '🏆 فتح المسابقة الإسلامية', href: 'services.html#islamic-quiz', type: 'link' }
             ]
         }
     ];
@@ -444,36 +446,29 @@
         let bestMatch = null;
         let highestScore = 0;
 
-        for (const item of KNOWLEDGE_BASE) {
-            let score = 0;
-
-            for (const kw of item.keywords) {
-                const normKw = normalizeArabic(kw);
-                
-                // تطابق تام للعبارة
-                if (normalizedQuery.includes(normKw)) {
-                    score += 20 + normKw.length;
-                } else {
-                    // تطابق كلمات مفردة
-                    const kwWords = normKw.split(/\s+/);
-                    for (const qw of queryWords) {
-                        for (const kwWord of kwWords) {
-                            if (qw === kwWord) {
-                                score += 8;
-                            }
-                        }
-                    }
-                }
+        if (/(اشعار|تنبيه|تنبيهات|اشعارات)/.test(normalizedQuery) && /(الغ|ايقاف|وقف|تفعيل|تغيير|اطفي|اقفل)/.test(normalizedQuery)) return {found:true,data:KNOWLEDGE_BASE[0],score:100};
+        let secondScore=0;
+        const ignored=new Set([...STOP_WORDS,'كيف','ماذا','لماذا','متي','اين','التي','الذي','الصلاه','صلاه']);
+        const meaningful=[...new Set(queryWords.filter(w=>!ignored.has(w)))];
+        for(const item of KNOWLEDGE_BASE){
+            let score=0;
+            for(const kw of item.keywords){
+                const words=normalizeArabic(kw).split(/\s+/);
+                const shared=meaningful.filter(w=>words.includes(w));
+                const phrase=(' '+normalizedQuery+' ').includes(' '+normalizeArabic(kw)+' ');
+                const coverage=meaningful.length?shared.length/meaningful.length:0;
+                if(phrase && shared.length > 0 && coverage>=0.2)score=Math.max(score,20+shared.length*8+normalizeArabic(kw).length/100);
+                else if(shared.length>=2 && coverage>=0.65)score=Math.max(score,shared.length*8);
             }
-
-            if (score > highestScore) {
-                highestScore = score;
-                bestMatch = item;
-            }
+            const stem=w=>w.replace(/^وال/,'').replace(/^ال/,'');
+            const vocabulary=new Set(item.keywords.flatMap(kw=>normalizeArabic(kw).split(/\s+/).map(stem)));
+            const matched=new Set(meaningful.map(stem).filter(w=>vocabulary.has(w)));
+            if(matched.size>=2 && matched.size/meaningful.length>=0.35)score=Math.max(score,16+matched.size*8);
+            if(score>highestScore){secondScore=highestScore;highestScore=score;bestMatch=item;}
+            else secondScore=Math.max(secondScore,score);
         }
-
         // إذا كان هناك تطابق موثوق (درجة كافية)
-        if (bestMatch && highestScore >= 12) {
+        if (bestMatch && highestScore >= 16 && highestScore > secondScore) {
             return {
                 found: true,
                 score: highestScore,
@@ -486,7 +481,7 @@
             found: false,
             fallbackMessage: `لم أعثر على إجابة مباشرة لسؤالك في قاعدة المعرفة السريعة، ولكن يمكنك تجربة ما يلي:`,
             suggestions: [
-                { label: '📖 البحث في القرآن الكريم', href: 'services.html#quran-reading-section' },
+                { label: '📖 البحث في القرآن الكريم', href: 'services.html#quran-khatma?tab=mushaf' },
                 { label: '🤲 استعراض الأذكار والأدعية', href: 'services.html#azkar' },
                 { label: '🕌 فقه ودليل الصلاة', href: 'services.html#prayer-guide-section' },
                 { label: '💎 حاسبة الزكاة والذهب', href: 'services.html#zakat-calculator-section' }

@@ -756,7 +756,7 @@
                     <i class="fa-solid fa-layer-group text-gold"></i>
                 </a>
                 <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر" style="padding: 16px; font-size: 20px;">
-                    <i class="fa-solid fa-moon" id="theme-toggle-icon"></i>
+                    <i class="fa-solid fa-circle-half-stroke text-gold" id="theme-toggle-icon"></i>
                 </button>
                 <a class="btn solid" id="btn-settings-back" href="index.html" title="العودة للصفحة الرئيسية" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fa-solid fa-arrow-right"></i>
@@ -775,7 +775,7 @@
                     <i class="fa-solid fa-location-dot text-gold"></i>
                     <span id="hero-current-city">مدينة المواقيت المحددة</span>
                 </div>
-                <div class="hero-quick-actions">
+                <div class="hero-quick-actions d-none">
                     <button type="button" class="hero-action-btn" id="btn-expand-all-settings" title="فتح جميع الأقسام">
                         <i class="fa-solid fa-up-right-and-down-left-from-center text-gold"></i>
                         <span>فتح الكل</span>
@@ -1081,7 +1081,7 @@
         <section class="settings-section-card" id="settings-prayer-timing-section">
             <div class="settings-section-title">
                 <i class="fa-solid fa-mosque text-gold"></i>
-                <span>المواقيت والواجهة وحجم الخط</span>
+                <span>حدد مدينتك </span>
             </div>
             <p class="settings-section-desc">
                 حدد مدينتك وطريقة الحساب الفقهية المناسبة لك وحجم الخط المفضل للقراءة:
@@ -1349,14 +1349,18 @@
     <script>
         (function() {
             // تحديث بطاقة النظرة العامة بالمدينة المختارة
-            function updateHeroCity() {
+            function updateHeroCity(event) {
                 const el = document.getElementById('hero-current-city');
                 if (!el) return;
-                const city = localStorage.getItem('selected_prayer_city') || 'القاهرة';
+                const key=event?.target?.id==='zad-city' ? event.target.value : (localStorage.getItem('selected_prayer_city') || 'Cairo');
+                const option=Array.from(document.getElementById('zad-city')?.options || []).find(o=>o.value===key);
+                const city=key==='gps'?'موقعك الحالي':(window.ZadPrayerCities?.[key]?.label || option?.textContent || window.ZadPrayerCities?.[key]?.city || key);
                 el.textContent = 'المدينة الحالية: ' + city;
             }
             updateHeroCity();
             window.addEventListener('storage', updateHeroCity);
+            document.addEventListener('DOMContentLoaded', updateHeroCity);
+            document.getElementById('zad-city')?.addEventListener('change', updateHeroCity);
 
             // أزرار فتح وطي الكل
             document.getElementById('btn-expand-all-settings')?.addEventListener('click', () => {

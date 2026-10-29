@@ -108,7 +108,7 @@
             if (isLight) {
                 icon.className = 'fa-solid fa-moon';
             } else {
-                icon.className = 'fa-solid fa-sun text-gold';
+                icon.className = 'fa-solid fa-circle-half-stroke text-gold';
             }
         });
 
