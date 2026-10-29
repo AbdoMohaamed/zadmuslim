@@ -3572,7 +3572,7 @@
             <a href="index.html#home"><i class="fa-solid fa-house text-gold"></i>الرئيسية</a>
             <a href="index.html#daily"><i class="fa-solid fa-leaf text-gold"></i>يومي</a>
             <a href="#islamic-media"><i class="fa-solid fa-circle-play text-gold"></i>مقتطفات</a>
-            <a href="services.html" class="active"><i class="fa-solid fa-layer-group text-gold"></i>الأقسام</a>
+            <a href="services.html" class="active"><i class="fa-solid fa-layer-group text-gold"></i>الخدمات</a>
         </nav>
 
         <!-- تذييل الصفحة -->
@@ -4013,6 +4013,33 @@
                 if (cleanId === 'mood-compass-section' && window.MoodCompass?.init) {
                     window.MoodCompass.init();
                 }
+                updateMobileBarActiveState(cleanId);
+            }
+
+            function updateMobileBarActiveState(currentId) {
+                const activeId = (currentId || window.location.hash || '').replace(/^#/, '').split('?')[0];
+                const isMedia = (activeId === 'islamic-media');
+                const isSingle = document.body.classList.contains('single-service-mode');
+
+                document.querySelectorAll('.mobilebar a').forEach(link => {
+                    const href = link.getAttribute('href') || '';
+                    if (isMedia) {
+                        link.classList.toggle('active', href === '#islamic-media' || href.endsWith('#islamic-media'));
+                    } else if (isSingle) {
+                        link.classList.toggle('active', href === 'services.html' || href === '#services');
+                    } else {
+                        link.classList.toggle('active', href === 'services.html' || href === '#services');
+                    }
+                });
+
+                document.querySelectorAll('header.top .links a').forEach(link => {
+                    const href = link.getAttribute('href') || '';
+                    if (isMedia) {
+                        link.classList.toggle('active', href === '#islamic-media' || href.endsWith('#islamic-media'));
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
             }
 
             function closeServiceFocusView(pushHistory = true) {
@@ -4034,6 +4061,7 @@
 
                 document.title = 'دليل الخدمات والأقسام • زاد المسلم';
                 document.dispatchEvent(new Event('zad:services-return'));
+                updateMobileBarActiveState(null);
                 restoreServicesPosition();
             }
 
@@ -4066,6 +4094,7 @@
                         openServiceView(window.location.hash, false);
                     }
                 }
+                updateMobileBarActiveState(window.location.hash);
                 const targetAzkar = sessionStorage.getItem('target_azkar_tab');
                 if (targetAzkar) {
                     setTimeout(() => {
@@ -4104,7 +4133,7 @@
             });
 
             // ربط الروابط العلوية والسفلية
-            document.querySelectorAll('header.top .links a[href^="#"], .bottom-nav a[href="services.html"], .bottom-nav a[href^="#"]').forEach(link => {
+            document.querySelectorAll('header.top .links a[href^="#"], .mobilebar a[href="services.html"], .mobilebar a[href^="#"], .bottom-nav a[href="services.html"], .bottom-nav a[href^="#"]').forEach(link => {
                 link.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
                     if (href === 'services.html') {

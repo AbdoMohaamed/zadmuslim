@@ -553,3 +553,21 @@ test('every category filter has content and excerpts opens its populated media l
 });
 
 test('settings city overview updates immediately with the Arabic selected city',async()=>{const {dom}=await load('settings.html');try{const w=dom.window,d=w.document;d.getElementById('zad-city').value='Riyadh';d.getElementById('zad-city').dispatchEvent(new w.Event('change',{bubbles:true}));assert.match(d.getElementById('hero-current-city').textContent,/الرياض/);}finally{dom.window.close();}});
+
+test('mobile navigation highlights excerpts when selected and restores services highlight on return',async()=>{
+ const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html#islamic-media'});
+ try {
+  const d=dom.window.document;
+  const mediaLink=d.querySelector('.mobilebar a[href="#islamic-media"]');
+  const servicesLink=d.querySelector('.mobilebar a[href="services.html"]');
+  assert.ok(mediaLink,'excerpts link in mobilebar');
+  assert.ok(servicesLink,'services link in mobilebar');
+  assert.equal(mediaLink.classList.contains('active'),true,'excerpts should be active');
+  assert.equal(servicesLink.classList.contains('active'),false,'services should not be active');
+
+  servicesLink.click();
+  assert.equal(servicesLink.classList.contains('active'),true,'services should be active now');
+  assert.equal(mediaLink.classList.contains('active'),false,'excerpts should not be active');
+  assert.deepEqual(errors,[]);
+ } finally {dom.window.close();}
+});
