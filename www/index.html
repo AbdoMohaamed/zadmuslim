@@ -104,7 +104,7 @@
 <script src="assets/js/radio-navigation.js?v=3"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
-<link rel="stylesheet" href="assets/css/ask-zad.css?v=1">
+<link rel="stylesheet" href="assets/css/ask-zad.css?v=4">
 </head>
 <body>
 
@@ -120,11 +120,11 @@
                 <a href="#daily">يومي مع الله</a>
                 <a href="services.html">الخدمات</a>
             </nav>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-nav" title="المظهر النهاري / الليلي" style="padding: 16px; font-size: 20px;">
+            <div class="settings-header-actions" style="display: flex; align-items: center; gap: 8px;">
+                <button class="btn outline btn-theme-toggle settings-action-btn" id="btn-toggle-theme-nav" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر">
                     <i class="fa-solid fa-circle-half-stroke text-gold" id="theme-toggle-icon"></i>
                 </button>
-                <a class="btn outline" id="btn-open-settings-nav" href="settings.html" title="الإعدادات والتخصيص" style="padding: 16px; font-size: 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                <a class="btn outline settings-action-btn" id="btn-open-settings-nav" href="settings.html" title="الإعدادات والتخصيص" aria-label="الإعدادات والتخصيص" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                     <i class="fa-solid fa-gear text-gold"></i>
                 </a>
             </div>
@@ -171,7 +171,7 @@
         <div class="prayer panel home-next-prayer home-prayer-hero-card" id="home-next-prayer">
             <div class="home-prayer-header">
                 <span class="home-prayer-badge">الصلاة القادمة</span>
-                <span class="home-prayer-countdown" id="home-prayer-remaining">متبقي -- س و -- د</span>
+                <span class="home-prayer-countdown" id="home-prayer-remaining">جارٍ تحميل مواقيت مدينتك…</span>
             </div>
             <div class="home-prayer-main-row">
                 <strong class="home-prayer-name" id="daily-next-prayer-name">صلاتك في وقتها</strong>
@@ -210,6 +210,8 @@
                 <span class="home-strip-time" id="home-time-isha">--:--</span>
             </div>
         </div>
+
+        <script src="assets/js/home-prayer-display.js?v=1"></script>
 
         <!-- البطاقة الثالثة: بنر السنن والتذكير الذكي بالسياق الزمني (Smart Contextual Sunnah / Reminder Banner) -->
         <div class="smart-reminder-banner home-sunnah-reminder-card container" id="smart-reminder-banner" style="display: none;">
@@ -572,16 +574,16 @@
     <script src="assets/js/onesignal-service.js?v=3"></script>
     <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=24"></script>
+    <script src="assets/js/app.js?v=25"></script>
     <script src="assets/js/quran.js?v=27"></script>
     <script src="assets/js/radio-player.js?v=2"></script>
-    <script src="assets/js/extended-modules.js?v=37"></script>
+    <script src="assets/js/extended-modules.js?v=38"></script>
     <script src="assets/js/smart-khatma.js?v=3"></script>
     <script src="assets/js/share-card-generator.js?v=1"></script>
     <script src="assets/js/smart-tasbih.js?v=1"></script>
     <script src="assets/js/prayer-guide.js?v=1"></script>
     <script src="assets/js/ask-zad-knowledge.js?v=2"></script>
-    <script src="assets/js/ask-zad.js?v=2"></script>
+    <script src="assets/js/ask-zad.js?v=5"></script>
 
     <!-- ==========================================
     نافذة التنبيهات والإشعارات الذكية (Smart Push Notifications Modal)

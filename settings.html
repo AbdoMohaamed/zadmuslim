@@ -21,7 +21,7 @@
            تنسيقات الصفحة الرئيسية للإعدادات (Settings Modern UI)
         ======================================================== */
         :root {
-            --settings-max-width: 920px;
+            --settings-max-width: 1200px;
             --settings-gold: #d4af37;
             --settings-gold-hover: #e6ca65;
             --settings-card-bg: rgba(16, 43, 34, 0.94);
@@ -95,7 +95,8 @@
         }
 
         .hero-quick-actions {
-            display: flex;
+            /*display: flex;*/
+            display:none;
             align-items: center;
             gap: 8px;
         }
@@ -754,9 +755,6 @@
                 <a href="services.html">الخدمات</a>
             </nav>
             <div class="settings-header-actions" style="display: flex; align-items: center; gap: 8px;">
-                <a class="btn outline settings-action-btn" id="btn-settings-services" href="services.html" title="تصفح جميع الخدمات والعبادات" aria-label="الخدمات والعبادات" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-                    <i class="fa-solid fa-layer-group text-gold"></i>
-                </a>
                 <button class="btn outline btn-theme-toggle settings-action-btn" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر">
                     <i class="fa-solid fa-circle-half-stroke text-gold" id="theme-toggle-icon"></i>
                 </button>
@@ -777,7 +775,7 @@
                     <i class="fa-solid fa-location-dot text-gold"></i>
                     <span id="hero-current-city">مدينة المواقيت المحددة</span>
                 </div>
-                <div class="hero-quick-actions d-none">
+                <div class="hero-quick-actions">
                     <button type="button" class="hero-action-btn" id="btn-expand-all-settings" title="فتح جميع الأقسام">
                         <i class="fa-solid fa-up-right-and-down-left-from-center text-gold"></i>
                         <span>فتح الكل</span>

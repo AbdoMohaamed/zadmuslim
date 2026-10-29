@@ -17186,29 +17186,107 @@ html.android-device .nav .btn {
     box-sizing: border-box !important;
 }
 
-html.android-device .btn-theme-toggle,
-html.android-device #btn-toggle-theme-nav {
+/* تصميم موحد وعصري لأيقونات الهيدر (Theme Toggle & Settings & Action Buttons) */
+header.top .btn-theme-toggle,
+header.top #btn-toggle-theme-nav,
+header.top #btn-open-settings-nav,
+header.top #btn-settings-services,
+header.top #btn-toggle-theme-settings,
+.settings-action-btn {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
     padding: 0 !important;
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
-    font-size: 15px !important;
+    font-size: 1.15rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    border-radius: 14px !important;
+    background: rgba(0, 0, 0, 0.16) !important;
+    border: 1px solid rgba(212, 175, 55, 0.24) !important;
+    color: var(--gold-400, #d4af37) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    text-decoration: none !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
 }
 
+[data-theme="light"] header.top .btn-theme-toggle,
+[data-theme="light"] header.top #btn-toggle-theme-nav,
+[data-theme="light"] header.top #btn-open-settings-nav,
+[data-theme="light"] header.top #btn-settings-services,
+[data-theme="light"] header.top #btn-toggle-theme-settings,
+[data-theme="light"] .settings-action-btn {
+    background: rgba(0, 0, 0, 0.035) !important;
+    border-color: rgba(140, 110, 35, 0.24) !important;
+}
+
+header.top .btn-theme-toggle:hover,
+header.top #btn-toggle-theme-nav:hover,
+header.top #btn-open-settings-nav:hover,
+header.top #btn-settings-services:hover,
+header.top #btn-toggle-theme-settings:hover,
+.settings-action-btn:hover {
+    border-color: rgba(212, 175, 55, 0.5) !important;
+    color: #f59e0b !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2) !important;
+    transform: translateY(-1px);
+}
+
+header.top .btn-theme-toggle:active,
+header.top #btn-toggle-theme-nav:active,
+header.top #btn-open-settings-nav:active,
+header.top #btn-settings-services:active,
+header.top #btn-toggle-theme-settings:active,
+.settings-action-btn:active {
+    transform: scale(0.94) !important;
+}
+
+header.top .btn-theme-toggle i,
+header.top #btn-toggle-theme-nav i,
+header.top #btn-open-settings-nav i,
+header.top #btn-settings-services i,
+header.top #btn-toggle-theme-settings i,
+.settings-action-btn i {
+    font-size: 1.15rem !important;
+    color: #d4af37 !important;
+    transition: transform 0.25s ease, color 0.25s ease;
+}
+
+html.android-device .btn-theme-toggle,
+html.android-device #btn-toggle-theme-nav,
 html.android-device #btn-open-settings-nav {
     padding: 0 !important;
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
-    font-size: 15px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    font-size: 1.12rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    border-radius: 12px !important;
+    background: rgba(0, 0, 0, 0.16) !important;
+    border: 1px solid rgba(212, 175, 55, 0.24) !important;
+    color: #d4af37 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+@media (max-width: 480px) {
+    header.top .btn-theme-toggle,
+    header.top #btn-toggle-theme-nav,
+    header.top #btn-open-settings-nav,
+    header.top #btn-settings-services,
+    header.top #btn-toggle-theme-settings,
+    .settings-action-btn {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        border-radius: 12px !important;
+    }
 }
 
 html.android-device .settings-page-wrapper {
