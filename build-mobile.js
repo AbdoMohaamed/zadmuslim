@@ -54,56 +54,48 @@ function trimMp3Buffer(buffer, targetDurationSec = 28.5) {
         const size = (buffer[6] << 21) | (buffer[7] << 14) | (buffer[8] << 7) | buffer[9];
         offset = 10 + size;
     }
+    const bitratesV1L3 = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
+    const bitratesV2L3 = [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160];
+    const sampleRates = { 3: [44100, 48000, 32000], 2: [22050, 24000, 16000], 0: [11025, 12000, 8000] };
 
-    const bitrates = [
-        [0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448],
-        [0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384],
-        [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320],
-        [0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256],
-        [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160]
-    ];
-    const sampleRates = [
-        [44100, 48000, 32000],
-        [22050, 24000, 16000],
-        [11025, 12000, 8000]
-    ];
-
-    let currentDuration = 0;
+    let pos = offset;
+    let dur = 0;
     let cutOffset = buffer.length;
 
-    let scanPos = offset;
-    while (scanPos < buffer.length - 4) {
-        if (buffer[scanPos] === 0xFF && (buffer[scanPos + 1] & 0xE0) === 0xE0) {
-            const b1 = buffer[scanPos + 1];
-            const b2 = buffer[scanPos + 2];
-            const versionBits = (b1 >> 3) & 0x03;
-            const layerBits = (b1 >> 1) & 0x03;
-            const bitrateIdx = (b2 >> 4) & 0x0F;
-            const sampleRateIdx = (b2 >> 2) & 0x03;
-            const padding = (b2 >> 1) & 0x01;
+    while (pos < buffer.length - 4) {
+        if (buffer[pos] === 0xFF && (buffer[pos + 1] & 0xE0) === 0xE0) {
+            const b1 = buffer[pos + 1];
+            const b2 = buffer[pos + 2];
+            const vBits = (b1 >> 3) & 3;
+            const lBits = (b1 >> 1) & 3;
+            const brIdx = (b2 >> 4) & 15;
+            const srIdx = (b2 >> 2) & 3;
+            const padding = (b2 >> 1) & 1;
 
-            if (versionBits !== 1 && layerBits !== 0 && bitrateIdx !== 0 && bitrateIdx !== 15 && sampleRateIdx !== 3) {
-                const version = versionBits === 3 ? 1 : (versionBits === 2 ? 2 : 2.5);
-                const layer = 4 - layerBits;
-                let brRow = 0;
-                if (version === 1) brRow = layer - 1;
-                else brRow = layer === 1 ? 3 : 4;
-                const bitrate = bitrates[brRow][bitrateIdx] * 1000;
-                const sampleRate = sampleRates[versionBits === 3 ? 0 : (versionBits === 2 ? 1 : 2)][sampleRateIdx];
-                const samplesPerFrame = layer === 1 ? 384 : (version === 1 ? 1152 : 576);
-                const frameSize = Math.floor((samplesPerFrame * (bitrate / 8)) / sampleRate) + padding;
+            if (vBits !== 1 && lBits === 1 && brIdx > 0 && brIdx < 15 && srIdx < 3) {
+                const isV1 = (vBits === 3);
+                const brList = isV1 ? bitratesV1L3 : bitratesV2L3;
+                const srList = sampleRates[vBits];
+                if (srList) {
+                    const br = brList[brIdx] * 1000;
+                    const sr = srList[srIdx];
+                    const spf = isV1 ? 1152 : 576;
+                    const frameSize = Math.floor((spf * (br / 8)) / sr) + padding;
 
-                const frameDuration = samplesPerFrame / sampleRate;
-                if (currentDuration + frameDuration > targetDurationSec) {
-                    cutOffset = scanPos;
-                    break;
+                    if (frameSize > 4 && pos + frameSize <= buffer.length) {
+                        const frameDur = spf / sr;
+                        if (dur + frameDur > targetDurationSec) {
+                            cutOffset = pos;
+                            break;
+                        }
+                        dur += frameDur;
+                        pos += frameSize;
+                        continue;
+                    }
                 }
-                currentDuration += frameDuration;
-                scanPos += frameSize;
-                continue;
             }
         }
-        scanPos++;
+        pos++;
     }
 
     return buffer.slice(0, cutOffset);

@@ -747,6 +747,16 @@ const NativeAdhanService = {
         }
     },
 
+    async requestFullScreenIntentPermission() {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative?.requestFullScreenIntentPermission) {
+            try {
+                await window.Capacitor.Plugins.AdhanNative.requestFullScreenIntentPermission();
+            } catch(e) {
+                console.warn("Cannot request full screen intent permission:", e);
+            }
+        }
+    },
+
     /**
      * إيقاف الأذان الجاري تشغيله في الخلفية فوراً
      */
@@ -850,7 +860,7 @@ const NativeAdhanService = {
     },
 
     /**
-     * فحص صلاحيات المنبهات الدقيقة والإشعارات وتحسين البطارية
+     * فحص صلاحيات المنبهات الدقيقة والإشعارات وتحسين البطارية وشاشة الأذان الكاملة
      */
     async checkPermissionsStatus() {
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
@@ -863,7 +873,8 @@ const NativeAdhanService = {
         return {
             notificationsGranted: typeof Notification !== 'undefined' && Notification.permission === 'granted',
             exactAlarmsGranted: null,
-            batteryOptimizationsIgnored: null
+            batteryOptimizationsIgnored: null,
+            fullScreenIntentGranted: null
         };
     }
 };

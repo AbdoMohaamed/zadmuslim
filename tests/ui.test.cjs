@@ -338,6 +338,31 @@ test('Android settings show actual prayer coverage and synchronize volume before
  } finally {dom.window.close();}
 });
 
+test('Android settings surface full-screen intent permission requirement and request handler',async()=>{
+ let requested=false;
+ const {dom,errors}=await load('settings.html',{setup(w){
+  w.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{
+   AdhanNative:{
+    checkAlarmPermissions:async()=>({notificationsGranted:true,exactAlarmsGranted:true,batteryOptimizationsIgnored:true,fullScreenIntentGranted:false}),
+    getPrayerScheduleStatus:async()=>({count:5,next:Date.now()+60000,until:Date.now()+86400000}),
+    requestFullScreenIntentPermission:async()=>{requested=true;return {opened:true};}
+   },
+   LocalNotifications:{checkPermissions:async()=>({display:'granted'}),getPending:async()=>({notifications:[]}),createChannel:async()=>{},addListener:()=>{}}
+  }};
+ }});
+ try {
+  const w=dom.window,d=w.document;
+  await new Promise(r=>setTimeout(r,50));
+  assert.match(d.querySelector('.settings-delivery-status').textContent,/شاشة الأذان: تحتاج إذنًا لفتح الشاشة عند القفل/);
+  const btn=[...d.querySelectorAll('.settings-status-actions button')].find(b=>b.textContent==='إذن شاشة الأذان الكاملة');
+  assert.ok(btn,'full-screen intent permission button exists');
+  assert.equal(btn.hidden,false);
+  await btn.onclick();
+  assert.equal(requested,true);
+  assert.deepEqual(errors,[]);
+ } finally {dom.window.close();}
+});
+
 test('radio starts with Cairo, preserves station on failure, and exposes accessible stop and favorites',async()=>{
  const {dom,errors}=await load('index.html');const w=dom.window,d=w.document;
  const select=d.getElementById('radio-station-select');assert.equal(select.value,'cairo');

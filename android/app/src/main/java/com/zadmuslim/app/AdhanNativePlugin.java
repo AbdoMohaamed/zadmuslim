@@ -730,6 +730,36 @@ public class AdhanNativePlugin extends Plugin {
         }
         ret.put("batteryOptimizationsIgnored", batteryIgnored);
 
+        boolean fullScreenIntentGranted = true;
+        if (Build.VERSION.SDK_INT >= 34) { // Android 14+ (UPSIDE_DOWN_CAKE)
+            NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null) {
+                fullScreenIntentGranted = nm.canUseFullScreenIntent();
+            }
+        }
+        ret.put("fullScreenIntentGranted", fullScreenIntentGranted);
+
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void requestFullScreenIntentPermission(PluginCall call) {
+        Context context = getContext();
+        JSObject ret = new JSObject();
+        try {
+            if (Build.VERSION.SDK_INT >= 34) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                ret.put("opened", true);
+            } else {
+                ret.put("opened", false);
+            }
+        } catch (Exception e) {
+            ret.put("opened", false);
+            ret.put("error", e.getMessage());
+        }
         call.resolve(ret);
     }
 
