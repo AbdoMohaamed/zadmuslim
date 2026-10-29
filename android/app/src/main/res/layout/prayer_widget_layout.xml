@@ -1,42 +1,300 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent" android:layoutDirection="rtl" android:orientation="vertical" android:padding="14dp" android:background="@drawable/widget_background_standard">
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-<TextView android:id="@+id/widget_city" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="المدينة" android:textSize="15sp" android:textColor="#D8B975" android:maxLines="1" android:ellipsize="end" android:layout_weight="1" android:textStyle="bold"/>
-<TextView android:id="@+id/widget_btn_refresh" android:layout_width="44dp" android:layout_height="40dp" android:gravity="center" android:text="↻" android:textSize="24sp" android:textColor="#D8B975" android:contentDescription="تحديث المواقيت"/>
-</LinearLayout>
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" >
-<TextView android:id="@+id/widget_txt_hijri_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="التاريخ الهجري" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" />
-<TextView android:id="@+id/widget_txt_gregorian_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="التاريخ الميلادي" android:textSize="10sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" />
-</LinearLayout>
-<LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="10dp" android:gravity="center" android:background="@drawable/widget_surface_standard">
-<TextView  android:layout_width="match_parent" android:layout_height="wrap_content" android:text="الصلاة القادمة" android:textSize="11sp" android:textColor="#D8B975" android:maxLines="1" android:ellipsize="end" />
-<TextView android:id="@+id/widget_txt_next_prayer_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="مواقيت الصلاة" android:textSize="22sp" android:textColor="#FFFFFF" android:maxLines="1" android:ellipsize="end" android:textStyle="bold"/>
-<TextView android:id="@+id/widget_txt_next_prayer_time" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textSize="30sp" android:textColor="#D8B975" android:maxLines="1" android:ellipsize="end" android:textStyle="bold"/>
-<TextView android:id="@+id/widget_txt_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="افتح التطبيق لتحديث المواقيت" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" />
-</LinearLayout>
-</LinearLayout>
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingTop="8dp">
-<LinearLayout android:id="@+id/col_fajr" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:padding="2dp" android:gravity="center">
-<TextView android:id="@+id/widget_label_fajr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="الفجر" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" android:gravity="center"/>
-<TextView android:id="@+id/widget_time_fajr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textSize="11sp" android:textColor="#FFFFFF" android:maxLines="1" android:ellipsize="end" android:gravity="center" android:textStyle="bold"/>
-</LinearLayout>
-<LinearLayout android:id="@+id/col_dhuhr" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:padding="2dp" android:gravity="center">
-<TextView android:id="@+id/widget_label_dhuhr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="الظهر" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" android:gravity="center"/>
-<TextView android:id="@+id/widget_time_dhuhr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textSize="11sp" android:textColor="#FFFFFF" android:maxLines="1" android:ellipsize="end" android:gravity="center" android:textStyle="bold"/>
-</LinearLayout>
-<LinearLayout android:id="@+id/col_asr" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:padding="2dp" android:gravity="center">
-<TextView android:id="@+id/widget_label_asr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="العصر" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" android:gravity="center"/>
-<TextView android:id="@+id/widget_time_asr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textSize="11sp" android:textColor="#FFFFFF" android:maxLines="1" android:ellipsize="end" android:gravity="center" android:textStyle="bold"/>
-</LinearLayout>
-<LinearLayout android:id="@+id/col_maghrib" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:padding="2dp" android:gravity="center">
-<TextView android:id="@+id/widget_label_maghrib" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="المغرب" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" android:gravity="center"/>
-<TextView android:id="@+id/widget_time_maghrib" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textSize="11sp" android:textColor="#FFFFFF" android:maxLines="1" android:ellipsize="end" android:gravity="center" android:textStyle="bold"/>
-</LinearLayout>
-<LinearLayout android:id="@+id/col_isha" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:padding="2dp" android:gravity="center">
-<TextView android:id="@+id/widget_label_isha" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="العشاء" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" android:gravity="center"/>
-<TextView android:id="@+id/widget_time_isha" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="--:--" android:textSize="11sp" android:textColor="#FFFFFF" android:maxLines="1" android:ellipsize="end" android:gravity="center" android:textStyle="bold"/>
-</LinearLayout>
-</LinearLayout>
-<TextView android:id="@+id/widget_txt_dhikr" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ" android:textSize="11sp" android:textColor="#B5C8CB" android:maxLines="1" android:ellipsize="end" android:gravity="center" android:paddingTop="8dp"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layoutDirection="rtl"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/widget_background_standard">
+
+    <!-- شريط العنوان والمدينة والتاريخين -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_city"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="المدينة"
+                android:textSize="14sp"
+                android:textColor="#E6CA65"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/widget_txt_hijri_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="التاريخ الهجري"
+                    android:textSize="10sp"
+                    android:textColor="#95B5A8"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/widget_txt_gregorian_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="التاريخ الميلادي"
+                    android:textSize="10sp"
+                    android:textColor="#75988C"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/widget_btn_refresh"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:gravity="center"
+            android:text="↻"
+            android:textSize="20sp"
+            android:textColor="#E6CA65"
+            android:contentDescription="تحديث المواقيت" />
+    </LinearLayout>
+
+    <!-- بطاقة الصلاة القادمة المركزية -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@drawable/widget_surface_standard">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="الصلاة القادمة"
+                android:textSize="10sp"
+                android:textColor="#E6CA65" />
+
+            <TextView
+                android:id="@+id/widget_txt_next_prayer_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="مواقيت الصلاة"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end|center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_txt_next_prayer_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--"
+                android:textSize="26sp"
+                android:textColor="#FFD4AF37"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_txt_countdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="متبقي عليها"
+                android:textSize="10sp"
+                android:textColor="#95B5A8"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- شريط الصلوات الخمس -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/col_fajr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:gravity="center"
+            android:background="@drawable/widget_prayer_col_normal">
+
+            <TextView
+                android:id="@+id/widget_label_fajr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="الفجر"
+                android:textSize="10sp"
+                android:textColor="#8FAEA1" />
+
+            <TextView
+                android:id="@+id/widget_time_fajr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/col_dhuhr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:gravity="center"
+            android:background="@drawable/widget_prayer_col_normal">
+
+            <TextView
+                android:id="@+id/widget_label_dhuhr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="الظهر"
+                android:textSize="10sp"
+                android:textColor="#8FAEA1" />
+
+            <TextView
+                android:id="@+id/widget_time_dhuhr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/col_asr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:gravity="center"
+            android:background="@drawable/widget_prayer_col_normal">
+
+            <TextView
+                android:id="@+id/widget_label_asr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="العصر"
+                android:textSize="10sp"
+                android:textColor="#8FAEA1" />
+
+            <TextView
+                android:id="@+id/widget_time_asr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/col_maghrib"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:gravity="center"
+            android:background="@drawable/widget_prayer_col_normal">
+
+            <TextView
+                android:id="@+id/widget_label_maghrib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="المغرب"
+                android:textSize="10sp"
+                android:textColor="#8FAEA1" />
+
+            <TextView
+                android:id="@+id/widget_time_maghrib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/col_isha"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:orientation="vertical"
+            android:padding="3dp"
+            android:gravity="center"
+            android:background="@drawable/widget_prayer_col_normal">
+
+            <TextView
+                android:id="@+id/widget_label_isha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="العشاء"
+                android:textSize="10sp"
+                android:textColor="#8FAEA1" />
+
+            <TextView
+                android:id="@+id/widget_time_isha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/widget_txt_dhikr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ"
+        android:textSize="9.5sp"
+        android:textColor="#8FAEA1"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end" />
 </LinearLayout>
