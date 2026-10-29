@@ -89,7 +89,7 @@ const OneSignalService = {
         if(!panel){
             panel=document.createElement('div');panel.id='zad-admin-push-status';panel.className='settings-delivery-status';
             panel.innerHTML='<strong>رسائل الإدارة خارج التطبيق</strong><p role="status"></p><label>معرّف الجهاز للتجربة<input readonly aria-label="معرّف الجهاز لتجربة إشعار الإدارة" style="width:100%;direction:ltr"></label><button type="button" class="btn outline">إعادة التحقق</button>';
-            document.getElementById('notifications-section')?.append(panel);
+            (document.getElementById('zad-help-section') || document.getElementById('notifications-section'))?.append(panel);
             panel.querySelector('button').onclick=()=>this.init();
         }
         panel.querySelector('p').textContent=message;panel.querySelector('input').value=id;

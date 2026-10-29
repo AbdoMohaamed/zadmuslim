@@ -513,28 +513,6 @@
                 تحكم كامل في أوقات الأذان، التنبيه المسبق، أذكار الصباح والمساء، وسنن الأسبوع مع خيارات الصوت والتخصيص:
             </p>
 
-            <!-- فحص حالة الإذن والتنبيهات السريعة -->
-            <div class="zad-feature-card" style="margin-bottom: 16px;">
-                <div class="zad-feature-card-header">
-                    <span class="zad-feature-card-title"><i class="fa-solid fa-shield-halved text-gold"></i> حالة التنبيهات والأذونات</span>
-                    <button type="button" class="btn outline" id="btn-request-notification-perm" style="font-size: 0.78rem; padding: 4px 12px;">
-                        <i class="fa-solid fa-key text-gold"></i> طلب إذن التنبيهات
-                    </button>
-                </div>
-                <div style="background: rgba(0, 0, 0, 0.14); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); margin: 8px 0 10px;">
-                    <p id="zad-notification-state" style="font-size: 0.82rem; margin: 0; color: var(--text-primary); line-height: 1.5;"></p>
-                </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" class="btn outline" id="zad-test-notification" style="font-size: 0.78rem; padding: 4px 12px;">
-                        <i class="fa-solid fa-flask text-gold"></i> تجربة إرسال تنبيه
-                    </button>
-                    <button type="button" class="btn outline" id="zad-refresh-notifications" style="font-size: 0.78rem; padding: 4px 12px;">
-                        <i class="fa-solid fa-arrows-rotate text-gold"></i> تحديث الحالة
-                    </button>
-                    <a id="settings-open-notifications" href="index.html?panel=notifications" hidden aria-hidden="true" style="display: none;"></a>
-                </div>
-            </div>
-
             <!-- أ. الصلوات والأذان -->
             <div style="font-size: 0.88rem; font-weight: 800; color: var(--gold-400); margin: 18px 0 8px; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-mosque"></i> <span>صوت الأذان والصلوات الخمس</span>
@@ -948,7 +926,55 @@
         </section>
 
         <!-- ==========================================
-        5. قسم الإبلاغ عن خطأ أو ملاحظة
+        5. قسم المساعدة والتشخيص الفني للتنبيهات
+        ========================================== -->
+        <section class="settings-section-card" id="zad-help-section">
+            <div class="settings-section-title">
+                <i class="fa-solid fa-circle-question text-gold"></i>
+                <span>المساعدة والتشخيص الفني</span>
+            </div>
+            <p class="settings-section-desc">
+                فحص أذونات الإشعارات، دقة الأذان والتنبيهات في الخلفية، واختبار عمل المنبهات على جهازك:
+            </p>
+
+            <!-- فحص حالة الإذن والتنبيهات السريعة وتفاصيل التشخيص -->
+            <div class="zad-feature-card" style="margin-bottom: 16px;">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-shield-halved text-gold"></i> حالة التنبيهات والأذونات ودقة الأذان</span>
+                    <button type="button" class="btn outline" id="btn-request-notification-perm" style="font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-key text-gold"></i> طلب إذن التنبيهات
+                    </button>
+                </div>
+                <div style="background: rgba(0, 0, 0, 0.14); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); margin: 8px 0 10px;">
+                    <p id="zad-notification-state" style="font-size: 0.82rem; margin: 0; color: var(--text-primary); line-height: 1.5;"></p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn outline" id="zad-test-notification" style="font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-flask text-gold"></i> تجربة إرسال تنبيه
+                    </button>
+                    <button type="button" class="btn outline" id="zad-refresh-notifications" style="font-size: 0.78rem; padding: 4px 12px;">
+                        <i class="fa-solid fa-arrows-rotate text-gold"></i> تحديث الحالة
+                    </button>
+                    <a id="settings-open-notifications" href="index.html?panel=notifications" hidden aria-hidden="true" style="display: none;"></a>
+                </div>
+            </div>
+
+            <!-- إرشادات وحلول مشكلات التنبيهات على هواتف أندرويد -->
+            <div class="zad-feature-card" style="margin-top: 14px; background: rgba(0,0,0,0.12);">
+                <div class="zad-feature-card-header">
+                    <span class="zad-feature-card-title"><i class="fa-solid fa-lightbulb text-gold"></i> إرشادات لضمان عمل الأذان بدون توقف</span>
+                </div>
+                <ul style="font-size: 0.82rem; line-height: 1.8; color: var(--text-muted); padding-right: 20px; margin: 8px 0 0;">
+                    <li><strong>أجهزة شاومي وريلمي وأوبو:</strong> يرجى تفعيل (التشغيل التلقائي Auto-start) وإلغاء قيود توفير شحن البطارية للتطبيق.</li>
+                    <li><strong>أجهزة سامسونج:</strong> تأكد من وضع التطبيق في قائمة (التطبيقات التي لا يتم إيقافها مطلقاً Never sleeping apps).</li>
+                    <li><strong>أجهزة آيفون (iOS):</strong> تأكد من تفعيل الإشعارات وتحديد أصوات التنبيهات من إعدادات النظام الرئيسية.</li>
+                    <li><strong>مستوى الصوت:</strong> تأكد من أن مستوى صوت الوسائط والتنبيهات في الهاتف ليس في وضع الصامت التام.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ==========================================
+        6. قسم الإبلاغ عن خطأ أو ملاحظة
         ========================================== -->
         <section class="settings-section-card" id="zad-report-section">
             <div class="settings-section-title">
