@@ -106,8 +106,12 @@ const ASSETS_TO_CACHE = [
   "./assets/images/prayers/pre_isha.jpg",
   "./assets/share-preview.jpg",
   "./manifest.json",
-  "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+  "./assets/css/fonts.css",
+  "./assets/css/all.min.css",
+  "./assets/webfonts/fa-solid-900.woff2",
+  "./assets/webfonts/fa-regular-400.woff2",
+  "./assets/webfonts/fa-brands-400.woff2",
+  "./assets/webfonts/fa-v4compatibility.woff2",
   "https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css",
   "https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
 ];

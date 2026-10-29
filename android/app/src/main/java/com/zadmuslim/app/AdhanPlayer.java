@@ -261,9 +261,16 @@ public class AdhanPlayer {
             return R.raw.adhan_fajr;
         }
         if (muazzin == null || muazzin.isEmpty()) muazzin = "qatami";
-        String name = "adhan_" + muazzin.toLowerCase();
-        int res = context.getResources().getIdentifier(name, "raw", context.getPackageName());
-        return res != 0 ? res : R.raw.adhan_qatami;
+        switch (muazzin.toLowerCase(java.util.Locale.US)) {
+            case "abdulbasit": return R.raw.adhan_abdulbasit;
+            case "refaat": return R.raw.adhan_refaat;
+            case "makkah": return R.raw.adhan_makkah;
+            case "madinah": return R.raw.adhan_madinah;
+            case "aqsa": return R.raw.adhan_aqsa;
+            case "qatami":
+            default:
+                return R.raw.adhan_qatami;
+        }
     }
 
     public static synchronized void playPrePrayerVoice(Context context, String prayerKey) {
@@ -321,9 +328,13 @@ public class AdhanPlayer {
 
     private static int getPrePrayerSoundResourceId(Context context, String prayerKey) {
         if (prayerKey != null && !prayerKey.trim().isEmpty()) {
-            String name = "pre_" + prayerKey.trim().toLowerCase();
-            int res = context.getResources().getIdentifier(name, "raw", context.getPackageName());
-            if (res != 0) return res;
+            switch (prayerKey.trim().toLowerCase(java.util.Locale.US)) {
+                case "fajr": return R.raw.pre_fajr;
+                case "dhuhr": return R.raw.pre_dhuhr;
+                case "asr": return R.raw.pre_asr;
+                case "maghrib": return R.raw.pre_maghrib;
+                case "isha": return R.raw.pre_isha;
+            }
         }
         return R.raw.pre_prayer;
     }

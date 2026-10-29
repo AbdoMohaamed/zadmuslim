@@ -1,6 +1,6 @@
 package com.zadmuslim.app;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewOutlineProvider;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -24,7 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class AdhanActivity extends Activity {
+public class AdhanActivity extends AppCompatActivity {
     public static final String ACTION_DISMISS_ADHAN_ACTIVITY = "com.zadmuslim.app.ACTION_DISMISS_ADHAN_ACTIVITY";
     public static final String EXTRA_PRAYER_NAME = "prayer_name";
     public static final String EXTRA_PRAYER_KEY = "prayer_key";
@@ -32,10 +33,34 @@ public class AdhanActivity extends Activity {
 
     private BroadcastReceiver dismissReceiver;
 
+    public static int getPrayerImageResId(String prayerKey) {
+        if (prayerKey == null || prayerKey.trim().isEmpty()) {
+            return R.drawable.pre_fajr;
+        }
+        String key = prayerKey.trim().toLowerCase(java.util.Locale.US);
+        switch (key) {
+            case "dhuhr": return R.drawable.pre_dhuhr;
+            case "asr": return R.drawable.pre_asr;
+            case "maghrib": return R.drawable.pre_maghrib;
+            case "isha": return R.drawable.pre_isha;
+            case "fajr": return R.drawable.pre_fajr;
+            default:
+                if (key.contains("ظهر") || key.contains("dhuhr")) return R.drawable.pre_dhuhr;
+                if (key.contains("عصر") || key.contains("asr")) return R.drawable.pre_asr;
+                if (key.contains("مغرب") || key.contains("maghrib")) return R.drawable.pre_maghrib;
+                if (key.contains("عشاء") || key.contains("isha")) return R.drawable.pre_isha;
+                if (key.contains("فجر") || key.contains("fajr")) return R.drawable.pre_fajr;
+                return R.drawable.pre_fajr;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         // إضاءة الشاشة والظهور فوق شاشة القفل عند الأذان
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -101,8 +126,8 @@ public class AdhanActivity extends Activity {
         LinearLayout contentLayout = new LinearLayout(this);
         contentLayout.setOrientation(LinearLayout.VERTICAL);
         contentLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-        int horizPadding = (int) (20 * density);
-        int vertPadding = (int) (18 * density);
+        int horizPadding = (int) (18 * density);
+        int vertPadding = (int) (16 * density);
         contentLayout.setPadding(horizPadding, vertPadding, horizPadding, vertPadding);
 
         // 1. آية قرآنية عليا راقية
@@ -112,7 +137,7 @@ public class AdhanActivity extends Activity {
         ayahView.setTextColor(0xFFA7D7C5);
         ayahView.setTypeface(Typeface.DEFAULT_BOLD);
         ayahView.setGravity(Gravity.CENTER);
-        ayahView.setPadding(0, 0, 0, (int) (8 * density));
+        ayahView.setPadding(0, 0, 0, (int) (6 * density));
         contentLayout.addView(ayahView);
 
         // 2. عنوان حان الآن موعد الصلاة
@@ -122,7 +147,7 @@ public class AdhanActivity extends Activity {
         titleView.setTextColor(0xFFD4AF37); // Gold
         titleView.setTypeface(Typeface.DEFAULT_BOLD);
         titleView.setGravity(Gravity.CENTER);
-        titleView.setPadding(0, 0, 0, (int) (6 * density));
+        titleView.setPadding(0, 0, 0, (int) (4 * density));
         contentLayout.addView(titleView);
 
         // 3. نص التكبير
@@ -131,17 +156,11 @@ public class AdhanActivity extends Activity {
         descView.setTextSize(14);
         descView.setTextColor(0xFFE2E8F0);
         descView.setGravity(Gravity.CENTER);
-        descView.setPadding(0, 0, 0, (int) (14 * density));
+        descView.setPadding(0, 0, 0, (int) (12 * density));
         contentLayout.addView(descView);
 
         // 4. عرض صورة الصلاة المخصصة المباركة
-        int imgResId = 0;
-        if (prayerKey != null && !prayerKey.isEmpty()) {
-            imgResId = getResources().getIdentifier("pre_" + prayerKey, "drawable", getPackageName());
-        }
-        if (imgResId == 0) {
-            imgResId = getResources().getIdentifier("pre_fajr", "drawable", getPackageName());
-        }
+        int imgResId = getPrayerImageResId(prayerKey != null ? prayerKey : prayerName);
 
         if (imgResId != 0 && showImages) {
             FrameLayout imageCard = new FrameLayout(this);
@@ -165,7 +184,7 @@ public class AdhanActivity extends Activity {
             iv.setImageResource(imgResId);
             iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            int targetHeight = (int) Math.min(screenHeightPx * 0.45f, 320 * density);
+            int targetHeight = (int) Math.min(screenHeightPx * 0.42f, 300 * density);
             if (targetHeight < (int) (180 * density)) {
                 targetHeight = (int) (180 * density);
             }

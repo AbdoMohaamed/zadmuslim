@@ -278,19 +278,10 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
         // إرفاق صورة الصلاة الخاصة بدخول الوقت للأذان
         boolean showImagesPref = true;
-        try { showImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch(Exception ignored) {}
-        if (showImagesPref && prayerKey != null && !prayerKey.isEmpty()) {
+        try { showImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", true); } catch(Exception ignored) {}
+        if (showImagesPref) {
             try {
-                String normKey = (prayerKey != null) ? prayerKey.trim().toLowerCase(java.util.Locale.US) : "";
-        if (normKey.isEmpty() && prayerName != null) {
-            if (prayerName.contains("فجر")) normKey = "fajr";
-            else if (prayerName.contains("ظهر")) normKey = "dhuhr";
-            else if (prayerName.contains("عصر")) normKey = "asr";
-            else if (prayerName.contains("مغرب")) normKey = "maghrib";
-            else if (prayerName.contains("عشاء")) normKey = "isha";
-        }
-        int resId = (!normKey.isEmpty()) ? context.getResources().getIdentifier("pre_" + normKey, "drawable", context.getPackageName()) : 0;
-                if (resId == 0) { resId = context.getResources().getIdentifier("pre_fajr", "drawable", context.getPackageName()); }
+                int resId = AdhanActivity.getPrayerImageResId(prayerKey != null ? prayerKey : prayerName);
                 if (resId != 0) {
                     android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeResource(context.getResources(), resId);
                     if (bitmap != null) {
@@ -369,10 +360,10 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
         // إرفاق صورة الصلاة لتنبيه اقتراب موعد الصلاة
         boolean showPreImagesPref = true;
-        try { showPreImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", false); } catch(Exception ignored) {}
-        if (showPreImagesPref && prayerKey != null && !prayerKey.isEmpty()) {
+        try { showPreImagesPref = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", true); } catch(Exception ignored) {}
+        if (showPreImagesPref) {
             try {
-                int resId = context.getResources().getIdentifier("pre_" + prayerKey, "drawable", context.getPackageName());
+                int resId = AdhanActivity.getPrayerImageResId(prayerKey != null ? prayerKey : prayerName);
                 if (resId != 0) {
                     android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeResource(context.getResources(), resId);
                     if (bitmap != null) {

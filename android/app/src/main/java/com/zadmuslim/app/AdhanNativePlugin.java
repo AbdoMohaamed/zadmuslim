@@ -116,7 +116,7 @@ public class AdhanNativePlugin extends Plugin {
                 .putInt("pre_alert_interval", preAlertInterval)
                 .putBoolean("pre_alert_enabled", preAlert)
                 .putBoolean("adhan_enabled", adhanEnabled);
-        boolean prayerImages = call.getBoolean("prayerImages", false);
+        boolean prayerImages = call.getBoolean("prayerImages", true);
         editor.putBoolean("show_prayer_images", prayerImages);
         if (hijriDate != null && !hijriDate.isEmpty()) {
             editor.putString("widget_hijri_date", hijriDate);
@@ -452,6 +452,7 @@ public class AdhanNativePlugin extends Plugin {
                             preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                             preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
                             preIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, preAlertInterval);
+                            preIntent.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES, true);
                             preIntent.putExtra("scheduled_time", preAlertMillis);
 
                             PendingIntent pendingPre = PendingIntent.getBroadcast(
@@ -471,6 +472,7 @@ public class AdhanNativePlugin extends Plugin {
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_NAME, prayerNames[i]);
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_PRAYER_KEY, prayerKeys[i]);
                         adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_MUAZZIN, muazzin);
+                        adhanIntent.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES, true);
                         adhanIntent.putExtra("scheduled_time", prayerMillis);
 
                         PendingIntent pendingAdhan = PendingIntent.getBroadcast(
