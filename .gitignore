@@ -411,3 +411,4 @@ Thumbs.db
 # Private Android signing keys
 *.jks
 *.keystore
+*.aap
