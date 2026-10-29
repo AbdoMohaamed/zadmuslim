@@ -245,7 +245,6 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         Intent fullScreenIntent = new Intent(context, AdhanActivity.class);
         fullScreenIntent.putExtra(AdhanActivity.EXTRA_PRAYER_NAME, prayerName);
         fullScreenIntent.putExtra(AdhanActivity.EXTRA_PRAYER_KEY, prayerKey);
-        fullScreenIntent.putExtra(AdhanActivity.EXTRA_SHOW_PRAYER_IMAGES, true);
         // AdhanActivity reads the saved image preference when no override is supplied.
         fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingFullScreen = PendingIntent.getActivity(

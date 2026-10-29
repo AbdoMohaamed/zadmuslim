@@ -1341,6 +1341,7 @@
             const modalPrayerPreview = document.getElementById('modal-prayer-image-preview');
             const btnClosePrayerPreview = document.getElementById('btn-close-prayer-preview');
             const btnMockStopAdhan = document.getElementById('btn-mock-stop-adhan');
+            const btnMockContinueAdhan = document.getElementById('btn-mock-continue-adhan');
             const previewImg = document.getElementById('prayer-preview-img');
             const previewTitle = document.getElementById('prayer-preview-title');
             const previewTabs = document.querySelectorAll('#prayer-preview-tabs button');
@@ -1376,6 +1377,12 @@
             }
             if (btnClosePrayerPreview && modalPrayerPreview) {
                 btnClosePrayerPreview.onclick = () => { modalPrayerPreview.style.display = 'none'; };
+            }
+            if (btnMockContinueAdhan && modalPrayerPreview) {
+                btnMockContinueAdhan.onclick = () => {
+                    modalPrayerPreview.style.display = "none";
+                    if (typeof showToast === "function") showToast("استكمال الأذان 🔊");
+                };
             }
             if (btnMockStopAdhan && modalPrayerPreview) {
                 btnMockStopAdhan.onclick = () => {
@@ -1415,7 +1422,10 @@
             <p style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح</p>
 
             <!-- زر إيقاف الأذان -->
-            <button type="button" id="btn-mock-stop-adhan" style="background: #b91c1c; border: 2px solid #d4af37; color: #fff; font-size: 1rem; font-weight: 800; padding: 12px 28px; border-radius: 30px; cursor: pointer; width: 100%; margin-bottom: 12px;">إيقاف الأذان ⏹</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                <button type="button" id="btn-mock-continue-adhan" style="background: #15803d; border: 2px solid #d4af37; color: #fff; font-size: 0.95rem; font-weight: 800; padding: 12px; border-radius: 30px; cursor: pointer; flex: 1;">استكمال ◀</button>
+                <button type="button" id="btn-mock-stop-adhan" style="background: #dc2626; border: 2px solid #d4af37; color: #fff; font-size: 0.95rem; font-weight: 800; padding: 12px; border-radius: 30px; cursor: pointer; flex: 1;">إيقاف ⏹</button>
+            </div>
             <div style="font-size: 0.78rem; color: #a0aec0;">هذه معاينة للصورة فقط؛ شكل شاشة الأذان الفعلية قد يختلف حسب الهاتف</div>
         </div>
     </div>
