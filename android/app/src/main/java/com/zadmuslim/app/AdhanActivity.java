@@ -32,7 +32,7 @@ public class AdhanActivity extends AppCompatActivity {
 
     private BroadcastReceiver dismissReceiver;
     private String prayerName = "الصلاة";
-    private String prayerKey = "fajr";
+    private String prayerKey = "";
 
     public static int getPrayerImageResId(String prayerKey) {
         if (prayerKey == null || prayerKey.trim().isEmpty()) {
@@ -121,7 +121,9 @@ public class AdhanActivity extends AppCompatActivity {
         // 1. صورة الصلاة المخصصة كخلفية كاملة للشاشة (Full-screen background image)
         int imgResId = getPrayerImageResId(prayerKey);
         ImageView bgImageView = new ImageView(this);
-        bgImageView.setImageResource(imgResId);
+        boolean showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", true);
+        rootLayout.setBackgroundColor(0xFF03231C);
+        if (showImages) bgImageView.setImageResource(imgResId);
         bgImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         rootLayout.addView(bgImageView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -132,7 +134,7 @@ public class AdhanActivity extends AppCompatActivity {
         View scrimView = new View(this);
         GradientDrawable scrim = new GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0xCC011612, 0x5503231C, 0xF201120D}
+                new int[]{0x00000000, 0x00000000, 0x66000000}
         );
         scrimView.setBackground(scrim);
         rootLayout.addView(scrimView, new FrameLayout.LayoutParams(
@@ -143,80 +145,11 @@ public class AdhanActivity extends AppCompatActivity {
         // 3. المحتوى فوق الخلفية
         LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setFitsSystemWindows(true);
-
-        // ScrollView للتوافق مع جميع أحجام الشاشات
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.setFillViewport(true);
-
-        LinearLayout contentLayout = new LinearLayout(this);
-        contentLayout.setOrientation(LinearLayout.VERTICAL);
-        contentLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-        int horizPadding = (int) (20 * density);
-        int vertPadding = (int) (24 * density);
-        contentLayout.setPadding(horizPadding, vertPadding, horizPadding, vertPadding);
-
-        // أ) وسم علوي أنيق
-        TextView badgeView = new TextView(this);
-        badgeView.setText("🕌 نِدَاءُ الصَّلَاةِ المبارك");
-        badgeView.setTextSize(13);
-        badgeView.setTextColor(0xFFD4AF37); // Gold
-        badgeView.setTypeface(Typeface.DEFAULT_BOLD);
-        badgeView.setGravity(Gravity.CENTER);
-        badgeView.setPadding((int) (18 * density), (int) (6 * density), (int) (18 * density), (int) (6 * density));
-        GradientDrawable badgeBg = new GradientDrawable();
-        badgeBg.setColor(0x55000000);
-        badgeBg.setCornerRadius(22 * density);
-        badgeBg.setStroke((int) (1.5f * density), 0x99D4AF37);
-        badgeView.setBackground(badgeBg);
-        contentLayout.addView(badgeView);
-
-        // مسافة
-        View spacer1 = new View(this);
-        contentLayout.addView(spacer1, new LinearLayout.LayoutParams(1, (int) (28 * density)));
-
-        // ب) عنوان حان الآن موعد الصلاة
-        TextView titleView = new TextView(this);
-        titleView.setText("حَانَ الآنَ مَوْعِدُ\n" + prayerName);
-        titleView.setTextSize(26);
-        titleView.setTextColor(0xFFFFFFFF);
-        titleView.setTypeface(Typeface.DEFAULT_BOLD);
-        titleView.setGravity(Gravity.CENTER);
-        titleView.setLineSpacing(0, 1.2f);
-        titleView.setShadowLayer(10 * density, 0, 3 * density, 0xFF000000);
-        contentLayout.addView(titleView);
-
-        // مسافة
-        View spacer2 = new View(this);
-        contentLayout.addView(spacer2, new LinearLayout.LayoutParams(1, (int) (14 * density)));
-
-        // ج) نص التكبير
-        TextView descView = new TextView(this);
-        descView.setText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح");
-        descView.setTextSize(15);
-        descView.setTextColor(0xFFE2E8F0);
-        descView.setGravity(Gravity.CENTER);
-        descView.setShadowLayer(8 * density, 0, 2 * density, 0xFF000000);
-        contentLayout.addView(descView);
-
-        // مسافة
-        View spacer3 = new View(this);
-        contentLayout.addView(spacer3, new LinearLayout.LayoutParams(1, (int) (14 * density)));
-
-        // د) آية قرآنية كريمة
-        TextView ayahView = new TextView(this);
-        ayahView.setText("« إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا »");
-        ayahView.setTextSize(13);
-        ayahView.setTextColor(0xFFA7D7C5);
-        ayahView.setTypeface(Typeface.DEFAULT_BOLD);
-        ayahView.setGravity(Gravity.CENTER);
-        ayahView.setShadowLayer(6 * density, 0, 2 * density, 0xFF000000);
-        contentLayout.addView(ayahView);
-
-        scrollView.addView(contentLayout, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-        ));
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (view, insets) -> {
+            androidx.core.graphics.Insets safe = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars() | androidx.core.view.WindowInsetsCompat.Type.displayCutout());
+            view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+            return insets;
+        });
 
         // 4. حاوية الزرين (إيقاف باللون الأحمر + استكمال باللون الأخضر)
         LinearLayout buttonsLayout = new LinearLayout(this);
@@ -225,7 +158,7 @@ public class AdhanActivity extends AppCompatActivity {
 
         // أ) زر الاستكمال (أخضر فخم)
         Button continueBtn = new Button(this);
-        continueBtn.setText("استكمال ◀");
+        continueBtn.setText("استمرار الأذان");
         continueBtn.setTextSize(16);
         continueBtn.setTextColor(Color.WHITE);
         continueBtn.setTypeface(Typeface.DEFAULT_BOLD);
@@ -247,7 +180,7 @@ public class AdhanActivity extends AppCompatActivity {
 
         // ب) زر الإيقاف (أحمر أنيق)
         Button stopBtn = new Button(this);
-        stopBtn.setText("إيقاف ⏹");
+        stopBtn.setText("إيقاف الأذان");
         stopBtn.setTextSize(16);
         stopBtn.setTextColor(Color.WHITE);
         stopBtn.setTypeface(Typeface.DEFAULT_BOLD);
@@ -273,21 +206,13 @@ public class AdhanActivity extends AppCompatActivity {
         );
         btnContainerParams.setMargins((int) (8 * density), (int) (8 * density), (int) (8 * density), (int) (8 * density));
 
-        // 5. تلميح أزرار الصوت
-        TextView hintView = new TextView(this);
-        hintView.setText("🔕 يمكنك أيضاً إيقاف الأذان بالضغط على أزرار الصوت");
-        hintView.setTextSize(12);
-        hintView.setTextColor(0xFFA0AEC0);
-        hintView.setGravity(Gravity.CENTER);
-        hintView.setPadding(0, 0, 0, (int) (16 * density));
-
         // بناء كامل الشاشة
-        mainLayout.addView(scrollView, new LinearLayout.LayoutParams(
+        mainLayout.addView(new View(this), new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         mainLayout.addView(buttonsLayout, btnContainerParams);
-        mainLayout.addView(hintView);
 
-        rootLayout.addView(mainLayout);
+
+        rootLayout.addView(mainLayout, new FrameLayout.LayoutParams(-1, -1));
 
         setContentView(rootLayout);
 
@@ -311,9 +236,6 @@ public class AdhanActivity extends AppCompatActivity {
      * يترك الأذان يعمل بالخلفية ويغلق الشاشة المنبثقة فوق القفل ليعود المستخدم لهاتفه
      */
     private void continueAdhanAndFinish() {
-        if (!AdhanPlayer.isPlaying()) {
-            AdhanPlayer.play(this, prayerName, prayerKey, null);
-        }
         finish();
     }
 

@@ -463,28 +463,33 @@
 <script defer src="assets/js/brand-intro.js?v=1"></script>
 </head>
 <body data-settings-page="true">
-    <div class="settings-page-wrapper">
-        <!-- شريط الترويسة العلوي المتناسق والمتجاوب -->
-        <header class="settings-header-bar">
-            <a href="index.html" class="settings-back-btn" id="btn-settings-back" title="العودة للصفحة الرئيسية">
-                <i class="fa-solid fa-arrow-right"></i>
-                <span>الرئيسية</span>
+    <!-- شريط التنقل العلوي المتطابق مع الرئيسية -->
+    <header class="top">
+        <div class="shell container nav">
+            <a class="logo" href="index.html#home">
+                <span class="logo-icon"><img src="assets/icon-512.png?v=2" alt="زاد المسلم" /></span>
+                <span>زاد المسلم</span>
             </a>
-            <div class="settings-header-title-box">
-                <h1 class="settings-header-title">
-                    <i class="fa-solid fa-sliders text-gold"></i>
-                    <span>الإعدادات والتخصيص</span>
-                </h1>
-            </div>
+            <nav class="links">
+                <a href="index.html#home">الرئيسية</a>
+                <a href="index.html#daily">يومي مع الله</a>
+                <a href="services.html">الخدمات</a>
+            </nav>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <a href="services.html" class="settings-theme-btn" id="btn-settings-services" title="تصفح جميع الخدمات والعبادات" aria-label="الخدمات والعبادات" style="text-decoration: none; display: grid; place-items: center;">
-                    <i class="fa-solid fa-shapes text-gold" style="font-size: 0.95rem;"></i>
+                <a class="btn outline" id="btn-settings-services" href="services.html" title="تصفح جميع الخدمات والعبادات" aria-label="الخدمات والعبادات" style="padding: 16px; font-size: 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-layer-group text-gold"></i>
                 </a>
-                <button class="settings-theme-btn btn-theme-toggle" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر">
-                    <i class="fa-solid fa-moon"></i>
+                <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر" style="padding: 16px; font-size: 20px;">
+                    <i class="fa-solid fa-moon" id="theme-toggle-icon"></i>
                 </button>
+                <a class="btn solid" id="btn-settings-back" href="index.html" title="العودة للصفحة الرئيسية" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>الرئيسية</span>
+                </a>
             </div>
-        </header>
+        </div>
+    </header>
+    <div class="settings-page-wrapper">
 
         <!-- شريط التنقل السريع بين أقسام الإعدادات -->
         <nav class="settings-nav-strip" aria-label="أقسام الإعدادات">
@@ -632,6 +637,7 @@
                         <span class="toggle-switch-title">🖼️ عرض صورة الصلاة مع الأذان والإشعارات</span>
                         <span class="toggle-switch-desc">إظهار الصورة المخصصة لكل صلاة على شاشة الأذان وبطاقات المواقيت والإشعارات</span>
                         <div style="margin-top: 8px;">
+                            <label for="prayer-preview-choice">صلاة المعاينة</label><select id="prayer-preview-choice" aria-label="صلاة المعاينة"><option value="fajr">الفجر</option><option value="dhuhr">الظهر</option><option value="asr">العصر</option><option value="maghrib">المغرب</option><option value="isha">العشاء</option></select>
                             <button type="button" class="btn outline" id="btn-preview-prayer-image" style="font-size: 0.78rem; padding: 4px 10px;">
                                 <i class="fa-solid fa-eye text-gold"></i> معاينة وتجربة شاشة الأذان بالصورة
                             </button>
@@ -980,7 +986,7 @@
                 </p>
                 <div class="settings-footer-links">
                     <a href="index.html"><i class="fa-solid fa-house text-gold"></i> الرئيسية</a>
-                    <a href="services.html"><i class="fa-solid fa-shapes text-gold"></i> جميع الخدمات والعبادات</a>
+                    <a href="services.html"><i class="fa-solid fa-layer-group text-gold"></i> جميع الخدمات والعبادات</a>
                     <a href="privacy.html"><i class="fa-solid fa-shield-halved text-gold"></i> سياسة الخصوصية</a>
                 </div>
                 <p class="settings-footer-copy">
@@ -1357,7 +1363,7 @@
             function setPrayerPreview(key) {
                 const p = prayerData[key] || prayerData.fajr;
                 if (previewImg) previewImg.src = p.img;
-                if (previewTitle) previewTitle.textContent = `حَانَ الآنَ مَوْعِدُ ${p.name}`;
+                if (previewTitle) previewTitle.textContent = `حَانَ الآنَ مَوْعِدُ\n${p.name}`;
                 previewTabs.forEach(b => {
                     if (b.dataset.prayer === key) {
                         b.classList.add('gold');
@@ -1372,7 +1378,7 @@
             if (btnPreviewPrayerImg && modalPrayerPreview) {
                 btnPreviewPrayerImg.onclick = () => {
                     modalPrayerPreview.style.display = 'flex';
-                    setPrayerPreview('fajr');
+                    setPrayerPreview(document.getElementById('prayer-preview-choice')?.value || 'fajr');
                 };
             }
             if (btnClosePrayerPreview && modalPrayerPreview) {
@@ -1381,7 +1387,7 @@
             if (btnMockContinueAdhan && modalPrayerPreview) {
                 btnMockContinueAdhan.onclick = () => {
                     modalPrayerPreview.style.display = "none";
-                    if (typeof showToast === "function") showToast("استكمال الأذان 🔊");
+                    if (typeof showToast === "function") showToast("تم إغلاق المعاينة؛ أثناء الأذان الفعلي يستمر الصوت في الخلفية");
                 };
             }
             if (btnMockStopAdhan && modalPrayerPreview) {
@@ -1397,37 +1403,33 @@
         })();
     </script>
 
-    <!-- نافذة محاكاة وتجربة شاشة الأذان بالصورة -->
-    <div id="modal-prayer-image-preview" class="settings-modal-overlay" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px;" onclick="if(event.target===this)this.style.display='none'">
-        <div style="background: linear-gradient(180deg, #042b23 0%, #064034 50%, #021b16 100%); border: 1px solid rgba(212,175,55,0.4); border-radius: 24px; max-width: 440px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; text-align: center; color: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative;">
-            <button type="button" id="btn-close-prayer-preview" style="position: absolute; top: 14px; left: 14px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 1.2rem; width: 34px; height: 34px; border-radius: 50%; cursor: pointer;">✕</button>
-            <div style="font-size: 0.85rem; color: #d4af37; font-weight: 700; margin-bottom: 12px;">تجربة ومحاكاة شاشة الأذان</div>
-            
-            <!-- أزرار اختيار الصلاة -->
-            <div id="prayer-preview-tabs" style="display: flex; gap: 6px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap;">
-                <button type="button" class="btn gold" data-prayer="fajr" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;">الفجر</button>
-                <button type="button" class="btn outline" data-prayer="dhuhr" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;">الظهر</button>
-                <button type="button" class="btn outline" data-prayer="asr" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;">العصر</button>
-                <button type="button" class="btn outline" data-prayer="maghrib" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;">المغرب</button>
-                <button type="button" class="btn outline" data-prayer="isha" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;">العشاء</button>
-            </div>
-
-            <!-- صورة الصلاة -->
-            <div style="width: 100%; height: 220px; border-radius: 24px; overflow: hidden; margin-bottom: 18px; border: 2px solid rgba(212,175,55,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
-                <img id="prayer-preview-img" src="assets/images/prayers/pre_fajr.jpg" alt="صورة الصلاة" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-
-            <!-- نصوص الأذان -->
-            <h2 id="prayer-preview-title" style="color: #d4af37; font-size: 1.4rem; font-weight: 900; margin-bottom: 8px;">حَانَ الآنَ مَوْعِدُ صَلَاةِ الْفَجْرِ</h2>
-            <p style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح</p>
-
-            <!-- زر إيقاف الأذان -->
-            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                <button type="button" id="btn-mock-continue-adhan" style="background: #15803d; border: 2px solid #d4af37; color: #fff; font-size: 0.95rem; font-weight: 800; padding: 12px; border-radius: 30px; cursor: pointer; flex: 1;">استكمال ◀</button>
-                <button type="button" id="btn-mock-stop-adhan" style="background: #dc2626; border: 2px solid #d4af37; color: #fff; font-size: 0.95rem; font-weight: 800; padding: 12px; border-radius: 30px; cursor: pointer; flex: 1;">إيقاف ⏹</button>
-            </div>
-            <div style="font-size: 0.78rem; color: #a0aec0;">هذه معاينة للصورة فقط؛ شكل شاشة الأذان الفعلية قد يختلف حسب الهاتف</div>
-        </div>
+    <style>
+#modal-prayer-image-preview{position:fixed;inset:0;z-index:99999;background:#03231c;color:#fff;direction:rtl;isolation:isolate;overflow:hidden}
+#prayer-preview-img,.adhan-preview-shade{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.adhan-preview-shade{z-index:-1;background:linear-gradient(transparent,transparent,#0006)}
+.adhan-preview-body{display:flex;flex-direction:column;width:100%;height:100%;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);box-sizing:border-box;text-align:center}
+.adhan-preview-tools{display:none;align-items:center;gap:8px;padding:8px 16px;background:#0005}
+#btn-close-prayer-preview{width:44px;height:44px;flex-shrink:0;border:0;border-radius:50%;background:#ffffff20;color:white;font-size:22px}
+#prayer-preview-tabs{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;flex:1}
+#prayer-preview-tabs button{min-height:36px;padding:4px 8px;font-size:12px}
+.adhan-preview-content{flex:1;min-height:0;overflow:auto;padding:24px 20px;text-shadow:0 3px 10px #000}
+.adhan-preview-badge{display:inline-block;border:1.5px solid #d4af3799;border-radius:22px;background:#0005;color:#d4af37;font-size:13px;padding:6px 18px}
+#prayer-preview-title{white-space:pre-line;color:white;font-size:26px;line-height:1.2;margin:28px 0 14px;font-weight:bold}
+.adhan-preview-content p{font-size:15px;color:#e2e8f0;margin:0 0 14px}
+.adhan-preview-ayah{font-size:13px;color:#a7d7c5}
+.adhan-preview-actions{display:flex;direction:ltr;gap:16px;padding:8px 22px}
+.adhan-preview-actions button{flex:1;min-width:0;min-height:52px;border:2px solid #d4af37;border-radius:26px;color:white;font-size:16px;font-weight:bold;padding:8px}
+.adhan-preview-hint{font-size:12px;color:#a0aec0;padding:0 16px 16px}
+    </style>
+    <div id="modal-prayer-image-preview" role="dialog" aria-modal="true" aria-label="معاينة شاشة الأذان" style="display:none">
+      <img id="prayer-preview-img" src="assets/images/prayers/pre_fajr.jpg" alt="">
+      <div class="adhan-preview-shade"></div>
+      <div class="adhan-preview-body">
+        <div class="adhan-preview-tools"><button id="btn-close-prayer-preview" type="button" aria-label="إغلاق المعاينة">×</button><div id="prayer-preview-tabs">
+<button type="button" class="btn outline" data-prayer="fajr">الفجر</button><button type="button" class="btn outline" data-prayer="dhuhr">الظهر</button><button type="button" class="btn outline" data-prayer="asr">العصر</button><button type="button" class="btn outline" data-prayer="maghrib">المغرب</button><button type="button" class="btn outline" data-prayer="isha">العشاء</button>
+        </div></div>
+        <div class="adhan-preview-content" aria-hidden="true"></div>
+        <div class="adhan-preview-actions"><button type="button" id="btn-mock-continue-adhan" style="background:#15803d">استمرار الأذان</button><button type="button" id="btn-mock-stop-adhan" style="background:#dc2626">إيقاف الأذان</button></div>
+      </div>
     </div>
-</body>
-</html>
+</body></html>
