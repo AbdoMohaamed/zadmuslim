@@ -1,49 +1,271 @@
-.settings-section-card > details > summary { 
-  cursor: pointer; 
-  padding: 6px 0; 
+/* ========================================================
+   assets/css/settings-review.css
+   التصميم العصري الشامل لصفحة الإعدادات والتخصيص في زاد المسلم
+   متجاوب بالكامل مع iPhone, Android, Tablet, Desktop
+======================================================== */
+
+:root {
+  --settings-accent-gold: #d4af37;
+  --settings-accent-gold-light: #f59e0b;
+  --settings-accent-emerald: #10b981;
+  --settings-bg-card: rgba(15, 42, 34, 0.92);
+  --settings-border-subtle: rgba(212, 175, 55, 0.2);
+}
+
+[data-theme="light"] {
+  --settings-bg-card: rgba(255, 255, 255, 0.96);
+  --settings-border-subtle: rgba(140, 110, 35, 0.22);
+}
+
+/* بطاقة القسم القابلة للفتح والطي (Details / Summary Accordion) */
+.settings-section-card {
+  background: var(--bg-card, #132f25);
+  border: 1px solid var(--border-color, rgba(212, 175, 55, 0.22));
+  border-radius: 20px;
+  padding: 0;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+  overflow: hidden;
+  scroll-margin-top: 24px;
+}
+
+.settings-section-card:hover {
+  border-color: rgba(212, 175, 55, 0.45);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+}
+
+.settings-section-card.highlighted-section {
+  animation: settingsHighlightGlow 2.2s ease-out;
+  border-color: var(--settings-accent-gold);
+}
+
+@keyframes settingsHighlightGlow {
+  0% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
+  100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); }
+}
+
+/* رأس بطاقة القسم (Summary) */
+.settings-section-card > details > summary {
+  cursor: pointer;
+  padding: 18px 20px;
   list-style: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
   user-select: none;
-  transition: color 0.2s ease;
+  background: rgba(0, 0, 0, 0.08);
+  transition: background 0.2s ease;
+  min-height: 64px;
 }
-.settings-section-card > details > summary::-webkit-details-marker { display: none; }
-.settings-section-card > details > summary .settings-section-title { 
-  display: inline-flex; 
-  margin: 0; 
-  max-width: calc(100% - 32px); 
-  vertical-align: middle; 
+
+[data-theme="light"] .settings-section-card > details > summary {
+  background: rgba(0, 0, 0, 0.02);
 }
+
+.settings-section-card > details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-section-card > details > summary:hover {
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.settings-section-card > details > summary:focus-visible {
+  outline: 2px solid var(--settings-accent-gold);
+  outline-offset: -2px;
+}
+
+.settings-section-card > details > summary .settings-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--gold-400, #d4af37);
+  flex: 1;
+  min-width: 0;
+}
+
+/* أيقونة فتح وطي القسم */
 .settings-section-card > details > summary::after {
   content: '\f078';
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--gold-400, #d4af37);
-  transition: transform 0.25s ease;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: transform 0.28s ease, background 0.2s ease;
   margin-inline-start: 12px;
 }
-.settings-section-card > details[open] > summary { 
-  margin-bottom: 16px; 
-  border-bottom: 1px dashed rgba(212, 175, 55, 0.2);
-  padding-bottom: 10px;
+
+.settings-section-card > details[open] > summary {
+  background: rgba(212, 175, 55, 0.06);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
 }
+
 .settings-section-card > details[open] > summary::after {
   transform: rotate(180deg);
+  background: rgba(212, 175, 55, 0.22);
 }
-.settings-section-card > details > summary:focus-visible { outline: 2px solid var(--gold-400, #d4af37); outline-offset: 4px; }
-.settings-autosave-note,.settings-test-help { font-size: .85rem; line-height: 1.8; color: var(--text-muted); }
-.settings-delivery-status { padding: 12px; border: 1px solid var(--border-color, #665b35); border-radius: 12px; margin-block: 12px; line-height: 1.8; background: rgba(0,0,0,0.1); }
-.settings-status-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.settings-status-actions .btn { min-height: 44px; white-space: normal; }
-[hidden] { display: none !important; }
 
-/* Explicit RTL track avoids the unfilled native end cap at maximum volume. */
-#slider-adhan-volume { appearance: none; -webkit-appearance: none; direction: rtl; min-width: 0; height: 28px; margin: 0; background: transparent; cursor: pointer; --volume-fill: 100%; }
-#slider-adhan-volume::-webkit-slider-runnable-track { height: 10px; border: 0; border-radius: 999px; background: linear-gradient(to left, var(--gold-400, #d4af37) 0%, var(--gold-400, #d4af37) var(--volume-fill), var(--border-color, #536861) var(--volume-fill), var(--border-color, #536861) 100%); }
-#slider-adhan-volume::-moz-range-track { height: 10px; border: 0; border-radius: 999px; background: linear-gradient(to left, var(--gold-400, #d4af37) 0%, var(--gold-400, #d4af37) var(--volume-fill), var(--border-color, #536861) var(--volume-fill), var(--border-color, #536861) 100%); }
-#slider-adhan-volume::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; margin-top: -5px; border: 0; border-radius: 50%; background: var(--gold-400, #d4af37); }
-#slider-adhan-volume::-moz-range-thumb { width: 20px; height: 20px; border: 0; border-radius: 50%; background: var(--gold-400, #d4af37); }
-#slider-adhan-volume:focus-visible { outline: 2px solid var(--gold-400, #d4af37); outline-offset: 4px; border-radius: 999px; }
-#adhan-volume-label { direction: ltr; text-align: center; }
+/* محتوى بطاقة القسم عند الفتح */
+.settings-section-card > details > *:not(summary) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.settings-section-card > details > .settings-section-desc {
+  padding-top: 14px;
+  margin-bottom: 18px;
+}
+
+.settings-section-card > details > *:last-child {
+  padding-bottom: 22px;
+}
+
+/* الملاحظات والتنبيهات الفرعية */
+.settings-autosave-note {
+  font-size: 0.84rem;
+  color: var(--text-muted, #94b4a5);
+  line-height: 1.6;
+  margin: -6px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-test-help {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text-muted, #94b4a5);
+}
+
+/* لوحة حالة التوصيل والتشخيص الفني */
+.settings-delivery-status {
+  padding: 14px 16px;
+  border: 1px solid var(--border-color, rgba(212, 175, 55, 0.3));
+  border-radius: 14px;
+  margin-block: 14px;
+  line-height: 1.8;
+  background: rgba(0, 0, 0, 0.16);
+  font-size: 0.88rem;
+}
+
+[data-theme="light"] .settings-delivery-status {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.settings-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.settings-status-actions .btn {
+  min-height: 44px;
+  white-space: normal;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* شريط تحكم مستوى صوت الأذان في RTL */
+#slider-adhan-volume {
+  appearance: none;
+  -webkit-appearance: none;
+  direction: rtl;
+  min-width: 0;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  --volume-fill: 100%;
+}
+
+#slider-adhan-volume::-webkit-slider-runnable-track {
+  height: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to left, var(--gold-400, #d4af37) 0%, var(--gold-400, #d4af37) var(--volume-fill), var(--border-color, #385549) var(--volume-fill), var(--border-color, #385549) 100%);
+}
+
+#slider-adhan-volume::-moz-range-track {
+  height: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to left, var(--gold-400, #d4af37) 0%, var(--gold-400, #d4af37) var(--volume-fill), var(--border-color, #385549) var(--volume-fill), var(--border-color, #385549) 100%);
+}
+
+#slider-adhan-volume::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -6px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: var(--gold-400, #d4af37);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+#slider-adhan-volume::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: var(--gold-400, #d4af37);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+#slider-adhan-volume:focus-visible {
+  outline: 2px solid var(--gold-400, #d4af37);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+#adhan-volume-label {
+  direction: ltr;
+  text-align: center;
+  font-family: monospace;
+}
+
+/* تحسينات الاستجابة للشاشات الصغيرة */
+@media (max-width: 580px) {
+  .settings-section-card {
+    border-radius: 16px;
+    margin-bottom: 14px;
+  }
+  .settings-section-card > details > summary {
+    padding: 14px 16px;
+    min-height: 56px;
+  }
+  .settings-section-card > details > summary .settings-section-title {
+    font-size: 1rem;
+    gap: 8px;
+  }
+  .settings-section-card > details > *:not(summary) {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .settings-section-card > details > summary::after {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+}
