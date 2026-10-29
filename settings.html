@@ -703,12 +703,14 @@
                 min-height: 54px;
             }
             .setting-item-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
+                gap: 12px;
+            }
+            .setting-item-row:has(.custom-switch) {
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
             }
             .setting-item-control {
-                width: 100%;
                 justify-content: space-between;
             }
         }
@@ -751,14 +753,14 @@
                 <a href="index.html#daily">يومي مع الله</a>
                 <a href="services.html">الخدمات</a>
             </nav>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <a class="btn outline" id="btn-settings-services" href="services.html" title="تصفح جميع الخدمات والعبادات" aria-label="الخدمات والعبادات" style="padding: 16px; font-size: 20px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+            <div class="settings-header-actions" style="display: flex; align-items: center; gap: 8px;">
+                <a class="btn outline settings-action-btn" id="btn-settings-services" href="services.html" title="تصفح جميع الخدمات والعبادات" aria-label="الخدمات والعبادات" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                     <i class="fa-solid fa-layer-group text-gold"></i>
                 </a>
-                <button class="btn outline btn-theme-toggle" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر" style="padding: 16px; font-size: 20px;">
+                <button class="btn outline btn-theme-toggle settings-action-btn" id="btn-toggle-theme-settings" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر">
                     <i class="fa-solid fa-circle-half-stroke text-gold" id="theme-toggle-icon"></i>
                 </button>
-                <a class="btn solid" id="btn-settings-back" href="index.html" title="العودة للصفحة الرئيسية" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <a class="btn solid settings-back-btn" id="btn-settings-back" href="index.html" title="العودة للصفحة الرئيسية" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fa-solid fa-arrow-right"></i>
                     <span>الرئيسية</span>
                 </a>
@@ -865,8 +867,8 @@
                         <label for="select-adhan-muazzin" class="setting-item-title" style="margin: 0;">
                             <i class="fa-solid fa-microphone-lines text-gold"></i> صوت المؤذن المفضل:
                         </label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <select id="select-adhan-muazzin" style="min-width: 200px; padding: 6px 12px; border-radius: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; flex: 1; justify-content: flex-end;">
+                            <select id="select-adhan-muazzin" style="flex: 1; min-width: 160px; max-width: 100%; padding: 8px 12px; border-radius: 10px;">
                                 <option value="qatami" selected>الشيخ ناصر القطامي (الافتراضي)</option>
                                 <option value="abdulbasit">الشيخ عبد الباسط عبد الصمد</option>
                                 <option value="refaat">الشيخ محمد رفعت</option>
@@ -874,7 +876,7 @@
                                 <option value="madinah">أذان الحرم المدني الشريف</option>
                                 <option value="aqsa">أذان المسجد الأقصى المبارك</option>
                             </select>
-                            <button type="button" class="btn outline" id="btn-preview-adhan" style="padding: 8px 14px; font-size: 0.85rem; border-radius: 10px;" title="سماع صوت المؤذن">
+                            <button type="button" class="btn outline" id="btn-preview-adhan" style="padding: 8px 14px; font-size: 0.85rem; border-radius: 10px; min-height: 42px; display: inline-flex; align-items: center; gap: 6px;" title="سماع صوت المؤذن">
                                 <i class="fa-solid fa-volume-high text-gold"></i> <span id="btn-preview-adhan-text">سماع</span>
                             </button>
                         </div>

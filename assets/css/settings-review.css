@@ -1,38 +1,274 @@
 /* ========================================================
    assets/css/settings-review.css
-   التصميم العصري الشامل لصفحة الإعدادات والتخصيص في زاد المسلم
-   متجاوب بالكامل مع iPhone, Android, Tablet, Desktop
+   التصميم العصري الاحترافي لصفحة الإعدادات والتخصيص في زاد المسلم
+   مُحسّن ومُخصّص بالكامل لتجربة Native فاخرة على iPhone و Android
 ======================================================== */
 
 :root {
   --settings-accent-gold: #d4af37;
   --settings-accent-gold-light: #f59e0b;
+  --settings-accent-gold-glow: rgba(212, 175, 55, 0.28);
   --settings-accent-emerald: #10b981;
-  --settings-bg-card: rgba(15, 42, 34, 0.92);
+  --settings-accent-emerald-dark: #059669;
+  --settings-bg-card: rgba(15, 42, 34, 0.94);
+  --settings-bg-card-hover: rgba(20, 52, 42, 0.96);
   --settings-border-subtle: rgba(212, 175, 55, 0.2);
+  --settings-border-highlight: rgba(212, 175, 55, 0.45);
+  --settings-row-bg: rgba(0, 0, 0, 0.16);
+  --settings-row-border: rgba(212, 175, 55, 0.16);
+  --settings-text-muted: #9ab9ac;
+  --settings-radius-sm: 10px;
+  --settings-radius-md: 14px;
+  --settings-radius-lg: 20px;
+  --settings-radius-pill: 9999px;
+  --settings-shadow-ambient: 0 8px 24px rgba(0, 0, 0, 0.22);
+  --settings-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="light"] {
-  --settings-bg-card: rgba(255, 255, 255, 0.96);
+  --settings-bg-card: rgba(255, 255, 255, 0.97);
+  --settings-bg-card-hover: #ffffff;
   --settings-border-subtle: rgba(140, 110, 35, 0.22);
+  --settings-border-highlight: rgba(180, 140, 45, 0.5);
+  --settings-row-bg: rgba(0, 0, 0, 0.035);
+  --settings-row-border: rgba(140, 110, 35, 0.18);
+  --settings-text-muted: #527063;
+  --settings-shadow-ambient: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* بطاقة القسم القابلة للفتح والطي (Details / Summary Accordion) */
+/* ========================================================
+   1. شريط التنقل العلوي الاحترافي (Native Mobile App Bar)
+======================================================== */
+body[data-settings-page="true"] header.top {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(13, 31, 25, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--settings-border-subtle);
+  transition: var(--settings-transition);
+}
+
+[data-theme="light"] body[data-settings-page="true"] header.top {
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(140, 110, 35, 0.16);
+}
+
+body[data-settings-page="true"] header.top .shell.nav {
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+body[data-settings-page="true"] .settings-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* أزرار التحكم في الشريط العلوي */
+body[data-settings-page="true"] .settings-action-btn,
+body[data-settings-page="true"] #btn-settings-services,
+body[data-settings-page="true"] #btn-toggle-theme-settings {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0 !important;
+  font-size: 1.15rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--settings-radius-md) !important;
+  background: var(--settings-row-bg) !important;
+  border: 1px solid var(--settings-border-subtle) !important;
+  color: var(--settings-accent-gold) !important;
+  transition: var(--settings-transition) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body[data-settings-page="true"] .settings-action-btn:active,
+body[data-settings-page="true"] #btn-settings-services:active,
+body[data-settings-page="true"] #btn-toggle-theme-settings:active {
+  transform: scale(0.94);
+}
+
+body[data-settings-page="true"] .settings-back-btn,
+body[data-settings-page="true"] #btn-settings-back {
+  min-height: 42px;
+  padding: 8px 16px !important;
+  border-radius: var(--settings-radius-pill) !important;
+  font-size: 0.92rem !important;
+  font-weight: 800 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: linear-gradient(135deg, var(--settings-accent-gold), #b89326) !important;
+  color: #0d231b !important;
+  border: 1px solid var(--settings-accent-gold) !important;
+  box-shadow: 0 3px 12px rgba(212, 175, 55, 0.28) !important;
+  transition: var(--settings-transition) !important;
+  text-decoration: none !important;
+}
+
+body[data-settings-page="true"] #btn-settings-back:active {
+  transform: scale(0.96);
+}
+
+/* ========================================================
+   2. بطاقة النظرة العامة العلوية (Hero Overview Card)
+======================================================== */
+.settings-hero-card {
+  position: relative;
+  background: linear-gradient(145deg, rgba(212, 175, 55, 0.14) 0%, rgba(13, 33, 27, 0.96) 100%);
+  border: 1px solid var(--settings-border-subtle);
+  border-radius: var(--settings-radius-lg);
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  box-shadow: var(--settings-shadow-ambient);
+  overflow: hidden;
+  transition: var(--settings-transition);
+}
+
+[data-theme="light"] .settings-hero-card {
+  background: linear-gradient(145deg, rgba(212, 175, 55, 0.16) 0%, rgba(246, 244, 238, 0.98) 100%);
+  border-color: rgba(140, 110, 35, 0.24);
+}
+
+.settings-hero-card::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-city-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--settings-accent-gold);
+  background: rgba(0, 0, 0, 0.28);
+  padding: 8px 18px;
+  border-radius: var(--settings-radius-pill);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  transition: var(--settings-transition);
+}
+
+[data-theme="light"] .hero-city-badge {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(140, 110, 35, 0.35);
+}
+
+.hero-city-badge i {
+  font-size: 1.1rem;
+  animation: heroPinPulse 2.4s infinite ease-in-out;
+}
+
+@keyframes heroPinPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.85; }
+}
+
+.hero-hint-text {
+  margin: 8px 0 0;
+  font-size: 0.86rem;
+  color: var(--settings-text-muted);
+  line-height: 1.6;
+}
+
+/* ========================================================
+   3. شريط التنقل السريع بين الأقسام (Segmented Strip)
+======================================================== */
+.settings-nav-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 4px 14px;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.settings-nav-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.settings-nav-chip {
+  white-space: nowrap;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: var(--settings-bg-card);
+  border: 1px solid var(--settings-border-subtle);
+  border-radius: var(--settings-radius-pill);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary, #f3f8f4);
+  text-decoration: none;
+  transition: var(--settings-transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.settings-nav-chip i {
+  font-size: 0.95rem;
+  color: var(--settings-accent-gold);
+}
+
+.settings-nav-chip:hover {
+  border-color: var(--settings-border-highlight);
+  transform: translateY(-2px);
+}
+
+.settings-nav-chip.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(16, 185, 129, 0.16));
+  border-color: var(--settings-accent-gold);
+  color: var(--settings-accent-gold);
+  box-shadow: 0 4px 14px var(--settings-accent-gold-glow);
+  transform: translateY(-1px);
+}
+
+/* ========================================================
+   4. بطاقة القسم القابلة للفتح والطي (Details Accordion)
+======================================================== */
 .settings-section-card {
-  background: var(--bg-card, #132f25);
-  border: 1px solid var(--border-color, rgba(212, 175, 55, 0.22));
-  border-radius: 20px;
+  background: var(--settings-bg-card);
+  border: 1px solid var(--settings-border-subtle);
+  border-radius: var(--settings-radius-lg);
   padding: 0;
   margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transition: all 0.25s ease;
+  box-shadow: var(--settings-shadow-ambient);
+  transition: var(--settings-transition);
   overflow: hidden;
-  scroll-margin-top: 24px;
+  scroll-margin-top: 76px;
 }
 
 .settings-section-card:hover {
-  border-color: rgba(212, 175, 55, 0.45);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+  border-color: var(--settings-border-highlight);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.26);
 }
 
 .settings-section-card.highlighted-section {
@@ -41,22 +277,22 @@
 }
 
 @keyframes settingsHighlightGlow {
-  0% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
-  100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); }
+  0% { box-shadow: 0 0 32px rgba(212, 175, 55, 0.65); }
+  100% { box-shadow: var(--settings-shadow-ambient); }
 }
 
 /* رأس بطاقة القسم (Summary) */
 .settings-section-card > details > summary {
   cursor: pointer;
-  padding: 18px 20px;
+  padding: 18px 22px;
   list-style: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
   user-select: none;
   background: rgba(0, 0, 0, 0.08);
-  transition: background 0.2s ease;
-  min-height: 64px;
+  transition: background 0.22s ease;
+  min-height: 66px;
 }
 
 [data-theme="light"] .settings-section-card > details > summary {
@@ -81,115 +317,282 @@
   align-items: center;
   gap: 12px;
   margin: 0;
-  font-size: 1.12rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: var(--gold-400, #d4af37);
+  color: var(--settings-accent-gold);
   flex: 1;
   min-width: 0;
 }
 
-/* أيقونة فتح وطي القسم */
+/* أيقونة فتح وطي القسم (Smooth Chevron Indicator) */
 .settings-section-card > details > summary::after {
   content: '\f078';
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   font-size: 0.88rem;
-  color: var(--gold-400, #d4af37);
+  color: var(--settings-accent-gold);
   background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  width: 34px;
-  height: 34px;
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  transition: transform 0.28s ease, background 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.22s ease, border-color 0.22s ease;
   margin-inline-start: 12px;
 }
 
 .settings-section-card > details[open] > summary {
-  background: rgba(212, 175, 55, 0.06);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(212, 175, 55, 0.07);
+  border-bottom: 1px solid var(--settings-border-subtle);
 }
 
 .settings-section-card > details[open] > summary::after {
   transform: rotate(180deg);
-  background: rgba(212, 175, 55, 0.22);
+  background: rgba(212, 175, 55, 0.24);
+  border-color: var(--settings-accent-gold);
 }
 
 /* محتوى بطاقة القسم عند الفتح */
 .settings-section-card > details > *:not(summary) {
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 22px;
+  padding-right: 22px;
+  animation: settingsContentFade 0.28s ease-out;
+}
+
+@keyframes settingsContentFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .settings-section-card > details > .settings-section-desc {
-  padding-top: 14px;
+  padding-top: 16px;
   margin-bottom: 18px;
+  font-size: 0.9rem;
+  color: var(--settings-text-muted);
+  line-height: 1.65;
 }
 
 .settings-section-card > details > *:last-child {
-  padding-bottom: 22px;
+  padding-bottom: 24px;
 }
 
-/* الملاحظات والتنبيهات الفرعية */
-.settings-autosave-note {
-  font-size: 0.84rem;
-  color: var(--text-muted, #94b4a5);
-  line-height: 1.6;
-  margin: -6px 0 16px;
+/* فواصل المجموعات */
+.settings-group-header {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--settings-accent-gold);
+  margin: 20px 0 12px;
   display: flex;
   align-items: center;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.2);
+}
+
+/* ========================================================
+   5. صف الإعداد الفردي الحديث (Native Setting Item Row)
+======================================================== */
+.setting-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--settings-row-bg);
+  border: 1px solid var(--settings-row-border);
+  border-radius: var(--settings-radius-md);
+  margin-bottom: 11px;
+  transition: var(--settings-transition);
+}
+
+.setting-item-row:hover {
+  border-color: var(--settings-border-highlight);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .setting-item-row:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.setting-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting-item-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  line-height: 1.4;
 }
 
-.settings-test-help {
+.setting-item-desc {
   font-size: 0.82rem;
-  line-height: 1.7;
-  color: var(--text-muted, #94b4a5);
+  color: var(--settings-text-muted);
+  line-height: 1.5;
 }
 
-/* لوحة حالة التوصيل والتشخيص الفني */
-.settings-delivery-status {
-  padding: 14px 16px;
-  border: 1px solid var(--border-color, rgba(212, 175, 55, 0.3));
-  border-radius: 14px;
-  margin-block: 14px;
-  line-height: 1.8;
-  background: rgba(0, 0, 0, 0.16);
+.setting-item-control {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ========================================================
+   6. مفاتيح التبديل العصرية (Fluid Switch Toggle)
+======================================================== */
+.custom-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 30px;
+  flex-shrink: 0;
+  cursor: pointer;
+  margin: 0;
+}
+
+.custom-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-round {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1.5px solid var(--border-color, #486154);
+  border-radius: var(--settings-radius-pill);
+  transition: var(--settings-transition);
+}
+
+[data-theme="light"] .slider-round {
+  background: rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  right: 3px;
+  bottom: 2.5px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: var(--settings-transition);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+.custom-switch input:checked + .slider-round {
+  background: linear-gradient(135deg, var(--settings-accent-emerald), var(--settings-accent-emerald-dark));
+  border-color: var(--settings-accent-emerald);
+}
+
+.custom-switch input:checked + .slider-round:before {
+  transform: translateX(-20px);
+  background-color: #ffffff;
+}
+
+/* ========================================================
+   7. شرائح الصلوات الخمس التفاعلية (Prayer Segmented Grid)
+======================================================== */
+.prayer-chips-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.prayer-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 6px;
+  border-radius: var(--settings-radius-pill);
+  border: 1.5px solid var(--settings-row-border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--settings-text-muted);
   font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: var(--settings-transition);
+  min-height: 42px;
+  text-align: center;
 }
 
-[data-theme="light"] .settings-delivery-status {
+[data-theme="light"] .prayer-chip {
   background: rgba(0, 0, 0, 0.04);
 }
 
-.settings-status-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+.prayer-chip input {
+  display: none;
 }
 
-.settings-status-actions .btn {
-  min-height: 44px;
-  white-space: normal;
-  border-radius: 12px;
-  font-size: 0.82rem;
-  font-weight: 700;
+.prayer-chip:has(input:checked) {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.26), rgba(16, 185, 129, 0.2));
+  border-color: var(--settings-accent-gold);
+  color: var(--settings-accent-gold);
+  box-shadow: 0 3px 12px rgba(212, 175, 55, 0.22);
 }
 
-[hidden] {
-  display: none !important;
+.prayer-chip:active {
+  transform: scale(0.96);
 }
 
-/* شريط تحكم مستوى صوت الأذان في RTL */
+/* ========================================================
+   8. مدخلات النماذج والقوائم المنسدلة (Ergonomic Inputs)
+======================================================== */
+select, input[type="text"], input[type="time"], input[type="number"], textarea {
+  padding: 11px 16px;
+  border-radius: var(--settings-radius-md);
+  border: 1.5px solid var(--settings-border-subtle);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  width: 100%;
+  transition: var(--settings-transition);
+  min-height: 46px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] select,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="time"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] textarea {
+  background: rgba(0, 0, 0, 0.035);
+  color: #123326;
+  border-color: rgba(140, 110, 35, 0.25);
+}
+
+select:focus, input:focus, textarea:focus {
+  outline: 2px solid var(--settings-accent-gold);
+  outline-offset: -1px;
+  border-color: var(--settings-accent-gold);
+}
+
+/* ========================================================
+   9. شريط تحكم مستوى صوت الأذان (Volume Slider)
+======================================================== */
 #slider-adhan-volume {
   appearance: none;
   -webkit-appearance: none;
   direction: rtl;
   min-width: 0;
-  height: 28px;
+  height: 32px;
   margin: 0;
   background: transparent;
   cursor: pointer;
@@ -199,73 +602,303 @@
 #slider-adhan-volume::-webkit-slider-runnable-track {
   height: 10px;
   border: 0;
-  border-radius: 999px;
-  background: linear-gradient(to left, var(--gold-400, #d4af37) 0%, var(--gold-400, #d4af37) var(--volume-fill), var(--border-color, #385549) var(--volume-fill), var(--border-color, #385549) 100%);
+  border-radius: var(--settings-radius-pill);
+  background: linear-gradient(to left, var(--settings-accent-gold) 0%, var(--settings-accent-gold) var(--volume-fill), var(--border-color, #385549) var(--volume-fill), var(--border-color, #385549) 100%);
 }
 
 #slider-adhan-volume::-moz-range-track {
   height: 10px;
   border: 0;
-  border-radius: 999px;
-  background: linear-gradient(to left, var(--gold-400, #d4af37) 0%, var(--gold-400, #d4af37) var(--volume-fill), var(--border-color, #385549) var(--volume-fill), var(--border-color, #385549) 100%);
+  border-radius: var(--settings-radius-pill);
+  background: linear-gradient(to left, var(--settings-accent-gold) 0%, var(--settings-accent-gold) var(--volume-fill), var(--border-color, #385549) var(--volume-fill), var(--border-color, #385549) 100%);
 }
 
 #slider-adhan-volume::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  margin-top: -6px;
-  border: 2px solid #ffffff;
+  width: 24px;
+  height: 24px;
+  margin-top: -7px;
+  border: 2.5px solid #ffffff;
   border-radius: 50%;
-  background: var(--gold-400, #d4af37);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  background: var(--settings-accent-gold);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
   cursor: pointer;
+  transition: transform 0.15s ease;
 }
 
 #slider-adhan-volume::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border: 2px solid #ffffff;
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid #ffffff;
   border-radius: 50%;
-  background: var(--gold-400, #d4af37);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  background: var(--settings-accent-gold);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
   cursor: pointer;
 }
 
 #slider-adhan-volume:focus-visible {
-  outline: 2px solid var(--gold-400, #d4af37);
+  outline: 2px solid var(--settings-accent-gold);
   outline-offset: 4px;
-  border-radius: 999px;
+  border-radius: var(--settings-radius-pill);
 }
 
 #adhan-volume-label {
   direction: ltr;
   text-align: center;
   font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--settings-radius-pill);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--settings-border-subtle);
 }
 
-/* تحسينات الاستجابة للشاشات الصغيرة */
-@media (max-width: 580px) {
-  .settings-section-card {
-    border-radius: 16px;
-    margin-bottom: 14px;
+/* ========================================================
+   10. كروت اختصارات الصفحة الرئيسية (Shortcuts Grid)
+======================================================== */
+.settings-fav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.settings-fav-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--settings-row-bg);
+  border: 1.5px solid var(--settings-row-border);
+  border-radius: var(--settings-radius-md);
+  cursor: pointer;
+  user-select: none;
+  transition: var(--settings-transition);
+  text-align: right;
+  width: 100%;
+}
+
+.settings-fav-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--settings-border-highlight);
+}
+
+.settings-fav-card.active {
+  background: rgba(212, 175, 55, 0.14);
+  border-color: var(--settings-accent-gold);
+  box-shadow: 0 4px 16px var(--settings-accent-gold-glow);
+}
+
+.settings-fav-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.settings-fav-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-fav-name {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-fav-card.active .settings-fav-name {
+  color: var(--settings-accent-gold);
+}
+
+.settings-fav-desc {
+  font-size: 0.76rem;
+  color: var(--settings-text-muted);
+  line-height: 1.35;
+}
+
+.settings-fav-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(212, 175, 55, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: transparent;
+  flex-shrink: 0;
+  transition: var(--settings-transition);
+}
+
+.settings-fav-card.active .settings-fav-check {
+  background: var(--settings-accent-gold);
+  border-color: var(--settings-accent-gold);
+  color: #0c2018;
+  font-weight: 900;
+}
+
+/* ========================================================
+   11. لوحة حالة التوصيل والتشخيص الفني (Diagnostics Status)
+======================================================== */
+.settings-delivery-status {
+  padding: 16px 18px;
+  border: 1px solid var(--settings-border-subtle);
+  border-radius: var(--settings-radius-md);
+  margin-block: 16px;
+  line-height: 1.85;
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 0.9rem;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .settings-delivery-status {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.settings-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.settings-status-actions .btn {
+  min-height: 44px;
+  white-space: normal;
+  border-radius: var(--settings-radius-sm);
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 8px 16px;
+}
+
+.settings-autosave-note {
+  font-size: 0.86rem;
+  color: var(--settings-text-muted);
+  line-height: 1.6;
+  margin: -4px 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-test-help {
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: var(--settings-text-muted);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ========================================================
+   12. تحسينات التجاوب المخصصة للهواتف (iPhone & Android)
+======================================================== */
+@media (max-width: 768px) {
+  /* إخفاء روابط المتصفح العريضة في الشريط العلوي على الهاتف */
+  body[data-settings-page="true"] header.top .links {
+    display: none !important;
   }
-  .settings-section-card > details > summary {
-    padding: 14px 16px;
+
+  /* منع التكبير التلقائي في Safari iOS */
+  select, input[type="text"], input[type="time"], input[type="number"], textarea {
+    font-size: 16px !important;
+  }
+
+  /* ترتيب بطاقات الاختصارات في عمودين متناسقين */
+  .settings-fav-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .settings-fav-card {
+    padding: 12px 10px !important;
     min-height: 56px;
   }
-  .settings-section-card > details > summary .settings-section-title {
-    font-size: 1rem;
-    gap: 8px;
+
+  /* الصلوات الخمس في 5 أعمدة متساوية بعرض الشاشة */
+  .prayer-chips-container {
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 5px !important;
   }
+
+  .prayer-chip {
+    padding: 7px 4px !important;
+    font-size: 0.82rem !important;
+    min-height: 38px;
+  }
+}
+
+@media (max-width: 580px) {
+  .settings-page-wrapper {
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 12px calc(90px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .settings-hero-card {
+    padding: 14px 16px;
+    border-radius: var(--settings-radius-md);
+    margin-bottom: 14px;
+  }
+
+  .hero-city-badge {
+    padding: 6px 14px;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-section-card {
+    border-radius: var(--settings-radius-md);
+    margin-bottom: 14px;
+  }
+
+  .settings-section-card > details > summary {
+    padding: 14px 16px;
+    min-height: 58px;
+  }
+
+  .settings-section-card > details > summary .settings-section-title {
+    font-size: 1.05rem;
+    gap: 10px;
+  }
+
+  .settings-section-card > details > summary::after {
+    width: 32px;
+    height: 32px;
+    font-size: 0.82rem;
+  }
+
   .settings-section-card > details > *:not(summary) {
     padding-left: 14px;
     padding-right: 14px;
   }
-  .settings-section-card > details > summary::after {
-    width: 30px;
-    height: 30px;
-    font-size: 0.8rem;
+
+  .setting-item-row {
+    padding: 12px 14px;
+    border-radius: var(--settings-radius-sm);
+  }
+
+  .setting-item-title {
+    font-size: 0.92rem;
+  }
+
+  .setting-item-desc {
+    font-size: 0.78rem;
+  }
+
+  .settings-status-actions {
+    flex-direction: column;
+  }
+
+  .settings-status-actions .btn {
+    width: 100%;
   }
 }
