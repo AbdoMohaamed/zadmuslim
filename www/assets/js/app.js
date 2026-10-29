@@ -1867,16 +1867,11 @@ function initPrayerTimes() {
     }
 
     checkSpecialTimesNotice();
-    try {
-        const savedActive = localStorage.getItem("last_active_prayer_timings");
-        if (savedActive) {
-            const parsed = JSON.parse(savedActive);
-            if (['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].every(k => parsed[k])) {
-                window.prayerTimings = parsed;
-                document.dispatchEvent(new Event('zad:prayer-updated'));
-            }
-        }
-    } catch (_) {}
+    const savedHome = window.readHomePrayerTimings?.();
+    if (savedHome) {
+        window.prayerTimings = savedHome;
+        document.dispatchEvent(new Event('zad:prayer-updated'));
+    }
     fetchPrayerTimes(savedCity);
 
 
@@ -1978,8 +1973,8 @@ async function fetchPrayerTimes(cityKey) {
         try {
             prayerTimings = JSON.parse(cached);
             if (!validTimings(prayerTimings)) throw new Error("Invalid timings");
-            markVerified();
             window.prayerTimings = prayerTimings;
+            markVerified();
             renderPrayerTimesUI(prayerTimings);
             startPrayerCountdown();
             initFastingTracker();
@@ -1995,9 +1990,9 @@ async function fetchPrayerTimes(cityKey) {
         .then(result => {
             if (requestVersion !== prayerRequestVersion) return;
             if (result && result.code === 200 && validTimings(result.data?.timings)) {
-                markVerified();
                 prayerTimings = result.data.timings;
                 window.prayerTimings = prayerTimings;
+                markVerified();
                 localStorage.setItem(cacheKey, JSON.stringify(prayerTimings));
                 localStorage.setItem("last_active_prayer_timings", JSON.stringify(prayerTimings));
                 renderPrayerTimesUI(prayerTimings);

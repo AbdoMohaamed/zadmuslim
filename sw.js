@@ -4,12 +4,12 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v96";
+const CACHE_NAME = "zad-muslim-v101";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
-  "./assets/js/ask-zad.js?v=2",
+  "./assets/js/ask-zad.js?v=5",
   "./assets/js/ask-zad-knowledge.js?v=2",
-  "./assets/css/ask-zad.css?v=1",
+  "./assets/css/ask-zad.css?v=4",
   "./assets/js/services-personal.js?v=4",
   "./assets/css/services-personal.css?v=7",
   "./assets/js/brand-intro.js?v=1",
@@ -37,10 +37,11 @@ const ASSETS_TO_CACHE = [
   "./assets/js/media-data.js?v=2",
   "./assets/js/firebase-config.js",
   "./assets/js/native-adhan-service.js?v=12",
-  "./assets/js/onesignal-service.js?v=3",
-  "./assets/js/app.js?v=24",
+  "./assets/js/onesignal-service.js?v=4",
+  "./assets/js/app.js?v=25",
   "./assets/js/quran.js?v=27",
-  "./assets/js/extended-modules.js?v=37",
+  "./assets/js/extended-modules.js?v=38",
+  "./assets/js/home-prayer-display.js?v=1",
   "./assets/js/smart-khatma.js?v=3",
   "./assets/js/share-card-generator.js?v=1",
   "./assets/js/mood-compass.js?v=1",

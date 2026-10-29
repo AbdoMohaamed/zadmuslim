@@ -27,7 +27,23 @@ const OneSignalService = {
             // جلب App ID من التخزين المحلي أو من قاعدة بيانات فايربيز تلقائياً
             let appId = localStorage.getItem("zad_onesignal_app_id");
 
-            if (window.FIREBASE_CONFIG?.databaseURL && typeof fetch === 'function') {
+            // Prefer the same server configuration used to send mobile push.
+            let serverConfigured = false;
+            if (typeof fetch === 'function') {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 5000);
+                try {
+                    const base = typeof window.getPublicAppUrl === 'function' ? window.getPublicAppUrl('api/push-config') : 'https://zadmuslim-zeta.vercel.app/api/push-config';
+                    const response = await fetch(base, {signal:controller.signal,cache:'no-store'});
+                    const config = response.ok ? await response.json() : null;
+                    if (typeof config?.appId === 'string' && /^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(config.appId) && config.appId !== '00000000-0000-0000-0000-000000000000') {
+                        appId = config.appId; serverConfigured = true;
+                        localStorage.setItem('zad_onesignal_app_id', appId);
+                    }
+                } catch (_) {} finally { clearTimeout(timer); }
+            }
+
+            if (!serverConfigured && window.FIREBASE_CONFIG?.databaseURL && typeof fetch === 'function') {
                 const controller = new AbortController();
                 const timeout = setTimeout(() => controller.abort(), 8000);
                 try {

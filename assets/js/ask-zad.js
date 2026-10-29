@@ -11,6 +11,7 @@
     // حالة المحادثة
     let isInitialized = false;
     let isOpen = false;
+    let previousFocus = null;
     let generation = 0;
     const pendingReplies = new Set();
 
@@ -67,6 +68,110 @@
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/\n/g, '<br>');
+    }
+
+    const action = (label, href) => ({label, href});
+    const settingsAction = action('فتح إعدادات التنبيهات', 'settings.html#notifications-section');
+    const normalize = text => window.AskZadKnowledge?.normalizeArabic(text) || text.trim();
+    const reply = (answer, actions = []) => ({found:true,data:{answer,actions}});
+    const bounded = promise => new Promise(resolve => {
+        const timer = setTimeout(() => resolve(null), 3000);
+        Promise.resolve(promise).then(value => {clearTimeout(timer);resolve(value);}, () => {clearTimeout(timer);resolve(null);});
+    });
+
+    async function notificationReply() {
+        const plugins = window.Capacitor?.Plugins;
+        const platform = window.Capacitor?.getPlatform?.();
+        const lines = ['الأذان والتنبيه قبل الصلاة، والأذكار والصلاة على النبي، ورسائل الإدارة خدمات منفصلة.'];
+        if (platform === 'android') {
+            const [permission, schedule] = await Promise.all([
+                bounded(Promise.resolve().then(() => plugins?.AdhanNative?.checkAlarmPermissions())),
+                bounded(Promise.resolve().then(() => plugins?.AdhanNative?.getPrayerScheduleStatus()))
+            ]);
+            lines.push(permission ? 'إذن الإشعارات: ' + (permission.notificationsGranted ? 'مسموح.' : 'غير مفعّل؛ راجعه في الإعدادات.') : 'تعذّر قراءة إذن الإشعارات.');
+            if (permission?.exactAlarmsGranted === false) lines.push('إذن المنبّهات الدقيقة يحتاج تفعيلًا للأذان.');
+            if (permission?.fullScreenIntentGranted === false) lines.push('إذن شاشة الأذان الكاملة غير مفعّل.');
+            if (permission?.batteryOptimizationsIgnored === false) lines.push('راجع قيود البطارية إذا تأخر التنبيه.');
+            lines.push(schedule?.count > 0 && schedule.until > Date.now() ? 'مواعيد الأذان محفوظة حتى ' + new Date(schedule.until).toLocaleString('ar-EG') + '.' : 'لم أتمكن من تأكيد وجود مواعيد أذان قادمة.');
+        } else if (platform === 'ios') {
+            const [permission,pending] = await Promise.all([
+                bounded(Promise.resolve().then(() => plugins?.LocalNotifications?.checkPermissions())),
+                bounded(Promise.resolve().then(() => plugins?.LocalNotifications?.getPending()))
+            ]);
+            lines.push(permission ? 'إذن الإشعارات: ' + (permission.display === 'granted' ? 'مسموح.' : 'غير مفعّل.') : 'تعذّر قراءة الإذن.');
+            const count = pending?.notifications?.filter(n => n.id > 0 && n.id < 70000 && new Date(n.schedule?.at).getTime() > Date.now()).length;
+            lines.push(count ? 'يوجد ' + count + ' تنبيه صلاة قادم محفوظ في الهاتف.' : 'لم أتمكن من تأكيد جدولة الأذان.');
+            lines.push('آيفون يستخدم صوت إشعار قصير؛ تشغيل الأذان كاملًا في الخلفية ليس مضمونًا.');
+        } else lines.push('في المتصفح: إذن الإشعارات ' + (window.Notification?.permission === 'granted' ? 'مسموح' : 'غير مفعّل أو غير متاح') + '؛ إغلاق المتصفح لا يضمن تشغيل الأذان.');
+        const subscription = window.plugins?.OneSignal?.User?.pushSubscription;
+        if (subscription) {
+            const status = await bounded(Promise.all([subscription.getIdAsync(),subscription.getTokenAsync(),subscription.getOptedInAsync()]));
+            lines.push(status?.every(Boolean) ? 'رسائل الإدارة: الجهاز مسجّل للاستقبال.' : 'رسائل الإدارة: الاشتراك غير جاهز أو تعذّر التحقق منه.');
+        } else lines.push('رسائل الإدارة: لا يمكن تأكيد اشتراك الهاتف من هذه الجلسة.');
+        lines.push('حفظ الجدولة أو منح الإذن لا يؤكد وصول التنبيه. جرّب اختبار الخلفية من الإعدادات واقفل الشاشة. لم أغيّر أي إعداد.');
+        return reply(lines.join('\n'), [settingsAction]);
+    }
+
+    function prayerReply(query) {
+        const links = [action('عرض وتحديث المواقيت','services.html#prayer-times')];
+        let timings = null;
+        try {
+            const today = new Date().toLocaleDateString('en-CA');
+            const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
+            if (window.zadPrayerVerified && verified?.date === today && verified.city === localStorage.getItem('selected_prayer_city') && verified.method === (localStorage.getItem('zad_prayer_method') || '') && verified.school === (localStorage.getItem('zad_prayer_school') || '0')) timings = window.prayerTimings;
+            const saved = JSON.parse(localStorage.getItem('zad_home_prayer_snapshot') || 'null');
+            const signature = JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method') || '',localStorage.getItem('zad_prayer_school') || '0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]);
+            if (!timings && saved?.date === today && saved.signature === signature) timings = saved.timings;
+        } catch (_) {}
+        const prayers = [['الفجر','Fajr'],['الظهر','Dhuhr'],['العصر','Asr'],['المغرب','Maghrib'],['العشاء','Isha']];
+        if (!timings || !prayers.every(([,key]) => /^(?:[01]\d|2[0-3]):[0-5]\d/.test(timings[key] || ''))) return reply('محتاج مواقيت مؤكدة لليوم ومدينتك عشان أقول لك الوقت بدقة. افتح المواقيت وحدّثها.',links);
+        const now = new Date();
+        const list = prayers.map(([name,key]) => {const [h,m] = timings[key].split(' ')[0].split(':').map(Number);return {name,date:new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m)};});
+        const named = list.find(p => query.includes(normalize(p.name)));
+        const next = named || list.find(p => p.date > now);
+        if (!next) return reply('مواقيت اليوم انتهت. افتح المواقيت لتحديث موعد فجر الغد.',links);
+        const mins = Math.ceil((next.date-now)/60000);
+        const remaining = mins > 0 ? 'متبقي ' + Math.floor(mins/60) + ' ساعة و' + mins%60 + ' دقيقة.' : 'هذا موعد اليوم وقد دخل وقته؛ حدّث المواقيت لمعرفة الموعد القادم.';
+        return reply(next.name + ': ' + next.date.toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'}) + ' حسب المدينة المختارة.\n' + remaining,links);
+    }
+
+    async function contextualReply(raw) {
+        let query = normalize(raw), greeting = '';
+        const hello = /^(السلام عليكم(?: ورحمه الله(?: وبركاته)?)?|اهلا(?: وسهلا)?|مرحبا|هاي|صباح الخير|مساء الخير|ازيك|عامل ايه)(?:\s|$)/;
+        const match = query.match(hello);
+        if (match) { greeting = match[1].startsWith('السلام') ? 'وعليكم السلام ورحمة الله وبركاته 🌿' : match[1] === 'صباح الخير' ? 'صباح النور 🌿' : match[1] === 'مساء الخير' ? 'مساء النور 🌿' : 'أهلًا بيك 🌿';query = query.slice(match[0].length).replace(/^(يا (باشا|زاد|غالي)\s*)/, '').trim(); }
+        if (!query) return reply(greeting + ' أقدر أساعدك في إيه؟');
+        if (/^(شكرا|متشكر|تسلم|جزاك الله خيرا?|جزاكم الله خيرا?)( يا (باشا|غالي))?$/.test(query)) return reply('وإياك، أهلًا بيك دايمًا 🌿');
+        let result;
+        if (/(اشعار|اشعارات|تنبيه|تنبيهات|منبه|منبهات)/.test(query) && !/(الغ|ايقاف|اقفل|اطفي|تفعيل|تغيير)/.test(query)) result = await notificationReply();
+        else if (/(المؤذن|الموذن|مؤذن|موذن|صوت الاذان)/.test(query)) result = reply('تقدر تختار المؤذن وتسمع عينة من إعدادات الأذان. لم أغيّر اختيارك.',[settingsAction]);
+        else if (/(الغ|ايقاف|اطفي|اقفل|وقف|تفعيل|شغل)/.test(query) && /(اذان|اشعار|تنبيه)/.test(query)) result = reply('تقدر تعدّل اختيارك من إعدادات التنبيهات. لم أغيّر أي إعداد.',[settingsAction]);
+        else if (/(القادمه|فاضل|باقي|متبقي|الساعه كام|ميعاد|موعد|امتي)/.test(query) && /(صلاه|فجر|ظهر|عصر|مغرب|عشاء|اذان)/.test(query)) result = prayerReply(query);
+        else {
+            const routes = [
+                [/مصحف/,'المصحف','quran-khatma?tab=mushaf'],[/سبحه|تسبيح/,'السبحة','smart-dhikr-panel'],
+                [/اذكار الصباح/,'أذكار الصباح','azkar?tab=morning'],[/اذكار المساء/,'أذكار المساء','azkar?tab=evening'],
+                [/^الاذكار$|افتح الاذكار/,'الأذكار','azkar'],[/راديو|اذاعه/,'إذاعات القرآن','radio-panel']
+            ];
+            const route = routes.find(([pattern]) => pattern.test(query));
+            if(route) result = reply('اضغط الزر لفتح ' + route[1] + '.',[action('فتح ' + route[1],'services.html#'+route[2])]);
+        }
+        if (!result && /(طلقت|مراتي|زوجتي|حلفت|فتوي شخصيه|افتي)/.test(query)) result = reply('المسألة دي محتاجة معرفة التفاصيل من جهة علمية موثوقة. أقدر أساعدك توصل لخدمات التطبيق، لكن مش هقدّم فتوى شخصية.');
+        result ||= window.AskZadKnowledge?.findBestAnswer(query);
+        if (greeting && result?.data) result = {...result,data:{...result.data,answer:greeting+'\n'+result.data.answer}};
+        else if (greeting && result) result = {...result,fallbackMessage:greeting+'\n'+result.fallbackMessage};
+        return result;
+    }
+
+    function refreshSuggestions() {
+        const container = document.getElementById('ask-zad-chips');
+        if (!container) return;
+        let suggested = 'الأذكار';
+        try { const t = window.readHomePrayerTimings?.(); const slot = t && window.getHomeReminderSlot?.(new Date(),t); if(slot === 'morning_azkar') suggested='أذكار الصباح'; if(slot === 'evening_azkar') suggested='أذكار المساء'; } catch (_) {}
+        container.replaceChildren();
+        for (const text of ['الصلاة القادمة',suggested,'افتح المصحف','الإشعارات مش بتوصل']) {
+            const button = document.createElement('button');button.type='button';button.className='ask-zad-chip';button.dataset.prompt=text;button.textContent=text;container.append(button);
+        }
     }
 
     // تهيئة واجهة المستخدم وحقنها في الـ DOM
@@ -134,7 +239,7 @@
                         <div class="ask-zad-welcome-card" id="ask-zad-welcome">
                             <div class="ask-zad-welcome-title">أهلاً بك في "اسأل زاد" 🌿</div>
                             <p class="ask-zad-welcome-desc">
-                                مساعدك الإسلامي للإجابة على تساؤلاتك في القرآن الكريم، الأذكار والأدعية، وأحكام الصلاة اليومية.
+                                أساعدك تفتح الخدمات وتعرف مواقيت الصلاة وتراجع التنبيهات. الإجابات من معلومات التطبيق.
                             </p>
                             <div class="ask-zad-chips-container" id="ask-zad-chips">
                                 <button type="button" class="ask-zad-chip" data-prompt="كيف أصلي صلاة الجنازة؟">
@@ -167,13 +272,13 @@
 
                     <footer class="ask-zad-footer">
                         <form class="ask-zad-input-form" id="ask-zad-form">
-                            <input type="text" class="ask-zad-input" id="ask-zad-input" placeholder="اكتب سؤالك هنا... (مثال: صلاة الجنازة، أذكار النوم)" autocomplete="off">
+                            <input type="text" class="ask-zad-input" id="ask-zad-input" maxlength="1000" aria-label="رسالتك إلى اسأل زاد" placeholder="اكتب سؤالك أو الخدمة اللي محتاجها…" autocomplete="off">
                             <button type="submit" class="ask-zad-send-btn" id="btn-ask-zad-send" aria-label="إرسال">
                                 <i class="fa-solid fa-paper-plane"></i>
                             </button>
                         </form>
                         <p class="ask-zad-disclaimer">
-                            «مساعد ذكي للإرشاد والبحث؛ للفتاوى المعقدة يُرجى الرجوع لدار الإفتاء وأهل الذكر»
+                            مساعد محلي بمعلومات محدودة؛ للفتاوى الشخصية ارجع إلى جهة علمية موثوقة.
                         </p>
                     </footer>
                 </div>
@@ -185,6 +290,7 @@
 
             // تحميل الرسائل السابقة
             renderHistory();
+            refreshSuggestions();
         }
     }
 
@@ -207,8 +313,22 @@
         });
 
         // زر الهروب Escape
+        const resize = () => {
+            if (!window.visualViewport) return;
+            overlay.style.height = window.visualViewport.height + 'px';
+            overlay.style.top = window.visualViewport.offsetTop + 'px';
+        };
+        window.visualViewport?.addEventListener('resize',resize);
+        window.visualViewport?.addEventListener('scroll',resize);
+        resize();
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && isOpen) closeChat();
+            if (e.key === 'Tab' && isOpen) {
+                const nodes = [...overlay.querySelectorAll('button,input,a[href]')].filter(el => el.getClientRects().length && !el.disabled);
+                const first=nodes[0],last=nodes.at(-1);
+                if (e.shiftKey && document.activeElement===first) {e.preventDefault();last?.focus();}
+                else if (!e.shiftKey && document.activeElement===last) {e.preventDefault();first?.focus();}
+            }
         });
 
         // إرسال الرسالة
@@ -242,13 +362,17 @@
         const overlay = document.getElementById('ask-zad-modal');
         if (!overlay) return;
         isOpen = true;
+        refreshSuggestions();
+        previousFocus = document.activeElement;
+        overlay.setAttribute('aria-label', 'اسأل زاد');
+        document.body.classList.add('ask-zad-open');
         overlay.classList.add('is-active');
         overlay.setAttribute('aria-hidden', 'false');
 
         const input = document.getElementById('ask-zad-input');
         if (input) {
             setTimeout(() => {
-                try { input.focus(); } catch (e) {}
+                try { if (isOpen) input.focus(); } catch (e) {}
             }, 200);
         }
 
@@ -262,6 +386,8 @@
         const overlay = document.getElementById('ask-zad-modal');
         if (!overlay) return;
         isOpen = false;
+        document.body.classList.remove('ask-zad-open');
+        previousFocus?.focus?.();
         overlay.classList.remove('is-active');
         overlay.setAttribute('aria-hidden', 'true');
     }
@@ -272,6 +398,7 @@
         try {
             if (typeof localStorage !== 'undefined') {
                 localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem('zad_ask_zad_feedback');
             }
         } catch (e) {}
         const messagesContainer = document.getElementById('ask-zad-messages');
@@ -285,7 +412,8 @@
 
     // إرسال رسالة المستخدم ومعالجتها
     function sendMessage(query) {
-        if (!query) return;
+        if (typeof query !== 'string' || !query.trim()) return;
+        query = query.trim().slice(0, 1000);
         const messagesContainer = document.getElementById('ask-zad-messages');
         if (!messagesContainer) return;
 
@@ -303,7 +431,7 @@
         };
         history.push(userMsg);
         saveHistory(history);
-        appendMessageRow(userMsg, messagesContainer);
+        const userRow = appendMessageRow(userMsg, messagesContainer);
 
         // التمرير لأسفل
         scrollToBottom(messagesContainer);
@@ -314,15 +442,14 @@
 
         // 3. استدعاء محرك المعرفة
         const currentGeneration=generation;
-        const timer=setTimeout(() => {
+        const timer=setTimeout(async () => {
             pendingReplies.delete(timer);
             if(currentGeneration!==generation)return;
             if (typingEl && typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
 
-            const result = (window.AskZadKnowledge && typeof window.AskZadKnowledge.findBestAnswer === 'function')
-                ? window.AskZadKnowledge.findBestAnswer(query)
-                : null;
-
+            let result;
+            try { result = await contextualReply(query); } catch (_) { result = reply('تعذّر التحقق الآن. جرّب تاني أو افتح الإعدادات.',[settingsAction]); }
+            if (currentGeneration !== generation) return;
             let botMsg;
             if (result && result.found && result.data) {
                 botMsg = {
@@ -341,7 +468,7 @@
             } else {
                 botMsg = {
                     sender: 'bot',
-                    text: 'مرحباً بك، أنا في خدمتك دائماً في زاد المسلم. يمكنك سؤالي عن كيفية صلاة الجنازة، أحكام سجود السهو، آيات الصبر وتفسيرها، أو أذكار اليوم.',
+                    text: 'ممكن توضح تقصد أي خدمة أو سؤال؟ جرّب «افتح المصحف» أو «الصلاة القادمة».',
                     actions: [
                         { label: '📖 المصحف الشريف', href: 'services.html#quran-khatma?tab=mushaf', type: 'link' },
                         { label: '🤲 الأذكار وحصن المسلم', href: 'services.html#azkar', type: 'link' }
@@ -353,7 +480,10 @@
             const latestHistory=loadHistory();
             latestHistory.push(botMsg);
             saveHistory(latestHistory);
-            appendMessageRow(botMsg, messagesContainer);
+            botMsg.id = 'reply-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+            const row = appendMessageRow(botMsg, messagesContainer);
+            userRow.after(row);
+            saveHistory([...messagesContainer.querySelectorAll('.ask-zad-msg-row')].map(el => el._message).filter(Boolean));
             scrollToBottom(messagesContainer);
         }, 350);
         pendingReplies.add(timer);
@@ -363,6 +493,7 @@
     function appendMessageRow(msg, container) {
         const row = document.createElement('div');
         row.className = `ask-zad-msg-row ${msg.sender}`;
+        row._message = msg;
 
         const bubble = document.createElement('div');
         bubble.className = 'ask-zad-msg-bubble';
@@ -379,47 +510,28 @@
             for (const act of msg.actions) {
                 const btn = document.createElement('a');
                 btn.className = 'ask-zad-action-btn';
-                btn.href = act.href || '#';
-                btn.innerHTML = act.label;
+                if (typeof act.href !== 'string' || !/^(services|settings|index)\.html(?:[?#]|$)/.test(act.href)) continue;
+                btn.href = act.href;
+                btn.textContent = act.label;
                 btn.addEventListener('click', (e) => {
-                    // إذا كان رابط لراديو أو قسم في نفس الصفحة، إغلاق المودال
-                    if (act.href && act.href.startsWith('#')) {
-                        closeChat();
-                    } else if (act.href && act.href.includes('.html')) {
-                        // صفحة أخرى
-                        closeChat();
-                    }
+                    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+                    e.preventDefault();closeChat();
+                    (window.zadNavigate || window.location.assign.bind(window.location))(act.href);
                 });
                 actionsDiv.appendChild(btn);
             }
             bubble.appendChild(actionsDiv);
         }
 
-        // تفاصيل أسفل الفقاعة (الوقت وزر النسخ)
+        // وقت الرسالة
         const metaDiv = document.createElement('div');
         metaDiv.className = 'ask-zad-msg-meta';
         metaDiv.innerHTML = `<span>${formatTime(msg.time)}</span>`;
 
-        if (msg.sender === 'bot') {
-            const copyBtn = document.createElement('button');
-            copyBtn.type = 'button';
-            copyBtn.className = 'ask-zad-copy-btn';
-            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> نسخ';
-            copyBtn.addEventListener('click', async () => {
-                try {
-                    if (navigator && navigator.clipboard) {
-                        await navigator.clipboard.writeText(msg.text.replace(/\*\*/g, ''));
-                        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ';
-                        setTimeout(() => { copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> نسخ'; }, 2000);
-                    }
-                } catch (e) {}
-            });
-            metaDiv.appendChild(copyBtn);
-        }
-
         bubble.appendChild(metaDiv);
         row.appendChild(bubble);
         container.appendChild(row);
+        return row;
     }
 
     // إظهار مؤشر الكتابة
@@ -471,7 +583,8 @@
         open: openChat,
         close: closeChat,
         clear: clearChat,
-        send: sendMessage
+        send: sendMessage,
+        answer: contextualReply
     };
 
     if (typeof module !== 'undefined' && module.exports) {

@@ -362,24 +362,9 @@
     color: rgba(255, 255, 255, 0.45);
 }
 
-.ask-zad-copy-btn {
-    background: transparent;
-    border: none;
-    color: rgba(212, 175, 55, 0.8);
-    font-size: 11.5px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: background 0.15s ease;
-}
 
-.ask-zad-copy-btn:hover {
-    background: rgba(212, 175, 55, 0.15);
-    color: #d4af37;
-}
+
+
 
 /* أزرار الإجراءات داخل إجابة البوت */
 .ask-zad-msg-actions {
@@ -472,11 +457,13 @@
     padding: 8px 0;
     min-height: 24px;
 }
-
-.ask-zad-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 13px;
-}
+    .ask-zad-input:focus{
+        outline:unset !important;
+    }
+    .ask-zad-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 13px;
+    }
 
 .ask-zad-send-btn {
     width: 38px;
@@ -590,3 +577,23 @@
 [data-theme="light"] .ask-zad-disclaimer {
     color: #64748b;
 }
+
+/* Compact controls, keyboard viewport and touch targets. */
+body.ask-zad-open { overflow:hidden; }
+.ask-zad-fab { min-height:44px; padding:6px 12px; gap:6px; right:max(12px,env(safe-area-inset-right,0px)); font-size:13px; }
+.ask-zad-fab-icon { width:28px; height:28px; }
+.ask-zad-fab-sparkle { display:none; }
+.ask-zad-overlay { box-sizing:border-box; direction:rtl; padding-top:env(safe-area-inset-top,0px); }
+.ask-zad-container { height:min(850px,90dvh); max-height:100%; box-sizing:border-box; }
+.ask-zad-body { min-height:0; overscroll-behavior:contain; }
+.ask-zad-header { padding:10px 12px; gap:6px; }
+.ask-zad-header-brand,.ask-zad-header-text { min-width:0; }
+.ask-zad-header-actions { flex-shrink:0; }
+.ask-zad-header-btn,.ask-zad-send-btn,.ask-zad-chip,.ask-zad-action-btn,
+.ask-zad-input { min-width:0; font-size:16px; }
+.ask-zad-msg-bubble { overflow-wrap:anywhere; min-width:0; }
+.ask-zad-msg-meta { flex-wrap:wrap; gap:6px; }
+.ask-zad-container :focus-visible { outline:2px solid #d4af37; outline-offset:2px; }
+@media(max-width:400px) { .ask-zad-avatar { display:none; } .ask-zad-header-text h3 {font-size:15px;} .ask-zad-footer {padding:10px;} }
+@media(max-height:500px) { .ask-zad-container {height:100%;} .ask-zad-header-text p,.ask-zad-disclaimer {display:none;} .ask-zad-overlay {padding:0;} }
+@media(prefers-reduced-motion:reduce) { .ask-zad-overlay,.ask-zad-container,.ask-zad-fab {transition:none;} }

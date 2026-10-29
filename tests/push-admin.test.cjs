@@ -107,7 +107,7 @@ test('api/send-push respects channel selection and detailed reporting', async ()
         assert.equal(res.body.channels.mobile.recipients, 42);
         assert.equal(res.body.channels.web.attempted, false);
 
-        // 2. Database read failure aborts before OneSignal to prevent duplicate pushes
+        // 2. Database read failure leaves mobile delivery independent
         fetchCalls.length = 0;
         global.fetch = async (url) => {
             if (url.includes('accounts:lookup')) {
@@ -117,7 +117,8 @@ test('api/send-push respects channel selection and detailed reporting', async ()
                 return { ok: false, status: 502 };
             }
             if (url.includes('onesignal')) {
-                throw new Error('OneSignal should NOT be called when DB read fails!');
+                fetchCalls.push({url});
+                return {ok:true,json:async()=>({id:'mobile-push-id'})};
             }
             return { ok: true, json: async () => ({}) };
         };
@@ -129,9 +130,10 @@ test('api/send-push respects channel selection and detailed reporting', async ()
         };
         res = mockResponse();
         await handler(reqAll, res);
-        assert.equal(res.statusCode, 502);
-        assert.equal(res.body.preventedSend, true);
-        assert.ok(fetchCalls.every(c => !c.url.includes('onesignal')), 'OneSignal was protected from redundant dispatch');
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.body.partialFailure, true);
+        assert.equal(res.body.channels.mobile.success, true);
+        assert.ok(fetchCalls.some(c => c.url.includes('onesignal')));
 
     } finally {
         global.fetch = originalFetch;

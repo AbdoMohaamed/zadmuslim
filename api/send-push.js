@@ -86,7 +86,7 @@ module.exports = async function handler(req, res) {
     const webConfigured = Boolean(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY && FIREBASE_DB_URL);
     const webConfigError = 'إعدادات إشعارات الويب ناقصة. اضبط VAPID وقاعدة البيانات.';
     if (shouldSendWeb && !webConfigured && targetChannel === 'web') return res.status(503).json({error:webConfigError});
-    if (shouldSendWeb && webConfigured) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+
 
     if (targetChannel === 'mobile' && !hasOneSignalConfig) {
       return res.status(400).json({ error: 'إعدادات OneSignal غير متوفرة على الخادم.' });
@@ -95,27 +95,6 @@ module.exports = async function handler(req, res) {
     // Web failures must not block independently configured mobile push.
     let subscribersData = null;
     let webFetchError = shouldSendWeb && !webConfigured ? webConfigError : null;
-
-    if (shouldSendWeb && webConfigured) {
-      try {
-        const fbResponse = await fetch(`${FIREBASE_DB_URL}/push_subscribers.json?auth=${encodeURIComponent(session.token)}`, { signal: AbortSignal.timeout(10000) });
-        if (!fbResponse.ok) {
-          webFetchError = 'تعذّر قراءة المشتركين من قاعدة البيانات. راجع الصلاحيات.';
-        } else {
-          subscribersData = await fbResponse.json();
-        }
-      } catch (fetchErr) {
-        webFetchError = 'فشل الاتصال بقاعدة البيانات لقراءة المشتركين: ' + fetchErr.message;
-      }
-
-      if (webFetchError) {
-        return res.status(502).json({
-          error: webFetchError,
-          preventedSend: true,
-          message: 'تم إيقاف الإرسال قبل الوصول لخدمة الموبايل لحماية المستخدمين من التكرار.'
-        });
-      }
-    }
 
     // Step 2: Send Mobile Push via OneSignal if targeted
     let onesignalResult = null;
@@ -137,6 +116,11 @@ module.exports = async function handler(req, res) {
             ...(bodyData.requestId ? {idempotency_key:bodyData.requestId} : {}),
             headings: { en: title, ar: title },
             contents: { en: body, ar: body },
+            target_channel: 'push',
+            isAndroid: true,
+            isIos: true,
+            isAnyWeb: false,
+            priority: 10,
             ios_sound: 'default',
             existing_android_channel_id: 'zad_cloud_broadcast_channel',
             data: { url: url || './', type: 'admin_broadcast' }
@@ -153,6 +137,28 @@ module.exports = async function handler(req, res) {
       } catch (osErr) {
         mobileError = osErr.message;
         onesignalResult = { errors: [osErr.message] };
+      }
+    }
+
+    if (shouldSendWeb && webConfigured) {
+      try {
+        webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+        const fbResponse = await fetch(`${FIREBASE_DB_URL}/push_subscribers.json?auth=${encodeURIComponent(session.token)}`, { signal: AbortSignal.timeout(10000) });
+        if (!fbResponse.ok) {
+          webFetchError = 'تعذّر قراءة المشتركين من قاعدة البيانات. راجع الصلاحيات.';
+        } else {
+          subscribersData = await fbResponse.json();
+        }
+      } catch (fetchErr) {
+        webFetchError = 'فشل الاتصال بقاعدة البيانات لقراءة المشتركين: ' + fetchErr.message;
+      }
+
+      if (webFetchError && targetChannel === 'web') {
+        return res.status(502).json({
+          error: webFetchError,
+          preventedSend: true,
+          message: 'تم إيقاف الإرسال قبل الوصول لخدمة الموبايل لحماية المستخدمين من التكرار.'
+        });
       }
     }
 
