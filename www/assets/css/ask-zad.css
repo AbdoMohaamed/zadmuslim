@@ -517,7 +517,7 @@
 }
 
 [data-theme="light"] .ask-zad-header-text h3 {
-    color: #073f35;
+    color: #073f35 !important;
 }
 
 [data-theme="light"] .ask-zad-header-text p {

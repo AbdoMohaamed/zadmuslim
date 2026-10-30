@@ -111,7 +111,9 @@ body.zad-radio-host > :not(#live-radio-widget):not(#zad-radio-page) { display:no
 #radio-panel .radio-station-select { background:#183d32; color:#f4f8f5; border:1px solid #ffffff26; border-radius:12px; }
 #radio-panel .radio-cairo-shortcut { border:1px solid #d7bd724f; background:#d7bd720c; }
 #radio-panel > .btn:not(.radio-cairo-shortcut) { border:0; background:transparent; color:#c8d8d0; }
-#radio-panel .btn-close-radio,#radio-panel #btn-radio-mute { color:#d9e8df; }
+    #radio-panel .btn-close-radio, #radio-panel #btn-radio-mute {
+        color: #073f35 !important;
+    }
 @media(max-height:650px) { #radio-panel .radio-brand-logo { width:56px; height:56px; } #radio-panel { gap:10px; } }
 
 /* Compact player; secondary controls stay available on demand. */

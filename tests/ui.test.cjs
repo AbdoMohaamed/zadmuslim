@@ -476,7 +476,7 @@ test('service hash navigation opens hidden sections and selects Quran pages and 
 });
 test('all timed home reminder actions navigate to current service routes',async()=>{
  const {dom,errors}=await load('index.html');const w=dom.window,NativeDate=w.Date;let destination;w.zadNavigate=url=>destination=url;
- w.prayerTimings={Fajr:'05:00',Sunrise:'06:30',Dhuhr:'12:00',Asr:'15:00',Maghrib:'18:00',Isha:'20:00'};
+ w.prayerTimings={Fajr:'05:00',Sunrise:'06:30',Dhuhr:'12:00',Asr:'15:00',Maghrib:'18:00',Isha:'20:00'};w.localStorage.setItem('zad_prayer_verified',JSON.stringify({offset:new w.Date().getTimezoneOffset(),zone:w.Intl.DateTimeFormat().resolvedOptions().timeZone}));
  const cases=[[30,12,'quran-khatma?tab=mushaf&page=293'],[26,12,'prayer-times'],[25,19,'azkar'],[27,3,'categorized-duas'],[27,6,'azkar?tab=morning'],[27,9,'prayer-guide-section'],[27,12,'quran-khatma?tab=mushaf'],[27,16,'azkar?tab=evening'],[27,19,'smart-dhikr-panel'],[27,22,'quran-khatma?tab=mushaf&page=562']];
  for(const [day,hour,expected]of cases){const stamp=new NativeDate(2026,9,day,hour).getTime();w.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[stamp]));}};w.initSmartTimelyReminders();w.document.getElementById('btn-reminder-act').click();assert.equal(destination.split('#')[1],expected);}
  assert.deepEqual(errors,[]);w.close();

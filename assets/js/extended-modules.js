@@ -2770,11 +2770,19 @@ function initLiveRadioWidgetWithSleepTimer() {
  const labels={paused:'متوقف',playing:'يعمل الآن',connecting:'جاري الاتصال',buffering:'جاري تحميل الصوت',retrying:'إعادة الاتصال',offline:'الإنترنت غير متاح',failed:'البث غير متاح — اضغط لإعادة المحاولة',blocked:'اضغط تشغيل للسماح بالصوت',interrupted:'متوقف مؤقتًا للمكالمة أو الأذان'};
  let sleepDeadline=0, sleepInterval, previousVolume=.8;
  const nativeRadio=window.Capacitor?.getPlatform?.()==='android' && window.Capacitor?.isPluginAvailable?.('RadioNative');
+ let alternative;
+ if(nativeRadio){
+  alternative=document.createElement('button');alternative.type='button';alternative.className='btn outline';alternative.hidden=true;
+  alternative.textContent='تجربة مشغّل بديل';
+  alternative.onclick=()=>{alternative.disabled=true;Promise.resolve(player.useWebPlayer()).finally(()=>{alternative.disabled=false;});};
+  panel.querySelector('.radio-controls-row').after(alternative);
+ }
  const Player=nativeRadio?window.ZadNativeRadioPlayer:window.ZadRadioPlayer;
- const player=new Player(audio,({state,station,wanted})=>{
+ const player=new Player(audio,({state,station,wanted,error,fallback})=>{
   panel.dataset.state=state;
   if($('radio-play-label'))$('radio-play-label').textContent=wanted?'إيقاف':'سماع';
-  if(status)status.textContent=labels[state]||state;
+  if(status)status.textContent=(error||labels[state]||state)+(fallback?' — مشغّل بديل؛ استمرار الصوت عند القفل غير مضمون':'');
+  if(alternative)alternative.hidden=!!fallback||!['failed','retrying','blocked'].includes(state);
   if(icon)icon.className=wanted?'fa-solid fa-stop':'fa-solid fa-play';
   if(play){play.title= wanted?'إيقاف':'سماع';play.setAttribute('aria-label',play.title);play.setAttribute('aria-pressed',String(wanted));}
   for(const element of [panel,fab,$('btn-toggle-radio-nav')])element?.classList.toggle('is-playing',state==='playing');

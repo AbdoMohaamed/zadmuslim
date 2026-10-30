@@ -14,7 +14,7 @@ assert.equal((await w.AskZad.answer('الصلاة في مركبة فضائية')
 test('prayer answers refuse missing/stale/wrong-city data and calculate a named prayer',async()=>{const d=setup(),w=d.window;try{
 assert.match((await w.AskZad.answer('فاضل كام ع المغرب')).data.answer,/محتاج مواقيت/);
 const RealDate=w.Date;w.Date=class extends RealDate{constructor(...args){super(...(args.length?args:[2026,9,29,16,0]));}};
-w.localStorage.setItem('selected_prayer_city','Cairo');const snapshot={date:new w.Date().toLocaleDateString('en-CA'),signature:JSON.stringify(['Cairo','','0',null,w.Intl.DateTimeFormat().resolvedOptions().timeZone]),timings:{Fajr:'05:00',Dhuhr:'12:00',Asr:'15:00',Maghrib:'18:00',Isha:'20:00'}};
+w.localStorage.setItem('selected_prayer_city','Cairo');const snapshot={date:new w.Date().toLocaleDateString('en-CA'),signature:JSON.stringify(['Cairo','','0',null,w.Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]),timings:{Fajr:'05:00',Dhuhr:'12:00',Asr:'15:00',Maghrib:'18:00',Isha:'20:00'}};
 w.localStorage.setItem('zad_home_prayer_snapshot',JSON.stringify(snapshot));assert.match((await w.AskZad.answer('فاضل كام ع المغرب')).data.answer,/متبقي 2 ساعة/);
 w.localStorage.setItem('selected_prayer_city','Riyadh');assert.match((await w.AskZad.answer('الصلاة القادمة')).data.answer,/محتاج مواقيت/);
 }finally{w.close();}});

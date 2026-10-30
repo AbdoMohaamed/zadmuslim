@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat;
 public class RadioService extends Service {
  private static final int ID=99980;
  private static final String CHANNEL="zad_radio_playback";
- public static volatile String state="paused", stationId="";
+ public static volatile String state="paused", stationId="", lastError="";
  public static volatile boolean wanted=false;
  public static volatile long sleepDeadline=0;
  private static RadioService instance;
@@ -27,7 +27,12 @@ public class RadioService extends Service {
  private boolean focusHeld=false, interrupted=false;
  private Runnable retry, watchdog, stable;
  private final Runnable sleeper=()->{if(sleepDeadline>0 && System.currentTimeMillis()>=sleepDeadline)stopPlayback();};
- public static void stopPlayback(){RadioService s=instance;if(s!=null)s.handler.post(()->{wanted=false;sleepDeadline=0;s.handler.removeCallbacks(s.sleeper);s.releasePlayer();s.publish("paused");s.stopSelf();});else{wanted=false;state="paused";}}
+ public static void stopPlayback(){
+  RadioService s=instance;
+  if(s==null){wanted=false;state="paused";return;}
+  Runnable stop=()->{wanted=false;sleepDeadline=0;lastError="";s.handler.removeCallbacks(s.sleeper);s.releasePlayer();s.publish("paused");s.stopSelf();};
+  if(Looper.myLooper()==Looper.getMainLooper())stop.run();else s.handler.post(stop);
+ }
  public static void setVolume(float value){RadioService s=instance;if(s!=null)s.handler.post(()->{s.volume=Math.max(0,Math.min(1,value));if(s.player!=null)s.player.setVolume(s.volume,s.volume);});}
  public static void setSleepDeadline(long at){sleepDeadline=at;RadioService s=instance;if(s!=null)s.handler.post(()->{s.handler.removeCallbacks(s.sleeper);if(at>0)s.handler.postDelayed(s.sleeper,Math.max(0,at-System.currentTimeMillis()));});}
  @Override public void onCreate(){
@@ -53,7 +58,8 @@ public class RadioService extends Service {
  @Override public int onStartCommand(Intent intent,int flags,int startId){
   if(intent==null||"STOP".equals(intent.getAction())){stopPlayback();return START_NOT_STICKY;}
   name=intent.getStringExtra("name");url=intent.getStringExtra("url");backup=intent.getStringExtra("backup");stationId=intent.getStringExtra("id");volume=intent.getFloatExtra("volume",.8f);
-  try{startForeground(ID,notification());}catch(Exception e){wanted=false;state="failed";stopSelf();return START_NOT_STICKY;}
+  lastError="";
+  try{startForeground(ID,notification());}catch(Exception e){android.util.Log.e("ZadRadio","Foreground playback failed",e);lastError="تعذّر بدء خدمة الصوت في أندرويد";wanted=false;state="failed";stopSelf();return START_NOT_STICKY;}
   wanted=true;attempt=0;interrupted=false;
   session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE,name).putString(MediaMetadata.METADATA_KEY_ARTIST,"زاد المسلم").build());
   setSleepDeadline(sleepDeadline);connect();return START_NOT_STICKY;
@@ -80,21 +86,21 @@ public class RadioService extends Service {
   if(!wanted||interrupted)return;
   if(sleepDeadline>0&&System.currentTimeMillis()>=sleepDeadline){stopPlayback();return;}
   releasePlayer();publish("connecting");
-  if(!requestFocus()){wanted=false;publish("blocked");stopSelf();return;}
+  if(!requestFocus()){lastError="الصوت محجوز بواسطة مكالمة أو تطبيق آخر";wanted=false;publish("blocked");stopSelf();return;}
   final int ticket=generation;
   try{
    MediaPlayer next=new MediaPlayer();player=next;
    next.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build());
    next.setWakeMode(this,PowerManager.PARTIAL_WAKE_LOCK);next.setVolume(volume,volume);
    next.setDataSource(attempt%2==1&&backup!=null&&!backup.isEmpty()?backup:url);
-   next.setOnPreparedListener(mp->{if(ticket!=generation||!wanted)return;mp.start();clearTimers();publish("playing");stable=()->{attempt=0;};handler.postDelayed(stable,30000);});
-   next.setOnErrorListener((mp,what,extra)->{if(ticket==generation)reconnect();return true;});
+   next.setOnPreparedListener(mp->{if(ticket!=generation||!wanted)return;try{mp.start();lastError="";clearTimers();publish("playing");stable=()->{attempt=0;};handler.postDelayed(stable,30000);}catch(Exception e){android.util.Log.e("ZadRadio","Cannot start prepared stream",e);lastError="تعذّر تشغيل الصوت بعد تحميل البث";reconnect();}});
+   next.setOnErrorListener((mp,what,extra)->{if(ticket==generation){android.util.Log.e("ZadRadio","MediaPlayer error "+what+" / "+extra);lastError="تعذّر تشغيل البث على مشغّل أندرويد ("+what+" / "+extra+")";reconnect();}return true;});
    next.setOnCompletionListener(mp->{if(ticket==generation)reconnect();});
    next.setOnInfoListener((mp,what,extra)->{if(ticket!=generation)return false;if(what==MediaPlayer.MEDIA_INFO_BUFFERING_START){publish("buffering");watch();}else if(what==MediaPlayer.MEDIA_INFO_BUFFERING_END){if(watchdog!=null)handler.removeCallbacks(watchdog);watchdog=null;publish("playing");}return false;});
    next.prepareAsync();watch();
-  }catch(Exception e){reconnect();}
+  }catch(Exception e){android.util.Log.e("ZadRadio","Stream connection failed",e);lastError="تعذّر الاتصال بالبث من مشغّل أندرويد";reconnect();}
  }
- private void watch(){if(watchdog==null){watchdog=()->{watchdog=null;reconnect();};handler.postDelayed(watchdog,18000);}}
+ private void watch(){if(watchdog==null){watchdog=()->{watchdog=null;lastError="انتهت مهلة تحميل البث";reconnect();};handler.postDelayed(watchdog,18000);}}
  private boolean online(){android.net.ConnectivityManager cm=(android.net.ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);android.net.Network network=cm.getActiveNetwork();return network!=null;}
  private void reconnect(){
   if(!wanted||interrupted||retry!=null)return;

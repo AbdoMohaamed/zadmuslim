@@ -1,9 +1,13 @@
 // Render the home prayer card before network scripts or the rest of the app load.
 (function () {
     const valid = t => t && ['Fajr','Dhuhr','Asr','Maghrib','Isha'].every(k => /^(?:[01]\d|2[0-3]):[0-5]\d(?:\s|$)/.test(t[k] || ''));
-    const signature = () => JSON.stringify([localStorage.getItem('selected_prayer_city'), localStorage.getItem('zad_prayer_method') || '', localStorage.getItem('zad_prayer_school') || '0', localStorage.getItem('gps_prayer_coords'), Intl.DateTimeFormat().resolvedOptions().timeZone]);
+    const signature = () => JSON.stringify([localStorage.getItem('selected_prayer_city'), localStorage.getItem('zad_prayer_method') || '', localStorage.getItem('zad_prayer_school') || '0', localStorage.getItem('gps_prayer_coords'), Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
     function readHomePrayerTimings() {
-        if (valid(window.prayerTimings)) return window.prayerTimings;
+        if (valid(window.prayerTimings)) {
+            try { const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
+                if (verified && verified.offset === new Date().getTimezoneOffset() && verified.zone === Intl.DateTimeFormat().resolvedOptions().timeZone) return window.prayerTimings;
+            } catch (_) {}
+        }
         try {
             const today = new Date().toLocaleDateString('en-CA'), key = signature();
             const saved = JSON.parse(localStorage.getItem('zad_home_prayer_snapshot') || 'null');

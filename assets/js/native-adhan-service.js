@@ -186,7 +186,7 @@ const NativeAdhanService = {
             const month = date.getFullYear() + '/' + (date.getMonth() + 1);
             if (!months.has(month)) {
                 const url = source.replace('/timingsByCity?', '/calendarByCity/' + month + '?').replace('/timings?', '/calendar/' + month + '?') + '&iso8601=true';
-                const key = 'zad_alarm_calendar:' + url;
+                const key = 'zad_alarm_calendar_v2:' + url;
                 let entries;
                 try { entries = JSON.parse(localStorage.getItem(key) || 'null'); } catch {}
                 if (!Array.isArray(entries)) {
@@ -236,20 +236,20 @@ const NativeAdhanService = {
         if (!window.zadPrayerVerified) {
             try {
                 const saved = JSON.parse(localStorage.getItem('zad_alarm_days') || 'null');
-                const signature = JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]);
+                const signature = JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
                 const today = new Date().toLocaleDateString('en-CA');
                 const entry = saved?.signature === signature && saved.days.find(d => d.date === today);
                 if (entry) {
                     prayersTimings = Object.fromEntries(Object.entries(entry.timings).map(([k,v])=>[k,v.includes('T') ? v.slice(11,16) : v]));
                     window.zadPrayerApiSource = saved.source;
                     window.zadPrayerVerified = true;
-                    localStorage.setItem('zad_prayer_verified',JSON.stringify({date:today,city:localStorage.getItem('selected_prayer_city'),method:localStorage.getItem('zad_prayer_method')||'',school:localStorage.getItem('zad_prayer_school')||'0'}));
+                    localStorage.setItem('zad_prayer_verified',JSON.stringify({date:today,city:localStorage.getItem('selected_prayer_city'),method:localStorage.getItem('zad_prayer_method')||'',school:localStorage.getItem('zad_prayer_school')||'0',offset:new Date().getTimezoneOffset(),zone:Intl.DateTimeFormat().resolvedOptions().timeZone}));
                 }
             } catch {}
         }
         let verified;
         try { verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null'); } catch { return; }
-        if (!window.zadPrayerVerified || verified?.date !== new Date().toLocaleDateString('en-CA') ||
+        if (verified?.offset !== new Date().getTimezoneOffset() || verified?.zone !== Intl.DateTimeFormat().resolvedOptions().timeZone || !window.zadPrayerVerified || verified?.date !== new Date().toLocaleDateString('en-CA') ||
             verified.city !== localStorage.getItem('selected_prayer_city') ||
             verified.method !== (localStorage.getItem('zad_prayer_method') || '') ||
             verified.school !== (localStorage.getItem('zad_prayer_school') || '0')) return;
@@ -291,7 +291,7 @@ const NativeAdhanService = {
             if (revision !== this.scheduleRevision || settingsSnapshot !== localStorage.getItem('smart_notify_settings')) return {success:false};
             if (!window.zadPrayerVerified || JSON.stringify(verified) !== localStorage.getItem('zad_prayer_verified')) return {success:false};
             localStorage.setItem('zad_alarm_days',JSON.stringify({
-                signature:JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]),
+                signature:JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]),
                 source:window.zadPrayerApiSource,
                 days:[{date:now.toLocaleDateString('en-CA'),timings:prayersTimings},...futureDays.map(d=>({date:d.date.toLocaleDateString('en-CA'),timings:d.timings}))]
             }));

@@ -707,7 +707,6 @@
                 gap: 12px;
             }
             .setting-item-row:has(.custom-switch) {
-                flex-direction: row !important;
                 align-items: center !important;
                 justify-content: space-between !important;
             }
@@ -861,7 +860,7 @@
 
                 <!-- اختيار صوت المؤذن ومستوى الصوت -->
                 <div class="setting-item-row" style="flex-direction: column; align-items: stretch; gap: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <div>
                         <label for="select-adhan-muazzin" class="setting-item-title" style="margin: 0;">
                             <i class="fa-solid fa-microphone-lines text-gold"></i> صوت المؤذن المفضل:
                         </label>
@@ -892,7 +891,7 @@
                     <div class="setting-item-info">
                         <span class="setting-item-title">⏳ اقتربت الصلاة (تنبيه مسبق ناطق)</span>
                         <span class="setting-item-desc">تنبيه صوتي ناطق يذكّرك بالوضوء والاستعداد قبل دخول الوقت</span>
-                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+                        <div>
                             <label for="select-pre-prayer-interval" style="font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
                                 <i class="fa-solid fa-clock text-gold"></i> قبل الموعد بـ:
                                 <select id="select-pre-prayer-interval" style="padding: 4px 8px; width: auto; min-height: 36px; border-radius: 8px;">
@@ -918,7 +917,7 @@
                     <div class="setting-item-info">
                         <span class="setting-item-title">🖼️ عرض صورة الصلاة مع الأذان والإشعارات</span>
                         <span class="setting-item-desc">إظهار الصورة المخصصة لكل صلاة على شاشة الأذان وبطاقات المواقيت والإشعارات</span>
-                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                        <div style="display: grid; align-items: center;  gap: 4px; margin-top: 8px;">
                             <label for="prayer-preview-choice" style="font-size: 0.82rem; margin: 0;">صلاة المعاينة</label>
                             <select id="prayer-preview-choice" aria-label="صلاة المعاينة" style="padding: 4px 8px; width: auto; min-height: 36px; border-radius: 8px;">
                                 <option value="fajr">الفجر</option>
@@ -995,7 +994,7 @@
                 </div>
 
                 <!-- الصلاة على النبي ﷺ -->
-                <div class="setting-item-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div class="setting-item-row" style="display:grid; align-items: stretch; gap: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="setting-item-title">ﷺ التذكير بالصلاة على النبي</span>
                         <label class="custom-switch">
@@ -1342,7 +1341,7 @@
     <script src="assets/js/prayer-cities.js?v=1"></script>
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/onesignal-service.js?v=4"></script>
-    <script src="assets/js/native-adhan-service.js?v=12"></script>
+    <script src="assets/js/native-adhan-service.js?v=13"></script>
     <script src="assets/js/user-tools.js?v=9"></script>
 
     <!-- سكربت التحكم في إعدادات التنبيهات والأذان والمعاينة الصوتية -->

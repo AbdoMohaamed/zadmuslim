@@ -1908,14 +1908,16 @@ let prayerRequestVersion = 0;
 async function fetchPrayerTimes(cityKey) {
     const requestVersion = ++prayerRequestVersion;
     window.zadPrayerVerified = false;
+    prayerTimings = null;
+    window.prayerTimings = null;
     if (prayerTimerInterval) clearInterval(prayerTimerInterval);
     navigator.serviceWorker?.controller?.postMessage({ type: "SCHEDULE_PRAYERS", schedule: [] });
     let previous;
     try { previous=JSON.parse(localStorage.getItem('zad_prayer_verified')||'null'); } catch {}
     let storedSchedule;
     try { storedSchedule=JSON.parse(localStorage.getItem('zad_alarm_days')||'null'); } catch {}
-    const scheduleSignature=JSON.stringify([cityKey,localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]);
-    if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0')) await window.NativeAdhanService?.cancelPrayerAlarms?.();
+    const scheduleSignature=JSON.stringify([cityKey,localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
+    if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0') || previous.offset!==new Date().getTimezoneOffset() || previous.zone!==Intl.DateTimeFormat().resolvedOptions().timeZone) await window.NativeAdhanService?.cancelPrayerAlarms?.();
     if (requestVersion !== prayerRequestVersion) return;
     let url;
     let cacheKey;
@@ -1957,11 +1959,11 @@ async function fetchPrayerTimes(cityKey) {
     if (/^(2|3|4|5|7|8|9|10|11|12|13|14|15)$/.test(methodOverride)) url = url.replace(/method=\d+/, 'method=' + methodOverride);
     const school = localStorage.getItem('zad_prayer_school') === '1' ? '1' : '0';
     url += '&school=' + school;
-    cacheKey += '_' + methodOverride + '_' + school + '_' + userTz;
+    cacheKey += '_clock_v2_' + methodOverride + '_' + school + '_' + userTz + '_' + now.getTimezoneOffset();
     window.zadPrayerApiSource = url;
     const markVerified = () => {
         window.zadPrayerVerified = true;
-        localStorage.setItem('zad_prayer_verified', JSON.stringify({ date: new Date().toLocaleDateString('en-CA'), city: cityKey, method: methodOverride, school }));
+        localStorage.setItem('zad_prayer_verified', JSON.stringify({ date: new Date().toLocaleDateString('en-CA'), city: cityKey, method: methodOverride, school, offset: new Date().getTimezoneOffset(), zone: userTz }));
         document.dispatchEvent(new Event('zad:prayer-updated'));
     };
     const validTimings = value => ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].every(key => /^(?:[01]\d|2[0-3]):[0-5]\d/.test(value?.[key] || ''));
@@ -1989,6 +1991,10 @@ async function fetchPrayerTimes(cityKey) {
         .then(res => { if (!res.ok) throw new Error("Unavailable"); return res.json(); })
         .then(result => {
             if (requestVersion !== prayerRequestVersion) return;
+            if (now.getTimezoneOffset() !== new Date().getTimezoneOffset() || userTz !== Intl.DateTimeFormat().resolvedOptions().timeZone || now.toDateString() !== new Date().toDateString()) {
+                fetchPrayerTimes(cityKey);
+                return;
+            }
             if (result && result.code === 200 && validTimings(result.data?.timings)) {
                 prayerTimings = result.data.timings;
                 window.prayerTimings = prayerTimings;
@@ -2129,7 +2135,7 @@ function startPrayerCountdown() {
     const updateCountdown = () => {
         if (!prayerTimings) return;
         const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
-        if (verified?.date !== new Date().toLocaleDateString('en-CA')) {
+        if (verified?.date !== new Date().toLocaleDateString('en-CA') || verified.offset !== new Date().getTimezoneOffset() || verified.zone !== Intl.DateTimeFormat().resolvedOptions().timeZone) {
             clearInterval(prayerTimerInterval);
             fetchPrayerTimes(localStorage.getItem('selected_prayer_city') || 'Cairo');
             return;
@@ -2245,15 +2251,13 @@ function startPrayerCountdown() {
     window._hasPrayerCountdownStarted = true;
     prayerTimerInterval = setInterval(updateCountdown, 1000);
 
-    // إعادة التنشيط والفحص الفوري عند فتح شاشة الهاتف أو العودة للتبويب
-    document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
-            updateCountdown();
-        }
-    });
-    window.addEventListener("focus", () => {
-        updateCountdown();
-    });
+    window._zadRefreshPrayerCountdown = updateCountdown;
+    if (!window._zadPrayerClockListeners) {
+        window._zadPrayerClockListeners = true;
+        const refresh = () => { if (!document.hidden) window._zadRefreshPrayerCountdown?.(); };
+        document.addEventListener('visibilitychange', refresh);
+        window.addEventListener('focus', refresh);
+    }
 }
 
 /* ==========================================================================

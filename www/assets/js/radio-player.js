@@ -52,15 +52,31 @@ class RadioPlayer {
 }
 class NativeRadioPlayer {
  constructor(audio,notify,stations){this.audio=audio;this.notify=notify;this.stations=stations;this.wanted=false;this.chain=Promise.resolve();this.state='paused';this.plugin=global.Capacitor.Plugins.RadioNative;
- this.poll=async()=>{if(document.hidden||this.busy)return;try{const result=await this.plugin.getState();if(this.busy)return;if(result.wanted)this.station=this.stations.find(s=>s.id===result.id)||this.station;this.wanted=result.wanted;this.state=result.state;this.notify({...result,station:this.station});}catch{}};
- this.interval=setInterval(this.poll,1500);document.addEventListener('visibilitychange',this.poll);this.poll();
+ this.poll=async()=>{if(document.hidden||this.busy||this.fallback||this.switching)return;try{const result=await this.plugin.getState();if(this.busy||this.fallback||this.switching)return;if(result.wanted)this.station=this.stations.find(s=>s.id===result.id)||this.station;this.wanted=result.wanted;this.state=result.state;this.notify({...result,station:this.station});}catch{}};
+ this.interval=setInterval(()=>{if(this.fallback&&this.deadline&&Date.now()>=this.deadline){this.deadline=0;this.fallback.stop();}else this.poll();},1500);document.addEventListener('visibilitychange',this.poll);this.poll();
+ }
+ async useWebPlayer(){
+  if(this.fallback||this.switching||!this.station)return;
+  this.switching=true;
+  const revision=this.switchRevision=(this.switchRevision||0)+1;
+  try {
+   await this.chain;
+   await this.plugin.stop();
+   if(revision!==this.switchRevision)return;
+   this.fallback=new RadioPlayer(this.audio,result=>{
+    this.wanted=result.wanted;this.state=result.state;this.station=result.station;
+    this.notify({...result,fallback:true});
+   });
+   this.fallback.select(this.station,true);
+  } catch(error){this.notify({state:'failed',wanted:false,station:this.station,error:'تعذّر إيقاف المشغّل الأصلي؛ أعد المحاولة'});}
+  finally{this.switching=false;}
  }
  command(fn){this.pending=(this.pending||0)+1;this.busy=true;this.chain=this.chain.then(fn).catch(()=>{this.wanted=false;this.state='failed';this.notify({state:'failed',wanted:false,station:this.station});}).finally(()=>{this.pending--;this.busy=this.pending>0;});return this.chain;}
- select(station,play=this.wanted){if(this.station)this.stop();this.station=station;if(play)this.play();else this.notify({state:'paused',wanted:false,station});}
- play(){this.wanted=true;const station=this.station;this.notify({state:'connecting',wanted:true,station});this.command(async()=>{await this.plugin.play({...station,volume:this.audio.volume});if(this.deadline)await this.plugin.setSleepTimer({at:this.deadline});});}
- stop(){this.wanted=false;this.notify({state:'paused',wanted:false,station:this.station});this.command(()=>this.plugin.stop());}
- setVolume(volume){this.command(()=>this.plugin.setVolume({volume}));}
- setSleepTimer(at){this.deadline=at;this.command(()=>this.plugin.setSleepTimer({at}));}
+ select(station,play=this.wanted){if(this.fallback){this.station=station;this.fallback.select(station,play);return;}if(this.station)this.stop();this.station=station;if(play)this.play();else this.notify({state:'paused',wanted:false,station});}
+ play(){this.switchRevision=(this.switchRevision||0)+1;if(this.fallback){this.fallback.play();return;}this.wanted=true;const station=this.station;this.notify({state:'connecting',wanted:true,station});this.command(async()=>{await this.plugin.play({...station,volume:this.audio.volume});if(this.deadline)await this.plugin.setSleepTimer({at:this.deadline});});}
+ stop(){this.switchRevision=(this.switchRevision||0)+1;if(this.fallback){this.fallback.stop();return;}this.wanted=false;this.notify({state:'paused',wanted:false,station:this.station});this.command(()=>this.plugin.stop());}
+ setVolume(volume){if(this.fallback){this.audio.volume=volume;return;}this.command(()=>this.plugin.setVolume({volume}));}
+ setSleepTimer(at){this.deadline=at;if(this.fallback)return;this.command(()=>this.plugin.setSleepTimer({at}));}
 }
 global.ZadNativeRadioPlayer=NativeRadioPlayer;
 global.ZadRadioPlayer=RadioPlayer;

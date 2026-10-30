@@ -118,9 +118,9 @@
         try {
             const today = new Date().toLocaleDateString('en-CA');
             const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
-            if (window.zadPrayerVerified && verified?.date === today && verified.city === localStorage.getItem('selected_prayer_city') && verified.method === (localStorage.getItem('zad_prayer_method') || '') && verified.school === (localStorage.getItem('zad_prayer_school') || '0')) timings = window.prayerTimings;
+            if (verified?.offset === new Date().getTimezoneOffset() && verified?.zone === Intl.DateTimeFormat().resolvedOptions().timeZone && window.zadPrayerVerified && verified?.date === today && verified.city === localStorage.getItem('selected_prayer_city') && verified.method === (localStorage.getItem('zad_prayer_method') || '') && verified.school === (localStorage.getItem('zad_prayer_school') || '0')) timings = window.prayerTimings;
             const saved = JSON.parse(localStorage.getItem('zad_home_prayer_snapshot') || 'null');
-            const signature = JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method') || '',localStorage.getItem('zad_prayer_school') || '0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone]);
+            const signature = JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method') || '',localStorage.getItem('zad_prayer_school') || '0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
             if (!timings && saved?.date === today && saved.signature === signature) timings = saved.timings;
         } catch (_) {}
         const prayers = [['الفجر','Fajr'],['الظهر','Dhuhr'],['العصر','Asr'],['المغرب','Maghrib'],['العشاء','Isha']];

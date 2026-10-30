@@ -12,6 +12,7 @@ function setup(hour, minute = 0, day = 27) {
     const w = dom.window, NativeDate = w.Date;
     w.Date = class extends NativeDate { constructor(...args) { super(...(args.length ? args : [2026, 9, day, hour, minute])); } };
     w.prayerTimings = timings;
+    w.localStorage.setItem('zad_prayer_verified',JSON.stringify({offset:new w.Date().getTimezoneOffset(),zone:w.Intl.DateTimeFormat().resolvedOptions().timeZone}));
     w.eval(helpers + '\n' + strip);
     return dom;
 }
@@ -40,7 +41,7 @@ test('home card renders saved same-day city timings before the rest of the app l
     try {
         w.prayerTimings=null;
         w.localStorage.setItem('selected_prayer_city','Cairo');
-        const signature=JSON.stringify(['Cairo','','0',null,w.Intl.DateTimeFormat().resolvedOptions().timeZone]);
+        const signature=JSON.stringify(['Cairo','','0',null,w.Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
         const snapshot={date:new w.Date().toLocaleDateString('en-CA'),signature,timings};
         w.localStorage.setItem('zad_home_prayer_snapshot',JSON.stringify(snapshot));
         w.eval(strip);

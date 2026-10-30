@@ -8,7 +8,7 @@ function harness({platform='android', permission='granted', settings={}, verifie
     const calls = {local:[],native:[],reminders:[],cancel:[],legacy:0};
     const data = new Map(Object.entries({
         selected_prayer_city:'Cairo', smart_notify_settings:JSON.stringify({...off,...settings}),
-        zad_prayer_verified:JSON.stringify({date:new Date().toLocaleDateString('en-CA'),city:'Cairo',method:'',school:'0'})
+        zad_prayer_verified:JSON.stringify({date:new Date().toLocaleDateString('en-CA'),city:'Cairo',method:'',school:'0',offset:new Date().getTimezoneOffset(),zone:Intl.DateTimeFormat().resolvedOptions().timeZone})
     }));
     const timings={Fajr:'23:51',Dhuhr:'23:52',Asr:'23:53',Maghrib:'23:54',Isha:'23:55'};
     const local = {
@@ -251,4 +251,8 @@ test('iOS dismiss action removes the delivered alert without cancelling future p
 test('prayer image references in page and service worker point at actual jpg resources',()=>{
  for(const file of ['assets/js/app.js','sw.js'])assert.doesNotMatch(fs.readFileSync(file,'utf8'),/prayers\/pre_[^\n]*\.jpeg/);
  for(const prayer of ['fajr','dhuhr','asr','maghrib','isha'])assert.ok(fs.readFileSync('assets/images/prayers/pre_'+prayer+'.jpg').equals(fs.readFileSync('android/app/src/main/res/drawable/pre_'+prayer+'.jpg')));
+});
+
+test('same-day clock offset mismatch prevents scheduling stale local times',async()=>{
+ const h=harness({settings:{adhan:true}});const v=JSON.parse(h.data.get('zad_prayer_verified'));v.offset=new Date().getTimezoneOffset()+60;h.data.set('zad_prayer_verified',JSON.stringify(v));await h.service.schedulePrayers(h.timings);assert.equal(h.calls.native.length,0);assert.equal(h.calls.local.length,0);
 });
