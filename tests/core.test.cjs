@@ -20,6 +20,24 @@ test('backup rejects malicious keys and malformed progress before mutation', () 
     assert.throws(() => validateBackup({app:'zad-muslim',version:1,data:{zad_quran_bookmarks:'invalid'}}));
     assert.throws(() => validateBackup({app:'other',version:1,data:{}}));
 });
+
+test('daily wird migration flags and personal display preferences survive a backup round trip', () => {
+    const original = storage({ daily_wird_2026_legacy:'[]', 'daily_wird_2026-11-01':'["quran"]',
+        'daily_wird_home_import_2026-11-01':'true', zad_home_sections:'{"daily_clip":false}',
+        zad_adhan_volume:'0.7', zad_show_prayer_images:'1', zad_note_p2:'ملاحظة محفوظة',
+        zadmuslim_active_radio_station:'cairo', zadmuslim_radio_volume:'0.8', zadmuslim_radio_favorites:'["cairo"]',
+        zad_gemini_api_key:'secret', zad_onesignal_rest_key:'secret', gps_prayer_coords:'private' });
+    const backup = makeBackup(original), restored = storage({ unrelated:'keep' });
+    assert.equal(validateBackup(backup).length, 10);
+    restoreBackup(restored, JSON.parse(JSON.stringify(backup)));
+    for (const [key, value] of Object.entries(backup.data)) assert.equal(restored.getItem(key), value);
+    assert.equal(restored.getItem('unrelated'), 'keep');
+    assert.equal(restored.getItem('zad_onesignal_rest_key'), null);
+    assert.equal(restored.getItem('gps_prayer_coords'), null);
+    for (const [key, value] of [['daily_wird_home_import_2026-11-01','[]'],['zad_adhan_volume','Infinity'],['zad_show_prayer_images','yes'],['zad_home_sections','[]']]) {
+        assert.throws(() => restoreBackup(restored, {app:'zad-muslim', version:1, data:{[key]:value}}));
+    }
+});
 test('restore preserves unrelated data and rolls back on storage failure', () => {
     const data = {app:'zad-muslim',version:1,data:{mushaf_last_page:'10',zad_note_p2:'new',wird_streak_history:'{"2026-10-20":true}',zadTasks:'{"date":"2026-10-20","tasks":{}}'}};
     const target = storage({mushaf_last_page:'3',unrelated:'keep'});

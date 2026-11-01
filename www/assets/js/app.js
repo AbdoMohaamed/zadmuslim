@@ -510,7 +510,8 @@ function initPrayersSwiper() {
     prayersSwiperInstance = new Swiper(".swiper-prayers", {
         slidesPerView: 1,
         spaceBetween: 24,
-        loop: true,
+        loop: allPrayers.length > 3,
+        rewind: allPrayers.length <= 3,
         autoplay: {
             delay: 4500,
             disableOnInteraction: false,

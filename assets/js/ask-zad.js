@@ -311,9 +311,137 @@
             });
         }
 
-        // إغلاق عند النقر على الخلفية
+        // منع انتشار النقرات داخل حاوية المحادثة حتى لا يُغلق الشات بالخطأ أثناء الكتابة أو القراءة
+        const container = overlay.querySelector('.ask-zad-container');
+        if (container) {
+            container.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // إغلاق عند النقر في أي مكان خارج نافذة المحادثة
         overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) closeChat();
+            if (!e.target.closest('.ask-zad-container')) {
+                closeChat();
+            }
+        });
+
+        // إغلاق فوري عند اللمس خارج الحاوية على الهواتف الذكية (iOS & Android)
+        overlay.addEventListener('touchend', (e) => {
+            if (!e.target.closest('.ask-zad-container')) {
+                e.preventDefault();
+                closeChat();
+            }
+        }, { passive: false });
+
+        // إعداد التفاعل مع شريط السحب والرأس (Tap & Swipe Down to Dismiss)
+        let touchStartY = 0;
+        let isDraggingSheet = false;
+        let hasMoved = false;
+
+        const dragTargets = [
+            overlay.querySelector('.ask-zad-drag-bar'),
+            overlay.querySelector('.ask-zad-header')
+        ].filter(Boolean);
+
+        dragTargets.forEach((target) => {
+            target.addEventListener('touchstart', (e) => {
+                // إذا كان اللمس على زر داخل الرأس (كزر الإغلاق أو المسح) لا نبدأ السحب
+                if (e.target.closest('button, a')) return;
+                if (e.touches && e.touches.length === 1) {
+                    touchStartY = e.touches[0].clientY;
+                    isDraggingSheet = true;
+                    hasMoved = false;
+                    if (container) {
+                        container.style.transition = 'none'; // إلغاء التأخير الزمني لتتبع حركة الإصبع بدقة 60fps
+                    }
+                }
+            }, { passive: true });
+
+            target.addEventListener('touchmove', (e) => {
+                if (!isDraggingSheet || !e.touches || e.touches.length !== 1) return;
+                const currentY = e.touches[0].clientY;
+                const deltaY = currentY - touchStartY;
+                if (deltaY > 5) {
+                    hasMoved = true;
+                    if (container) {
+                        container.style.transform = `translateY(${deltaY}px)`;
+                    }
+                }
+            }, { passive: true });
+
+            target.addEventListener('touchcancel', () => {
+                isDraggingSheet = false;
+                hasMoved = false;
+                if (container) {
+                    container.style.transform = '';
+                    container.style.transition = '';
+                }
+            }, { passive: true });
+
+            target.addEventListener('touchend', (e) => {
+                if (!isDraggingSheet) return;
+                isDraggingSheet = false;
+                const currentY = e.changedTouches && e.changedTouches.length ? e.changedTouches[0].clientY : touchStartY;
+                const deltaY = currentY - touchStartY;
+
+                if (deltaY > 60) {
+                    // سحب كافٍ للإغلاق: انزلاق ناعم للأسفل ثم إغلاق النافذة
+                    if (container) {
+                        container.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1)';
+                        container.style.transform = 'translateY(100%)';
+                    }
+                    setTimeout(() => {
+                        closeChat();
+                        if (container) {
+                            container.style.transform = '';
+                            container.style.transition = '';
+                        }
+                    }, 200);
+                } else {
+                    // سحب خفيف دون الحد: ارتداد ناعم للموضع الأصلي
+                    if (container) {
+                        container.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1)';
+                        container.style.transform = '';
+                        setTimeout(() => {
+                            if (container) container.style.transition = '';
+                        }, 230);
+                    }
+                }
+            }, { passive: true });
+        });
+
+        // إغلاق عند النقر المباشر على شريط السحب (Tap)
+        const dragBar = overlay.querySelector('.ask-zad-drag-bar');
+        if (dragBar) {
+            dragBar.addEventListener('click', () => {
+                if (!hasMoved) {
+                    closeChat();
+                }
+            });
+        }
+
+        // منع تسريب التمرير (Scroll Bleed / Chaining) إلى الصفحة الرئيسية خلف المساعد
+        overlay.addEventListener('touchmove', (e) => {
+            if (!e.target.closest('#ask-zad-messages')) {
+                if (e.cancelable) e.preventDefault();
+            }
+        }, { passive: false });
+
+        overlay.addEventListener('wheel', (e) => {
+            if (!e.target.closest('#ask-zad-messages')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // مستمع عام على المستند لإغلاق النافذة إذا تم النقر في أي مساحة خارجية
+        document.addEventListener('click', (e) => {
+            if (!isOpen) return;
+            const fab = document.getElementById('btn-ask-zad-fab');
+            if (fab && fab.contains(e.target)) return;
+            if (overlay && overlay.classList.contains('is-active') && !e.target.closest('.ask-zad-container')) {
+                closeChat();
+            }
         });
 
         // زر الهروب Escape
@@ -366,16 +494,51 @@
         }
     }
 
+    let savedScrollY = 0;
+    let isScrollLocked = false;
+
+    // قفل تمرير الصفحة الخلفية تماماً لمنع اهتزاز أو تحرك الرئيسية أثناء استخدام المساعد
+    function lockBodyScroll() {
+        if (isScrollLocked || typeof document === 'undefined' || !document.body) return;
+        savedScrollY = window.scrollY || window.pageYOffset || document.documentElement?.scrollTop || 0;
+        isScrollLocked = true;
+        document.documentElement.classList.add('ask-zad-open');
+        document.body.classList.add('ask-zad-open');
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${savedScrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+    }
+
+    // استعادة وضع التمرير الطبيعي وموقع الصفحة السابق بدقة
+    function unlockBodyScroll() {
+        if (!isScrollLocked || typeof document === 'undefined' || !document.body) return;
+        isScrollLocked = false;
+        document.documentElement.classList.remove('ask-zad-open');
+        document.body.classList.remove('ask-zad-open');
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        try {
+            if (typeof window !== 'undefined' && typeof window.scrollTo === 'function' && !window.scrollTo.toString().includes('notImplementedMethod')) {
+                window.scrollTo(0, savedScrollY);
+            }
+        } catch (_) {}
+    }
+
     // فتح نافذة الشات
     function openChat(initialQuery) {
         initUI();
         const overlay = document.getElementById('ask-zad-modal');
         if (!overlay) return;
         isOpen = true;
+        lockBodyScroll();
         refreshSuggestions();
         previousFocus = document.activeElement;
         overlay.setAttribute('aria-label', 'اسأل زاد');
-        document.body.classList.add('ask-zad-open');
         overlay.classList.add('is-active');
         overlay.setAttribute('aria-hidden', 'false');
 
@@ -396,7 +559,7 @@
         const overlay = document.getElementById('ask-zad-modal');
         if (!overlay) return;
         isOpen = false;
-        document.body.classList.remove('ask-zad-open');
+        unlockBodyScroll();
         previousFocus?.focus?.();
         overlay.classList.remove('is-active');
         overlay.setAttribute('aria-hidden', 'true');

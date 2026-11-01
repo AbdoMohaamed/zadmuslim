@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { JSDOM, requestInterceptor, VirtualConsole } = require('jsdom');
 const root = path.resolve(__dirname, '..');
+const backupTools = require('../assets/js/user-tools.js');
 const localResources = { interceptors: [requestInterceptor(request => {
         const target = new URL(request.url);
         if (target.origin !== 'http://localhost:4173' || !target.pathname.endsWith('.js')) return new Response('', { status: 404 });
@@ -570,4 +571,41 @@ test('mobile navigation highlights excerpts when selected and restores services 
   assert.equal(mediaLink.classList.contains('active'),false,'excerpts should not be active');
   assert.deepEqual(errors,[]);
  } finally {dom.window.close();}
+});
+
+
+test('real home progress exports and restores through the settings file handler on a separate device',async()=>{
+ const source=await load('index.html',{storage:{zad_note_p3:'ملاحظة تجربة',zad_adhan_volume:'0.6',zad_show_prayer_images:'1',zad_home_sections:'{"daily_clip":false}'}});
+ let backup;
+ try{
+  source.dom.window.document.querySelector('.wird-checkbox[data-task="quran"]').click();
+  backup=backupTools.makeBackup(source.dom.window.localStorage);
+  assert.ok(Object.keys(backup.data).some(key=>key.startsWith('daily_wird_home_import_')));
+  backupTools.validateBackup(backup);
+ }finally{source.dom.window.close();}
+ const destination=await load('settings.html',{url:'http://localhost:4173/settings.html#zad-backup-section'});
+ try{
+  const w=destination.dom.window,d=w.document;
+  await d.getElementById('zad-import-backup').onchange({target:{files:[{size:JSON.stringify(backup).length,text:async()=>JSON.stringify(backup)}],value:'test.json'}});
+  for(const [key,value]of Object.entries(backup.data))assert.equal(w.localStorage.getItem(key),value,key);
+  assert.equal(w.localStorage.getItem('zad_note_p3'),'ملاحظة تجربة');
+  assert.deepEqual(destination.errors,[]);
+ }finally{destination.dom.window.close();}
+});
+
+test('backup import cancellation and corrupted files preserve existing progress and show a local error',async()=>{
+ const h=await load('settings.html',{url:'http://localhost:4173/settings.html#zad-backup-section',storage:{zad_note_p3:'الأصل'}});
+ try{
+  const w=h.dom.window,d=w.document,input=d.getElementById('zad-import-backup');
+  w.confirm=()=>false;
+  await input.onchange({target:{files:[{size:80,text:async()=>JSON.stringify({app:'zad-muslim',version:1,data:{zad_note_p3:'بديل'}})}],value:'file.json'}});
+  assert.equal(w.localStorage.getItem('zad_note_p3'),'الأصل');
+  w.confirm=()=>true;
+  for(const file of [{size:10,text:async()=>'{broken'},{size:10,text:async()=>JSON.stringify({app:'other',version:1,data:{}})},{size:6*1024*1024,text:async()=>{throw Error('Should not read oversized file');}}]){
+   await input.onchange({target:{files:[file],value:'bad.json'}});
+   assert.match(d.getElementById('zad-backup-status').textContent,/تعذّر الاسترجاع/);
+   assert.equal(w.localStorage.getItem('zad_note_p3'),'الأصل');
+  }
+  assert.deepEqual(h.errors,[]);
+ }finally{h.dom.window.close();}
 });

@@ -12,7 +12,9 @@
         'zad_prayer_method', 'zad_prayer_school', 'zad_font_size', 'zad_favorites',
         'zadTasks', 'zad_setup_done', 'spiritual_garden_streak', 'wird_streak_history', 'counter', 'total_dhikr_count',
         'zad_selected_muazzin', 'adhan_sound_enabled', 'smart_notify_configured', 'zad_hijri_offset',
-        'zad_zakat_currency', 'zad_zakat_nisab_basis', 'zad_sticky_prayer_notification', 'zad_media_bookmarks', 'zad_media_progress'
+        'zad_zakat_currency', 'zad_zakat_nisab_basis', 'zad_sticky_prayer_notification', 'zad_media_bookmarks', 'zad_media_progress',
+        'zad_home_sections', 'zad_adhan_volume', 'zad_show_prayer_images',
+        'zadmuslim_active_radio_station', 'zadmuslim_radio_volume', 'zadmuslim_radio_favorites'
     ]);
     const allowed = key => EXACT.has(key) || /^(zad_note_p[1-9]\d{0,2}|zad_memorized_[1-9]\d{0,3}|zad_tasbih_(lifetime_count|today_count|today_date|sound_enabled|haptic_enabled)|azkar_progress_[\w -]+|zad_daily_tasks_[\w-]+|daily_wird_[\w-]+|spiritual_garden_[\w-]+|zad_quran_pages_read_[\w-]+)$/.test(key);
     function makeBackup(storage) {
@@ -30,14 +32,21 @@
         if (entries.length > 12000 || JSON.stringify(value).length > 5 * 1024 * 1024) throw Error('حجم النسخة أكبر من الحد المسموح.');
         for (const [key, val] of entries) {
             if (!allowed(key) || typeof val !== 'string' || val.length > 200000) throw Error('الملف يحتوي على بيانات غير مسموح بها.');
-            if (/bookmarks|progress|plan|badges|streak_data|streak_history|last_read|settings|enabled_prayers|favorites|daily_tasks|daily_wird|zadTasks/.test(key)) {
+            if (['zad_adhan_volume', 'zadmuslim_radio_volume'].includes(key) && (val.trim() === '' || !Number.isFinite(Number(val)) || Number(val) < 0 || Number(val) > 1)) throw Error('مستوى الصوت غير صالح.');
+            if (key === 'zad_show_prayer_images' && !['0', '1'].includes(val)) throw Error('إعداد صور الصلاة غير صالح.');
+            if (/^daily_wird_home_import_\d{4}-\d{2}-\d{2}$/.test(key)) {
+                if (!['true', 'false'].includes(val)) throw Error('علامة ورد يومي غير صالحة.');
+                continue;
+            }
+            if (/bookmarks|progress|plan|badges|streak_data|streak_history|last_read|settings|enabled_prayers|favorites|daily_tasks|daily_wird|zadTasks|zad_home_sections/.test(key)) {
                 try {
                     const parsed = JSON.parse(val); if (!parsed || typeof parsed !== 'object') throw Error();
-                    if (['zad_quran_bookmarks', 'zad_user_badges_unlocked', 'zad_favorites'].includes(key) || key.startsWith('daily_wird_')) {
+                    if (['zad_quran_bookmarks', 'zad_user_badges_unlocked', 'zad_favorites', 'zadmuslim_radio_favorites'].includes(key) || key.startsWith('daily_wird_')) {
                         if (!Array.isArray(parsed)) throw Error();
                     }
                     if (key === 'zad_quran_bookmarks' && !parsed.every(b => Number.isInteger(b.page) && b.page >= 1 && b.page <= 604 && typeof b.surahName === 'string')) throw Error();
                     if (key === 'zad_quran_last_read' && (!Number.isInteger(parsed.pageNumber) || parsed.pageNumber < 1 || parsed.pageNumber > 604)) throw Error();
+                    if (key === 'zad_home_sections' && (Array.isArray(parsed) || !Object.values(parsed).every(item => typeof item === 'boolean'))) throw Error();
                 }
                 catch { throw Error('بيانات غير صالحة في النسخة: ' + key); }
             }
@@ -159,8 +168,8 @@
         await showSettingsView(section);
     }
 
-    function status(text) {
-        const el = $('zad-tools-status');
+    function status(text, targetId = 'zad-tools-status') {
+        const el = $(targetId) || $('zad-tools-status');
         if (el) { el.setAttribute('role','status');el.setAttribute('aria-live','polite');el.textContent = text; }
     }
 
@@ -858,6 +867,7 @@
                 <section id="zad-backup-section" class="zad-tab-panel" data-tab="backup" style="display: none;">
                   <h3><i class="fa-solid fa-database"></i> النسخ الاحتياطي لتقدمك الإيماني</h3>
                   <p>احفظ ختماتك، علامات القراءة، الملاحظات، وسجل أذكارك في ملف آمن لنقله لأي جهاز آخر:</p>
+                  <p id="zad-backup-status" role="status" aria-live="polite"></p>
 
                   <div class="zad-feature-card">
                     <div class="zad-feature-card-header">
@@ -866,7 +876,7 @@
                         <i class="fa-solid fa-download"></i> حفظ ملف النسخة
                       </button>
                     </div>
-                    <p class="zad-feature-card-desc">تنزيل ملف .json يحتوي على جميع بياناتك الشخصية دون المساس بأي كلمات مرور أو موقع.</p>
+                    <p class="zad-feature-card-desc">يحفظ تقدمك وملاحظاتك وتفضيلاتك، ولا يشمل كلمات المرور أو الموقع الدقيق أو الملفات الصوتية المنزّلة.</p>
                   </div>
 
                   <div class="zad-feature-card">
@@ -1086,10 +1096,14 @@
         const exportBtn = $('zad-export-backup');
         if (exportBtn) {
             exportBtn.onclick = () => {
-                const blob = new Blob([JSON.stringify(makeBackup(store), null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob), link = document.createElement('a');
-                link.href = url; link.download = `zad-backup-${new Date().toISOString().slice(0,10)}.json`; link.click();
-                setTimeout(() => URL.revokeObjectURL(url), 30000); status('تم تجهيز النسخة الاحتياطية للتحميل بنجاح ✨');
+                try {
+                    const backup = makeBackup(store);
+                    validateBackup(backup);
+                    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob), link = document.createElement('a');
+                    link.href = url; link.download = `zad-backup-${new Date().toISOString().slice(0,10)}.json`; link.click();
+                    setTimeout(() => URL.revokeObjectURL(url), 30000); status('تم تجهيز النسخة الاحتياطية للتحميل بنجاح ✨', 'zad-backup-status');
+                } catch (error) { status('تعذّر تجهيز النسخة الاحتياطية: ' + error.message, 'zad-backup-status'); }
             };
         }
 
@@ -1102,7 +1116,7 @@
                     const data = JSON.parse(await file.text()), entries = validateBackup(data);
                     if (!confirm(`استرجاع ${entries.length} إعداد وسجل؟ ستُستبدل القيم المطابقة ثم يُعاد فتح التطبيق.`)) return;
                     restoreBackup(store, data); location.reload();
-                } catch (err) { status('تعذّر الاسترجاع: ' + err.message); }
+                } catch (err) { status('تعذّر الاسترجاع: ' + err.message, 'zad-backup-status'); }
                 finally { e.target.value = ''; }
             };
         }

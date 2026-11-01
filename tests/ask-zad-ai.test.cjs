@@ -4,6 +4,13 @@ const fs = require('node:fs');
 const { JSDOM } = require('jsdom');
 const knowledge = require('../assets/js/ask-zad-knowledge.js');
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+async function waitForReply(predicate) {
+    const deadline = Date.now() + 4000;
+    while (!predicate()) {
+        if (Date.now() > deadline) assert.fail('Assistant reply did not settle');
+        await wait(10);
+    }
+}
 
 function setup() {
     const dom = new JSDOM('<body></body>', { url: 'https://zad.test', runScripts: 'outside-only' });
@@ -58,7 +65,7 @@ test('Gemini timeouts cover stalled fetch and response body; HTTP failures are v
                     return Promise.resolve({ ok: mode !== 'http', json: () => new Promise(() => {}) });
                 };
                 w.AskZad.send('اشرح لي ظاهرة الشفق القطبي');
-                await wait(450);
+                await waitForReply(() => w.document.querySelector('.ask-zad-msg-row.bot')?.textContent.includes('تعذّر الاتصال'));
                 assert.match(w.document.querySelector('.ask-zad-msg-row.bot').textContent, /تعذّر الاتصال/);
                 assert.equal(w.document.querySelector('.ask-zad-typing-indicator'), null);
                 if (mode !== 'http') assert.equal(signal.aborted, true);

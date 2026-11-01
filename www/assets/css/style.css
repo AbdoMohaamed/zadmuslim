@@ -5388,7 +5388,8 @@ html[data-theme="light"] .nav-links a.active {
 /* بنر تثبيت التطبيق الذكي للهواتف */
 .pwa-install-banner {
   position: fixed;
-  bottom: 20px;
+  top: calc(76px + env(safe-area-inset-top, 0px));
+  bottom: auto;
   left: 20px;
   right: 20px;
   max-width: 480px;
@@ -5400,7 +5401,7 @@ html[data-theme="light"] .nav-links a.active {
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  z-index: 10001;
+  z-index: 1030;
   backdrop-filter: blur(12px);
   animation: slideUpFade 0.4s ease-out;
 }

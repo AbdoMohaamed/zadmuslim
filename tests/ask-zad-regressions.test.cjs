@@ -4,3 +4,18 @@ const wait=()=>new Promise(r=>setTimeout(r,430));
 test('rapid questions retain all messages and clearing cancels pending replies',async()=>{const d=chat(),w=d.window;try{w.AskZad.send('أذكار النوم');w.AskZad.send('صلاة الجنازة');await wait();assert.equal(JSON.parse(w.localStorage.getItem('zad_ask_zad_history')).length,4);w.AskZad.send('صلاة الجنازة');w.AskZad.clear();await wait();assert.equal(w.localStorage.getItem('zad_ask_zad_history'),null);assert.equal(w.document.querySelectorAll('.ask-zad-msg-row').length,0);assert.equal(w.document.getElementById('ask-zad-welcome').style.display,'');}finally{w.close();}});
 test('notification controls route to settings; generic unrelated questions are not confident answers',()=>{assert.equal(k.findBestAnswer('كيف ألغي إشعارات الصلاة').data.id,'app_notification_settings');assert.equal(k.findBestAnswer('الصلاة في مركبة فضائية').found,false);assert.equal(k.findBestAnswer('كيف أصلي صلاة الجنازة؟').data.id,'fiqh_salat_janazah');});
 test('knowledge links resolve to actual service views or radio route',()=>{const d=new JSDOM(fs.readFileSync('services.html','utf8')).window.document;for(const item of k.KNOWLEDGE_BASE)for(const a of item.actions||[]){if(!a.href.startsWith('services.html#'))continue;const id=a.href.split('#')[1].split('?')[0];if(id==='radio-panel')continue;assert.ok(d.getElementById(id)?.classList.contains('service-view-section'),a.href);}});
+
+test('an interrupted assistant swipe restores the sheet and permits normal closing',()=>{
+ const d=chat(),w=d.window;try{
+  w.scrollTo=()=>{};w.AskZad.open();
+  const bar=w.document.querySelector('.ask-zad-drag-bar'),sheet=w.document.querySelector('.ask-zad-container');
+  const touch=(name,y)=>{const e=new w.Event(name,{bubbles:true,cancelable:true});Object.defineProperty(e,'touches',{value:[{clientY:y}]});bar.dispatchEvent(e);};
+  touch('touchstart',10);touch('touchmove',50);
+  assert.equal(sheet.style.transform,'translateY(40px)');
+  touch('touchcancel',50);
+  assert.equal(sheet.style.transform,'');assert.equal(sheet.style.transition,'');
+  assert.ok(w.document.getElementById('ask-zad-modal').classList.contains('is-active'));
+  bar.click();assert.ok(!w.document.getElementById('ask-zad-modal').classList.contains('is-active'));
+  assert.ok(!w.document.body.classList.contains('ask-zad-open'));
+ }finally{w.close();}
+});
