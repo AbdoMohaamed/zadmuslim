@@ -39,6 +39,19 @@ public class AdhanNativePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void getLocalPrayerTimings(PluginCall call) {
+        try {
+            String raw=getContext().getSharedPreferences(PREFS_NAME,0).getString("local_calculation",null);
+            if(raw==null) {call.resolve(new JSObject());return;}
+            JSONObject config=new JSONObject(raw);
+            if(!config.optString("context").equals(call.getString("context",""))) {call.resolve(new JSObject());return;}
+            JSONObject timings=LocalPrayerCalculator.clockTimes(config,Calendar.getInstance());
+            boolean renewed=PrayerRenewalReceiver.renew(getContext());
+            JSObject result=new JSObject();result.put("timings",timings);result.put("renewed",renewed);call.resolve(result);
+        } catch(Exception e) {call.reject("Local prayer calculation unavailable",e);}
+    }
+
+    @PluginMethod
     public void getPrayerScheduleStatus(PluginCall call) {
         try {
             org.json.JSONArray alarms=new org.json.JSONArray(getContext().getSharedPreferences(PREFS_NAME,0).getString("prepared_alarms","[]"));
@@ -48,7 +61,7 @@ public class AdhanNativePlugin extends Plugin {
                 if(at<=System.currentTimeMillis()) continue;
                 next=Math.min(next,at);until=Math.max(until,at);count++;
             }
-            JSObject result=new JSObject();result.put("count",count);result.put("next",count>0?next:0);result.put("until",until);call.resolve(result);
+            JSObject result=new JSObject();result.put("count",count);result.put("next",count>0?next:0);result.put("until",until);result.put("automaticRenewal",getContext().getSharedPreferences(PREFS_NAME,0).contains("local_calculation") && getContext().getSharedPreferences(PREFS_NAME,0).getBoolean("local_renewal_ok",false));call.resolve(result);
         } catch(Exception e) {call.reject("Could not read prayer schedule",e);}
     }
 
@@ -60,7 +73,7 @@ public class AdhanNativePlugin extends Plugin {
         } catch(Exception e) { call.reject("Could not schedule reminders",e); }
     }
 
-    private static int restorePrepared(Context context, org.json.JSONArray alarms) throws org.json.JSONException {
+    static int restorePrepared(Context context, org.json.JSONArray alarms) throws org.json.JSONException {
         AlarmManager manager=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         boolean defaultShowImages = prefs.getBoolean("show_prayer_images", true);
@@ -130,6 +143,17 @@ public class AdhanNativePlugin extends Plugin {
         if (widgetCity != null && !widgetCity.trim().isEmpty()) editor.putString("widget_city", widgetCity.trim());
             editor.apply();
 
+        PrayerRenewalReceiver.cancel(context);
+        editor = prefs.edit().remove("local_calculation");
+        JSObject local = call.getObject("localCalculation");
+        String renewalError = "";
+        if (local != null && (adhanEnabled || preAlert)) {
+            try {
+                LocalPrayerCalculator.validateReference(local, timingsObj, Calendar.getInstance());
+                editor.putString("local_calculation", local.toString());
+            } catch (Exception e) { renewalError = e.getMessage(); }
+        }
+        editor.apply();
         // إلغاء الجدولة القديمة أولاً
         cancelExistingAlarms(context, alarmManager);
 
@@ -138,10 +162,11 @@ public class AdhanNativePlugin extends Plugin {
                 org.json.JSONArray alarms=call.getArray("alarmSchedule");
                 prefs.edit().putString("prepared_alarms",alarms.toString()).apply();
                 int count=restorePrepared(context,alarms);
+                boolean automaticRenewal=PrayerRenewalReceiver.renew(context);
                 cancelLegacyBroadcastPolling(context,alarmManager);
                 PrayerWidgetProvider.updateAllWidgets(context);
                 updateStickyNotificationInternal(context);
-                JSObject result=new JSObject();result.put("success",true);result.put("scheduledCount",count);call.resolve(result);
+                JSObject result=new JSObject();result.put("success",true);result.put("scheduledCount",count);result.put("automaticRenewal",automaticRenewal);result.put("renewalError",renewalError);call.resolve(result);
             } catch(Exception e) { call.reject("Could not schedule prayer calendar",e); }
             return;
         }
@@ -387,6 +412,7 @@ public class AdhanNativePlugin extends Plugin {
     }
 
     public static void rescheduleAlarmsFromPrefs(Context context) {
+        if (PrayerRenewalReceiver.renew(context)) return;
         try {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             String prepared=prefs.getString("prepared_alarms",null);
@@ -607,7 +633,8 @@ public class AdhanNativePlugin extends Plugin {
 
     @PluginMethod
     public void cancelAllAlarms(PluginCall call) {
-        getContext().getSharedPreferences(PREFS_NAME,0).edit().remove("prepared_alarms").remove("last_timings_json").putBoolean("adhan_enabled",false).putBoolean("pre_alert_enabled",false).apply();
+        PrayerRenewalReceiver.cancel(getContext());
+        getContext().getSharedPreferences(PREFS_NAME,0).edit().remove("local_calculation").remove("prepared_alarms").remove("last_timings_json").putBoolean("adhan_enabled",false).putBoolean("pre_alert_enabled",false).apply();
         Context context = getContext();
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {

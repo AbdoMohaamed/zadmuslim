@@ -131,6 +131,11 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
         if (prayerName == null || prayerName.isEmpty()) prayerName = "الصلاة";
 
+        if (CallAudioGuard.isBusy(context)) {
+            showQuietPrayerNotification(context, prayerName, isPreAlert);
+            if (pendingResult != null) pendingResult.finish();
+            return;
+        }
         // حجز WakeLock فوري لحماية تنفيذ المعالج
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock receiverWakeLock = null;
@@ -166,7 +171,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 // Service enters foreground before starting audio and requesting audio focus.
 
                 // ب. إظهار إشعار شاشة القفل التفاعلي مع FullScreenIntent
-                showAdhanAlarmNotification(context, prayerName, prayerKey);
+
 
                 // تحديث ويدجت الشاشة الرئيسية فوراً لينتقل للصلاة التالية
                 try {
@@ -180,6 +185,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_NAME, prayerName);
                     serviceIntent.putExtra(AdhanService.EXTRA_PRAYER_KEY, prayerKey);
                     serviceIntent.putExtra(AdhanService.EXTRA_MUAZZIN, muazzin);
+                    serviceIntent.putExtra(EXTRA_SHOW_PRAYER_IMAGES, showPrayerImages);
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         context.startForegroundService(serviceIntent);
@@ -190,17 +196,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     Log.w(TAG, "Notice on starting AdhanService foreground: " + serviceErr.getMessage());
                 }
 
-                // د. محاولة فتح شاشة الأذان الكاملة على شاشة القفل
-                try {
-                    Intent activityIntent = new Intent(context, AdhanActivity.class);
-                    activityIntent.putExtra(AdhanActivity.EXTRA_PRAYER_NAME, prayerName);
-                    activityIntent.putExtra(AdhanActivity.EXTRA_PRAYER_KEY, prayerKey);
-                    activityIntent.putExtra(EXTRA_SHOW_PRAYER_IMAGES, showPrayerImages);
-                    activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    context.startActivity(activityIntent);
-                } catch (Exception actErr) {
-                    Log.w(TAG, "Notice on launching AdhanActivity: " + actErr.getMessage());
-                }
+
             }
         } finally {
             if (receiverWakeLock != null && receiverWakeLock.isHeld()) {
@@ -216,7 +212,26 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         }
     }
 
+    public static Notification buildQuietPrayerNotification(Context context, String name, boolean pre) {
+        String channelId="zad_prayer_during_call_v1";
+        NotificationManager manager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if(Build.VERSION.SDK_INT>=26 && manager!=null) {
+            NotificationChannel channel=new NotificationChannel(channelId,"تنبيهات الصلاة الصامتة أثناء المكالمات",NotificationManager.IMPORTANCE_LOW);
+            channel.setSound(null,null);channel.enableVibration(false);manager.createNotificationChannel(channel);
+        }
+        PendingIntent open=PendingIntent.getActivity(context,9994,new Intent(context,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+        return new NotificationCompat.Builder(context,channelId).setSmallIcon(R.drawable.ic_stat_icon)
+            .setContentTitle((pre?"اقترب موعد ":"حان موعد ")+name)
+            .setContentText("تنبيه الصلاة")
+            .setContentIntent(open).setSilent(true).setPriority(NotificationCompat.PRIORITY_LOW).setAutoCancel(true).build();
+    }
+    public static void showQuietPrayerNotification(Context context,String name,boolean pre) {
+        NotificationManager manager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if(manager!=null)manager.notify(99994,buildQuietPrayerNotification(context,name,pre));
+    }
+
     public static Notification buildAdhanAlarmNotification(Context context, String prayerName, String prayerKey) {
+        if(CallAudioGuard.isBusy(context)) return buildQuietPrayerNotification(context,prayerName,false);
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
@@ -314,6 +329,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
     }
 
     public static Notification buildPrePrayerNotification(Context context, String prayerName, String prayerKey, int intervalMinutes) {
+        if(CallAudioGuard.isBusy(context)) return buildQuietPrayerNotification(context,prayerName,true);
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null) throw new IllegalStateException("NotificationManager unavailable");
 

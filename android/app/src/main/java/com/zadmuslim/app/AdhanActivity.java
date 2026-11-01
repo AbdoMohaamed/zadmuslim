@@ -59,6 +59,7 @@ public class AdhanActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
+        if (CallAudioGuard.isBusy(this)) { finish(); return; }
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }

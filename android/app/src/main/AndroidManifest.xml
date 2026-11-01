@@ -58,6 +58,7 @@
 
         <!-- مستقبل منبه الأذان والتنبيه المسبق وإعادة الجدولة -->
         <service android:name=".RadioService" android:exported="false" android:foregroundServiceType="mediaPlayback" android:stopWithTask="false" />
+        <receiver android:name="com.zadmuslim.app.PrayerRenewalReceiver" android:exported="false" />
         <receiver android:name="com.zadmuslim.app.BackgroundReminderReceiver" android:exported="false" />
         <receiver
             android:name=".AdhanAlarmReceiver"

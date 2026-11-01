@@ -26,6 +26,15 @@ public class AdhanPlayer {
     private static Context appContext;
     private static AudioManager audioManager;
     private static Object audioFocusRequestObj;
+    private static AudioManager.OnAudioFocusChangeListener focusListener;
+    private static final Handler callHandler = new Handler(Looper.getMainLooper());
+    private static final Runnable callMonitor = new Runnable() {
+        @Override public void run() {
+            if (!isPlaying) return;
+            if (CallAudioGuard.isBusy(appContext)) { stop(); return; }
+            callHandler.postDelayed(this, 250);
+        }
+    };
     private static BroadcastReceiver hardwareKeysReceiver;
     private static ContentObserver volumeContentObserver;
     private static volatile boolean isPlaying = false;
@@ -47,7 +56,7 @@ public class AdhanPlayer {
             }
 
             // 2. طلب التركيز الصوتي (Audio Focus)
-            requestAudioFocus();
+            if (CallAudioGuard.isBusy(appContext) || !requestAudioFocus()) { stop(); return; }
 
             // 3. التأكد من أن مستوى صوت المنبه مسموع
             // Respect the system alarm volume; the in-app slider scales this playback.
@@ -69,7 +78,6 @@ public class AdhanPlayer {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                     .build();
             mediaPlayer.setAudioAttributes(audioAttributes);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
@@ -90,8 +98,10 @@ public class AdhanPlayer {
                 stop();
             });
 
+            if (CallAudioGuard.isBusy(appContext)) { stop(); return; }
             mediaPlayer.start();
             isPlaying = true;
+            callHandler.post(callMonitor);
             Log.d(TAG, "Adhan started successfully on STREAM_ALARM with resource: " + soundResId);
 
             // 5. تسجيل مستمعات أزرار الصوت وزر القفل لإيقاف الأذان فوراً عند الضغط عليها
@@ -103,40 +113,30 @@ public class AdhanPlayer {
         }
     }
 
-    private static void requestAudioFocus() {
-        if (audioManager == null) return;
+    private static boolean requestAudioFocus() {
+        if (audioManager == null) return false;
         try {
+            focusListener = change -> {
+                if (change == AudioManager.AUDIOFOCUS_LOSS ||
+                    change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
+                    change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) stop();
+            };
+            int result;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                AudioAttributes playbackAttrs = new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build();
-
-                AudioFocusRequest afr = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
-                        .setAudioAttributes(playbackAttrs)
-                        .setOnAudioFocusChangeListener(focusChange -> {
-                            if (focusChange == AudioManager.AUDIOFOCUS_LOSS || focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                                Log.d(TAG, "Audio focus lost - stopping adhan");
-                                stop();
-                            }
-                        })
-                        .build();
-
-                audioFocusRequestObj = afr;
-                audioManager.requestAudioFocus(afr);
+                AudioFocusRequest request = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                    .setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
+                    .setAcceptsDelayedFocusGain(false).setWillPauseWhenDucked(true)
+                    .setOnAudioFocusChangeListener(focusListener, callHandler).build();
+                audioFocusRequestObj=request;
+                result=audioManager.requestAudioFocus(request);
             } else {
-                audioManager.requestAudioFocus(
-                        focusChange -> {
-                            if (focusChange == AudioManager.AUDIOFOCUS_LOSS || focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                                stop();
-                            }
-                        },
-                        AudioManager.STREAM_ALARM,
-                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
-                );
+                result=audioManager.requestAudioFocus(focusListener,AudioManager.STREAM_ALARM,AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             }
+            return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         } catch (Exception e) {
-            Log.w(TAG, "Error requesting audio focus", e);
+            Log.w(TAG,"Audio focus unavailable",e);
+            return false;
         }
     }
 
@@ -195,6 +195,7 @@ public class AdhanPlayer {
 
     private static synchronized void releasePlayback(boolean stopService) {
         isPlaying = false;
+        callHandler.removeCallbacks(callMonitor);
 
         if (mediaPlayer != null) {
             try {
@@ -210,9 +211,12 @@ public class AdhanPlayer {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && audioFocusRequestObj instanceof AudioFocusRequest) {
                     audioManager.abandonAudioFocusRequest((AudioFocusRequest) audioFocusRequestObj);
+                } else if (focusListener != null) {
+                    audioManager.abandonAudioFocus(focusListener);
                 }
             } catch (Exception ignored) {}
             audioFocusRequestObj = null;
+            focusListener = null;
         }
 
         if (appContext != null) {
@@ -280,7 +284,7 @@ public class AdhanPlayer {
 
         try {
             audioManager = (AudioManager) appContext.getSystemService(Context.AUDIO_SERVICE);
-            requestAudioFocus();
+            if (CallAudioGuard.isBusy(appContext) || !requestAudioFocus()) { stop(); return; }
             PowerManager pm = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
             if (pm != null) {
                 wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "zadmuslim:pre_prayer_audio_wakelock");
@@ -299,7 +303,6 @@ public class AdhanPlayer {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                     .build();
             mediaPlayer.setAudioAttributes(audioAttributes);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
@@ -315,8 +318,10 @@ public class AdhanPlayer {
 
             mediaPlayer.prepare();
             mediaPlayer.setOnCompletionListener(mp -> stop());
+            if (CallAudioGuard.isBusy(appContext)) { stop(); return; }
             mediaPlayer.start();
             isPlaying = true;
+            callHandler.post(callMonitor);
             registerHardwareStopListeners(appContext);
 
             Log.d(TAG, "PrePrayerVoice started successfully with resource: " + soundResId + " for " + prayerKey);

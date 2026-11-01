@@ -256,3 +256,22 @@ test('prayer image references in page and service worker point at actual jpg res
 test('same-day clock offset mismatch prevents scheduling stale local times',async()=>{
  const h=harness({settings:{adhan:true}});const v=JSON.parse(h.data.get('zad_prayer_verified'));v.offset=new Date().getTimezoneOffset()+60;h.data.set('zad_prayer_verified',JSON.stringify(v));await h.service.schedulePrayers(h.timings);assert.equal(h.calls.native.length,0);assert.equal(h.calls.local.length,0);
 });
+
+
+test('iOS expiry warning precedes the last prayer and never exists without prayers',()=>{
+ const h=harness({platform:'ios'}), now=new Date('2026-10-30T10:00:00Z');
+ const at=new Date('2026-11-04T18:00:00Z');
+ const reminder=h.service.scheduleExpiryReminder([{id:100,schedule:{at}}],now);
+ assert.equal(reminder.id,89990);
+ assert.equal(reminder.schedule.at.getTime(),at.getTime()-86400000);
+ assert.equal(h.service.scheduleExpiryReminder([],now),null);
+ assert.equal(h.service.scheduleExpiryReminder([{id:100,schedule:{at:now}}],now),null);
+});
+test('local calculation metadata only follows its matching location and settings',async()=>{
+ const h=harness({settings:{adhan:true}});
+ const context=JSON.stringify(['Cairo','','0',null]);
+ h.data.set('zad_local_prayer_calculation',JSON.stringify({context,latitude:30,longitude:31}));
+ await h.service.schedulePrayers();assert.equal(h.calls.native.at(-1).localCalculation.latitude,30);
+ h.data.set('zad_local_prayer_calculation',JSON.stringify({context:'other city'}));
+ await h.service.schedulePrayers();assert.equal(h.calls.native.at(-1).localCalculation,undefined);
+});

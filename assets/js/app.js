@@ -1916,8 +1916,13 @@ async function fetchPrayerTimes(cityKey) {
     try { previous=JSON.parse(localStorage.getItem('zad_prayer_verified')||'null'); } catch {}
     let storedSchedule;
     try { storedSchedule=JSON.parse(localStorage.getItem('zad_alarm_days')||'null'); } catch {}
+    let offlinePrayer;
+    const localContext=JSON.stringify([cityKey,localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords')]);
+    if(window.Capacitor?.getPlatform?.()==='android') {
+        try {offlinePrayer=await window.Capacitor.Plugins.AdhanNative?.getLocalPrayerTimings?.({context:localContext});} catch {}
+    }
     const scheduleSignature=JSON.stringify([cityKey,localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
-    if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0') || previous.offset!==new Date().getTimezoneOffset() || previous.zone!==Intl.DateTimeFormat().resolvedOptions().timeZone) await window.NativeAdhanService?.cancelPrayerAlarms?.();
+    if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0') || previous.offset!==new Date().getTimezoneOffset() || previous.zone!==Intl.DateTimeFormat().resolvedOptions().timeZone) { if(!offlinePrayer?.renewed) await window.NativeAdhanService?.cancelPrayerAlarms?.(); }
     if (requestVersion !== prayerRequestVersion) return;
     let url;
     let cacheKey;
@@ -1987,6 +1992,12 @@ async function fetchPrayerTimes(cityKey) {
         } catch(e) {}
     }
 
+    const fallbackToLocal = () => {
+        if(offlinePrayer?.renewed && validTimings(offlinePrayer.timings)) {
+            prayerTimings=offlinePrayer.timings;window.prayerTimings=prayerTimings;
+            markVerified();renderPrayerTimesUI(prayerTimings);startPrayerCountdown();initFastingTracker();
+        } else useFallbackTimings();
+    };
     fetch(url, { cache: "no-store" })
         .then(res => { if (!res.ok) throw new Error("Unavailable"); return res.json(); })
         .then(result => {
@@ -1996,6 +2007,12 @@ async function fetchPrayerTimes(cityKey) {
                 return;
             }
             if (result && result.code === 200 && validTimings(result.data?.timings)) {
+                const meta = result.data.meta;
+                const context = JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords')]);
+                localStorage.removeItem?.('zad_local_prayer_calculation');
+                if (meta?.method?.params && Number.isFinite(meta.latitude) && Number.isFinite(meta.longitude)) {
+                    localStorage.setItem('zad_local_prayer_calculation', JSON.stringify({context,latitude:meta.latitude,longitude:meta.longitude,params:meta.method.params,methodId:meta.method.id,school:Number(localStorage.getItem('zad_prayer_school')||0),latitudeAdjustmentMethod:meta.latitudeAdjustmentMethod,offset:meta.offset}));
+                }
                 prayerTimings = result.data.timings;
                 window.prayerTimings = prayerTimings;
                 markVerified();
@@ -2008,12 +2025,12 @@ async function fetchPrayerTimes(cityKey) {
                     window.NativeAdhanService.schedulePrayers(prayerTimings);
                 }
             } else {
-                useFallbackTimings();
+                fallbackToLocal();
             }
         })
         .catch(() => {
             if (requestVersion !== prayerRequestVersion) return;
-            useFallbackTimings();
+            fallbackToLocal();
         });
 }
 

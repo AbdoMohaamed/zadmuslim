@@ -63,9 +63,7 @@ public class AdhanService extends Service {
 
         // إظهار إشعار Foreground الموحد
         boolean preAlert = intent != null && intent.getBooleanExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
-        Notification notification = preAlert
-            ? AdhanAlarmReceiver.buildPrePrayerNotification(this, prayerName, prayerKey, intent.getIntExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL, 5))
-            : AdhanAlarmReceiver.buildAdhanAlarmNotification(this, prayerName, prayerKey);
+        Notification notification = AdhanAlarmReceiver.buildQuietPrayerNotification(this,prayerName,preAlert);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
@@ -83,6 +81,11 @@ public class AdhanService extends Service {
             }
         }
 
+        if(CallAudioGuard.isBusy(this)) {
+            stopAdhanAndSelf();
+            AdhanAlarmReceiver.showQuietPrayerNotification(this,prayerName,preAlert);
+            return START_NOT_STICKY;
+        }
         isPlaying = true;
 
         // التأكد من أن الصوت يعمل عبر AdhanPlayer
@@ -91,6 +94,24 @@ public class AdhanService extends Service {
             else AdhanPlayer.play(this, prayerName, prayerKey, muazzin);
         }
 
+        if (!AdhanPlayer.isPlaying() || CallAudioGuard.isBusy(this)) {
+            stopAdhanAndSelf();
+            AdhanAlarmReceiver.showQuietPrayerNotification(this,prayerName,preAlert);
+        } else {
+            android.app.NotificationManager manager=(android.app.NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+            manager.notify(NOTIFICATION_ID,preAlert
+                ? AdhanAlarmReceiver.buildPrePrayerNotification(this,prayerName,prayerKey,intent.getIntExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL,5))
+                : AdhanAlarmReceiver.buildAdhanAlarmNotification(this,prayerName,prayerKey));
+            if (!preAlert && !CallAudioGuard.isBusy(this)) {
+                try {
+                    Intent screen=new Intent(this,AdhanActivity.class);
+                    screen.putExtra(EXTRA_PRAYER_NAME,prayerName).putExtra(EXTRA_PRAYER_KEY,prayerKey);
+                    if(intent!=null && intent.hasExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES)) screen.putExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES,intent.getBooleanExtra(AdhanAlarmReceiver.EXTRA_SHOW_PRAYER_IMAGES,true));
+                    screen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(screen);
+                } catch(Exception e) {Log.w(TAG,"Could not open adhan screen",e);}
+            }
+        }
         return START_NOT_STICKY;
     }
 

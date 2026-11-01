@@ -46,7 +46,7 @@ function init() {
     const plugin=window.Capacitor.Plugins.AdhanNative;
     const [permissions,schedule]=await Promise.all([plugin.checkAlarmPermissions(),plugin.getPrayerScheduleStatus()]);
     const fmt=value=>new Date(value).toLocaleString('ar-EG');
-    text.textContent='الإشعارات: '+(permissions.notificationsGranted?'مسموح بها':'غير مسموح بها')+' — المواعيد الدقيقة: '+(permissions.exactAlarmsGranted?'مسموح بها':'تحتاج إذنًا')+(permissions.fullScreenIntentGranted===false?' — شاشة الأذان: تحتاج إذنًا لفتح الشاشة عند القفل':'')+'. '+(schedule.count ? 'تنبيه الصلاة القادم: '+fmt(schedule.next)+'. المواعيد محفوظة حتى '+fmt(schedule.until)+'. افتح التطبيق قبلها لتجديدها.' : 'لا توجد تنبيهات صلاة قادمة محفوظة. راجع تفعيل الأذان ومواقيت مدينتك.');
+    text.textContent='الإشعارات: '+(permissions.notificationsGranted?'مسموح بها':'غير مسموح بها')+' — المواعيد الدقيقة: '+(permissions.exactAlarmsGranted?'مسموح بها':'تحتاج إذنًا')+(permissions.fullScreenIntentGranted===false?' — شاشة الأذان: تحتاج إذنًا لفتح الشاشة عند القفل':'')+'. '+(schedule.count ? 'تنبيه الصلاة القادم: '+fmt(schedule.next)+'. المواعيد محفوظة حتى '+fmt(schedule.until)+(schedule.automaticRenewal?'. يتم تجديدها تلقائيًا دون إنترنت حسب الموقع المحفوظ.':'. افتح التطبيق قبلها لتجديدها.') : 'لا توجد تنبيهات صلاة قادمة محفوظة. راجع تفعيل الأذان ومواقيت مدينتك.');
     notificationButton.hidden=permissions.notificationsGranted===true;exactButton.hidden=permissions.exactAlarmsGranted===true;batteryButton.hidden=permissions.batteryOptimizationsIgnored===true;
     if(fullScreenButton)fullScreenButton.hidden=permissions.fullScreenIntentGranted!==false;
     if(!permissions.batteryOptimizationsIgnored)text.textContent+=' راجع قيود البطارية إذا تأخر التنبيه.';
@@ -54,7 +54,7 @@ function init() {
     const plugin=window.Capacitor.Plugins.LocalNotifications;
     const [permission,pending]=await Promise.all([plugin.checkPermissions(),plugin.getPending()]);
     const times=(pending.notifications||[]).filter(n=>n.id>0&&n.id<70000).map(n=>new Date(n.schedule?.at).getTime()).filter(t=>t>Date.now()).sort((a,b)=>a-b);
-    text.textContent='إذن الإشعارات: '+(permission.display==='granted'?'مسموح':'غير مفعّل')+'. '+(times.length?'تنبيه الصلاة القادم: '+new Date(times[0]).toLocaleString('ar-EG')+'. الجدولة حتى '+new Date(times.at(-1)).toLocaleString('ar-EG')+'.':'لا توجد تنبيهات صلاة قادمة يمكن تأكيدها.');
+    text.textContent='إذن الإشعارات: '+(permission.display==='granted'?'مسموح':'غير مفعّل')+'. '+(times.length?'تنبيه الصلاة القادم: '+new Date(times[0]).toLocaleString('ar-EG')+'. الجدولة حتى '+new Date(times.at(-1)).toLocaleString('ar-EG')+'. افتح التطبيق لتجديدها؛ يصلك تذكير قبل انتهاء الجدولة.':'لا توجد تنبيهات صلاة قادمة يمكن تأكيدها.');
    } else text.textContent='المتصفح لا يضمن تشغيل الأذان عند إغلاقه.';
   }catch{text.textContent='تعذّر التحقق من الجدولة. حدّث التطبيق أو أعد المحاولة؛ حفظ الاختيارات لا يؤكد وصول التنبيه.';}
  }

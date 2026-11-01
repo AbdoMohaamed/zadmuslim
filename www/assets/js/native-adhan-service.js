@@ -30,6 +30,17 @@ const NativeAdhanService = {
             await this.createNotificationChannels();
             await this.registerPrayerActions();
             this.setupListeners();
+            if (!this.renewalListenerInstalled) {
+                this.renewalListenerInstalled=true;
+                document.addEventListener('visibilitychange', async () => {
+                    if(document.hidden || localStorage.getItem('smart_notify_configured')!=='true' || Date.now()-(this.lastForegroundRenewal||0)<60000) return;
+                    this.lastForegroundRenewal=Date.now();
+                    try {
+                        const permissions=await window.Capacitor.Plugins.LocalNotifications.checkPermissions();
+                        if(permissions.display==='granted') await this.scheduleLocalNotifications();
+                    } catch(e) { console.warn('Prayer renewal deferred',e); }
+                });
+            }
             if (localStorage.getItem('smart_notify_configured') === 'true') await this.scheduleLocalNotifications();
         } else {
             console.log("🌐 Native Adhan Service: Running on Web / PWA fallback mode");
@@ -141,6 +152,11 @@ const NativeAdhanService = {
                     LocalNotifications.removeDeliveredNotifications({notifications:[{id:notif.id}]}).catch(e=>console.warn("Dismiss notification failed",e));
                     return;
                 }
+                if (notif?.extra?.type === 'prayer_schedule_expiry') {
+                    if(typeof window.zadNavigate==='function') window.zadNavigate('settings.html');
+                    else window.location.href='settings.html';
+                    return;
+                }
                 if (notif && notif.extra) {
                     // تشغيل صوت الأذان داخل التطبيق فقط إذا ضغط المستخدم عمداً وبشكل صريح على زر "سماع الأذان" (actionId === 'play_adhan')
                     // أما إذا نقر على الإشعار لفتح التطبيق، فلن يتم تشغيل الصوت مجدداً لأن الأذان أذّن في وقته بالفعل
@@ -172,7 +188,7 @@ const NativeAdhanService = {
         try { await plugins?.AdhanNative?.cancelAllAlarms(); } catch {}
         try {
             const pending = await plugins?.LocalNotifications?.getPending();
-            const prayers = pending?.notifications?.filter(n => n.id < 70000) || [];
+            const prayers = pending?.notifications?.filter(n => n.id < 70000 || n.id === 89990) || [];
             if (prayers.length) await plugins.LocalNotifications.cancel({ notifications: prayers });
         } catch {}
     },
@@ -229,6 +245,15 @@ const NativeAdhanService = {
             return [];
         }
         return list;
+    },
+
+    scheduleExpiryReminder(requests, now = new Date()) {
+        const prayers=requests.filter(n=>n.id>0 && n.id<70000 && n.schedule?.at instanceof Date);
+        if(!prayers.length) return null;
+        const until=Math.max(...prayers.map(n=>n.schedule.at.getTime()));
+        const at=Math.max(now.getTime()+60000,until-86400000);
+        if(at>=until) return null;
+        return {id:89990,title:'جدّد مواقيت الصلاة',body:'افتح التطبيق لتجديد تنبيهات الصلاة قبل انتهاء المواعيد المحفوظة.',schedule:{at:new Date(at)},extra:{type:'prayer_schedule_expiry',url:'settings.html'}};
     },
 
     async schedulePrayers(prayersTimings) {
@@ -387,6 +412,7 @@ const NativeAdhanService = {
 
             // 1. استخدام بلجن الأذان الأصلي لنظام أندرويد (AdhanNative) لتشغيل الأذان الحقيقي وتحديث ويدجت الشاشة
             let hasNativePlugin = false;
+            let automaticRenewal = false;
             if (window.Capacitor?.getPlatform?.() === 'android' && window.Capacitor.Plugins.AdhanNative) {
                 try {
                     let hijriDateStr = "";
@@ -416,8 +442,15 @@ const NativeAdhanService = {
 
                     const showPrayerImages = notifySettings.prayerImages !== false && localStorage.getItem('zad_show_prayer_images') !== '0';
                     await window.Capacitor.Plugins.AdhanNative.setAdhanVolume?.({volume:Math.max(0.1,Math.min(1,Number(localStorage.getItem('zad_adhan_volume') || 1)))});
+                    let localCalculation;
+                    try {
+                        const saved=JSON.parse(localStorage.getItem('zad_local_prayer_calculation')||'null');
+                        const context=JSON.stringify([localStorage.getItem('selected_prayer_city'),localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords')]);
+                        if(saved?.context===context) localCalculation=saved;
+                    } catch {}
                     const nativeRes = await window.Capacitor.Plugins.AdhanNative.schedulePrayerAlarms({
                         alarmSchedule: notificationsToSchedule.filter(n => n.id < 70000).map(n => ({at:n.schedule.at.getTime(),prayerKey:n.extra.prayerKey,prayerName:n.extra.prayerName,isPreAlert:n.extra.type==='pre_prayer_alert',muazzin:selectedMuazzin,preAlertInterval:preInterval,showImages:showPrayerImages})),
+                        localCalculation,
                         timings: prayersTimings,
                         muazzin: selectedMuazzin,
                         preAlert: notifySettings.prePrayer !== false,
@@ -431,6 +464,7 @@ const NativeAdhanService = {
                     });
                     if (nativeRes?.success === false) throw new Error('Native scheduling rejected');
                     hasNativePlugin = true;
+                    automaticRenewal = nativeRes?.automaticRenewal === true;
                     console.log("✅ Native Adhan Android Service: Alarms & Home Widget scheduled successfully:", nativeRes);
                 } catch(nativeErr) {
                     await window.Capacitor.Plugins.AdhanNative.cancelAllAlarms();
@@ -447,6 +481,10 @@ const NativeAdhanService = {
             }
 
             notificationsForLocal = notificationsForLocal.filter(n => n.id < 70000).sort((a,b)=>a.schedule.at-b.schedule.at).slice(0,50);
+            if (window.Capacitor?.getPlatform?.() === 'ios') {
+                const reminder=this.scheduleExpiryReminder(notificationsForLocal, now);
+                if(reminder) notificationsForLocal.push(reminder);
+            }
             notificationsForLocal.push(...await this.recurringReminders(notifySettings));
             // Remove legacy iOS native prayer requests; LocalNotifications owns iOS scheduling.
             if (window.Capacitor?.getPlatform?.() === 'ios') await window.Capacitor.Plugins.AdhanNative?.cancelAllAlarms?.();
@@ -468,7 +506,7 @@ const NativeAdhanService = {
             if (needsPrayerAlerts && actualRequests.length === 0) return {success:false,remindersScheduled:true,message:'لا توجد مواعيد صلاة قادمة مجدولة. حدّث المواقيت من الرئيسية؛ التذكيرات الأخرى محفوظة.'};
             if (isAndroid && actualRequests.length && !await this.checkExactAlarmPermission()) return {success:false,prayersScheduled:true,remindersScheduled:true,message:'حُفظت التنبيهات، لكن إذن المنبّهات الدقيقة غير مفعّل. فعّله لضبط توقيت الأذان وتشغيله في الخلفية.'};
             const until = actualRequests.length ? new Date(Math.max(...actualRequests.map(n=>n.schedule.at.getTime()))).toLocaleDateString('ar-EG') : '';
-            return { success: true, message: until ? 'تمت الجدولة في الهاتف؛ الأذان حتى ' + until + '. افتح التطبيق لتجديد المواعيد قبل انتهاء المدة.' : 'تم حفظ التذكيرات المتكررة في الهاتف.' };
+            return { success: true, message: automaticRenewal ? 'تم حفظ الأذان وتجديد مواقيته تلقائيًا على أندرويد حسب الموقع المحفوظ، دون إنترنت.' : until ? 'تمت الجدولة في الهاتف؛ الأذان حتى ' + until + '. افتح التطبيق لتجديد المواعيد قبل انتهاء المدة.' : 'تم حفظ التذكيرات المتكررة في الهاتف.' };
         } catch (e) {
             console.warn("Failed to schedule native prayer alarms:", e);
             return { success: false, message: 'تعذّرت جدولة التنبيهات في نظام الهاتف.' };
@@ -530,7 +568,7 @@ const NativeAdhanService = {
             // إلغاء الإشعارات السابقة من نوع أذكار وصلاة على النبي فقط (IDs 70000 to 89999)
             const pending = await LocalNotifications.getPending();
             if (pending && pending.notifications && pending.notifications.length > 0) {
-                const oldNonPrayers = pending.notifications.filter(n => n.id >= 70000 && n.id < 90000);
+                const oldNonPrayers = pending.notifications.filter(n => n.id >= 70000 && n.id < 90000 && n.id !== 89990);
                 if (oldNonPrayers.length > 0) {
                     await LocalNotifications.cancel({ notifications: oldNonPrayers });
                 }
