@@ -7,4 +7,21 @@ test('a subscription without a device token never reports ready',async()=>{const
 test('iOS app target includes the push entitlement in signing configurations',()=>{assert.match(fs.readFileSync('ios/App/App/App.entitlements','utf8'),/<key>aps-environment<\/key>/);assert.equal((fs.readFileSync('ios/App/App.xcodeproj/project.pbxproj','utf8').match(/CODE_SIGN_ENTITLEMENTS = App\/App.entitlements;/g)||[]).length,2);});
 
 test('server public app ID overrides Firebase and cached IDs',async()=>{const h=setup();h.c.plugins={OneSignal:h.plugin};const serverId='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';let requests=0;h.c.fetch=async()=>{requests++;return {ok:true,json:async()=>({appId:serverId})};};await h.c.service.init();assert.deepEqual(h.calls,[serverId]);assert.equal(requests,1);});
+
+test('current Cordova default export initializes and registers after permission is granted',async()=>{
+ const h=setup();h.c.OneSignal={default:h.plugin};let optedIn=0;
+ h.plugin.User.pushSubscription.optIn=()=>optedIn++;
+ await h.c.service.init();
+ assert.deepEqual(h.calls,[h.id]);assert.equal(optedIn,1);
+});
+
+test('denied permission never opts the device in; later permission grant restores its subscription',async()=>{
+ const h=setup();h.c.plugins={OneSignal:h.plugin};let optedIn=0;const events={};
+ h.plugin.User.pushSubscription.optIn=()=>optedIn++;
+ h.plugin.Notifications.requestPermission=async()=>false;
+ h.plugin.Notifications.addEventListener=(name,fn)=>events[name]=fn;
+ await h.c.service.init();assert.equal(optedIn,0);
+ events.permissionChange(false);assert.equal(optedIn,0);
+ events.permissionChange(true);assert.equal(optedIn,1);
+});
 test('public push configuration exposes only app ID, never server credentials',()=>{const env={ONESIGNAL_APP_ID:'11111111-2222-4333-8444-555555555555',ONESIGNAL_REST_API_KEY:'private-secret'};const c={process:{env},module:{exports:{}}};vm.runInNewContext(fs.readFileSync('api/push-config.js','utf8'),c);const r={setHeader(){},status(code){this.code=code;return this;},json(body){this.body=body;return this;}};c.module.exports({method:'GET'},r);assert.equal(r.code,200);assert.deepEqual(Object.keys(r.body),['appId']);assert.doesNotMatch(JSON.stringify(r.body),/private-secret/);delete env.ONESIGNAL_APP_ID;c.module.exports({method:'GET'},r);assert.equal(r.code,503);});

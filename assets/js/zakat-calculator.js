@@ -50,6 +50,10 @@
         select.addEventListener('change', (e) => {
             currentCurrency = e.target.value;
             localStorage.setItem('zad_zakat_currency', currentCurrency);
+            for (const id of ['zakat-gold24-price', 'zakat-silver-price']) {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+            }
             updatePriceInputsPlaceholders();
             calculateZakat();
         });
@@ -93,7 +97,8 @@
 
         const nisabDateBadge = document.getElementById('zakat-prices-date');
         if (nisabDateBadge) {
-            nisabDateBadge.textContent = new Date().toLocaleDateString('ar-EG');
+            const entered = [goldPriceInput, silverPriceInput].filter(input => Number(input?.value) > 0).length;
+            nisabDateBadge.textContent = entered === 2 ? 'أسعار أدخلتها يدويًا' : entered === 1 ? 'سعر يدوي وقيمة مرجعية للحقل الفارغ' : 'قيم مرجعية غير محدثة';
         }
     }
 
@@ -151,6 +156,7 @@
     }
 
     function calculateZakat() {
+        updatePriceInputsPlaceholders();
         const currData = DEFAULT_PRICES[currentCurrency] || DEFAULT_PRICES.SAR;
         const priceGold24 = getGold24Price();
         const priceSilver = getSilverPrice();

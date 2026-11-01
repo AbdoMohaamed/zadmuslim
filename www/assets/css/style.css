@@ -25820,37 +25820,25 @@ body.light-theme textarea {
             gap: 12px;
         }
 
-        .btn-focus-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            color: var(--gold-400, #d4af37);
-            padding: 8px 18px;
-            border-radius: 999px;
-            font-size: 0.92rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            font-family: inherit;
-        }
+.btn-focus-back {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    border: 0;
+    background: #163A2F;
+    color: #F1F5F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: inherit;
+}
 
-            .btn-focus-back:hover {
-                background: rgba(212, 175, 55, 0.25);
-                border-color: var(--gold-400, #d4af37);
-                transform: translateX(3px);
-            }
 
-            .btn-focus-back i {
-                font-size: 0.95rem;
-                transition: transform 0.2s ease;
-            }
-
-            .btn-focus-back:hover i {
-                transform: translateX(4px);
-            }
 
         .service-focus-meta {
             display: flex;

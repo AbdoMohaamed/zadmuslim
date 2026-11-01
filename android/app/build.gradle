@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def zadSigningEnv = ['ZAD_KEYSTORE_PATH', 'ZAD_KEYSTORE_PASSWORD', 'ZAD_KEY_ALIAS', 'ZAD_KEY_PASSWORD']
+def zadSigningValues = zadSigningEnv.collectEntries { name -> [(name): System.getenv(name)] }
+def zadSigningConfigured = zadSigningValues.every { name, value -> value != null && !value.isEmpty() }
+
 android {
     namespace = "com.zadmuslim.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -18,15 +22,11 @@ android {
     }
     signingConfigs {
         release {
-            def keyPath = System.getenv('ZAD_KEYSTORE_PATH') ?: 'zadmuslim-release-key.jks'
-            def pass = System.getenv('ZAD_KEYSTORE_PASSWORD') ?: 'zadmuslim2026'
-            def alias = System.getenv('ZAD_KEY_ALIAS') ?: 'zadmuslim'
-            def keyPass = System.getenv('ZAD_KEY_PASSWORD') ?: 'zadmuslim2026'
-            if (file(keyPath).exists()) {
-                storeFile file(keyPath)
-                storePassword pass
-                keyAlias alias
-                keyPassword keyPass
+            if (zadSigningConfigured && file(zadSigningValues.ZAD_KEYSTORE_PATH).isFile()) {
+                storeFile file(zadSigningValues.ZAD_KEYSTORE_PATH)
+                storePassword zadSigningValues.ZAD_KEYSTORE_PASSWORD
+                keyAlias zadSigningValues.ZAD_KEY_ALIAS
+                keyPassword zadSigningValues.ZAD_KEY_PASSWORD
             }
         }
     }
@@ -37,6 +37,17 @@ android {
             signingConfig signingConfigs.release
         }
     }
+}
+
+tasks.register('validateReleaseSigning') {
+    doLast {
+        def missing = zadSigningEnv.findAll { !zadSigningValues[it] }
+        if (!missing.isEmpty()) throw new GradleException('Release signing requires environment variables: ' + missing.join(', '))
+        if (!file(zadSigningValues.ZAD_KEYSTORE_PATH).isFile()) throw new GradleException('The configured release keystore file does not exist.')
+    }
+}
+tasks.matching { it.name == 'preReleaseBuild' }.configureEach {
+    dependsOn tasks.named('validateReleaseSigning')
 }
 
 repositories {

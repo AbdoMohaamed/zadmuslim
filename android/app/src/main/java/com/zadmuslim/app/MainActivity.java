@@ -2,6 +2,9 @@ package com.zadmuslim.app;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -18,6 +21,21 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AdhanNativePlugin.class);
         registerPlugin(RadioNativePlugin.class);
         super.onCreate(savedInstanceState);
+
+        // Create remote push's channel independently of prayer setup or WebView execution.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                NotificationChannel channel = new NotificationChannel(
+                    AdhanAlarmReceiver.BROADCAST_CHANNEL_ID,
+                    "رسائل زاد المسلم",
+                    NotificationManager.IMPORTANCE_HIGH
+                );
+                channel.setDescription("الإشعارات المرسلة من إدارة زاد المسلم");
+                channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                manager.createNotificationChannel(channel);
+            }
+        }
 
         // حماية رأس التطبيق من تداخل شريط حالة النظام (Status Bar & Display Cutout Insets)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, windowInsets) -> {

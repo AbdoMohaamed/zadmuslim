@@ -455,7 +455,7 @@ test('single service has one return control and preserves directory position',as
  w.filterCategory('الصلاة');d.querySelector('a[href="#prayer-times"]').click();
  assert.equal(d.body.classList.contains('single-service-mode'),true);assert.equal(d.getElementById('serviceFocusHeader').style.display,'block');
  assert.equal(d.querySelectorAll('button[onclick="closeServiceFocusView(true)"]').length,1);assert.equal(d.getElementById('floatingBackToServices'),null);assert.equal(d.getElementById('serviceFocusBottomBar'),null);
- const back=d.getElementById('btnServiceFocusBack');assert.equal(back.textContent.trim(),'رجوع للخدمات');back.click();await new Promise(r=>setTimeout(r,35));
+ const back=d.getElementById('btnServiceFocusBack');assert.equal(back.getAttribute('aria-label'),'رجوع للخدمات');back.click();await new Promise(r=>setTimeout(r,35));
  assert.equal(d.body.classList.contains('services-hub-mode'),true);assert.equal(d.getElementById('serviceFocusHeader').style.display,'none');assert.equal(restored,510);assert.match(d.querySelector('.cat-pill-btn.active').textContent,/الصلاة/);assert.deepEqual(errors,[]);w.close();
 });
 

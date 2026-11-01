@@ -23,6 +23,9 @@
         mine: { id: "mine", label: "دعواتي الخاصة", icon: "💌", color: "#ec4899" }
     };
 
+    const POST_CATEGORIES = new Set(['shifa', 'faraj', 'rizq', 'tawfeeq', 'hidaya', 'rahma']);
+    const normalizeCategory = value => POST_CATEGORIES.has(value) ? value : 'faraj';
+
     // نماذج جاهزة وسريعة للاقتراح عند كتابة دعاء جديد
     const QUICK_TEMPLATES = {
         shifa: [
@@ -176,7 +179,7 @@
             // كاش الأدعية الكامل
             const cached = JSON.parse(localStorage.getItem("wall_duas_cache") || "null");
             if (Array.isArray(cached) && cached.length > 0) {
-                state.allDuas = cached;
+                state.allDuas = cached.filter(item => item && typeof item === 'object').map(item => ({ ...item, category: normalizeCategory(item.category) }));
             } else {
                 state.allDuas = [...SEED_DUAS];
             }
@@ -220,7 +223,7 @@
                         const item = data[key];
                         cloudList.push({
                             id: key,
-                            category: item.category || "faraj",
+                            category: normalizeCategory(item.category),
                             author: item.author || "فاعل خير",
                             text: item.text || "",
                             timestamp: item.timestamp || Date.now(),
@@ -460,14 +463,16 @@
 
         let html = "";
         visibleList.forEach(dua => {
-            const cat = DUA_CATEGORIES[dua.category] || DUA_CATEGORIES.faraj;
+            const category = normalizeCategory(dua.category);
+            const cat = DUA_CATEGORIES[category];
+            const safeId = escapeHtml(dua.id);
             const isVoted = state.votedDuas.has(dua.id);
             const isMyDua = state.mySubmittedIds.has(dua.id);
             const timeAgo = formatTimeAgo(dua.timestamp);
-            const amenCount = (dua.amenCount || 1).toLocaleString("ar-EG");
+            const amenCount = (Number.isSafeInteger(dua.amenCount) && dua.amenCount >= 0 ? dua.amenCount : 1).toLocaleString("ar-EG");
 
             html += `
-                <article class="dua-wall-card ${isMyDua ? 'my-dua-card' : ''}" data-id="${dua.id}" data-category="${dua.category}">
+                <article class="dua-wall-card ${isMyDua ? 'my-dua-card' : ''}" data-id="${safeId}" data-category="${category}">
                     <div class="dua-card-header">
                         <div class="dua-author-box">
                             <div class="dua-avatar">
@@ -475,7 +480,7 @@
                             </div>
                             <div class="dua-author-info">
                                 <span class="dua-author-name">${escapeHtml(dua.author || "فاعل خير")}</span>
-                                <span class="dua-time" title="تاريخ النشر">${timeAgo}</span>
+                                <span class="dua-time" title="تاريخ النشر">${escapeHtml(timeAgo)}</span>
                             </div>
                         </div>
                         <div class="dua-category-badge" style="--badge-color: ${cat.color};">
@@ -503,19 +508,19 @@
                     <div class="dua-card-footer">
                         <button type="button" 
                                 class="btn-wall-amen ${isVoted ? 'voted' : ''}" 
-                                data-id="${dua.id}"
+                                data-id="${safeId}"
                                 ${isVoted ? 'disabled' : ''}
                                 title="${isVoted ? 'تم التأمين والدعاء بظهر الغيب' : 'اضغط للتأمين والدعاء لأخيك ونيل أجر: ولك بمثل'}">
                             <span class="amen-icon">${isVoted ? '✓' : '🤲'}</span>
                             <span class="amen-label">${isVoted ? 'أمّنتَ ودعوتَ له' : 'آمَنْتُ وَدَعَوْتُ لَكَ'}</span>
-                            <span class="amen-badge-count" id="amen-count-${dua.id}">${amenCount}</span>
+                            <span class="amen-badge-count" id="amen-count-${safeId}">${amenCount}</span>
                         </button>
 
                         <div class="dua-card-actions">
-                            <button type="button" class="btn-card-icon-action btn-share-dua-wa" data-id="${dua.id}" title="مشاركة الدعاء عبر واتساب">
+                            <button type="button" class="btn-card-icon-action btn-share-dua-wa" data-id="${safeId}" title="مشاركة الدعاء عبر واتساب">
                                 <i class="fa-brands fa-whatsapp"></i>
                             </button>
-                            <button type="button" class="btn-card-icon-action btn-copy-dua-text" data-id="${dua.id}" title="نسخ نص الدعاء">
+                            <button type="button" class="btn-card-icon-action btn-copy-dua-text" data-id="${safeId}" title="نسخ نص الدعاء">
                                 <i class="fa-regular fa-copy"></i>
                             </button>
                         </div>
@@ -800,7 +805,7 @@
                     return;
                 }
 
-                const cat = categorySelect ? categorySelect.value : "faraj";
+                const cat = normalizeCategory(categorySelect?.value);
                 const author = (authorInput && authorInput.value.trim()) ? authorInput.value.trim() : "أخوكم في الله";
 
                 const newId = "dua_" + Date.now() + "_" + Math.floor(Math.random() * 1000);

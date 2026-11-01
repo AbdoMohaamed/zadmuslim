@@ -7,6 +7,12 @@
 const OneSignalService = {
     initialized: false,
 
+    getSDK() {
+        if (typeof window === 'undefined') return null;
+        const sdk = window.plugins?.OneSignal || window.OneSignal?.default || window.OneSignal;
+        return typeof sdk?.initialize === 'function' ? sdk : null;
+    },
+
     async init() {
         if (this.initialized) return this.refreshStatus();
         if (this.pending) return this.pending;
@@ -19,7 +25,8 @@ const OneSignalService = {
 
         try {
             // التحقق مما إذا كان التطبيق يعمل داخل بيئة الموبايل الأصلية المزودة بـ OneSignal
-            if (typeof window === "undefined" || !window.plugins || !window.plugins.OneSignal) {
+            const OneSignal = this.getSDK();
+            if (!OneSignal) {
                 if (typeof window !== "undefined" && window.Capacitor?.isNativePlatform?.()) this.renderStatus("خدمة رسائل الإدارة غير متاحة في هذه النسخة. حدّث التطبيق ثم أعد التحقق.");
                 return;
             }
@@ -56,17 +63,17 @@ const OneSignalService = {
             }
 
             if (!appId || appId === "00000000-0000-0000-0000-000000000000") {
-                console.log("ℹ️ OneSignal: App ID not configured yet in admin panel");
+                console.log("ℹ️ OneSignal: server App ID is not configured");
                 this.renderStatus('إعداد استقبال رسائل الإدارة غير متاح. اتصل بالإنترنت وأعد المحاولة.');
                 return;
             }
 
-            const OneSignal = window.plugins.OneSignal;
             OneSignal.initialize(appId);
 
             // طلب الصلاحية للإشعارات في نظامي iOS و Android
             if (OneSignal.Notifications && typeof OneSignal.Notifications.requestPermission === "function") {
                 OneSignal.Notifications.requestPermission(true).then((accepted) => {
+                    if (accepted) OneSignal.User?.pushSubscription?.optIn?.();
                     this.refreshStatus();
                     console.log("✅ OneSignal Notification Permission status:", accepted);
                 }).catch(() => this.renderStatus("تعذّر طلب إذن الإشعارات. أعد المحاولة."));
@@ -89,7 +96,10 @@ const OneSignalService = {
             }
 
             OneSignal.User?.pushSubscription?.addEventListener?.('change', () => this.refreshStatus());
-            OneSignal.Notifications?.addEventListener?.('permissionChange', () => this.refreshStatus());
+            OneSignal.Notifications?.addEventListener?.('permissionChange', (granted) => {
+                if (granted) OneSignal.User?.pushSubscription?.optIn?.();
+                this.refreshStatus();
+            });
             this.initialized = true;
             await this.refreshStatus();
             console.log("✅ OneSignal Push Service initialized successfully on device");
@@ -114,7 +124,7 @@ const OneSignalService = {
 
     async refreshStatus() {
         try {
-            const subscription=window.plugins?.OneSignal?.User?.pushSubscription;
+            const subscription=this.getSDK()?.User?.pushSubscription;
             if(!subscription) return;
             const [id,token,optedIn]=await Promise.all([subscription.getIdAsync(),subscription.getTokenAsync(),subscription.getOptedInAsync()]);
             this.renderStatus(id && token && optedIn ? 'الجهاز مسجّل لاستقبال رسائل الإدارة. تأكيد الوصول يحتاج تجربة إرسال والتطبيق مقفول.' : 'اشتراك رسائل الإدارة غير جاهز. راجع إذن الإشعارات والاتصال؛ ظهور الرسالة داخل التطبيق لا يؤكد استقبالها في الخلفية.',id || '');

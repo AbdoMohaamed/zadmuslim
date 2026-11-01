@@ -16,10 +16,10 @@ module.exports = async function handler(req, res) {
   if (!session) return;
   try {
     const bodyData = { ...(req.body || {}),
-      appId: process.env.ONESIGNAL_APP_ID || (req.body && (req.body.appId || req.body.onesignalAppId)),
-      restKey: process.env.ONESIGNAL_REST_API_KEY || (req.body && (req.body.restKey || req.body.onesignalRestKey)),
-      onesignalAppId: process.env.ONESIGNAL_APP_ID || (req.body && (req.body.onesignalAppId || req.body.appId)),
-      onesignalRestKey: process.env.ONESIGNAL_REST_API_KEY || (req.body && (req.body.onesignalRestKey || req.body.restKey)) };
+      appId: process.env.ONESIGNAL_APP_ID,
+      restKey: process.env.ONESIGNAL_REST_API_KEY,
+      onesignalAppId: process.env.ONESIGNAL_APP_ID,
+      onesignalRestKey: process.env.ONESIGNAL_REST_API_KEY };
     const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (bodyData.action && !['test_onesignal','send_onesignal','test_device'].includes(bodyData.action)) return res.status(400).json({error:'عملية إرسال غير معروفة.'});
     if (bodyData.requestId && !uuid.test(bodyData.requestId)) return res.status(400).json({error:'معرّف طلب الإرسال غير صالح.'});
@@ -127,7 +127,7 @@ module.exports = async function handler(req, res) {
           })
         });
         onesignalResult = await osRes.json();
-        if (osRes.ok && onesignalResult && onesignalResult.id && !onesignalResult.errors) {
+        if (osRes.ok && onesignalResult && onesignalResult.id && onesignalResult.recipients !== 0 && !onesignalResult.errors) {
           mobileSuccess = true;
         } else if (onesignalResult && onesignalResult.errors) {
           mobileError = Array.isArray(onesignalResult.errors) ? onesignalResult.errors.join(', ') : String(onesignalResult.errors);

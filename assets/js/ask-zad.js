@@ -14,6 +14,8 @@
     let previousFocus = null;
     let generation = 0;
     const pendingReplies = new Set();
+    const activeAIRequests = new Set();
+    const AI_TIMEOUT_MS = 12000;
 
     // استرجاع التاريخ من التخزين المحلي
     function loadHistory() {
@@ -183,6 +185,8 @@
         }
 
         isInitialized = true;
+        // Retire credentials left by older client-side integrations.
+        try { localStorage.removeItem('zad_gemini_api_key'); } catch (_) {}
 
         // 1. حقن زر الإطلاق العائم إذا لم يكن موجوداً
         if (!document.getElementById('btn-ask-zad-fab')) {
@@ -194,10 +198,9 @@
             fab.setAttribute('title', 'اسأل زاد - المساعد الإسلامي الذكي');
             fab.innerHTML = `
                 <span class="ask-zad-fab-icon">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span class="ask-zad-fab-sparkle"></span>
+                    <i class="fa-solid fa-headset"></i>
                 </span>
-                <span>اسأل زاد</span>
+                <span class="ask-zad-fab-sparkle"></span>
             `;
             fab.addEventListener('click', () => openChat());
             document.body.appendChild(fab);
@@ -213,14 +216,15 @@
             overlay.setAttribute('aria-hidden', 'true');
             overlay.innerHTML = `
                 <div class="ask-zad-container">
+                    <div class="ask-zad-drag-bar" aria-hidden="true"><span class="ask-zad-drag-handle"></span></div>
                     <header class="ask-zad-header">
                         <div class="ask-zad-header-brand">
                             <div class="ask-zad-avatar">
-                                <i class="fa-solid fa-kaaba"></i>
+                                <i class="fa-solid fa-headset"></i>
                                 <span class="ask-zad-online-dot" title="متاح دائماً"></span>
                             </div>
                             <div class="ask-zad-header-text">
-                                <h3>اسأل زاد <span style="font-size: 11px; color: #ffdb4d; font-weight: normal; background: rgba(212,175,55,0.2); padding: 2px 7px; border-radius: 9999px;">الذكي</span></h3>
+                                <h3>اسأل زاد <span class="ask-zad-badge">الذكي</span></h3>
                                 <p>رفيقك في القرآن والأذكار وأحكام العبادات</p>
                             </div>
                         </div>
@@ -239,7 +243,7 @@
                         <div class="ask-zad-welcome-card" id="ask-zad-welcome">
                             <div class="ask-zad-welcome-title">أهلاً بك في "اسأل زاد" 🌿</div>
                             <p class="ask-zad-welcome-desc">
-                                أساعدك تفتح الخدمات وتعرف مواقيت الصلاة وتراجع التنبيهات. الإجابات من معلومات التطبيق.
+                                أساعدك تفتح الخدمات وتعرف مواقيت الصلاة وتراجع التنبيهات. الإجابات من معلومات التطبيق، وقد أستعين بـ Google Gemini للأسئلة الأخرى.
                             </p>
                             <div class="ask-zad-chips-container" id="ask-zad-chips">
                                 <button type="button" class="ask-zad-chip" data-prompt="كيف أصلي صلاة الجنازة؟">
@@ -278,7 +282,7 @@
                             </button>
                         </form>
                         <p class="ask-zad-disclaimer">
-                            مساعد محلي بمعلومات محدودة؛ للفتاوى الشخصية ارجع إلى جهة علمية موثوقة.
+                            قد يُرسل السؤال إلى Google Gemini عند غياب إجابة محلية. للفتاوى الشخصية ارجع إلى جهة علمية موثوقة.
                         </p>
                     </footer>
                 </div>
@@ -342,6 +346,12 @@
                 input.value = '';
                 sendMessage(query);
             });
+            input.addEventListener('focus', () => {
+                setTimeout(() => {
+                    const messages = document.getElementById('ask-zad-messages');
+                    scrollToBottom(messages);
+                }, 280);
+            });
         }
 
         // النقر على الشرائح الافتراضية
@@ -395,6 +405,8 @@
     // مسح المحادثة
     function clearChat() {
         generation++; pendingReplies.forEach(clearTimeout); pendingReplies.clear();
+        activeAIRequests.forEach(controller => controller.abort());
+        activeAIRequests.clear();
         try {
             if (typeof localStorage !== 'undefined') {
                 localStorage.removeItem(STORAGE_KEY);
@@ -407,6 +419,56 @@
             const welcome = document.getElementById('ask-zad-welcome');
             messagesContainer.innerHTML = '';
             if (welcome) { welcome.style.display=""; messagesContainer.appendChild(welcome); }
+        }
+    }
+
+    async function queryGeminiAIFallback(query) {
+        const controller = new AbortController();
+        let timeout;
+        try {
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
+            const native = window.Capacitor?.isNativePlatform?.();
+            const endpoint = native
+                ? new URL('/api/ask-zad', window.getPublicAppUrl?.() || 'https://zadmuslim-zeta.vercel.app/').href
+                : '/api/ask-zad';
+            activeAIRequests.add(controller);
+            const aborted = new Promise((_, reject) => {
+                controller.signal.addEventListener('abort', () => reject(new Error('AI request cancelled')), { once: true });
+            });
+            timeout = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+            const request = fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
+                body: JSON.stringify({ query })
+            }).then(res => {
+                if (res.status === 429) return { rateLimited: true };
+                if (!res.ok) throw new Error('AI service unavailable');
+                return res.json();
+            });
+            const data = await Promise.race([request, aborted]);
+            if (data?.rateLimited) return { found: false, reason: 'limit' };
+            const text = data?.answer;
+            if (typeof text !== 'string' || !text.trim()) return null;
+
+            return {
+                found: true,
+                data: {
+                    id: 'gemini_ai_response',
+                    title: 'اسأل زاد الذكي',
+                    answer: text.trim(),
+                    actions: [
+                        { label: '🧭 بوصلة القلوب والسكينة', href: 'services.html#mood-compass-section', type: 'link' },
+                        { label: '🤲 أدعية تفريج الهم وحصن المسلم', href: 'services.html#categorized-duas', type: 'link' },
+                        { label: '📻 راديو القرآن الكريم', href: 'services.html#radio-panel', type: 'link' }
+                    ]
+                }
+            };
+        } catch (_) {
+            return null;
+        } finally {
+            clearTimeout(timeout);
+            activeAIRequests.delete(controller);
         }
     }
 
@@ -445,11 +507,22 @@
         const timer=setTimeout(async () => {
             pendingReplies.delete(timer);
             if(currentGeneration!==generation)return;
-            if (typingEl && typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
-
             let result;
             try { result = await contextualReply(query); } catch (_) { result = reply('تعذّر التحقق الآن. جرّب تاني أو افتح الإعدادات.',[settingsAction]); }
             if (currentGeneration !== generation) return;
+
+            // Unknown questions use the server; credentials never enter the browser.
+            if (!result || !result.found) {
+                const aiResult = await queryGeminiAIFallback(query);
+                if (aiResult && aiResult.found && currentGeneration === generation) {
+                    result = aiResult;
+                } else if (currentGeneration === generation) {
+                    result = { ...result, found: false, fallbackMessage: aiResult?.reason === 'limit' ? 'وصلت خدمة الإجابات الذكية لحد الاستخدام المؤقت. جرّب لاحقًا، أو استخدم الخيارات التالية.' : 'تعذّر الاتصال بالمساعد الذكي الآن. جرّب مرة أخرى، أو استخدم الخيارات التالية.' };
+                }
+            }
+            if (currentGeneration !== generation) return;
+
+            if (typingEl && typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
             let botMsg;
             if (result && result.found && result.data) {
                 botMsg = {

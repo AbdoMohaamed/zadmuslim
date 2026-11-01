@@ -20,3 +20,18 @@ test('admin push strips playback instructions and keeps the ordinary notificatio
 test('missing Web Push configuration never blocks all-channel mobile delivery',async()=>{const h=harness({env:{VAPID_PUBLIC_KEY:'',VAPID_PRIVATE_KEY:'',FIREBASE_DATABASE_URL:''}});const r=await h.send({channel:'all'});assert.equal(r.body.success,true);assert.equal(r.body.partialFailure,true);assert.equal(r.body.channels.mobile.success,true);assert.match(r.body.channels.web.error,/ناقصة/);assert.equal(h.calls.web.length,0);assert.equal(h.calls.fetch.length,1);assert.equal((await h.send({channel:'web'})).statusCode,503);});
 
 test('mobile payload requests visible push for Android and iOS at high priority',async()=>{const h=harness();await h.send({channel:'mobile'});const p=h.calls.fetch[0].body;assert.equal(p.priority,10);assert.equal(p.isAndroid,true);assert.equal(p.isIos,true);assert.equal(p.isAnyWeb,false);assert.equal(p.target_channel,'push');assert.ok(p.contents.ar);assert.ok(p.headings.ar);assert.equal(p.content_available,undefined);});
+
+test('mobile sends use hosting configuration and cannot depend on browser credentials',async()=>{
+ const h=harness();await h.send({channel:'mobile',appId:'browser-app',onesignalAppId:'browser-app',restKey:'browser-key',onesignalRestKey:'browser-key'});
+ assert.equal(h.calls.fetch[0].body.app_id,'app');
+ const missing=harness({env:{ONESIGNAL_APP_ID:'',ONESIGNAL_REST_API_KEY:''}});
+ const response=await missing.send({channel:'mobile',appId:'browser-app',restKey:'browser-key'});
+ assert.equal(response.statusCode,400);assert.equal(missing.calls.fetch.length,0);
+});
+
+test('an accepted request with zero recipients is a failure',async()=>{
+ const h=harness({mobileData:{id:'accepted-without-devices',recipients:0}});
+ const response=await h.send({channel:'mobile'});
+ assert.equal(response.body.success,false);assert.equal(response.body.channels.mobile.success,false);
+ assert.match(response.body.channels.mobile.error,/لا يوجد اشتراك/);
+});
