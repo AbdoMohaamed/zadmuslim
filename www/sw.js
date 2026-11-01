@@ -4,12 +4,12 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v108";
+const CACHE_NAME = "zad-muslim-v109";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
-  "./assets/js/ask-zad.js?v=6",
-  "./assets/js/ask-zad-knowledge.js?v=2",
-  "./assets/css/ask-zad.css?v=4",
+  "./assets/js/ask-zad.js?v=7",
+  "./assets/js/ask-zad-knowledge.js?v=3",
+  "./assets/css/ask-zad.css?v=5",
   "./assets/js/services-personal.js?v=4",
   "./assets/css/services-personal.css?v=7",
   "./assets/js/brand-intro.js?v=1",
