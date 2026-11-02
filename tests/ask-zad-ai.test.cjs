@@ -95,12 +95,12 @@ test('native requests use the public server root and usage limits keep local sug
         w.Capacitor = { isNativePlatform: () => true };
         w.getPublicAppUrl = () => 'https://zad.test/index.html';
         let request;
-        w.fetch = async (url, options) => { request = { url, body: JSON.parse(options.body) }; return { ok: false, status: 429 }; };
+        w.fetch = async (url, options) => { request = { url, body: JSON.parse(options.body) }; return { ok: false, status: 429, json: async () => ({ scope: "day", retryAfterSeconds: 7200 }) }; };
         w.AskZad.send('اشرح لي ظاهرة الشفق القطبي');
         await wait(430);
         assert.equal(request.url, 'https://zad.test/api/ask-zad');
         assert.deepEqual(Object.keys(request.body), ['query']);
-        assert.match(w.document.querySelector('.ask-zad-msg-row.bot').textContent, /حد الاستخدام/);
+        assert.match(w.document.querySelector('.ask-zad-msg-row.bot').textContent, /للحد اليومي/);
         assert.ok(w.document.querySelector('.ask-zad-action-btn'));
     } finally { w.close(); }
 });
@@ -129,4 +129,32 @@ test('initialization removes an old locally stored Gemini key', () => {
         dom.window.AskZad.init();
         assert.equal(dom.window.localStorage.getItem('zad_gemini_api_key'), null);
     } finally { dom.window.close(); }
+});
+
+test('minute quota tells the user when to retry', async () => {
+ const dom=setup(),w=dom.window;
+ try { w.fetch=async()=>({ok:false,status:429,json:async()=>({scope:'minute',retryAfterSeconds:35})});
+ w.AskZad.send('اشرح لي ظاهرة الشفق القطبي');
+ await waitForReply(()=>w.document.querySelector('.ask-zad-msg-row.bot')?.textContent.includes('بعد حوالي'));
+ assert.match(w.document.querySelector('.ask-zad-msg-row.bot').textContent,/بعد حوالي 1 دقيقة/);
+ } finally {w.close();}
+});
+
+test('provider free quota does not promise a false daily reset',async()=>{
+ const dom=setup(),w=dom.window;
+ try { w.fetch=async()=>({ok:false,status:429,json:async()=>({scope:'provider'})});
+ w.AskZad.send('اشرح لي ظاهرة الشفق القطبي');
+ await waitForReply(()=>w.document.querySelector('.ask-zad-msg-row.bot')?.textContent.includes('المجانية'));
+ const text=w.document.querySelector('.ask-zad-msg-row.bot').textContent;
+ assert.match(text,/الإجابات المحلية/);assert.doesNotMatch(text,/٣ صباحًا/);
+ }finally{w.close();}
+});
+test('additional common app questions answer offline without Gemini',async()=>{
+ for(const query of ['هل المساعد مجاني','ازاي اعمل نسخه احتياطيه','كيف اثبت التطبيق','الاذان مش شغال','كيف انتظم في قراءة القرآن','كيف استخدم السبحة','هل التطبيق يحتاج انترنت','كيف اعرف القبلة']){
+ const dom=setup(),w=dom.window;
+ try {let cloudCalls=0;w.fetch=()=>{cloudCalls++;return Promise.reject(Error('unexpected cloud request'));};w.AskZad.send(query);
+ await waitForReply(()=>w.document.querySelector('.ask-zad-msg-row.bot')?._message);
+ assert.ok(w.document.querySelector('.ask-zad-msg-row.bot')._message.text);assert.equal(cloudCalls,0,query);
+ }finally{w.close();}
+ }
 });

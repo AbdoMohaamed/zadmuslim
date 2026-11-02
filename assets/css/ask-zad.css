@@ -88,7 +88,7 @@
     }
 }
 
-/* نافذة المساعد (Chat Modal / Drawer) */
+/* نافذة المساعد (Chat Modal / Fullscreen Immersive Drawer) */
 .ask-zad-overlay {
     position: fixed;
     top: 0;
@@ -96,37 +96,39 @@
     right: 0;
     bottom: 0;
     background: rgba(4, 15, 12, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
     z-index: 2050;
     display: flex;
     justify-content: center;
-    align-items: flex-end;
+    align-items: stretch;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
 }
 
 .ask-zad-overlay.is-active {
     opacity: 1;
     visibility: visible;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .ask-zad-container {
     width: 100%;
-    max-width: 580px;
-    height: 90vh;
-    height: 92dvh;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
     max-height: 100%;
     background: var(--bg-card, #0a2620);
-    border: 1px solid var(--border-color, rgba(212, 175, 55, 0.25));
-    border-bottom: none;
-    border-radius: 24px 24px 0 0;
+    border: none;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: none;
     transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
     overflow: hidden;
 }
 
@@ -135,7 +137,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 12px 0 6px;
+    padding: max(10px, env(safe-area-inset-top, 10px)) 0 6px;
     width: 100%;
     cursor: grab;
     touch-action: none; /* يسمح بالتقاط حركة السحب بالكامل بدون تدخل المتصفح */
@@ -143,6 +145,7 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    background: rgba(7, 35, 29, 0.85);
 }
 
 .ask-zad-drag-bar:active {
@@ -171,18 +174,22 @@
     }
     .ask-zad-overlay {
         align-items: center;
-        padding: 20px;
+        padding: 24px;
     }
     .ask-zad-container {
         border-radius: 26px;
-        border-bottom: 1px solid var(--border-color, rgba(212, 175, 55, 0.25));
-        height: 85vh;
-        max-height: 820px;
+        border: 1px solid var(--border-color, rgba(212, 175, 55, 0.25));
+        height: 90vh;
+        max-height: 860px;
+        max-width: 680px;
+        box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
         transform: translateY(30px) scale(0.96);
-        padding-bottom: 0;
+        opacity: 0;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
     }
     .ask-zad-overlay.is-active .ask-zad-container {
         transform: translateY(0) scale(1);
+        opacity: 1;
     }
 }
 
@@ -195,11 +202,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
-    background: rgba(7, 35, 29, 0.7);
+    padding: 14px 18px;
+    background: rgba(7, 35, 29, 0.85);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
     flex-shrink: 0;
+}
+@media (max-width: 767px) {
+    .ask-zad-header {
+        padding-top: 6px;
+    }
 }
 
 .ask-zad-header-brand {
@@ -1023,15 +1035,21 @@ body.ask-zad-open {
 .ask-zad-overlay {
     box-sizing: border-box;
     direction: rtl;
-    padding-top: env(safe-area-inset-top, 0px);
     overscroll-behavior: contain !important;
     touch-action: none;
 }
 .ask-zad-container {
-    height: min(850px, 92dvh);
+    height: 100vh;
+    height: 100dvh;
     max-height: 100%;
     box-sizing: border-box;
     overscroll-behavior: contain !important;
+}
+@media (min-width: 768px) {
+    .ask-zad-container {
+        height: min(860px, 90vh);
+        max-height: 90vh;
+    }
 }
 .ask-zad-body {
     min-height: 0;

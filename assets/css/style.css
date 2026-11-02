@@ -15377,23 +15377,23 @@ body.light-theme .push-banner-icon {
    يتم وضعه أسفل شريط التنقل (Header) مباشرة مع احترام الحواف الآمنة والجزيرة التفاعلية (Dynamic Island)
    ========================================================================== */
 .zad-cloud-push-banner {
-  position: fixed;
-  top: -260px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 24px);
-  max-width: 580px;
-  background: linear-gradient(135deg, rgba(13, 27, 42, 0.98), rgba(7, 13, 24, 0.99));
-  border: 1.5px solid var(--gold-400);
-  border-radius: var(--radius-lg);
-  padding: 0.9rem 1.15rem;
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.25);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: 999;
-  transition: top 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease;
-  opacity: 0;
-  pointer-events: none;
+    position: fixed;
+    top: -260px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 580px;
+    background: linear-gradient(180deg, rgba(16, 44, 37, 0.5) 0%, rgba(8, 28, 23, 0.65) 100%);
+    border: 1.5px solid var(--gold-400);
+    border-radius: var(--radius-lg);
+    padding: 0.9rem 1.15rem;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.25);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 999;
+    transition: top 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .zad-cloud-push-banner.show {

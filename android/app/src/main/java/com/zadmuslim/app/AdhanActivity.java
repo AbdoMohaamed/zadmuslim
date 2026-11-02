@@ -205,7 +205,7 @@ public class AdhanActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        btnContainerParams.setMargins((int) (8 * density), (int) (8 * density), (int) (8 * density), (int) (8 * density));
+        btnContainerParams.setMargins((int) (12 * density), (int) (8 * density), (int) (12 * density), (int) (40 * density));
 
         // بناء كامل الشاشة
         mainLayout.addView(new View(this), new LinearLayout.LayoutParams(

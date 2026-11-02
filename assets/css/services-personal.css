@@ -888,7 +888,7 @@ body.single-service-mode #serviceFocusHeader {
  padding-top:calc(8px + env(safe-area-inset-top,0px)); padding-bottom:8px;
 }
 html.android-device body.single-service-mode #serviceFocusHeader, .android-device body.single-service-mode #serviceFocusHeader { padding-top:8px !important; }
-#serviceFocusHeader .service-focus-bar { flex-wrap:wrap; gap:8px 12px; padding-inline:max(12px,env(safe-area-inset-left,0px)) max(12px,env(safe-area-inset-right,0px)); }
+#serviceFocusHeader .service-focus-bar { padding-inline:max(12px,env(safe-area-inset-left,0px)) max(12px,env(safe-area-inset-right,0px)); }
 #btnServiceFocusBack { min-height:44px; flex-shrink:0; white-space:nowrap; }
 #serviceFocusHeader .service-focus-meta { flex:1; min-width:0; }
 #serviceFocusHeader .service-focus-title { overflow-wrap:anywhere; }

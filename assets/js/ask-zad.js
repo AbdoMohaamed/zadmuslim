@@ -605,12 +605,20 @@
                 signal: controller.signal,
                 body: JSON.stringify({ query })
             }).then(res => {
-                if (res.status === 429) return { rateLimited: true };
+                if (res.status === 429) return res.json().then(limit => ({ rateLimited: true, limit }));
                 if (!res.ok) throw new Error('AI service unavailable');
                 return res.json();
             });
             const data = await Promise.race([request, aborted]);
-            if (data?.rateLimited) return { found: false, reason: 'limit' };
+            if (data?.rateLimited) {
+                if (data.limit?.scope === 'provider') return { found: false, reason: 'limit', message: 'حصة خدمة الإجابات الذكية المجانية غير متاحة حاليًا. جرّب لاحقًا؛ وقت الرجوع يعتمد على حدود الخدمة. الإجابات المحلية وخدمات التطبيق ما زالت متاحة، وجرّب سؤالًا عن الوضوء أو الأذكار أو استخدام التطبيق.' };
+                const seconds = Number(data.limit?.retryAfterSeconds);
+                const minutes = Math.max(1, Math.ceil((Number.isFinite(seconds) && seconds > 0 ? seconds : 60) / 60));
+                const duration = minutes >= 60 ? Math.floor(minutes / 60) + ' ساعة و' + minutes % 60 + ' دقيقة' : minutes + ' دقيقة';
+                return { found: false, reason: 'limit', message: data.limit?.scope === 'day'
+                    ? 'وصلت الإجابات الذكية للحد اليومي. تقدر تسأل تاني بعد حوالي ' + duration + '. بيتجدد الحد يوميًا الساعة ٣ صباحًا بتوقيت السعودية (منتصف الليل UTC). تقدر تستخدم الإجابات المحلية والخدمات دلوقتي.'
+                    : 'وصلت للحد المسموح خلال الدقيقة. جرّب بعد حوالي ' + minutes + ' دقيقة، أو استخدم الخيارات التالية.' };
+            }
             const text = data?.answer;
             if (typeof text !== 'string' || !text.trim()) return null;
 
@@ -680,7 +688,7 @@
                 if (aiResult && aiResult.found && currentGeneration === generation) {
                     result = aiResult;
                 } else if (currentGeneration === generation) {
-                    result = { ...result, found: false, fallbackMessage: aiResult?.reason === 'limit' ? 'وصلت خدمة الإجابات الذكية لحد الاستخدام المؤقت. جرّب لاحقًا، أو استخدم الخيارات التالية.' : 'تعذّر الاتصال بالمساعد الذكي الآن. جرّب مرة أخرى، أو استخدم الخيارات التالية.' };
+                    result = { ...result, found: false, fallbackMessage: aiResult?.reason === 'limit' ? aiResult.message : 'تعذّر الاتصال بالمساعد الذكي الآن. جرّب مرة أخرى، أو استخدم الخيارات التالية.' };
                 }
             }
             if (currentGeneration !== generation) return;

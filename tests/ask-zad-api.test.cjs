@@ -14,11 +14,14 @@ function setup(options = {}) {
         fetch: async (url, request) => {
             calls.push({ url, headers: request.headers, body: JSON.parse(request.body) });
             if (url.includes('upstash.io')) {
+                if (options.cacheThrows && ['GET','SET'].includes(JSON.parse(request.body)[0])) throw Error('cache failure');
+                if (JSON.parse(request.body)[0] === 'GET') return {ok:true,json:async()=>({result:options.cachedAnswer ?? null})};
+                if (JSON.parse(request.body)[0] === 'SET') return {ok:true,json:async()=>({result:'OK'})};
                 if (options.quotaThrows) throw Error('private quota error');
                 return { ok: options.quotaOk !== false, json: async () => ({ result: options.quotaResult ?? 1 }) };
             }
             if (options.providerThrows) throw Error('server-secret');
-            return { ok: options.providerOk !== false, json: async () => options.providerData ?? {
+            return { ok: options.providerOk !== false, status: options.providerStatus || 200, json: async () => options.providerData ?? {
                 candidates: [{ finishReason: 'STOP', content: { parts: [{ text: 'إجابة من الخادم' }] } }]
             } };
         } };
@@ -39,7 +42,7 @@ test('AI endpoint reserves shared quota and returns only answer text, using serv
     assert.equal(r.body.answer, 'إجابة من الخادم');
     assert.equal(h.calls.length, 2); assert.equal(h.calls[0].body[0], 'EVAL');
     assert.equal(h.calls[0].body[2], 3);
-    assert.deepEqual(h.calls[0].body.slice(6, 9), [5, 40, 500]);
+    assert.deepEqual(h.calls[0].body.slice(6, 9), [10, 100, 2000]);
     assert.doesNotMatch(JSON.stringify(h.calls[0].body), /203\.0\.113\.1|سؤال/);
     assert.equal(h.calls[1].headers['x-goog-api-key'], 'server-secret');
     assert.equal(h.calls[1].body.contents[0].parts[0].text, 'سؤال للاختبار');
@@ -71,9 +74,9 @@ test('mobile preflight is supported and CORS never reflects arbitrary origins', 
 test('missing configuration, exhausted quotas and unavailable shared storage cannot call Gemini', async () => {
     for (const options of [{ env: { GEMINI_API_KEY: '' } }, { env: { UPSTASH_REDIS_REST_TOKEN: '' } },
         { env: { UPSTASH_REDIS_REST_URL: 'http://unsafe.test' } }, { env: { GEMINI_DAILY_REQUEST_LIMIT: '-1' } },
-        { quotaResult: 0 }, { quotaThrows: true }, { quotaOk: false }, { quotaResult: 'invalid' }]) {
+        { quotaResult: -1 }, { quotaThrows: true }, { quotaOk: false }, { quotaResult: 'invalid' }]) {
         const h = setup(options); const r = await h.send();
-        assert.equal(r.code, options.quotaResult === 0 ? 429 : 503);
+        assert.equal(r.code, options.quotaResult === -1 ? 429 : 503);
         assert.equal(h.calls.filter(call => call.url.includes('googleapis')).length, 0);
         assert.doesNotMatch(JSON.stringify(r.body), /secret|private quota error/);
     }
@@ -99,4 +102,40 @@ test('provider failures and incomplete or blocked answers expose neither provide
         assert.equal(r.code, 503); assert.equal(r.body.code, 'unavailable');
         assert.doesNotMatch(JSON.stringify(r.body), /secret|partial/);
     }
+});
+
+test('quota denial reports UTC reset and waiting time', async () => {
+ for (const result of [-1,-2,-3]) {
+ const h=setup({quotaResult:result});const r=await h.send();
+ assert.equal(r.code,429);assert.equal(r.body.scope,result===-1?'minute':'day');
+ assert.ok(r.body.retryAfterSeconds>0);assert.ok(r.body.retryAfterSeconds<=(result===-1?60:86400));
+ assert.equal(r.body.resetAt % (result===-1?60000:86400000),0);
+ assert.equal(r.headers['Retry-After'],String(r.body.retryAfterSeconds));assert.equal(h.calls.length,1);
+ }
+});
+
+test('only exact public questions use bounded shared answer cache', async () => {
+ const h=setup({cachedAnswer:'إجابة عامة محفوظة'});
+ const hit=await h.send({body:{query:'ما معنى الإحسان باختصار؟'}});
+ assert.equal(hit.body.answer,'إجابة عامة محفوظة');assert.equal(h.calls.length,1);
+ assert.equal(h.calls[0].body[0],'GET');
+ const miss=setup();await miss.send({body:{query:'ما معنى الإحسان باختصار؟'}});
+ assert.deepEqual(miss.calls.map(c=>c.url.includes('googleapis')?'AI':c.body[0]),['GET','EVAL','AI','SET']);
+ assert.equal(miss.calls[3].body.at(-1),86400);
+ for (const query of ['ما معنى الإحسان باختصار؟ اسمي أحمد','كيف أراجع حفظ القرآن وأنا مريض','سؤالي الشخصي']) {
+ const personal=setup();await personal.send({body:{query}});
+ assert.equal(personal.calls.length,2);assert.equal(personal.calls[0].body[0],'EVAL');
+ }
+});
+test('provider quota is distinct from local daily reset and never cached', async()=>{
+ const h=setup({providerOk:false,providerStatus:429});const r=await h.send({body:{query:'ما معنى الإحسان باختصار؟'}});
+ assert.equal(r.code,429);assert.equal(r.body.scope,'provider');assert.equal(r.body.resetAt,undefined);
+ assert.ok(!h.calls.some(c=>c.body[0]==='SET'));
+});
+
+test('optional cache failure preserves a complete answer while quota still applies',async()=>{
+ const h=setup({cacheThrows:true});const r=await h.send({body:{query:'ما معنى الإحسان باختصار؟'}});
+ assert.equal(r.code,200);assert.equal(r.body.answer,'إجابة من الخادم');
+ const blocked=setup({cacheThrows:true,quotaThrows:true});assert.equal((await blocked.send({body:{query:'ما معنى الإحسان باختصار؟'}})).code,503);
+ assert.ok(!blocked.calls.some(c=>c.url.includes('googleapis')));
 });

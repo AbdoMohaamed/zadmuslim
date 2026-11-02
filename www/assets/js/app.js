@@ -1692,113 +1692,126 @@ function initPWA() {
     const closeIosModalBtn = document.getElementById("btn-close-ios-install-modal");
     const understoodIosBtn = document.getElementById("btn-ios-install-understood");
 
-    // التحقق الشامل من تثبيت التطبيق مسبقاً (سواء كتطبيق أصلي Native أو وضع PWA Standalone أو تم تثبيته سابقاً)
-    const isNative = (typeof window !== "undefined" && window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform());
-    const isStandalone = isNative ||
-                         window.matchMedia("(display-mode: standalone)").matches ||
-                         window.navigator.standalone === true ||
-                         document.referrer.includes("android-app://") ||
-                         window.location.search.includes("mode=standalone") ||
-                         localStorage.getItem("zad_app_installed") === "true";
-
-    if (isStandalone || isNative) {
-        if (installBtn) installBtn.style.display = "none";
-        if (banner) banner.style.display = "none";
-        return; // الخروج فوراً لعدم إظهار أي بنر أو أزرار تثبيت بعد اكتمال التثبيت
-    }
-
-    // إظهار زر التثبيت فقط للمستخدمين الذين يتصفحون عبر الويب ولم يثبتوا التطبيق بعد
-    if (installBtn) {
-        installBtn.style.display = "inline-flex";
-    }
-
-    // إظهار بنر التثبيت التلقائي بعد قليل إن لم يغلقه الزائر نهائياً
-    const isDismissed = localStorage.getItem("pwa_banner_dismissed") === "true";
-    if (!isDismissed && banner) {
-        setTimeout(() => {
-            // إعادة الفحص لضمان عدم إظهاره إذا تغيرت الحالة
-            const recheckNative = (typeof window !== "undefined" && window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform());
-            if (!recheckNative && localStorage.getItem("zad_app_installed") !== "true") {
-                banner.style.display = "flex";
-            }
-        }, 3000);
-    }
-
-    // التقاط حدث التثبيت لمتصفحات أندرويد وكروم
-    window.addEventListener("beforeinstallprompt", (e) => {
-        if (isNative || localStorage.getItem("zad_app_installed") === "true") return;
-        e.preventDefault();
-        deferredPrompt = e;
-        if (installBtn) {
-            installBtn.style.display = "inline-flex";
+    // Recheck current platform state: the native bridge or installed display mode can arrive late.
+    const readFlag = key => { try { return localStorage.getItem(key) === 'true'; } catch { return false; } };
+    const writeFlag = key => { try { localStorage.setItem(key, 'true'); } catch {} };
+    const displayModes = ['standalone', 'minimal-ui', 'fullscreen'].map(mode => window.matchMedia?.('(display-mode: ' + mode + ')')).filter(Boolean);
+    const nativeNow = () => {
+        try {
+            return Boolean(window.Capacitor?.isNativePlatform?.() ||
+                ['android', 'ios'].includes(window.Capacitor?.getPlatform?.()) ||
+                window.location.protocol === 'capacitor:' ||
+                ['android', 'ios'].includes(window.cordova?.platformId));
+        } catch { return false; }
+    };
+    const installedContext = () => nativeNow() || navigator.standalone === true ||
+        displayModes.some(mode => mode.matches) ||
+        document.referrer.startsWith('android-app://com.abdomohamed.zadmuslim') ||
+        new URLSearchParams(window.location.search).get('mode') === 'standalone';
+    const isIOSBrowser = () => /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let bannerTimer = null;
+    const cancelBanner = () => { if (bannerTimer !== null) clearTimeout(bannerTimer); bannerTimer = null; };
+    const hideInstallUI = () => {
+        cancelBanner();
+        if (installBtn) installBtn.style.display = 'none';
+        if (banner) banner.style.display = 'none';
+        iosModal?.classList.remove('open');
+        deferredPrompt = null;
+    };
+    const alreadyInstalled = () => {
+        if (installedContext()) { writeFlag('zad_app_installed'); return true; }
+        return readFlag('zad_app_installed');
+    };
+    const eligible = () => !alreadyInstalled() && (Boolean(deferredPrompt) || isIOSBrowser());
+    const refreshInstallUI = () => {
+        if (alreadyInstalled()) { hideInstallUI(); return; }
+        const available = eligible();
+        if (installBtn) installBtn.style.display = available ? 'inline-flex' : 'none';
+        if (!available || readFlag('pwa_banner_dismissed')) {
+            cancelBanner();
+            if (banner) banner.style.display = 'none';
+            return;
         }
+        if (banner && banner.style.display !== 'flex' && bannerTimer === null) {
+            bannerTimer = setTimeout(() => {
+                bannerTimer = null;
+                if (eligible() && !readFlag('pwa_banner_dismissed') && !document.hidden) banner.style.display = 'flex';
+            }, 3000);
+        }
+    };
+
+    window.addEventListener('beforeinstallprompt', event => {
+        event.preventDefault();
+        if (alreadyInstalled()) { hideInstallUI(); return; }
+        deferredPrompt = event;
+        refreshInstallUI();
+    });
+    window.addEventListener('appinstalled', () => {
+        writeFlag('zad_app_installed');
+        hideInstallUI();
+    });
+    document.addEventListener('deviceready', refreshInstallUI);
+    window.addEventListener('pageshow', refreshInstallUI);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelBanner();
+        else refreshInstallUI();
+    });
+    window.addEventListener('storage', event => {
+        if (event.key === null || ['zad_app_installed', 'pwa_banner_dismissed'].includes(event.key)) refreshInstallUI();
+    });
+    displayModes.forEach(mode => {
+        if (mode.addEventListener) mode.addEventListener('change', refreshInstallUI);
+        else mode.addListener?.(refreshInstallUI);
     });
 
     const openIosGuide = () => {
-        if (iosModal) {
-            iosModal.classList.add("open");
-        } else {
-            alert("لتثبيت التطبيق على هاتف الآيفون (iOS):\n\n1. اضغط على زر المشاركة ⎋ أسفل متصفح Safari.\n2. مرر القائمة للأسفل واختر 'إضافة إلى الصفحة الرئيسية ➕'.\n3. اضغط 'إضافة' بالأعلى وسيظهر التطبيق كأيقونة مستقلة على هاتفك.");
-        }
+        if (alreadyInstalled()) { hideInstallUI(); return; }
+        if (iosModal) iosModal.classList.add('open');
+        else alert('لتثبيت التطبيق على الآيفون: افتح قائمة المشاركة في Safari ثم اختر إضافة إلى الشاشة الرئيسية.');
     };
-
-    const triggerInstall = () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === "accepted") {
-                    localStorage.setItem("zad_app_installed", "true");
-                    showToast("جزاكم الله خيراً! تم تثبيت تطبيق زاد المسلم بنجاح 🌿📱");
-                }
-                deferredPrompt = null;
-                if (banner) banner.style.display = "none";
-                if (installBtn) installBtn.style.display = "none";
-            });
-        } else {
-            // هواتف آيفون (iOS) أو المتصفحات التي لا تدعم قبل التثبيت التلقائي
-            openIosGuide();
-        }
-    };
-
-    if (installBtn) {
-        installBtn.addEventListener("click", triggerInstall);
-    }
-    if (bannerInstallBtn) {
-        bannerInstallBtn.addEventListener("click", triggerInstall);
-    }
-    if (bannerDismissBtn && banner) {
-        bannerDismissBtn.addEventListener("click", () => {
-            banner.style.display = "none";
-            localStorage.setItem("pwa_banner_dismissed", "true");
-        });
-    }
-
-    if (closeIosModalBtn && iosModal) {
-        closeIosModalBtn.addEventListener("click", () => {
-            iosModal.classList.remove("open");
-            localStorage.setItem("pwa_banner_dismissed", "true");
-        });
-    }
-    if (understoodIosBtn && iosModal) {
-        understoodIosBtn.addEventListener("click", () => {
-            iosModal.classList.remove("open");
-            localStorage.setItem("pwa_banner_dismissed", "true");
-        });
-    }
-    if (iosModal) {
-        iosModal.addEventListener("click", (e) => {
-            if (e.target === iosModal) {
-                iosModal.classList.remove("open");
-            }
-        });
-    }
-
-    window.addEventListener("appinstalled", () => {
-        localStorage.setItem("zad_app_installed", "true");
-        if (installBtn) installBtn.style.display = "none";
-        if (banner) banner.style.display = "none";
+    const triggerInstall = async () => {
+        if (alreadyInstalled()) { hideInstallUI(); return; }
+        if (!deferredPrompt) { if (isIOSBrowser()) openIosGuide(); return; }
+        const prompt = deferredPrompt;
         deferredPrompt = null;
+        cancelBanner();
+        if (installBtn) installBtn.disabled = true;
+        if (bannerInstallBtn) bannerInstallBtn.disabled = true;
+        try {
+            await prompt.prompt();
+            const choice = await prompt.userChoice;
+            if (choice?.outcome === 'accepted') {
+                writeFlag('zad_app_installed');
+                hideInstallUI();
+                if (typeof showToast === 'function') showToast('تم تثبيت تطبيق زاد المسلم بنجاح');
+            } else {
+                if (banner) banner.style.display = 'none';
+                if (installBtn) installBtn.style.display = 'none';
+            }
+        } catch {
+            refreshInstallUI();
+        } finally {
+            if (installBtn) installBtn.disabled = false;
+            if (bannerInstallBtn) bannerInstallBtn.disabled = false;
+        }
+    };
+    installBtn?.addEventListener('click', triggerInstall);
+    bannerInstallBtn?.addEventListener('click', triggerInstall);
+    bannerDismissBtn?.addEventListener('click', () => {
+        writeFlag('pwa_banner_dismissed');
+        cancelBanner();
+        if (banner) banner.style.display = 'none';
     });
+    const closeIosGuide = () => {
+        iosModal?.classList.remove('open');
+        writeFlag('pwa_banner_dismissed');
+        refreshInstallUI();
+    };
+    closeIosModalBtn?.addEventListener('click', closeIosGuide);
+    understoodIosBtn?.addEventListener('click', closeIosGuide);
+    iosModal?.addEventListener('click', event => { if (event.target === iosModal) closeIosGuide(); });
+    refreshInstallUI();
 }
 
 /* ==========================================================================

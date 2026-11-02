@@ -4,14 +4,26 @@ const { isIP } = require('node:net');
 
 // All counters are reserved atomically in shared storage before a paid request.
 const QUOTA_SCRIPT = `
-for i = 1, #KEYS do
-  if tonumber(redis.call('GET', KEYS[i]) or '0') >= tonumber(ARGV[i]) then return 0 end
+for i = #KEYS, 1, -1 do
+  if tonumber(redis.call('GET', KEYS[i]) or '0') >= tonumber(ARGV[i]) then return -i end
 end
 for i = 1, #KEYS do
   local count = redis.call('INCR', KEYS[i])
   if count == 1 then redis.call('EXPIRE', KEYS[i], tonumber(ARGV[#KEYS + i])) end
 end
 return 1`;
+
+// Exact, reviewed public questions only: never cache arbitrary or personal input.
+const PUBLIC_QUESTIONS = [
+    'ما معنى الإحسان باختصار', 'ما الفرق بين الحمد والشكر',
+    'ما معنى التدبر في القرآن', 'ما معنى حسن الظن بالله',
+    'كيف أضع خطة عامة لحفظ القرآن', 'كيف أراجع حفظ القرآن',
+    'ما الفرق بين التفسير والتدبر', 'ما معنى صلة الرحم'
+];
+function publicQuestionIndex(query) {
+    const normalize = text => text.normalize('NFC').replace(/[\u064B-\u065F\u0670]/g, '').replace(/[إأآٱ]/g, 'ا').replace(/[؟?!.،]/g, '').replace(/\s+/g, ' ').trim();
+    return PUBLIC_QUESTIONS.findIndex(item => normalize(item) === normalize(query));
+}
 
 const SYSTEM_PROMPT = [
     'أنت «اسأل زاد»، مساعد تطبيق زاد المسلم. أجب بالعربية برفق واختصار.',
@@ -60,22 +72,45 @@ module.exports = async function handler(req, res) {
     const client = createHmac('sha256', redisToken).update(ip).digest('hex');
     const now = Date.now();
     const minute = Math.floor(now / 60000), day = Math.floor(now / 86400000);
-    const configuredCap = Number(process.env.GEMINI_DAILY_REQUEST_LIMIT || 500);
+    const configuredCap = Number(process.env.GEMINI_DAILY_REQUEST_LIMIT || 2000);
     if (!Number.isSafeInteger(configuredCap) || configuredCap < 0 || configuredCap > 10000) return res.status(503).json({ code: 'unavailable' });
     const dailyCap = configuredCap;
     try {
+        const redis = async command => {
+            const response = await fetch(redisUrl, {
+                method: 'POST', signal: AbortSignal.timeout(500),
+                headers: { Authorization: 'Bearer ' + redisToken, 'Content-Type': 'application/json' },
+                body: JSON.stringify(command)
+            });
+            const data = await response.json();
+            if (!response.ok || data.error) throw new Error('Storage unavailable');
+            return data.result;
+        };
+        const questionIndex = publicQuestionIndex(query);
+        const cacheKey = questionIndex < 0 ? null : 'zad:ai:public:v1:' + model + ':' + questionIndex;
+        if (cacheKey) {
+            let cached;
+            try { cached = await redis(['GET', cacheKey]); } catch {}
+            // Quota reservation below still fails closed if shared storage is down.
+            if (typeof cached === 'string' && cached.trim() && cached.length <= 12000) {
+                return res.status(200).json({ answer: cached });
+            }
+        }
         const quotaResponse = await fetch(redisUrl, {
             method: 'POST', signal: AbortSignal.timeout(2000),
             headers: { Authorization: `Bearer ${redisToken}`, 'Content-Type': 'application/json' },
             body: JSON.stringify(['EVAL', QUOTA_SCRIPT, 3,
                 `zad:ai:minute:${client}:${minute}`, `zad:ai:day:${client}:${day}`, `zad:ai:global:${day}`,
-                5, 40, dailyCap, 120, 172800, 172800])
+                10, 100, dailyCap, 120, 172800, 172800])
         });
         const quota = await quotaResponse.json();
-        if (!quotaResponse.ok || quota.error || ![0, 1].includes(quota.result)) throw new Error('Quota unavailable');
-        if (quota.result === 0) {
-            res.setHeader('Retry-After', '60');
-            return res.status(429).json({ code: 'rate_limit' });
+        if (!quotaResponse.ok || quota.error || ![1, -1, -2, -3].includes(quota.result)) throw new Error('Quota unavailable');
+        if (quota.result < 0) {
+            const daily = quota.result !== -1;
+            const resetAt = daily ? (day + 1) * 86400000 : (minute + 1) * 60000;
+            const retryAfterSeconds = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000));
+            res.setHeader('Retry-After', String(retryAfterSeconds));
+            return res.status(429).json({ code: 'rate_limit', scope: daily ? 'day' : 'minute', retryAfterSeconds, resetAt });
         }
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
             method: 'POST', signal: AbortSignal.timeout(8000),
@@ -86,12 +121,20 @@ module.exports = async function handler(req, res) {
                 generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
             })
         });
+        if (response.status === 429) {
+            // Provider limits may be minute, token, or daily: never promise a fabricated reset.
+            return res.status(429).json({ code: 'rate_limit', scope: 'provider' });
+        }
         if (!response.ok) throw new Error('AI unavailable');
         const data = await response.json();
         const candidate = data?.candidates?.[0];
         if (candidate?.finishReason !== 'STOP') throw new Error('Incomplete response');
         const answer = candidate.content?.parts?.filter(part => typeof part.text === 'string' && !part.thought).map(part => part.text).join('\n').trim();
         if (!answer || answer.length > 12000) throw new Error('Invalid response');
+        if (cacheKey) {
+            // Cache failure must not discard an otherwise complete answer.
+            try { await redis(['SET', cacheKey, answer, 'EX', 86400]); } catch {}
+        }
         return res.status(200).json({ answer });
     } catch {
         // Neither provider errors, prompts, IPs, nor credentials are sent to logs or clients.
