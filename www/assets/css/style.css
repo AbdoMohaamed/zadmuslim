@@ -26267,33 +26267,452 @@ body.light-theme textarea {
         #zad-share-card-modal {
             z-index: 100040 !important;
         }
-        /* Keep daily essentials close to the top without removing home sections. */
+        /* ==========================================================================
+           قسم البداية الملكي المطور (Hero Home Compact - Royal Islamic Edition)
+           ========================================================================== */
         #home .home-hero-compact {
             min-height: 0;
-            padding: 22px 28px;
+            padding: 26px 28px;
             margin-top: 16px;
+            border-radius: 28px;
+            background: radial-gradient(circle at 100% 0%, rgba(212, 175, 55, 0.14) 0%, transparent 45%),
+                        radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
+                        linear-gradient(145deg, #072e25 0%, #041f18 55%, #02120e 100%) !important;
+            border: 1px solid rgba(212, 175, 55, 0.32) !important;
+            box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.65), 0 0 24px -2px rgba(212, 175, 55, 0.09) !important;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        #home .home-hero-compact::before {
+            content: "" !important;
+            position: absolute;
+            top: 0;
+            inset-inline: 0;
+            height: 2.5px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4) 25%, #fed668 50%, rgba(212, 175, 55, 0.4) 75%, transparent);
+            box-shadow: 0 0 10px rgba(254, 214, 104, 0.7);
+            z-index: 2;
+        }
+
+        /* أركان الزخرفة الإسلامية الملكية */
+        .hero-corner-ornament {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.45;
+        }
+        .hero-corner-ornament.corner-tr {
+            top: 7px;
+            right: 7px;
+            border-top: 2px solid #fed668;
+            border-right: 2px solid #fed668;
+            border-top-right-radius: 8px;
+        }
+        .hero-corner-ornament.corner-tl {
+            top: 7px;
+            left: 7px;
+            border-top: 2px solid #fed668;
+            border-left: 2px solid #fed668;
+            border-top-left-radius: 8px;
+        }
+        .hero-corner-ornament.corner-br {
+            bottom: 7px;
+            right: 7px;
+            border-bottom: 2px solid #fed668;
+            border-right: 2px solid #fed668;
+            border-bottom-right-radius: 8px;
+        }
+        .hero-corner-ornament.corner-bl {
+            bottom: 7px;
+            left: 7px;
+            border-bottom: 2px solid #fed668;
+            border-left: 2px solid #fed668;
+            border-bottom-left-radius: 8px;
+        }
+
+        /* زخرفة الأرابيسك الهندسية الشفافة */
+        .home-hero-arabesque {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.06;
+            z-index: 1;
+        }
+
+        /* هالات الضوء المحيطية */
+        .hero-ambient-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(48px);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .hero-ambient-glow.glow-gold {
+            top: -40px;
+            left: -40px;
+            width: 180px;
+            height: 180px;
+            background: rgba(212, 175, 55, 0.12);
+        }
+        .hero-ambient-glow.glow-emerald {
+            bottom: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* محتوى الهيرو */
+        #home .home-hero-compact .home-hero-content {
+            position: relative;
+            z-index: 3;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
             gap: 16px;
         }
 
-            #home .home-hero-compact h1 {
-                font-size: clamp(1.4rem, 4.5vw, 2rem);
-                margin: 4px 0;
-            }
+        /* الشريط العلوي */
+        .home-hero-top-bar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
 
-            #home .home-hero-compact p {
-                margin: 4px 0;
-                line-height: 1.7;
-            }
+        .home-hero-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
 
-            #home .home-hero-compact .hero-actions {
-                margin-top: 12px;
-                flex-wrap: wrap;
-            }
+        .home-hero-brand .brand-name {
+            font-size: clamp(1.45rem, 3.8vw, 1.85rem) !important;
+            font-weight: 800 !important;
+            margin: 0 !important;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.25 !important;
+        }
 
-            #home .home-hero-compact .moon {
-                font-size: 64px;
-                flex-shrink: 0;
+        .home-hero-brand .brand-sparkle {
+            font-size: 0.75rem;
+            color: #fed668;
+            opacity: 0.85;
+        }
+
+        .home-hero-brand .brand-tagline {
+            font-size: 0.84rem;
+            color: rgba(209, 250, 229, 0.78);
+            margin: 0;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #ffffff 15%, #ffe6a3 45%, #e5b95c 75%, #caa03c 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            filter: drop-shadow(0 2px 6px rgba(212, 175, 55, 0.25));
+        }
+
+        /* وسام التاريخ الملكي المزدوج */
+        .home-date-wrapper {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .home-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px;
+            background: rgba(3, 24, 18, 0.88);
+            border: 1px solid rgba(212, 175, 55, 0.32);
+            border-radius: 9999px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+        }
+
+        .date-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .date-chip-hijri {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(212, 175, 55, 0.08) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.28);
+            color: #ffd56b;
+        }
+
+        .date-chip-divider {
+            color: rgba(212, 175, 55, 0.55);
+            font-size: 0.65rem;
+            user-select: none;
+        }
+
+        .date-chip-greg {
+            color: rgba(209, 250, 229, 0.9);
+            font-size: 0.78rem;
+            font-weight: 500;
+        }
+
+        /* بطاقة آية اليوم المصحفية الملكية */
+        .home-daily-verse-card {
+            background: linear-gradient(180deg, rgba(6, 36, 28, 0.88) 0%, rgba(4, 25, 19, 0.92) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.34);
+            border-radius: 18px;
+            padding: 16px 20px;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .home-daily-verse-card:hover {
+            border-color: rgba(212, 175, 55, 0.55);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .daily-verse-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(6, 78, 59, 0.55);
+        }
+
+        .daily-verse-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #ffd56b;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-verse-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: rgba(3, 20, 15, 0.75);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-verse-action:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(212, 175, 55, 0.45);
+            color: #fef3c7;
+        }
+
+        .daily-verse-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 4px 0;
+            text-align: center;
+        }
+
+        .quran-bracket {
+            color: #fed668;
+            font-size: 1.45rem;
+            font-weight: 700;
+            line-height: 1;
+            user-select: none;
+            filter: drop-shadow(0 0 6px rgba(254, 214, 104, 0.4));
+        }
+
+        .daily-verse-text {
+            font-family: var(--font-quran, 'Amiri', serif);
+            font-size: clamp(1.05rem, 2.7vw, 1.3rem);
+            font-weight: 600;
+            line-height: 2.1;
+            color: #f0fdf4;
+            margin: 0;
+            padding: 0;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+        }
+
+        .daily-verse-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid rgba(6, 78, 59, 0.55);
+            font-size: 0.75rem;
+        }
+
+        .daily-verse-ref-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.28);
+            color: #ffd56b;
+            font-weight: 700;
+        }
+
+        .daily-verse-refresh-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(167, 243, 208, 0.75);
+            font-size: 0.72rem;
+        }
+
+        .pulse-sparkle {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #fed668;
+            box-shadow: 0 0 8px #fed668;
+            animation: pulseGlowDot 2.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlowDot {
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.25); }
+        }
+
+        /* العنصر البصري الملكي: الهلال ثلاثي الأبعاد والفانوس */
+        .home-hero-visual {
+            position: relative;
+            width: 105px;
+            height: 105px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-self: center;
+            z-index: 3;
+        }
+
+        .hero-moon-glow {
+            position: absolute;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(254, 214, 104, 0.22);
+            filter: blur(20px);
+            animation: haloPulse 3.8s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .hero-crescent-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 6px 18px rgba(251, 191, 36, 0.45));
+            animation: moonFloat 5s ease-in-out infinite;
+        }
+
+        .hanging-lantern {
+            transform-origin: 94px 36px;
+            animation: lanternSway 4.2s ease-in-out infinite;
+        }
+
+        .lantern-flame {
+            transform-origin: 94px 72px;
+            animation: flameFlicker 1.8s ease-in-out infinite;
+        }
+
+        @keyframes moonFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-7px) rotate(-1.5deg); }
+        }
+
+        @keyframes haloPulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.95); }
+            50% { opacity: 0.85; transform: scale(1.1); }
+        }
+
+        @keyframes lanternSway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+        }
+
+        @keyframes flameFlicker {
+            0%, 100% { opacity: 0.95; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.92); }
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.85); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .star-1 { animation: starTwinkle 2.5s ease-in-out infinite; }
+        .star-2 { animation: starTwinkle 3.2s ease-in-out infinite 0.8s; }
+        .star-3 { animation: starTwinkle 2.1s ease-in-out infinite 1.4s; }
+        .star-4 { animation: starTwinkle 2.8s ease-in-out infinite 0.4s; }
+
+        @media (max-width: 768px) {
+            #home .home-hero-compact {
+                padding: 20px 18px;
             }
+            .home-hero-visual {
+                width: 85px;
+                height: 85px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #home .home-hero-compact {
+                padding: 18px 14px;
+                gap: 14px;
+            }
+            .home-hero-top-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .home-hero-visual {
+                display: none;
+            }
+            .daily-verse-text {
+                font-size: 1.05rem;
+                line-height: 1.95;
+            }
+            .date-chip {
+                padding: 3px 8px;
+                font-size: 0.75rem;
+            }
+        }
         /* ==========================================================================
    تصميم الواجهة الرئيسية المطور (Hero Prayer Cards & Strip - Luxury Edition)
    ========================================================================== */
@@ -26669,6 +27088,203 @@ body.light-theme textarea {
                 background: rgba(184, 134, 11, 0.08) !important;
                 color: #b8860b !important;
             }
+
+
+        /* ==========================================================================
+           مظهر قسم الهيرو الملكي في الوضع النهاري (Light Theme Hero Section)
+           ========================================================================== */
+        body.light-theme #home .home-hero-compact,
+        html[data-theme="light"] #home .home-hero-compact,
+        [data-theme="light"] #home .home-hero-compact {
+            background: radial-gradient(circle at 100% 0%, rgba(212, 175, 55, 0.1) 0%, transparent 45%),
+                        radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.07) 0%, transparent 45%),
+                        linear-gradient(145deg, #ffffff 0%, #fbfdfc 60%, #f2f8f5 100%) !important;
+            border: 1px solid rgba(184, 134, 11, 0.35) !important;
+            box-shadow: 0 12px 36px -6px rgba(7, 63, 53, 0.08), 0 0 18px rgba(184, 134, 11, 0.08) !important;
+        }
+
+        body.light-theme #home .home-hero-compact::before,
+        html[data-theme="light"] #home .home-hero-compact::before,
+        [data-theme="light"] #home .home-hero-compact::before {
+            background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.4) 25%, #d4af37 50%, rgba(184, 134, 11, 0.4) 75%, transparent) !important;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4) !important;
+        }
+
+        body.light-theme .hero-corner-ornament,
+        html[data-theme="light"] .hero-corner-ornament,
+        [data-theme="light"] .hero-corner-ornament {
+            border-color: #b8860b !important;
+            opacity: 0.55 !important;
+        }
+
+        body.light-theme .home-hero-brand .brand-name .text-gold-gradient,
+        html[data-theme="light"] .home-hero-brand .brand-name .text-gold-gradient,
+        [data-theme="light"] .home-hero-brand .brand-name .text-gold-gradient {
+            background: linear-gradient(135deg, #09372e 15%, #0e6654 50%, #996800 90%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            filter: drop-shadow(0 1px 2px rgba(168, 121, 39, 0.15)) !important;
+        }
+
+        body.light-theme .home-hero-brand .brand-sparkle,
+        html[data-theme="light"] .home-hero-brand .brand-sparkle,
+        [data-theme="light"] .home-hero-brand .brand-sparkle {
+            color: #a87927 !important;
+        }
+
+        body.light-theme .home-hero-brand .brand-tagline,
+        html[data-theme="light"] .home-hero-brand .brand-tagline,
+        [data-theme="light"] .home-hero-brand .brand-tagline {
+            color: #446355 !important;
+            font-weight: 600 !important;
+        }
+
+        body.light-theme .home-date-pill,
+        html[data-theme="light"] .home-date-pill,
+        [data-theme="light"] .home-date-pill {
+            background: #ffffff !important;
+            border-color: rgba(184, 134, 11, 0.3) !important;
+            box-shadow: 0 4px 14px rgba(7, 63, 53, 0.07) !important;
+        }
+
+        body.light-theme .date-chip-hijri,
+        html[data-theme="light"] .date-chip-hijri,
+        [data-theme="light"] .date-chip-hijri {
+            background: #fff8eb !important;
+            border-color: rgba(184, 134, 11, 0.35) !important;
+            color: #996800 !important;
+        }
+
+        body.light-theme .date-chip-hijri i,
+        html[data-theme="light"] .date-chip-hijri i,
+        [data-theme="light"] .date-chip-hijri i {
+            color: #b8860b !important;
+        }
+
+        body.light-theme .date-chip-divider,
+        html[data-theme="light"] .date-chip-divider,
+        [data-theme="light"] .date-chip-divider {
+            color: #b8860b !important;
+        }
+
+        body.light-theme .date-chip-greg,
+        html[data-theme="light"] .date-chip-greg,
+        [data-theme="light"] .date-chip-greg {
+            color: #3b5a4e !important;
+            font-weight: 600 !important;
+        }
+
+        body.light-theme .date-chip-greg i,
+        html[data-theme="light"] .date-chip-greg i,
+        [data-theme="light"] .date-chip-greg i {
+            color: #0e6654 !important;
+        }
+
+        body.light-theme .home-daily-verse-card,
+        html[data-theme="light"] .home-daily-verse-card,
+        [data-theme="light"] .home-daily-verse-card {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%) !important;
+            border-color: rgba(184, 134, 11, 0.35) !important;
+            box-shadow: inset 0 1px 1px #ffffff, 0 8px 24px rgba(7, 63, 53, 0.06) !important;
+        }
+
+        body.light-theme .home-daily-verse-card:hover,
+        html[data-theme="light"] .home-daily-verse-card:hover,
+        [data-theme="light"] .home-daily-verse-card:hover {
+            border-color: rgba(184, 134, 11, 0.6) !important;
+            box-shadow: inset 0 1px 1px #ffffff, 0 10px 28px rgba(7, 63, 53, 0.1), 0 0 18px rgba(184, 134, 11, 0.15) !important;
+        }
+
+        body.light-theme .daily-verse-header,
+        html[data-theme="light"] .daily-verse-header,
+        [data-theme="light"] .daily-verse-header,
+        body.light-theme .daily-verse-footer,
+        html[data-theme="light"] .daily-verse-footer,
+        [data-theme="light"] .daily-verse-footer {
+            border-color: rgba(184, 134, 11, 0.18) !important;
+        }
+
+        body.light-theme .daily-verse-badge,
+        html[data-theme="light"] .daily-verse-badge,
+        [data-theme="light"] .daily-verse-badge {
+            color: #996800 !important;
+        }
+
+        body.light-theme .daily-verse-badge i,
+        html[data-theme="light"] .daily-verse-badge i,
+        [data-theme="light"] .daily-verse-badge i {
+            color: #a87927 !important;
+        }
+
+        body.light-theme .btn-verse-action,
+        html[data-theme="light"] .btn-verse-action,
+        [data-theme="light"] .btn-verse-action {
+            background: #f0f7f4 !important;
+            border-color: rgba(14, 102, 84, 0.25) !important;
+            color: #073f35 !important;
+        }
+
+        body.light-theme .btn-verse-action:hover,
+        html[data-theme="light"] .btn-verse-action:hover,
+        [data-theme="light"] .btn-verse-action:hover {
+            background: #e1efe9 !important;
+            border-color: #a87927 !important;
+            color: #805600 !important;
+        }
+
+        body.light-theme .daily-verse-text,
+        html[data-theme="light"] .daily-verse-text,
+        [data-theme="light"] .daily-verse-text {
+            color: #0d3b30 !important;
+            font-weight: 700 !important;
+            text-shadow: none !important;
+        }
+
+        body.light-theme .quran-bracket,
+        html[data-theme="light"] .quran-bracket,
+        [data-theme="light"] .quran-bracket {
+            color: #b8860b !important;
+            filter: drop-shadow(0 0 4px rgba(184, 134, 11, 0.25)) !important;
+        }
+
+        body.light-theme .daily-verse-ref-pill,
+        html[data-theme="light"] .daily-verse-ref-pill,
+        [data-theme="light"] .daily-verse-ref-pill {
+            background: #fff8eb !important;
+            border-color: rgba(184, 134, 11, 0.35) !important;
+            color: #8e5e04 !important;
+        }
+
+        body.light-theme .daily-verse-ref-pill i,
+        html[data-theme="light"] .daily-verse-ref-pill i,
+        [data-theme="light"] .daily-verse-ref-pill i {
+            color: #a87927 !important;
+        }
+
+        body.light-theme .daily-verse-refresh-hint,
+        html[data-theme="light"] .daily-verse-refresh-hint,
+        [data-theme="light"] .daily-verse-refresh-hint {
+            color: #4b665b !important;
+        }
+
+        body.light-theme .pulse-sparkle,
+        html[data-theme="light"] .pulse-sparkle,
+        [data-theme="light"] .pulse-sparkle {
+            background: #b8860b !important;
+            box-shadow: 0 0 8px #b8860b !important;
+        }
+
+        body.light-theme .hero-moon-glow,
+        html[data-theme="light"] .hero-moon-glow,
+        [data-theme="light"] .hero-moon-glow {
+            background: rgba(212, 175, 55, 0.15) !important;
+        }
+
+        body.light-theme .hero-crescent-svg,
+        html[data-theme="light"] .hero-crescent-svg,
+        [data-theme="light"] .hero-crescent-svg {
+            filter: drop-shadow(0 4px 12px rgba(168, 121, 39, 0.3)) !important;
+        }
 
         @media (max-width: 480px) {
             #home .home-hero-compact {

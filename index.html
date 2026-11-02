@@ -154,18 +154,111 @@
          تصميم عصري متجاوب للآيفون والأندرويد والكمبيوتر
          ========================================== -->
     <main class="shell container" id="home">
-        <section class="hero home-hero-compact">
-            <div>
-                <span class="eyebrow" id="today"></span>
-                <div class="eyebrow">  رفيقك في رحلة الطمأنينة</div>
-                <h1>زادٌ لقلبك، ونورٌ ليومك.</h1>
-                <p>صلاتك وقرآنك وأذكارك…</p>
-                <!--<div class="hero-actions">
-        <a class="btn gold" href="#daily">ابدأ يومك الآن ←</a>
-        <a class="btn glass" href="#services">اختصاراتك</a>
-    </div>-->
+                                <section class="hero home-hero-compact">
+            <!-- أركان الزخرفة الإسلامية الملكية المذهبة -->
+            <div class="hero-corner-ornament corner-tr" aria-hidden="true"></div>
+            <div class="hero-corner-ornament corner-tl" aria-hidden="true"></div>
+            <div class="hero-corner-ornament corner-br" aria-hidden="true"></div>
+            <div class="hero-corner-ornament corner-bl" aria-hidden="true"></div>
+            <!-- هالات الضوء الروحانية المحيطة -->
+            <div class="hero-ambient-glow glow-gold" aria-hidden="true"></div>
+            <div class="hero-ambient-glow glow-emerald" aria-hidden="true"></div>
+
+            <div class="home-hero-content">
+                <!-- الشريط العلوي: زاد المسلم + بطاقة التاريخ الملكية -->
+                <div class="home-hero-top-bar">
+                    <div class="home-hero-brand">
+                        <h1 class="brand-name">
+                            <span class="text-gold-gradient">زاد المسلم</span>
+                            <span class="brand-sparkle" aria-hidden="true">✦</span>
+                        </h1>
+                        <p class="brand-tagline">نُورٌ لِقَلْبِكَ وَضِيَاءٌ لِيَوْمِك</p>
+                    </div>
+
+                    <!-- وسام التاريخ الملكي المزدوج (هجري وميلادي) -->
+                    <div class="home-date-wrapper" id="today"></div>
+                </div>
+
+                <!-- بطاقة آية اليوم (التحفة المصحفية المركزية الفاخرة) -->
+                <div class="home-daily-verse-card" id="home-daily-verse-card">
+                    <div class="daily-verse-header">
+                        <div class="daily-verse-badge">
+                            <i class="fa-solid fa-book-quran text-gold"></i>
+                            <span>آيَـةُ الـيَـوْمِ</span>
+                        </div>
+                        <div class="daily-verse-actions">
+                            <button type="button" class="btn-verse-action" id="btn-copy-daily-verse" title="نسخ الآية الكريمة" aria-label="نسخ الآية الكريمة">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>نسخ</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="daily-verse-body">
+                        <span class="quran-bracket quran-bracket-start" aria-hidden="true">﴿</span>
+                        <blockquote class="daily-verse-text" id="daily-verse-text"></blockquote>
+                        <span class="quran-bracket quran-bracket-end" aria-hidden="true">﴾</span>
+                    </div>
+
+                    <div class="daily-verse-footer">
+                        <div class="daily-verse-ref-pill">
+                            <i class="fa-solid fa-feather text-gold"></i>
+                            <span id="daily-verse-ref"></span>
+                        </div>
+                        <div class="daily-verse-refresh-hint">
+                            <span class="pulse-sparkle" aria-hidden="true"></span>
+                            <span>تتجدد تلقائياً كل يوم</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="moon">☾</div>
+
+            <!-- العنصر البصري الملكي: الهلال ثلاثي الأبعاد مع الفانوس المتدلي والنجوم -->
+            <div class="home-hero-visual" aria-hidden="true">
+                <div class="hero-moon-glow"></div>
+                <svg class="hero-crescent-svg" viewBox="0 0 130 130" fill="none">
+                    <defs>
+                        <linearGradient id="goldCrescentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#fff9e6"/>
+                            <stop offset="25%" stop-color="#fed668"/>
+                            <stop offset="65%" stop-color="#dfa72b"/>
+                            <stop offset="100%" stop-color="#8a6108"/>
+                        </linearGradient>
+                        <radialGradient id="lanternFlameGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="35%" stop-color="#ffe680"/>
+                            <stop offset="70%" stop-color="#ff9900"/>
+                            <stop offset="100%" stop-color="transparent"/>
+                        </radialGradient>
+                        <filter id="crescentFilterGlow" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur stdDeviation="3.5" result="blur"/>
+                            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                        </filter>
+                    </defs>
+                    <path class="crescent-body" d="M68 14 C38.5 14 15 37.5 15 67 C15 96.5 38.5 120 68 120 C87.2 120 103.8 109.8 112.8 94.5 C108.7 96.3 104.2 97.4 99.5 97.4 C74.3 97.4 54 77.1 54 52 C54 36.3 62.1 22.4 74.3 14.5 C72.2 14.2 70.1 14 68 14 Z" fill="url(#goldCrescentGrad)" filter="url(#crescentFilterGlow)"/>
+                    <path d="M58 40 Q50 62 65 85" stroke="rgba(255, 248, 220, 0.45)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                    <circle cx="58" cy="52" r="1.5" fill="#fff9db"/>
+                    <circle cx="61" cy="70" r="1.5" fill="#fff9db"/>
+                    <line x1="94" y1="36" x2="94" y2="60" stroke="#dfa72b" stroke-width="1.2" stroke-dasharray="2 1.5"/>
+                    <g class="hanging-lantern">
+                        <polygon points="94,60 88,66 100,66" fill="#ffd56b"/>
+                        <circle cx="94" cy="59" r="1.5" fill="#ffeaa7"/>
+                        <rect x="89" y="66" width="10" height="13" rx="1.5" fill="rgba(255, 245, 204, 0.92)"/>
+                        <line x1="94" y1="66" x2="94" y2="79" stroke="#dfa72b" stroke-width="0.75" opacity="0.6"/>
+                        <circle class="lantern-flame" cx="94" cy="72" r="3.2" fill="url(#lanternFlameGrad)"/>
+                        <polygon points="88,79 100,79 94,84" fill="#dfa72b"/>
+                        <circle cx="94" cy="85.5" r="1.2" fill="#ffd56b"/>
+                    </g>
+                    <g class="hero-stars">
+                        <path class="star star-1" d="M110 38 L111.5 42.5 L116 44 L111.5 45.5 L110 50 L108.5 45.5 L104 44 L108.5 42.5 Z" fill="#fff5cc"/>
+                        <circle class="star star-2" cx="36" cy="38" r="1.8" fill="#ffd56b"/>
+                        <circle class="star star-3" cx="118" cy="72" r="1.4" fill="#fff5cc"/>
+                        <circle class="star star-4" cx="44" cy="98" r="1.2" fill="#fed668"/>
+                    </g>
+                </svg>
+            </div>
+            <!-- عنصر moon للتوافق البرمجي -->
+            <div class="moon" style="display:none;" aria-hidden="true">☾</div>
         </section>
         <!-- البطاقة الأولى: بطاقة الصلاة القادمة الكبرى (Hero Next Prayer Card) -->
         <div class="prayer panel home-next-prayer home-prayer-hero-card" id="home-next-prayer">

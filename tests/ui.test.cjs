@@ -609,3 +609,17 @@ test('backup import cancellation and corrupted files preserve existing progress 
   assert.deepEqual(h.errors,[]);
  }finally{h.dom.window.close();}
 });
+
+test('Android backup export waits for actual file saving, handles cancellation and failure honestly',async()=>{
+ const h=await load('settings.html');
+ try{
+ const w=h.dom.window,d=w.document;let finish,received;
+ w.Capacitor={isNativePlatform:()=>true,getPlatform:()=> 'android',Plugins:{BackupFiles:{saveBackup:args=>{received=args;return new Promise(resolve=>finish=resolve);}}}};
+ const button=d.getElementById('zad-export-backup');const promise=button.onclick();
+ assert.equal(button.disabled,true);assert.match(d.getElementById('zad-backup-status').textContent,/اختر مكان/);
+ backupTools.validateBackup(JSON.parse(received.content));assert.match(received.fileName,/^zad-backup-.*\.json$/);
+ finish({saved:true});await promise;assert.equal(button.disabled,false);assert.match(d.getElementById('zad-backup-status').textContent,/تم حفظ ملف/);
+ w.Capacitor.Plugins.BackupFiles.saveBackup=async()=>({cancelled:true});await button.onclick();assert.match(d.getElementById('zad-backup-status').textContent,/إلغاء/);
+ w.Capacitor.Plugins.BackupFiles.saveBackup=async()=>{throw Error('فشل الحفظ');};await button.onclick();assert.match(d.getElementById('zad-backup-status').textContent,/تعذّر/);assert.equal(button.disabled,false);
+ }finally{h.dom.window.close();}
+});

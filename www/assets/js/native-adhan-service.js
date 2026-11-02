@@ -152,6 +152,14 @@ const NativeAdhanService = {
                     LocalNotifications.removeDeliveredNotifications({notifications:[{id:notif.id}]}).catch(e=>console.warn("Dismiss notification failed",e));
                     return;
                 }
+                if (notif?.extra?.url === 'services.html#spiritual-garden') {
+                    const target = 'services.html#spiritual-garden';
+                    if (window.location.pathname.endsWith('/services.html') && typeof window.openServiceView === 'function') {
+                        window.openServiceView('#spiritual-garden', true);
+                    } else if (typeof window.zadNavigate === 'function') window.zadNavigate(target);
+                    else window.location.assign(target);
+                    return;
+                }
                 if (notif?.extra?.type === 'prayer_schedule_expiry') {
                     if(typeof window.zadNavigate==='function') window.zadNavigate('settings.html');
                     else window.location.href='settings.html';

@@ -1470,6 +1470,15 @@ function listenToCloudBroadcastNotifications() {
  */
 async function triggerNativeNotification(title, body, url = "./") {
     try {
+        const showBrowserNotification = options => {
+            const notification = new Notification(title, options);
+            if (url === 'services.html#spiritual-garden') notification.onclick = () => {
+                notification.close();
+                window.focus();
+                if (typeof window.zadNavigate === 'function') window.zadNavigate(url);
+                else window.location.assign(url);
+            };
+        };
         // 1. إذا كان التطبيق يعمل على الهاتف (Capacitor Android / iOS)
         if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
             const LocalNotifications = window.Capacitor.Plugins ? window.Capacitor.Plugins.LocalNotifications : null;
@@ -1503,11 +1512,11 @@ async function triggerNativeNotification(title, body, url = "./") {
                     });
                 }).catch(() => {
                     try {
-                        new Notification(title, { body: body, icon: "assets/icon-192.png" });
+                        showBrowserNotification({ body: body, icon: "assets/icon-192.png" });
                     } catch(e) {}
                 });
             } else {
-                new Notification(title, { body: body, icon: "assets/icon.svg" });
+                showBrowserNotification({ body: body, icon: "assets/icon.svg" });
             }
         }
     } catch(e) {
@@ -2766,8 +2775,10 @@ function initLiveRadioWidgetWithSleepTimer() {
  const select=$('radio-station-select'), play=$('btn-radio-play'), icon=$('radio-play-icon'),vol=$('radio-volume-slider');
  const read=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}};
  const save=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
- const status=panel.querySelector('.radio-live-status-badge');if(status){status.setAttribute('role','status');status.setAttribute('aria-live','polite');}
- const labels={paused:'متوقف',playing:'يعمل الآن',connecting:'جاري الاتصال',buffering:'جاري تحميل الصوت',retrying:'إعادة الاتصال',offline:'الإنترنت غير متاح',failed:'البث غير متاح — اضغط لإعادة المحاولة',blocked:'اضغط تشغيل للسماح بالصوت',interrupted:'متوقف مؤقتًا للمكالمة أو الأذان'};
+ const statusText=panel.querySelector('.radio-live-status-text');
+ const statusBadge=panel.querySelector('.radio-live-status-badge');
+ if(statusBadge){statusBadge.setAttribute('role','status');statusBadge.setAttribute('aria-live','polite');}
+ const labels={paused:'متوقف',playing:'مباشر',connecting:'جاري الاتصال',buffering:'جاري التحميل',retrying:'إعادة الاتصال',offline:'الإنترنت غير متاح',failed:'البث غير متاح — أعد المحاولة',blocked:'اضغط تشغيل',interrupted:'متوقف مؤقتًا'};
  let sleepDeadline=0, sleepInterval, previousVolume=.8;
  const nativeRadio=window.Capacitor?.getPlatform?.()==='android' && window.Capacitor?.isPluginAvailable?.('RadioNative');
  let alternative;
@@ -2777,34 +2788,143 @@ function initLiveRadioWidgetWithSleepTimer() {
   alternative.onclick=()=>{alternative.disabled=true;Promise.resolve(player.useWebPlayer()).finally(()=>{alternative.disabled=false;});};
   panel.querySelector('.radio-controls-row').after(alternative);
  }
+
+ let favorites;
+ try{favorites=JSON.parse(read('zadmuslim_radio_favorites','[]'));if(!Array.isArray(favorites))favorites=[];}catch{favorites=[];}
+
  const Player=nativeRadio?window.ZadNativeRadioPlayer:window.ZadRadioPlayer;
  const player=new Player(audio,({state,station,wanted,error,fallback})=>{
   panel.dataset.state=state;
   if($('radio-play-label'))$('radio-play-label').textContent=wanted?'إيقاف':'سماع';
-  if(status)status.textContent=(error||labels[state]||state)+(fallback?' — مشغّل بديل؛ استمرار الصوت عند القفل غير مضمون':'');
+  const label=error||(state==='playing'?'مباشر':(labels[state]||state));
+  if(statusText)statusText.textContent=label+(fallback?' — مشغّل بديل':'');
   if(alternative)alternative.hidden=!!fallback||!['failed','retrying','blocked'].includes(state);
-  if(icon)icon.className=wanted?'fa-solid fa-stop':'fa-solid fa-play';
-  if(play){play.title= wanted?'إيقاف':'سماع';play.setAttribute('aria-label',play.title);play.setAttribute('aria-pressed',String(wanted));}
+  if(icon)icon.className=wanted?'fa-solid fa-pause':'fa-solid fa-play';
+  if(play){play.title=wanted?'إيقاف':'سماع';play.setAttribute('aria-label',play.title);play.setAttribute('aria-pressed',String(wanted));}
   for(const element of [panel,fab,$('btn-toggle-radio-nav')])element?.classList.toggle('is-playing',state==='playing');
   if($('radio-waves'))$('radio-waves').style.display=state==='playing'?'flex':'none';
-  if(station){$('current-station-name').textContent=station.name;$('current-station-desc').textContent=station.desc;if(select)select.value=station.id;}
+  if(station){
+   $('current-station-name').textContent=station.name;
+   $('current-station-desc').textContent=station.desc;
+   if(select)select.value=station.id;
+  }
+  refreshFavoriteUI();
+  renderStationsList();
   if(!nativeRadio&&'mediaSession' in navigator){
    navigator.mediaSession.playbackState=state==='playing'?'playing':'paused';
    if(station&&window.MediaMetadata)navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:'زاد المسلم',album:'بث إذاعي مباشر',artwork:[{src:new URL('assets/branding/app-logo.png',document.baseURI).href,sizes:'395x395',type:'image/png'}]});
   }
  },stations);
  window.ZadRadioHost?.attach(player);
- const setStation=(station,autoplay)=>{save('zadmuslim_active_radio_station',station.id);player.select(station,autoplay);};
- if(select){select.replaceChildren();for(const station of stations){const option=document.createElement('option');option.value=station.id;option.textContent=station.name;select.append(option);}select.onchange=()=>setStation(stations.find(s=>s.id===select.value),player.wanted);}
+
+ const setStation=(station,autoplay)=>{
+  if(!station)return;
+  save('zadmuslim_active_radio_station',station.id);
+  player.select(station,autoplay);
+  renderStationsList();
+  refreshFavoriteUI();
+ };
+
+ if(select){
+  select.replaceChildren();
+  for(const station of stations){
+   const option=document.createElement('option');
+   option.value=station.id;
+   option.textContent=station.name;
+   select.append(option);
+  }
+  select.onchange=()=>setStation(stations.find(s=>s.id===select.value),player.wanted);
+ }
+
+ const refreshFavoriteUI=()=>{
+  const curId=player.station?.id;
+  const isFav=favorites.includes(curId);
+  const favIcon=$('radio-favorite-icon'), favLabel=$('radio-favorite-label'), favBtn=$('btn-radio-favorite');
+  if(favIcon)favIcon.className=isFav?'fa-solid fa-star text-gold':'fa-regular fa-star';
+  if(favLabel)favLabel.textContent=isFav?'إزالة من المفضلة':'إضافة للمفضلة';
+  if(favBtn){
+   favBtn.title=isFav?'إزالة من المفضلة':'إضافة للمفضلة';
+   favBtn.setAttribute('aria-pressed',String(isFav));
+  }
+ };
+
+ const toggleFavorite=stationId=>{
+  if(!stationId)return;
+  favorites=favorites.includes(stationId)?favorites.filter(v=>v!==stationId):[...favorites,stationId];
+  save('zadmuslim_radio_favorites',JSON.stringify(favorites));
+  refreshFavoriteUI();
+  renderStationsList();
+ };
+
+ const favOnlyCheckbox=$('radio-fav-only-checkbox');
+ const renderStationsList=()=>{
+  const list=$('radio-stations-list');
+  if(!list)return;
+  list.replaceChildren();
+  const filterFav=favOnlyCheckbox?.checked;
+  const filtered=filterFav?stations.filter(s=>favorites.includes(s.id)):stations;
+  if(filtered.length===0){
+   const empty=document.createElement('div');
+   empty.className='radio-empty-state';
+   empty.textContent='لا توجد محطات في المفضلة حالياً';
+   list.append(empty);
+   return;
+  }
+  for(const station of filtered){
+   const isCur=player.station?.id===station.id;
+   const isFav=favorites.includes(station.id);
+   const item=document.createElement('div');
+   item.className='radio-station-item'+(isCur?' active':'');
+   item.dataset.stationId=station.id;
+   item.innerHTML=`<div class="radio-item-info">
+    <div class="radio-item-title">${station.name}</div>
+    <div class="radio-item-tag">محطة</div>
+   </div>
+   <button type="button" class="radio-item-fav-btn" title="${isFav?'إزالة من المفضلة':'إضافة للمفضلة'}" aria-label="المفضلة">
+    <i class="${isFav?'fa-solid fa-star text-gold':'fa-regular fa-star'}"></i>
+   </button>`;
+   item.onclick=e=>{
+    if(e.target.closest('.radio-item-fav-btn')){
+     e.stopPropagation();
+     toggleFavorite(station.id);
+     return;
+    }
+    setStation(station,true);
+   };
+   list.append(item);
+  }
+ };
+
+ if(favOnlyCheckbox)favOnlyCheckbox.onchange=()=>renderStationsList();
+ if($('btn-radio-favorite'))$('btn-radio-favorite').onclick=()=>{
+  if(player.station?.id)toggleFavorite(player.station.id);
+ };
+
  setStation(stations.find(s=>s.id===read('zadmuslim_active_radio_station','cairo'))||stations[0],false);
+
  const start=()=>{document.querySelectorAll('audio,video').forEach(other=>{if(other!==audio&&!other.paused)other.pause();});player.play();};
  play.onclick=()=>player.wanted?player.stop():start();
  document.addEventListener('play',event=>{if(event.target!==audio&&['AUDIO','VIDEO'].includes(event.target.tagName)&&player.wanted)player.stop();},true);
  if(!nativeRadio&&'mediaSession' in navigator)for(const [action,handler] of Object.entries({play:start,pause:()=>player.stop(),stop:()=>player.stop()})){try{navigator.mediaSession.setActionHandler(action,handler);}catch{}}
- const updateVolume=value=>{value=Math.max(0,Math.min(1,value));audio.volume=value;player.setVolume?.(value);if(vol)vol.value=value;if($('radio-volume-value'))$('radio-volume-value').textContent=Math.round(value*100)+'%';save('zadmuslim_radio_volume',value);if(value>0)previousVolume=value;const vi=$('radio-volume-icon');if(vi)vi.className=value===0?'fa-solid fa-volume-xmark':value<.5?'fa-solid fa-volume-low':'fa-solid fa-volume-high';};
+
+ const updateVolume=value=>{
+  value=Math.max(0,Math.min(1,value));
+  audio.volume=value;
+  player.setVolume?.(value);
+  if(vol)vol.value=value;
+  const pct=Math.round(value*100)+'%';
+  if($('radio-volume-value'))$('radio-volume-value').textContent=pct;
+  panel.style.setProperty('--volume-percent',pct);
+  if(vol)vol.style.setProperty('--volume-percent',pct);
+  save('zadmuslim_radio_volume',value);
+  if(value>0)previousVolume=value;
+  const vi=$('radio-volume-icon');
+  if(vi)vi.className=value===0?'fa-solid fa-volume-xmark':value<.5?'fa-solid fa-volume-low':'fa-solid fa-volume-high';
+ };
  const savedVolume=Number(read('zadmuslim_radio_volume','.8'));updateVolume(Number.isFinite(savedVolume)?savedVolume:.8);
  if(vol)vol.oninput=()=>updateVolume(Number(vol.value));
  if($('btn-radio-mute'))$('btn-radio-mute').onclick=()=>updateVolume(audio.volume?0:previousVolume);
+
  const closePanel=()=>{if(panel.classList.contains('open')){panel.classList.remove('open');fab.setAttribute('aria-expanded','false');}};
  let lastScrollY=window.pageYOffset||document.documentElement.scrollTop||0;
  const open=()=>{
@@ -2837,22 +2957,64 @@ function initLiveRadioWidgetWithSleepTimer() {
    panel.classList.add('open');fab.setAttribute('aria-expanded','true');
   };
  }
- const quick=document.createElement('button');quick.type='button';quick.className='btn outline radio-cairo-shortcut';quick.textContent='سماع إذاعة القرآن الكريم من القاهرة';quick.onclick=()=>{const cairo=stations.find(s=>s.id==='cairo');if(cairo){setStation(cairo,false);start();}};panel.querySelector('.radio-controls-row').after(quick);
- const favorite=document.createElement('button');favorite.type='button';favorite.className='btn outline';
- let favorites;try{favorites=JSON.parse(read('zadmuslim_radio_favorites','[]'));if(!Array.isArray(favorites))favorites=[];}catch{favorites=[];}
- const refreshFavorites=()=>{for(const option of select?.options||[]){const station=stations.find(s=>s.id===option.value);option.textContent=(favorites.includes(station.id)?'★ ':'')+station.name;}favorite.textContent=favorites.includes(player.station?.id)?'★ إزالة من المفضلة':'☆ إضافة للمفضلة';favorite.setAttribute('aria-pressed',String(favorites.includes(player.station?.id)));};
- favorite.onclick=()=>{const id=player.station?.id;if(!id)return;favorites=favorites.includes(id)?favorites.filter(v=>v!==id):[...favorites,id];save('zadmuslim_radio_favorites',JSON.stringify(favorites));refreshFavorites();};quick.after(favorite);select?.addEventListener('change',refreshFavorites);quick.addEventListener('click',refreshFavorites);refreshFavorites();
- const timer=$('radio-sleep-timer-select'), countdown=$('radio-timer-countdown');
- const updateTimer=()=>{if(!sleepDeadline)return;const remaining=sleepDeadline-Date.now();if(remaining<=0){sleepDeadline=0;clearInterval(sleepInterval);timer.value='0';countdown.style.display='none';player.stop();return;}const seconds=Math.ceil(remaining/1000);$('radio-timer-rem-time').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');};
- if(timer)timer.onchange=()=>{clearInterval(sleepInterval);const minutes=Number(timer.value);sleepDeadline=minutes>0?Date.now()+minutes*60000:0;player.setSleepTimer?.(sleepDeadline);countdown.style.display=sleepDeadline?'flex':'none';if(sleepDeadline){updateTimer();sleepInterval=setInterval(updateTimer,1000);}};
+
+ // إدارة التبويبات (Tabs Management)
+ const tabStations=$('tab-btn-stations'), tabTimer=$('tab-btn-timer');
+ const contentStations=$('radio-tab-stations'), contentTimer=$('radio-tab-timer');
+ const switchTab=name=>{
+  if(name==='stations'){
+   tabStations?.classList.add('active');tabStations?.setAttribute('aria-selected','true');
+   tabTimer?.classList.remove('active');tabTimer?.setAttribute('aria-selected','false');
+   if(contentStations)contentStations.style.display='flex';
+   if(contentTimer)contentTimer.style.display='none';
+  }else{
+   tabTimer?.classList.add('active');tabTimer?.setAttribute('aria-selected','true');
+   tabStations?.classList.remove('active');tabStations?.setAttribute('aria-selected','false');
+   if(contentTimer)contentTimer.style.display='flex';
+   if(contentStations)contentStations.style.display='none';
+  }
+ };
+ if(tabStations)tabStations.onclick=()=>switchTab('stations');
+ if(tabTimer)tabTimer.onclick=()=>switchTab('timer');
+
+ // مؤقت النوم (Sleep Timer)
+ const timerSelect=$('radio-sleep-timer-select'), countdown=$('radio-timer-countdown');
+ const timerChips=panel.querySelectorAll('.radio-timer-chip');
+ const updateTimer=()=>{
+  if(!sleepDeadline)return;
+  const remaining=sleepDeadline-Date.now();
+  if(remaining<=0){
+   sleepDeadline=0;clearInterval(sleepInterval);
+   if(timerSelect)timerSelect.value='0';
+   timerChips.forEach(c=>c.classList.toggle('active',c.dataset.minutes==='0'));
+   if(countdown)countdown.style.display='none';
+   player.stop();
+   return;
+  }
+  const seconds=Math.ceil(remaining/1000);
+  if($('radio-timer-rem-time'))$('radio-timer-rem-time').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ };
+
+ const setSleepMinutes=minutes=>{
+  clearInterval(sleepInterval);
+  sleepDeadline=minutes>0?Date.now()+minutes*60000:0;
+  player.setSleepTimer?.(sleepDeadline);
+  if(timerSelect)timerSelect.value=String(minutes);
+  timerChips.forEach(c=>c.classList.toggle('active',Number(c.dataset.minutes)===minutes));
+  if(countdown)countdown.style.display=sleepDeadline?'flex':'none';
+  if(sleepDeadline){updateTimer();sleepInterval=setInterval(updateTimer,1000);}
+ };
+
+ timerChips.forEach(chip=>{
+  chip.onclick=()=>setSleepMinutes(Number(chip.dataset.minutes||0));
+ });
+
+ if(timerSelect){
+  timerSelect.onchange=()=>{
+   setSleepMinutes(Number(timerSelect.value||0));
+  };
+ }
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateTimer();});
- const sleepGroup=panel.querySelector('.radio-sleep-timer-group');if(sleepGroup){const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='مؤقت النوم';details.className='radio-sleep-details';details.append(summary);sleepGroup.before(details);details.append(sleepGroup);}
- const options=document.createElement('details');options.className='radio-options';
- const optionsTitle=document.createElement('summary');optionsTitle.textContent='خيارات الراديو';options.append(optionsTitle);
- const stationGroup=panel.querySelector('.radio-station-select-group');
- panel.append(options);for(const item of [stationGroup,favorite,panel.querySelector('.radio-sleep-details')])if(item)options.append(item);
-
-
 }
 
 /* ==========================================================================
@@ -2997,6 +3159,12 @@ window.addSpiritualGardenDeed = function(type, points = 1, count = 1) {
         if (typeof showToast === "function") {
             showToast(`مبارك! ارتقت شجرة حسناتك إلى «${newStage.title}» 🌳🎉`);
         }
+        // A local system notification; tapping it opens this device's garden.
+        void triggerNativeNotification(
+            '🌱 شجرتك ارتقت!',
+            'وصلت إلى «' + newStage.title + '». اضغط وشوف شجرتك وحديقة الحسنات.',
+            'services.html#spiritual-garden'
+        );
         const emojiEl = document.getElementById("tree-stage-emoji");
         if (emojiEl) {
             emojiEl.style.transform = "scale(1.4) rotate(10deg)";

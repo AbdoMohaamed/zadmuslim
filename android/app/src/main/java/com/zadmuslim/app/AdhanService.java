@@ -63,7 +63,12 @@ public class AdhanService extends Service {
 
         // إظهار إشعار Foreground الموحد
         boolean preAlert = intent != null && intent.getBooleanExtra(AdhanAlarmReceiver.EXTRA_IS_PRE_ALERT, false);
-        Notification notification = AdhanAlarmReceiver.buildQuietPrayerNotification(this,prayerName,preAlert);
+        // Full-screen intents must be present on the first post, not added to a quiet update.
+        Notification notification = CallAudioGuard.isBusy(this)
+            ? AdhanAlarmReceiver.buildQuietPrayerNotification(this,prayerName,preAlert)
+            : preAlert ? AdhanAlarmReceiver.buildPrePrayerNotification(this,prayerName,prayerKey,
+                intent.getIntExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL,5))
+            : AdhanAlarmReceiver.buildAdhanAlarmNotification(this,prayerName,prayerKey);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
@@ -102,7 +107,10 @@ public class AdhanService extends Service {
             manager.notify(NOTIFICATION_ID,preAlert
                 ? AdhanAlarmReceiver.buildPrePrayerNotification(this,prayerName,prayerKey,intent.getIntExtra(AdhanAlarmReceiver.EXTRA_PRE_ALERT_INTERVAL,5))
                 : AdhanAlarmReceiver.buildAdhanAlarmNotification(this,prayerName,prayerKey));
-            if (!preAlert && !CallAudioGuard.isBusy(this)) {
+            android.app.ActivityManager.RunningAppProcessInfo process = new android.app.ActivityManager.RunningAppProcessInfo();
+            android.app.ActivityManager.getMyMemoryState(process);
+            // In the background Android opens the screen through the notification's full-screen intent.
+            if (!preAlert && process.importance == android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && !CallAudioGuard.isBusy(this)) {
                 try {
                     Intent screen=new Intent(this,AdhanActivity.class);
                     screen.putExtra(EXTRA_PRAYER_NAME,prayerName).putExtra(EXTRA_PRAYER_KEY,prayerKey);

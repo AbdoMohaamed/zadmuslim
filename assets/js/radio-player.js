@@ -55,6 +55,7 @@ class NativeRadioPlayer {
  this.poll=async()=>{if(document.hidden||this.busy||this.fallback||this.switching)return;try{const result=await this.plugin.getState();if(this.busy||this.fallback||this.switching)return;if(result.wanted)this.station=this.stations.find(s=>s.id===result.id)||this.station;this.wanted=result.wanted;this.state=result.state;this.notify({...result,station:this.station});}catch{}};
  this.interval=setInterval(()=>{if(this.fallback&&this.deadline&&Date.now()>=this.deadline){this.deadline=0;this.fallback.stop();}else this.poll();},1500);document.addEventListener('visibilitychange',this.poll);this.poll();
  }
+ get survivesNavigation(){return !this.fallback&&!this.switching;}
  async useWebPlayer(){
   if(this.fallback||this.switching||!this.station)return;
   this.switching=true;

@@ -1,6 +1,7 @@
 package com.zadmuslim.app;
 
 import android.app.AlarmManager;
+import android.app.ActivityOptions;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -264,7 +265,10 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingFullScreen = PendingIntent.getActivity(
                 context, 9993, fullScreenIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+                PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0),
+                Build.VERSION.SDK_INT >= 34 ? ActivityOptions.makeBasic()
+                    .setPendingIntentCreatorBackgroundActivityStartMode(ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
+                    .toBundle() : null
         );
 
         // نية إيقاف الأذان عند النقر على زر الإيقاف أو مسح الإشعار
@@ -279,7 +283,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.ic_stat_icon)
                 .setContentTitle("🕌 حَانَ الآنَ مَوْعِدُ " + prayerName)
                 .setContentText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح")
-                .setContentIntent(pendingOpen)
+                .setContentIntent(pendingFullScreen)
                 .setFullScreenIntent(pendingFullScreen, true)
                 .setDeleteIntent(pendingStop) // عند مسح الإشعار يتم إيقاف الصوت
                 .addAction(R.drawable.ic_stat_icon, "إيقاف الأذان ⏹", pendingStop)

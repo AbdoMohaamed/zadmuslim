@@ -19,6 +19,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(AdhanNativePlugin.class);
+        registerPlugin(BackupFilesPlugin.class);
         registerPlugin(RadioNativePlugin.class);
         super.onCreate(savedInstanceState);
 

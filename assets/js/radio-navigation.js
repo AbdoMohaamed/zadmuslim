@@ -57,12 +57,12 @@ function render(href){
  document.body.classList.add('zad-radio-host');frame.src=url.href;document.getElementById('radio-panel')?.classList.remove('open');
 }
 function navigate(href){const url=target(href);if(!url)return;if(!frame)history.replaceState({...history.state,zadRadioRoute:location.href},'',location.href);history.pushState({zadRadioRoute:url.href},'',url.href);render(url.href);}
-window.zadNavigate=href=>{if((player?.wanted||frame)&&!(window.Capacitor?.getPlatform?.()==='android'&&window.Capacitor?.isPluginAvailable?.('RadioNative')))navigate(href);else location.assign(href);};
+window.zadNavigate=href=>{if((player?.wanted||frame)&&!player?.survivesNavigation)navigate(href);else location.assign(href);};
 window.ZadRadioHost={sync(href){const url=target(href);if(url)history.replaceState({...history.state,zadRadioRoute:url.href},'',url.href);},attach(value){player=value;},navigate,openPanel,closePanel,pause(){player?.stop();}};
 document.addEventListener('click',event=>{
  if(!player?.wanted&&!frame)return;
- // Android's native service already survives full document navigation.
- if(window.Capacitor?.getPlatform?.()==='android'&&window.Capacitor?.isPluginAvailable?.('RadioNative'))return;
+ // Only active native playback survives unloading; the web fallback needs this host.
+ if(player?.survivesNavigation)return;
  const link=event.target.closest?.('a[href]');if(!link||event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||link.hasAttribute('download')||(link.target&&link.target!=='_self'))return;
  const url=target(link.href);if(!url||url.pathname===location.pathname&&url.search===location.search&&url.hash)return;
  event.preventDefault();navigate(url.href);

@@ -284,7 +284,7 @@ function getFullFormattedDate(date = new Date()) {
 
     // دمج اليوم والتاريخ الهجري والتاريخ الميلادي
     if (weekday && hijriPart && gregPart) {
-        return `${weekday}، ${hijriPart} - ${gregPart}`;
+        return `${weekday}، ${hijriPart} • ${gregPart}`;
     } else if (hijriPart && gregPart) {
         return `${hijriPart} - ${gregPart}`;
     } else if (weekday && gregPart) {
@@ -302,49 +302,166 @@ function initHijriDate() {
     const prayerHijriEl = document.getElementById("prayer-hijri-text");
     const todayEl = document.getElementById("today");
 
-    const fullDate = getFullFormattedDate();
-
-    if (todayEl) {
-        todayEl.innerHTML = `<i class="fa-solid fa-calendar-days" style="margin-left: 2px; opacity: 0.85;"></i>${fullDate}`;
-    }
-
-    let formattedDate = ""; 
+    let offsetDays = 0;
     try {
-        let offsetDays = 0;
-        try { offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0; } catch (e) {}
-        const hDate = new Date(Date.now() + (offsetDays * 86400000));
-        const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-            weekday: 'long',
+        offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0;
+    } catch (e) {}
+
+    const now = new Date();
+    const hijriDate = new Date(now.getTime() + (offsetDays * 86400000));
+
+    const ARABIC_WEEKDAYS = [
+        "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+    ];
+    const HIJRI_MONTHS = [
+        "محرم", "صفر", "ربيع الأول", "ربيع الآخر",
+        "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
+        "رمضان", "شوال", "ذو القعدة", "ذو الحجة"
+    ];
+    const GREGORIAN_MONTHS = [
+        "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+    ];
+
+    const weekday = ARABIC_WEEKDAYS[now.getDay()];
+
+    let hijriPart = "";
+    try {
+        const hFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
         });
-        formattedDate = formatter.format(hDate);
+        hijriPart = hFormatter.format(hijriDate);
+        if (!hijriPart.includes("هـ")) hijriPart += " هـ";
     } catch (e) {
         try {
-            let offsetDays = 0;
-            try { offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0; } catch (e) {}
-            const hDate = new Date(Date.now() + (offsetDays * 86400000));
-            const fallback = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-                weekday: 'long',
+            const hFallback = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
             });
-            formattedDate = fallback.format(hDate);
+            hijriPart = hFallback.format(hijriDate);
+            if (!hijriPart.includes("هـ")) hijriPart += " هـ";
         } catch (err) {
-            formattedDate = "التقويم الهجري المبارك";
+            hijriPart = `${hijriDate.getDate()} هـ`;
         }
     }
 
-    if (heroHijriEl && formattedDate) {
-        heroHijriEl.textContent = formattedDate;
+    let gregPart = "";
+    try {
+        const gFormatter = new Intl.DateTimeFormat('ar-EG-u-ca-gregory', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        gregPart = gFormatter.format(now);
+        if (!gregPart.includes("م")) gregPart += " م";
+    } catch (e) {
+        const d = now.getDate();
+        const m = GREGORIAN_MONTHS[now.getMonth()];
+        const y = now.getFullYear();
+        gregPart = `${d} ${m} ${y} م`;
     }
-    if (prayerHijriEl && formattedDate) {
-        prayerHijriEl.textContent = formattedDate;
+
+    const fullFormatted = `${weekday}، ${hijriPart} • ${gregPart}`;
+
+    if (todayEl) {
+        todayEl.setAttribute("aria-label", fullFormatted);
+        todayEl.innerHTML = `
+            <div class="home-date-pill">
+                <span class="date-chip date-chip-hijri">
+                    <i class="fa-solid fa-moon text-gold"></i>
+                    <span class="date-hijri-text">${weekday}، ${hijriPart}</span>
+                </span>
+                <span class="date-chip-divider" aria-hidden="true">✦</span>
+                <span class="date-chip date-chip-greg">
+                    <i class="fa-regular fa-calendar-days text-emerald-400"></i>
+                    <span class="date-greg-text">${gregPart}</span>
+                </span>
+            </div>
+        `;
     }
+    initDailyQuranVerse();
+
+    let formattedDate = `${weekday}، ${hijriPart}`;
+    if (heroHijriEl) heroHijriEl.textContent = formattedDate;
+    if (prayerHijriEl) prayerHijriEl.textContent = formattedDate;
 }
 window.initHijriDate = initHijriDate;
+
+/* ==========================================================================
+   آية اليوم المتجددة تلقائياً (Daily Quranic Verse)
+   ========================================================================== */
+const DAILY_QURAN_VERSES = [
+    { text: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", ref: "سورة الرعد: ٢٨" },
+    { text: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ", ref: "سورة البقرة: ١٨٦" },
+    { text: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ ۚ إِنَّ اللَّهَ بَالِغُ أَمْرِهِ", ref: "سورة الطلاق: ٣" },
+    { text: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا * إِنَّ مَعَ الْعُسْرِ يُسْرًا", ref: "سورة الشرح: ٥-٦" },
+    { text: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ", ref: "سورة البقرة: ١٥٢" },
+    { text: "وَتَوَكَّلْ عَلَى الْحَيِّ الَّذِي لَا يَمُوتُ وَسَبِّحْ بِحَمْدِهِ", ref: "سورة الفرقان: ٥٨" },
+    { text: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", ref: "سورة البقرة: ٢٠١" },
+    { text: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ", ref: "سورة الزمر: ٥٣" },
+    { text: "وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ وَإِنَّهَا لَكَبِيرَةٌ إِلَّا عَلَى الْخَاشِعِينَ", ref: "سورة البقرة: ٤٥" },
+    { text: "وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا ۖ وَسَبِّحْ بِحَمْدِ رَبِّكَ حِينَ تَقُومُ", ref: "سورة الطور: ٤٨" },
+    { text: "وَرَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ", ref: "سورة الأعراف: ١٥٦" },
+    { text: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", ref: "سورة آل عمران: ١٧٣" },
+    { text: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", ref: "سورة البقرة: ١٥٣" },
+    { text: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", ref: "سورة البقرة: ٢٨٦" },
+    { text: "وَقُل رَّبِّ زِدْنِي عِلْمًا", ref: "سورة طه: ١١٤" },
+    { text: "رَبِّ اشْرَحْ لِي صَدْرِي * وَيَسِّرْ لِي أَمْرِي", ref: "سورة طه: ٢٥-٢٦" },
+    { text: "وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ ۚ وَاللَّهُ بِمَا تَعْمَلُونَ بَصِيرٌ", ref: "سورة الحديد: ٤" },
+    { text: "فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا", ref: "سورة النصر: ٣" },
+    { text: "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا * وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ", ref: "سورة الطلاق: ٢-٣" },
+    { text: "إِنَّ رَحْمَتَ اللَّهِ قَرِيبٌ مِّنَ الْمُحْسِنِينَ", ref: "سورة الأعراف: ٥٦" },
+    { text: "ادْعُونِي أَسْتَجِبْ لَكُمْ", ref: "سورة غافر: ٦٠" },
+    { text: "إِنَّ رَبِّي قَرِيبٌ مُّجِيبٌ", ref: "سورة هود: ٦١" },
+    { text: "وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ", ref: "سورة الضحى: ٥" },
+    { text: "أَلَيْسَ اللَّهُ بِكَافٍ عَبْدَهُ", ref: "سورة الزمر: ٣٦" },
+    { text: "وَقُولُوا لِلنَّاسِ حُسْنًا", ref: "سورة البقرة: ٨٣" },
+    { text: "وَمَا كَانَ اللَّهُ مُعَذِّبَهُمْ وَهُمْ يَسْتَغْفِرُونَ", ref: "سورة الأنفال: ٣٣" },
+    { text: "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ الْوَهَّابُ", ref: "سورة آل عمران: ٨" },
+    { text: "وَقُل رَّبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا", ref: "سورة الإسراء: ٢٤" },
+    { text: "إِنَّ رَبِّي لَطِيفٌ لِّمَا يَشَاءُ ۚ إِنَّهُ هُوَ الْعَلِيمُ الْحَكِيمُ", ref: "سورة يوسف: ١٠٠" },
+    { text: "قُل لَّن يُصِيبَنَا إِلَّا مَا كَتَبَ اللَّهُ لَنَا هُوَ مَوْلَانَا ۚ وَعَلَى اللَّهِ فَلْيَتَوَكَّلِ الْمُؤْمِنُونَ", ref: "سورة التوبة: ٥١" }
+];
+
+function initDailyQuranVerse() {
+    const textEl = document.getElementById("daily-verse-text");
+    const refEl = document.getElementById("daily-verse-ref");
+    const copyBtn = document.getElementById("btn-copy-daily-verse");
+    if (!textEl || !refEl) return;
+
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((now - startOfYear) / 86400000);
+    const verseIndex = (now.getFullYear() * 366 + dayOfYear) % DAILY_QURAN_VERSES.length;
+    const todayVerse = DAILY_QURAN_VERSES[verseIndex];
+
+    textEl.textContent = "«" + todayVerse.text + "»";
+    refEl.textContent = todayVerse.ref;
+
+    if (copyBtn && !copyBtn.dataset.bound) {
+        copyBtn.dataset.bound = "true";
+        copyBtn.onclick = async () => {
+            try {
+                const textToCopy = "«" + todayVerse.text + "» [" + todayVerse.ref + "] - تطبيق زاد المسلم";
+                await navigator.clipboard.writeText(textToCopy);
+                const icon = copyBtn.querySelector("i");
+                const span = copyBtn.querySelector("span");
+                if (icon) icon.className = "fa-solid fa-check text-emerald-400";
+                if (span) span.textContent = "تم النسخ";
+                setTimeout(() => {
+                    if (icon) icon.className = "fa-regular fa-copy";
+                    if (span) span.textContent = "نسخ";
+                }, 2000);
+                if (typeof showToast === "function") showToast("تم نسخ الآية الكريمة بنجاح");
+            } catch (e) {}
+        };
+    }
+}
+window.initDailyQuranVerse = initDailyQuranVerse;
+
 
 /* ==========================================================================
    2. سلايدر الأدعية (Swiper.js) والمزامنة السحابية (Firebase Realtime)

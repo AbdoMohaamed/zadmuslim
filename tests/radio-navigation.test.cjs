@@ -22,3 +22,25 @@ test('embedded pages reuse parent radio controls and never create a second playe
  child.document.getElementById('btn-toggle-radio-nav').click();assert.equal(w.document.getElementById('radio-panel').classList.contains('open'),true);
  child.document.querySelector('audio').dispatchEvent(new child.Event('play'));assert.equal(stops,1);dom.window.close();
 });
+
+test('Android web fallback preserves its audio document even when native plugin is installed',()=>{
+ const dom=setup(),w=dom.window,d=w.document;
+ w.Capacitor={getPlatform:()=> 'android',isPluginAvailable:()=>true};
+ let stops=0;const audio=d.querySelector('audio');
+ w.ZadRadioHost.attach({wanted:true,survivesNavigation:false,stop(){stops++;}});
+ d.querySelector('#services').click();
+ assert.equal(w.location.pathname,'/services.html');assert.ok(d.querySelector('iframe'));
+ assert.strictEqual(d.querySelector('audio'),audio);assert.equal(stops,0);
+ w.zadNavigate('settings.html');assert.ok(d.querySelector('iframe').src.endsWith('settings.html'));
+ assert.strictEqual(d.querySelector('audio'),audio);dom.window.close();
+});
+test('active native playback permits normal navigation without mounting a second player',()=>{
+ const dom=setup(),w=dom.window,d=w.document;
+ w.Capacitor={getPlatform:()=> 'android',isPluginAvailable:()=>true};
+ w.ZadRadioHost.attach({wanted:true,survivesNavigation:true});
+ const click=new w.MouseEvent('click',{bubbles:true,cancelable:true,button:0});
+ // Cancel the browser default after checking our listener, avoiding jsdom navigation.
+ let intercepted;d.addEventListener('click',e=>{intercepted=e.defaultPrevented;e.preventDefault();});
+ d.getElementById('services').dispatchEvent(click);
+ assert.equal(intercepted,false);assert.equal(d.querySelector('iframe'),null);dom.window.close();
+});

@@ -1,141 +1,1051 @@
-/* Radio layout: bounded viewport, readable controls and safe-area support. */
+/* ==========================================================================
+   زاد المسلم - مشغل إذاعات القرآن الكريم (تصميم حديث متطابق مع هوية التطبيق)
+   ========================================================================== */
+
 #radio-panel {
- --radio-bottom:calc(96px + env(safe-area-inset-bottom,0px));
- box-sizing:border-box; position:fixed; inset:auto auto var(--radio-bottom) max(16px,env(safe-area-inset-left,0px));
- width:380px; max-width:calc(100vw - 32px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));
- max-height:calc(100vh - var(--radio-bottom) - 16px - env(safe-area-inset-top,0px));
- max-height:calc(100dvh - var(--radio-bottom) - 16px - env(safe-area-inset-top,0px));
- padding:18px; gap:14px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain;
- -webkit-overflow-scrolling:touch; scrollbar-width:thin; border-radius:24px;
-}
-#radio-panel *,#radio-panel *::before,#radio-panel *::after { box-sizing:border-box; }
-#radio-panel > * { flex-shrink:0; min-width:0; max-width:100%; }
-#radio-panel .radio-panel-header { align-items:flex-start; gap:12px; }
-#radio-panel .radio-header-title { flex:1; flex-wrap:wrap; min-width:0; line-height:1.6; gap:6px 8px; }
-#radio-panel .radio-live-status-badge { white-space:normal; overflow-wrap:anywhere; line-height:1.6; margin:0; padding:4px 10px; max-width:100%; }
-#radio-panel .btn-close-radio { flex:0 0 44px; width:44px; height:44px; }
-#radio-panel .radio-station-info { padding:14px; }
-#radio-panel .radio-station-header-line { align-items:flex-start; }
-#radio-panel .station-icon-badge { flex-shrink:0; padding-top:4px; }
-#radio-panel .radio-station-name { min-width:0; overflow-wrap:anywhere; line-height:1.7; font-size:1.05rem; }
-#radio-panel .radio-station-desc { line-height:1.8; margin-top:6px; }
-#radio-panel button { min-height:44px; touch-action:manipulation; }
-#radio-panel > .btn { width:100%; white-space:normal; overflow-wrap:anywhere; line-height:1.7; padding:10px 14px; font-size:.9rem; }
-#radio-panel .radio-cairo-shortcut { border-radius:14px; }
-#radio-panel .radio-station-select { display:block; width:100%; min-width:0; max-width:100%; min-height:48px; font-size:16px; padding:10px 12px; text-overflow:ellipsis; }
-#radio-panel .radio-sleep-details { border-top:1px solid rgba(212,175,55,.2); }
-#radio-panel .radio-sleep-details summary { cursor:pointer; min-height:44px; padding:12px 0; line-height:1.6; }
-#radio-panel .radio-sleep-timer-group label,#radio-panel #radio-timer-countdown { flex-wrap:wrap; line-height:1.7; }
-#radio-panel .radio-controls-row { display:grid; grid-template-columns:56px minmax(0,1fr); align-items:center; gap:12px; padding-top:14px; margin-top:0; }
-#radio-panel #btn-radio-play { width:56px; height:56px; }
-#radio-panel .radio-volume-group { display:flex; min-width:0; width:100%; padding:6px 10px; gap:6px; }
-#radio-panel #btn-radio-mute { flex:0 0 44px; width:44px; height:44px; }
-#radio-panel #radio-volume-slider { flex:1 1 0; width:0; min-width:0; height:32px; margin:0; }
-#radio-panel :focus-visible { outline:2px solid var(--gold-400,#d4af37); outline-offset:3px; }
-@media(max-width:767px) {
- #radio-panel {
-  --radio-bottom:calc(105px + env(safe-area-inset-bottom,0px));
-  left:max(12px,env(safe-area-inset-left,0px))!important;
-  right:auto!important;
-  bottom:var(--radio-bottom)!important;
-  width:min(326px,calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)))!important;
-  max-width:330px!important;
-  max-height:min(72vh,500px)!important;
-  max-height:min(72dvh,500px)!important;
-  padding:12px 14px!important;
-  gap:8px!important;
-  border-radius:20px!important;
- }
- #radio-panel .radio-panel-header { padding-bottom:8px!important; gap:8px!important; align-items:center!important; }
- #radio-panel .radio-header-title { font-size:.82rem!important; gap:4px 6px!important; }
- #radio-panel .radio-live-status-badge { font-size:.66rem!important; padding:2px 7px!important; }
- #radio-panel .btn-close-radio { flex:0 0 32px!important; width:32px!important; height:32px!important; min-height:32px!important; font-size:1.15rem!important; line-height:1!important; border-radius:50%!important; background:#ffffff0d!important; }
- #radio-panel .radio-station-info { padding:2px 0 2px!important; }
- #radio-panel .radio-brand-logo { width:46px!important; height:46px!important; border-radius:12px!important; margin:0 auto 5px!important; }
- #radio-panel .radio-eyebrow { font-size:.68rem!important; margin-bottom:4px!important; }
- #radio-panel .radio-station-name { font-size:.96rem!important; line-height:1.35!important; font-weight:700!important; }
- #radio-panel .radio-station-desc { font-size:.73rem!important; line-height:1.35!important; margin-top:2px!important; }
- #radio-panel .radio-controls-row { gap:8px!important; padding-top:0!important; }
- #radio-panel #btn-radio-play { height:42px!important; min-height:42px!important; border-radius:12px!important; font-size:.88rem!important; gap:8px!important; }
- #radio-panel .radio-volume-group { padding:3px 8px!important; border-radius:10px!important; gap:4px!important; height:34px!important; }
- #radio-panel #btn-radio-mute { flex:0 0 30px!important; width:30px!important; height:30px!important; min-height:30px!important; font-size:.82rem!important; }
- #radio-panel #radio-volume-slider { height:20px!important; }
- #radio-panel #radio-volume-value { font-size:.72rem!important; min-width:32px!important; }
- #radio-panel .radio-station-select-group label { font-size:.76rem!important; margin-bottom:2px!important; }
- #radio-panel .radio-station-select { min-height:36px!important; height:36px!important; padding:4px 8px!important; font-size:.82rem!important; border-radius:10px!important; }
- #radio-panel > .btn { padding:6px 10px!important; font-size:.78rem!important; min-height:34px!important; line-height:1.3!important; border-radius:10px!important; }
- #radio-panel .radio-sleep-details summary { padding:4px 0!important; min-height:28px!important; font-size:.76rem!important; }
- #radio-panel .radio-sleep-timer-group label { font-size:.74rem!important; }
- #radio-panel #radio-timer-countdown { font-size:.72rem!important; }
-}
-@media(max-width:359px) {
- #radio-panel {
-  width:calc(100vw - 16px)!important;
-  left:8px!important;
-  padding:10px 10px!important;
-  gap:6px!important;
-  border-radius:16px!important;
- }
- #radio-panel .radio-brand-logo { width:38px!important; height:38px!important; }
- #radio-panel .radio-station-name { font-size:.9rem!important; }
- #radio-panel #btn-radio-play { height:38px!important; min-height:38px!important; }
-}
-@media(max-height:500px) and (orientation:landscape) {
- #radio-panel { --radio-bottom:max(10px,env(safe-area-inset-bottom,0px)); left:max(12px,env(safe-area-inset-left,0px))!important; right:auto; bottom:var(--radio-bottom)!important; width:min(420px,calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))); margin:0; max-height:calc(100vh - var(--radio-bottom) - 10px - env(safe-area-inset-top,0px)); max-height:calc(100dvh - var(--radio-bottom) - 10px - env(safe-area-inset-top,0px)); }
-}
-@media(prefers-reduced-motion:reduce) { #radio-panel,#radio-panel * { animation:none!important; transition:none!important; } }
+  --radio-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  --radio-mint: #38d39f;
+  --radio-mint-glow: rgba(56, 211, 159, 0.4);
+  --radio-bg: #0d1e1a;
+  --radio-card-bg: #14352b;
+  --radio-text-muted: #7e988e;
+  --radio-text-light: #f1f7f4;
+  --volume-percent: 80%;
 
-/* The radio remains in the host document; only the page viewport changes. */
-body.zad-radio-host { overflow:hidden!important; }
-body.zad-radio-host > :not(#live-radio-widget):not(#zad-radio-page) { display:none!important; }
-#zad-radio-page { position:fixed; inset:0; width:100%; height:100%; border:0; z-index:990; background:var(--bg-primary,#06221b); }
-
-/* Branded radio player: primary playback controls before station options. */
-#radio-panel { background:linear-gradient(155deg,#153d32,#09261f); color:#f4f8f5; border:1px solid #bda56566; box-shadow:0 24px 70px #0008; }
-#radio-panel .radio-panel-header { padding-bottom:12px; border-bottom:1px solid #ffffff14; }
-#radio-panel .radio-header-title { color:#e5d29a; font-size:.88rem; }
-#radio-panel .radio-station-info { background:transparent; border:0; text-align:center; padding:8px 4px; }
-#radio-panel .radio-brand-logo { display:block; width:80px; height:80px; object-fit:contain; margin:0 auto 10px; border-radius:22px; box-shadow:0 8px 24px #0004; }
-#radio-panel .radio-eyebrow { display:block; color:#cbbd92; font-size:.76rem; margin-bottom:8px; }
-#radio-panel .radio-station-header-line { justify-content:center; }
-#radio-panel .radio-station-name { color:#fff; font-size:1.12rem; font-weight:800; }
-#radio-panel .radio-station-desc { color:#b9cec5; font-size:.8rem; }
-#radio-panel .radio-controls-row { grid-template-columns:1fr; border:0; padding-top:0; gap:12px; }
-#radio-panel #btn-radio-play { display:flex; justify-content:center; align-items:center; gap:12px; width:100%; height:54px; border-radius:16px; background:#e6cf8d; color:#152d24; font:inherit; font-weight:800; box-shadow:0 5px 18px #0003; }
-#radio-panel .radio-volume-group { background:#ffffff08; border:1px solid #ffffff12; border-radius:14px; }
-#radio-panel #radio-volume-value { min-width:40px; font-size:.8rem; font-variant-numeric:tabular-nums; direction:ltr; }
-#radio-panel #radio-volume-slider { direction:ltr; accent-color:#e6cf8d; }
-#radio-panel .radio-live-status-badge { background:#ffffff0b; color:#c7d5cf; font-size:.72rem; }
-#radio-panel[data-state="playing"] .radio-live-status-badge { background:#34d39920; color:#87efbd; }
-#radio-panel[data-state="failed"] .radio-live-status-badge,#radio-panel[data-state="offline"] .radio-live-status-badge { color:#ffd4a0; }
-#radio-panel .radio-station-select { background:#183d32; color:#f4f8f5; border:1px solid #ffffff26; border-radius:12px; }
-#radio-panel .radio-cairo-shortcut { border:1px solid #d7bd724f; background:#d7bd720c; }
-#radio-panel > .btn:not(.radio-cairo-shortcut) { border:0; background:transparent; color:#c8d8d0; }
-    #radio-panel .btn-close-radio {
-        color: red !important;
-    }
-    #radio-panel #btn-radio-mute {
-        color: #152d24 !important;
-    }
-@media(max-height:650px) { #radio-panel .radio-brand-logo { width:56px; height:56px; } #radio-panel { gap:10px; } }
-
-/* Compact player; secondary controls stay available on demand. */
-#radio-panel { width:320px; padding:12px 14px; gap:8px; border-radius:20px; }
-#radio-panel .radio-panel-header { padding-bottom:6px; align-items:center; }
-#radio-panel .radio-brand-logo { width:48px; height:48px; border-radius:14px; margin-bottom:5px; }
-#radio-panel .radio-eyebrow { display:none; }
-#radio-panel .radio-station-info { padding:2px 0; }
-#radio-panel .radio-station-name { font-size:.98rem; line-height:1.4; }
-#radio-panel .radio-station-desc { font-size:.72rem; line-height:1.4; margin-top:3px; }
-#radio-panel #btn-radio-play { height:44px; border-radius:12px; }
-#radio-panel .radio-controls-row { gap:6px; }
-#radio-panel .radio-volume-group { padding:0 6px; }
-#radio-panel .radio-options { border-top:1px solid #ffffff1a; }
-#radio-panel .radio-options > summary { cursor:pointer; padding:10px 2px; font-size:.8rem; min-height:44px; }
-#radio-panel .radio-options > .btn { width:100%; background:transparent; border:0; font:inherit; font-size:.8rem; }
-#radio-panel .radio-options > *:not(summary) { margin-bottom:8px; }
-@media(max-width:767px) {
- #radio-panel { width:min(304px,calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)))!important; }
- #radio-panel .radio-options .radio-station-select { font-size:16px!important; }
+  box-sizing: border-box;
+  position: fixed;
+  inset: auto auto var(--radio-bottom) max(16px, env(safe-area-inset-left, 0px));
+  width: 350px;
+  max-width: calc(100vw - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  max-height: calc(100vh - var(--radio-bottom) - 16px - env(safe-area-inset-top, 0px));
+  max-height: calc(100dvh - var(--radio-bottom) - 16px - env(safe-area-inset-top, 0px));
+  padding: 16px 18px 18px;
+  background: var(--radio-bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.1);
+  color: var(--radio-text-light);
+  direction: rtl;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #1a3c31 transparent;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 1005;
+  animation: radioSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
-@media(max-height:500px) { #radio-panel { max-height:calc(100dvh - var(--radio-bottom) - 16px)!important; } }
+
+#radio-panel.open {
+  display: flex;
+}
+
+@keyframes radioSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+#radio-panel *,
+#radio-panel *::before,
+#radio-panel *::after {
+  box-sizing: border-box;
+}
+
+/* 1. الترويسة العلوية */
+#radio-panel .radio-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 2px;
+}
+
+#radio-panel .radio-header-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+#radio-panel .radio-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* شارة الحالة (مباشر / متوقف) */
+#radio-panel .radio-live-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  color: #f87171;
+  font-size: 0.76rem;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+#radio-panel[data-state="playing"] .radio-live-status-badge {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+#radio-panel[data-state="paused"] .radio-live-status-badge,
+#radio-panel[data-state="idle"] .radio-live-status-badge {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--radio-text-muted);
+}
+
+#radio-panel .radio-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+
+#radio-panel[data-state="playing"] .radio-live-dot {
+  background: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.85);
+  animation: radioDotPulse 1.8s infinite;
+}
+
+#radio-panel[data-state="paused"] .radio-live-dot {
+  background: #638276;
+  box-shadow: none;
+  animation: none;
+}
+
+#radio-panel[data-state="connecting"] .radio-live-dot,
+#radio-panel[data-state="buffering"] .radio-live-dot {
+  background: #fbbf24;
+  box-shadow: 0 0 8px #fbbf24;
+  animation: radioDotPulse 1s infinite;
+}
+
+@keyframes radioDotPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* زر إغلاق اللوحة */
+#radio-panel .btn-close-radio {
+  background: transparent;
+  border: 0;
+  color: var(--radio-text-muted);
+  font-size: 1.1rem;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+#radio-panel .btn-close-radio:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* 2. بطاقة المحطة الحالية (Now Playing) */
+#radio-panel .radio-now-playing-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+#radio-panel .btn-radio-favorite {
+  background: transparent;
+  border: 0;
+  color: var(--radio-text-muted);
+  font-size: 1.25rem;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+#radio-panel .btn-radio-favorite:hover {
+  color: #ffffff;
+}
+
+#radio-panel .btn-radio-favorite .fa-solid.text-gold {
+  color: #ffd700 !important;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.45);
+}
+
+#radio-panel .radio-station-text {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+}
+
+#radio-panel .radio-station-name {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#radio-panel .radio-station-desc {
+  font-size: 0.75rem;
+  color: var(--radio-text-muted);
+  margin-top: 4px;
+  line-height: 1.38;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* مربع الشعار الفني للأيقونة والموجات الصوتية */
+#radio-panel .radio-artwork-box {
+    width: 66px;
+    height: 66px;
+    flex-shrink: 0;
+    border-radius: 18px;
+    background-image: url(../icon-512.png);
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#radio-panel .radio-artwork-pattern {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: rgba(56, 211, 159, 0.16);
+  pointer-events: none;
+}
+
+#radio-panel .radio-equalizer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3.5px;
+  height: 26px;
+  z-index: 1;
+}
+
+#radio-panel .radio-equalizer .eq-bar {
+  width: 3.5px;
+  background: #ffffff;
+  border-radius: 3px;
+  transition: height 0.2s ease;
+}
+
+#radio-panel .radio-equalizer .eq-1 { height: 14px; }
+#radio-panel .radio-equalizer .eq-2 { height: 25px; }
+#radio-panel .radio-equalizer .eq-3 { height: 18px; }
+
+#radio-panel[data-state="playing"] .radio-equalizer .eq-1 {
+  animation: eqBarBounce 0.85s ease-in-out infinite alternate;
+}
+#radio-panel[data-state="playing"] .radio-equalizer .eq-2 {
+  animation: eqBarBounce 0.7s ease-in-out infinite alternate 0.15s;
+}
+#radio-panel[data-state="playing"] .radio-equalizer .eq-3 {
+  animation: eqBarBounce 0.95s ease-in-out infinite alternate 0.3s;
+}
+
+@keyframes eqBarBounce {
+  0% { height: 6px; }
+  50% { height: 26px; }
+  100% { height: 12px; }
+}
+
+/* 3. صف التحكم (Play & Volume) */
+#radio-panel .radio-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* زر التشغيل الكبير الدائري */
+#radio-panel #btn-radio-play {
+  width: 58px;
+  height: 58px;
+  min-height: 58px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--radio-mint);
+  color: #0d261e !important;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  cursor: pointer;
+  box-shadow: 0 0 25px var(--radio-mint-glow);
+  transition: transform 0.16s ease, box-shadow 0.2s ease;
+  padding: 0;
+}
+
+#radio-panel #btn-radio-play:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 32px rgba(56, 211, 159, 0.6);
+}
+
+#radio-panel #btn-radio-play:active {
+  transform: scale(0.96);
+}
+
+#radio-panel #btn-radio-play i {
+  color: #0d261e !important;
+}
+
+/* شريط الصوت */
+#radio-panel .radio-volume-group {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  direction: ltr;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+#radio-panel #btn-radio-mute {
+  background: transparent;
+  border: 0;
+  color: var(--radio-text-muted) !important;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  width: 32px;
+  transition: color 0.2s;
+}
+
+#radio-panel #btn-radio-mute:hover {
+  color: #ffffff !important;
+}
+
+#radio-panel #radio-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--radio-mint) var(--volume-percent, 80%), rgba(255, 255, 255, 0.12) var(--volume-percent, 80%));
+  border-radius: 4px;
+  outline: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+#radio-panel #radio-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #0d1e1a;
+  border: 3px solid var(--radio-mint);
+  box-shadow: 0 0 6px var(--radio-mint-glow);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+#radio-panel #radio-volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+#radio-panel #radio-volume-slider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #0d1e1a;
+  border: 3px solid var(--radio-mint);
+  box-shadow: 0 0 6px var(--radio-mint-glow);
+  cursor: pointer;
+}
+
+#radio-panel #radio-volume-value {
+  font-size: 0.8rem;
+  color: var(--radio-text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 34px;
+  text-align: left;
+  user-select: none;
+}
+
+/* 4. شريط التبويبات (Tabs Bar) */
+#radio-panel .radio-tabs-nav {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 4px;
+}
+
+#radio-panel .radio-tab-btn {
+  flex: 1;
+  padding: 10px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--radio-text-muted);
+  font-size: 0.94rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  min-height: 42px;
+}
+
+#radio-panel .radio-tab-btn:hover {
+  color: #cfded7;
+}
+
+#radio-panel .radio-tab-btn.active {
+  color: #ffffff;
+  font-weight: 800;
+  border-bottom-color: var(--radio-mint);
+}
+
+/* 5. تبويب المحطات (Stations Tab) */
+#radio-panel .radio-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#radio-panel .radio-fav-filter-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 2px 0 4px;
+}
+
+#radio-panel .radio-fav-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--radio-text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+#radio-panel .radio-custom-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  margin: 0;
+  transition: all 0.18s ease;
+}
+
+#radio-panel .radio-custom-checkbox:checked {
+  background: var(--radio-mint);
+  border-color: var(--radio-mint);
+}
+
+#radio-panel .radio-custom-checkbox:checked::after {
+  content: "";
+  width: 5px;
+  height: 9px;
+  border: solid #0d261e;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+/* قائمة المحطات */
+#radio-panel .radio-stations-list {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-left: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #1a3c31 transparent;
+}
+
+#radio-panel .radio-stations-list::-webkit-scrollbar {
+  width: 4px;
+}
+#radio-panel .radio-stations-list::-webkit-scrollbar-thumb {
+  background: #1a3c31;
+  border-radius: 4px;
+}
+
+#radio-panel .radio-station-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  border: 1px solid transparent;
+}
+
+#radio-panel .radio-station-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#radio-panel .radio-station-item.active {
+  background: var(--radio-card-bg);
+  border-color: rgba(56, 211, 159, 0.2);
+}
+
+#radio-panel .radio-item-info {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+}
+
+#radio-panel .radio-item-title {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.32;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#radio-panel .radio-item-tag {
+  color: #638276;
+  font-size: 0.7rem;
+  margin-top: 2px;
+}
+
+#radio-panel .radio-item-fav-btn {
+  background: transparent;
+  border: 0;
+  color: var(--radio-text-muted);
+  font-size: 1rem;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+#radio-panel .radio-item-fav-btn:hover {
+  color: #ffffff;
+}
+
+#radio-panel .radio-item-fav-btn .text-gold {
+  color: #ffd700 !important;
+}
+
+#radio-panel .radio-empty-state {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--radio-text-muted);
+  font-size: 0.85rem;
+}
+
+/* 6. تبويب مؤقت النوم (Sleep Timer Tab) */
+#radio-panel .radio-timer-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+#radio-panel .radio-timer-chip {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d0ded8;
+  font-size: 0.85rem;
+  text-align: right;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 40px;
+}
+
+#radio-panel .radio-timer-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+#radio-panel .radio-timer-chip.active {
+  background: var(--radio-card-bg);
+  border-color: rgba(56, 211, 159, 0.4);
+  color: var(--radio-mint);
+  font-weight: 700;
+}
+
+#radio-panel .radio-timer-countdown {
+  margin-top: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(56, 211, 159, 0.09);
+  border: 1px solid rgba(56, 211, 159, 0.25);
+  color: var(--radio-mint);
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* فئة لإخفاء العناصر بصرياً مع إتاحتها لقارئات الشاشة واختبارات الكود */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* تجاوب الشاشات الصغيرة (Mobile Responsiveness) */
+@media (max-width: 767px) {
+  #radio-panel {
+    --radio-bottom: calc(105px + env(safe-area-inset-bottom, 0px));
+    left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    right: auto !important;
+    bottom: var(--radio-bottom) !important;
+    width: min(340px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))) !important;
+    max-width: 340px !important;
+    max-height: min(78vh, 560px) !important;
+    max-height: min(78dvh, 560px) !important;
+    padding: 14px 16px !important;
+    gap: 12px !important;
+    border-radius: 22px !important;
+  }
+}
+
+@media (max-width: 359px) {
+  #radio-panel {
+    width: calc(100vw - 16px) !important;
+    left: 8px !important;
+    padding: 12px !important;
+    gap: 10px !important;
+    border-radius: 18px !important;
+  }
+  #radio-panel .radio-artwork-box {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 14px !important;
+  }
+  #radio-panel #btn-radio-play {
+    width: 50px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+}
+
+/* دعم وضع تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+  #radio-panel,
+  #radio-panel * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* استمرار إبقاء مشغل الراديو في المستند المضيف */
+body.zad-radio-host {
+  overflow: hidden !important;
+}
+body.zad-radio-host > :not(#live-radio-widget):not(#zad-radio-page) {
+  display: none !important;
+}
+#zad-radio-page {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  z-index: 990;
+  background: var(--bg-primary, #06221b);
+}
+
+
+/* ==========================================================================
+   تنسيقات الوضع النهاري لمشغل الراديو (Radio Player - Light Theme Mode)
+   ========================================================================== */
+html[data-theme="light"] #radio-panel,
+body.light-theme #radio-panel,
+[data-theme="light"] #radio-panel {
+  --radio-mint: #0ea67a;
+  --radio-mint-glow: rgba(14, 166, 122, 0.32);
+  --radio-bg: #ffffff;
+  --radio-card-bg: #eaf4ef;
+  --radio-text-muted: #5e776c;
+  --radio-text-light: #073f35;
+
+  background: linear-gradient(180deg, #ffffff 0%, #f9fcfa 100%) !important;
+  border: 1px solid rgba(14, 102, 84, 0.18) !important;
+  box-shadow: 0 20px 50px rgba(7, 63, 53, 0.15), 0 0 1px rgba(0, 0, 0, 0.08) !important;
+  color: #073f35 !important;
+  scrollbar-color: #cbdad3 transparent !important;
+}
+
+/* الترويسة والعنوان */
+html[data-theme="light"] #radio-panel .radio-header-title,
+body.light-theme #radio-panel .radio-header-title,
+[data-theme="light"] #radio-panel .radio-header-title {
+  color: #073f35 !important;
+}
+
+html[data-theme="light"] #radio-panel .btn-close-radio,
+body.light-theme #radio-panel .btn-close-radio,
+[data-theme="light"] #radio-panel .btn-close-radio {
+  color: #647d72 !important;
+}
+
+html[data-theme="light"] #radio-panel .btn-close-radio:hover,
+body.light-theme #radio-panel .btn-close-radio:hover,
+[data-theme="light"] #radio-panel .btn-close-radio:hover {
+  color: #073f35 !important;
+  background: rgba(7, 63, 53, 0.08) !important;
+}
+
+/* شارة الحالة */
+html[data-theme="light"] #radio-panel .radio-live-status-badge,
+body.light-theme #radio-panel .radio-live-status-badge,
+[data-theme="light"] #radio-panel .radio-live-status-badge {
+  background: #fef2f2 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #dc2626 !important;
+}
+
+html[data-theme="light"] #radio-panel[data-state="paused"] .radio-live-status-badge,
+body.light-theme #radio-panel[data-state="paused"] .radio-live-status-badge,
+[data-theme="light"] #radio-panel[data-state="paused"] .radio-live-status-badge,
+html[data-theme="light"] #radio-panel[data-state="idle"] .radio-live-status-badge,
+body.light-theme #radio-panel[data-state="idle"] .radio-live-status-badge,
+[data-theme="light"] #radio-panel[data-state="idle"] .radio-live-status-badge {
+  background: #f1f5f3 !important;
+  border-color: rgba(7, 63, 53, 0.12) !important;
+  color: #647d72 !important;
+}
+
+/* المحطة الحالية */
+html[data-theme="light"] #radio-panel .radio-station-name,
+body.light-theme #radio-panel .radio-station-name,
+[data-theme="light"] #radio-panel .radio-station-name {
+  color: #073f35 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-station-desc,
+body.light-theme #radio-panel .radio-station-desc,
+[data-theme="light"] #radio-panel .radio-station-desc {
+  color: #527063 !important;
+}
+
+html[data-theme="light"] #radio-panel .btn-radio-favorite,
+body.light-theme #radio-panel .btn-radio-favorite,
+[data-theme="light"] #radio-panel .btn-radio-favorite {
+  color: #7b9489 !important;
+}
+
+html[data-theme="light"] #radio-panel .btn-radio-favorite:hover,
+body.light-theme #radio-panel .btn-radio-favorite:hover,
+[data-theme="light"] #radio-panel .btn-radio-favorite:hover {
+  color: #073f35 !important;
+}
+
+html[data-theme="light"] #radio-panel .btn-radio-favorite .fa-solid.text-gold,
+body.light-theme #radio-panel .btn-radio-favorite .fa-solid.text-gold,
+[data-theme="light"] #radio-panel .btn-radio-favorite .fa-solid.text-gold {
+  color: #d97706 !important;
+  text-shadow: 0 0 8px rgba(217, 119, 6, 0.3) !important;
+}
+
+/* مربع الشعار الفني والموجات */
+html[data-theme="light"] #radio-panel .radio-artwork-box,
+body.light-theme #radio-panel .radio-artwork-box,
+[data-theme="light"] #radio-panel .radio-artwork-box {
+  box-shadow: 0 4px 14px rgba(7, 63, 53, 0.08) !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-artwork-pattern,
+body.light-theme #radio-panel .radio-artwork-pattern,
+[data-theme="light"] #radio-panel .radio-artwork-pattern {
+  color: rgba(14, 102, 84, 0.25) !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-equalizer .eq-bar,
+body.light-theme #radio-panel .radio-equalizer .eq-bar,
+[data-theme="light"] #radio-panel .radio-equalizer .eq-bar {
+  background: #FFF !important;
+}
+
+/* زر التشغيل */
+html[data-theme="light"] #radio-panel #btn-radio-play,
+body.light-theme #radio-panel #btn-radio-play,
+[data-theme="light"] #radio-panel #btn-radio-play {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 22px rgba(5, 150, 105, 0.38) !important;
+}
+
+html[data-theme="light"] #radio-panel #btn-radio-play i,
+body.light-theme #radio-panel #btn-radio-play i,
+[data-theme="light"] #radio-panel #btn-radio-play i {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] #radio-panel #btn-radio-play:hover,
+body.light-theme #radio-panel #btn-radio-play:hover,
+[data-theme="light"] #radio-panel #btn-radio-play:hover {
+  box-shadow: 0 8px 28px rgba(5, 150, 105, 0.52) !important;
+}
+
+/* شريط الصوت */
+html[data-theme="light"] #radio-panel #btn-radio-mute,
+body.light-theme #radio-panel #btn-radio-mute,
+[data-theme="light"] #radio-panel #btn-radio-mute {
+  color: #5e776c !important;
+}
+
+html[data-theme="light"] #radio-panel #btn-radio-mute:hover,
+body.light-theme #radio-panel #btn-radio-mute:hover,
+[data-theme="light"] #radio-panel #btn-radio-mute:hover {
+  color: #073f35 !important;
+}
+
+html[data-theme="light"] #radio-panel #radio-volume-slider,
+body.light-theme #radio-panel #radio-volume-slider,
+[data-theme="light"] #radio-panel #radio-volume-slider {
+  background: linear-gradient(to right, #0ea67a var(--volume-percent, 80%), #e2ebe6 var(--volume-percent, 80%)) !important;
+}
+
+html[data-theme="light"] #radio-panel #radio-volume-slider::-webkit-slider-thumb,
+body.light-theme #radio-panel #radio-volume-slider::-webkit-slider-thumb,
+[data-theme="light"] #radio-panel #radio-volume-slider::-webkit-slider-thumb {
+  background: #ffffff !important;
+  border: 3px solid #0ea67a !important;
+  box-shadow: 0 2px 6px rgba(7, 63, 53, 0.2) !important;
+}
+
+html[data-theme="light"] #radio-panel #radio-volume-slider::-moz-range-thumb,
+body.light-theme #radio-panel #radio-volume-slider::-moz-range-thumb,
+[data-theme="light"] #radio-panel #radio-volume-slider::-moz-range-thumb {
+  background: #ffffff !important;
+  border: 3px solid #0ea67a !important;
+  box-shadow: 0 2px 6px rgba(7, 63, 53, 0.2) !important;
+}
+
+html[data-theme="light"] #radio-panel #radio-volume-value,
+body.light-theme #radio-panel #radio-volume-value,
+[data-theme="light"] #radio-panel #radio-volume-value {
+  color: #5e776c !important;
+  font-weight: 600 !important;
+}
+
+/* شريط التبويبات */
+html[data-theme="light"] #radio-panel .radio-tabs-nav,
+body.light-theme #radio-panel .radio-tabs-nav,
+[data-theme="light"] #radio-panel .radio-tabs-nav {
+  border-bottom: 1px solid rgba(7, 63, 53, 0.12) !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-tab-btn,
+body.light-theme #radio-panel .radio-tab-btn,
+[data-theme="light"] #radio-panel .radio-tab-btn {
+  color: #647d72 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-tab-btn:hover,
+body.light-theme #radio-panel .radio-tab-btn:hover,
+[data-theme="light"] #radio-panel .radio-tab-btn:hover {
+  color: #073f35 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-tab-btn.active,
+body.light-theme #radio-panel .radio-tab-btn.active,
+[data-theme="light"] #radio-panel .radio-tab-btn.active {
+  color: #073f35 !important;
+  font-weight: 800 !important;
+  border-bottom-color: #0ea67a !important;
+}
+
+/* خانة اختيار المفضلة */
+html[data-theme="light"] #radio-panel .radio-fav-filter-label,
+body.light-theme #radio-panel .radio-fav-filter-label,
+[data-theme="light"] #radio-panel .radio-fav-filter-label {
+  color: #5e776c !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-custom-checkbox,
+body.light-theme #radio-panel .radio-custom-checkbox,
+[data-theme="light"] #radio-panel .radio-custom-checkbox {
+  background: #ffffff !important;
+  border: 1.5px solid #cbdad3 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-custom-checkbox:checked,
+body.light-theme #radio-panel .radio-custom-checkbox:checked,
+[data-theme="light"] #radio-panel .radio-custom-checkbox:checked {
+  background: #0ea67a !important;
+  border-color: #0ea67a !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-custom-checkbox:checked::after,
+body.light-theme #radio-panel .radio-custom-checkbox:checked::after,
+[data-theme="light"] #radio-panel .radio-custom-checkbox:checked::after {
+  border-color: #ffffff !important;
+}
+
+/* قائمة المحطات */
+html[data-theme="light"] #radio-panel .radio-stations-list,
+body.light-theme #radio-panel .radio-stations-list,
+[data-theme="light"] #radio-panel .radio-stations-list {
+  scrollbar-color: #cbdad3 transparent !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-stations-list::-webkit-scrollbar-thumb,
+body.light-theme #radio-panel .radio-stations-list::-webkit-scrollbar-thumb,
+[data-theme="light"] #radio-panel .radio-stations-list::-webkit-scrollbar-thumb {
+  background: #cbdad3 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-station-item:hover,
+body.light-theme #radio-panel .radio-station-item:hover,
+[data-theme="light"] #radio-panel .radio-station-item:hover {
+  background: rgba(7, 63, 53, 0.05) !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-station-item.active,
+body.light-theme #radio-panel .radio-station-item.active,
+[data-theme="light"] #radio-panel .radio-station-item.active {
+  background: #eaf4ef !important;
+  border-color: rgba(14, 166, 122, 0.3) !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-item-title,
+body.light-theme #radio-panel .radio-item-title,
+[data-theme="light"] #radio-panel .radio-item-title {
+  color: #073f35 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-station-item.active .radio-item-title,
+body.light-theme #radio-panel .radio-station-item.active .radio-item-title,
+[data-theme="light"] #radio-panel .radio-station-item.active .radio-item-title {
+  color: #042a23 !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-item-tag,
+body.light-theme #radio-panel .radio-item-tag,
+[data-theme="light"] #radio-panel .radio-item-tag {
+  color: #637d72 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-item-fav-btn,
+body.light-theme #radio-panel .radio-item-fav-btn,
+[data-theme="light"] #radio-panel .radio-item-fav-btn {
+  color: #8fa69c !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-item-fav-btn:hover,
+body.light-theme #radio-panel .radio-item-fav-btn:hover,
+[data-theme="light"] #radio-panel .radio-item-fav-btn:hover {
+  color: #073f35 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-item-fav-btn .text-gold,
+body.light-theme #radio-panel .radio-item-fav-btn .text-gold,
+[data-theme="light"] #radio-panel .radio-item-fav-btn .text-gold {
+  color: #d97706 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-empty-state,
+body.light-theme #radio-panel .radio-empty-state,
+[data-theme="light"] #radio-panel .radio-empty-state {
+  color: #647d72 !important;
+}
+
+/* خيارات مؤقت النوم */
+html[data-theme="light"] #radio-panel .radio-timer-chip,
+body.light-theme #radio-panel .radio-timer-chip,
+[data-theme="light"] #radio-panel .radio-timer-chip {
+  background: #ffffff !important;
+  border: 1px solid rgba(7, 63, 53, 0.12) !important;
+  color: #2d4c41 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-timer-chip:hover,
+body.light-theme #radio-panel .radio-timer-chip:hover,
+[data-theme="light"] #radio-panel .radio-timer-chip:hover {
+  background: #f0f7f3 !important;
+  border-color: rgba(14, 166, 122, 0.3) !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-timer-chip.active,
+body.light-theme #radio-panel .radio-timer-chip.active,
+[data-theme="light"] #radio-panel .radio-timer-chip.active {
+  background: #eaf4ef !important;
+  border-color: #0ea67a !important;
+  color: #073f35 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="light"] #radio-panel .radio-timer-countdown,
+body.light-theme #radio-panel .radio-timer-countdown,
+[data-theme="light"] #radio-panel .radio-timer-countdown {
+  background: #eaf4ef !important;
+  border: 1px solid rgba(14, 166, 122, 0.35) !important;
+  color: #073f35 !important;
+  font-weight: 700 !important;
+}

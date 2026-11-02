@@ -1095,15 +1095,28 @@
 
         const exportBtn = $('zad-export-backup');
         if (exportBtn) {
-            exportBtn.onclick = () => {
+            exportBtn.onclick = async () => {
                 try {
                     const backup = makeBackup(store);
                     validateBackup(backup);
+                    const fileName = `zad-backup-${new Date().toISOString().slice(0,10)}.json`;
+                    if (root.Capacitor?.isNativePlatform?.() && root.Capacitor.getPlatform?.() === 'android') {
+                        const plugin = root.Capacitor.Plugins?.BackupFiles;
+                        if (!plugin?.saveBackup) throw Error('حدّث التطبيق لحفظ ملف النسخة على الهاتف.');
+                        exportBtn.disabled = true;
+                        status('اختر مكان حفظ ملف النسخة الاحتياطية.', 'zad-backup-status');
+                        const result = await plugin.saveBackup({ fileName, content: JSON.stringify(backup, null, 2) });
+                        if (result?.cancelled) status('تم إلغاء حفظ النسخة؛ بياناتك لم تتغير.', 'zad-backup-status');
+                        else if (result?.saved) status('تم حفظ ملف النسخة الاحتياطية بنجاح ✨', 'zad-backup-status');
+                        else throw Error('لم يؤكد الهاتف حفظ الملف.');
+                        return;
+                    }
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob), link = document.createElement('a');
                     link.href = url; link.download = `zad-backup-${new Date().toISOString().slice(0,10)}.json`; link.click();
                     setTimeout(() => URL.revokeObjectURL(url), 30000); status('تم تجهيز النسخة الاحتياطية للتحميل بنجاح ✨', 'zad-backup-status');
                 } catch (error) { status('تعذّر تجهيز النسخة الاحتياطية: ' + error.message, 'zad-backup-status'); }
+                finally { exportBtn.disabled = false; }
             };
         }
 
