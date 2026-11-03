@@ -767,7 +767,7 @@
                     </div>
 
                     <div class="zad-form-group">
-                      <label for="zad-font"><i class="fa-solid fa-font text-gold"></i> حجم خط القراءة:</label>
+                      <label for="zad-font"><i class="fa-solid fa-font text-gold"></i> حجم النصوص العامة:</label>
                       <select id="zad-font">
                         <option value="normal">عادي (الافتراضي)</option>
                         <option value="large">كبير (مريح للعين)</option>
@@ -1004,7 +1004,7 @@
             zadFont.addEventListener('change', () => {
                 store.setItem('zad_font_size', zadFont.value);
                 applyFont();
-                status('تم تطبيق حجم الخط فوراً ✨');
+                status('تم تطبيق حجم النصوص العامة فوراً ✨');
             });
         }
 

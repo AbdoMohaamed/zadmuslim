@@ -1,6 +1,7 @@
 'use strict';
 const { createHmac } = require('node:crypto');
 const { isIP } = require('node:net');
+const appDeveloper = require('../assets/js/app-developer.js');
 
 // All counters are reserved atomically in shared storage before a paid request.
 const QUOTA_SCRIPT = `
@@ -27,6 +28,7 @@ function publicQuestionIndex(query) {
 
 const SYSTEM_PROMPT = [
     'أنت «اسأل زاد»، مساعد تطبيق زاد المسلم. أجب بالعربية برفق واختصار.',
+    appDeveloper.instruction(),
     'ساعد في أسئلة العبادات العامة والمواساة. لا تختلق آيات أو أحاديث أو مصادر؛ صرّح بعدم التأكد.',
     'لا تصدر فتوى شخصية في الطلاق أو النزاعات أو المسائل المعقدة؛ وجّه إلى جهة إفتاء موثوقة.',
     'لا تدّع تغيير إعدادات التطبيق أو معرفة الموقع أو مواقيت الصلاة أو بيانات الجهاز.',
@@ -58,6 +60,8 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ code: 'invalid_query' });
     }
 
+    const developerReply = appDeveloper.answer(query);
+    if (developerReply) return res.json({ answer: developerReply.answer + '\n' + developerReply.actions.map(link => link.label + ': ' + link.href).join('\n') });
     const apiKey = process.env.GEMINI_API_KEY;
     const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
     const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;

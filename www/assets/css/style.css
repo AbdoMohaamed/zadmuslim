@@ -854,12 +854,14 @@ body.light-theme {
   border-left: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
 }
-
+#seven-day-challenge{
+    padding:25px 0 ;
+}
 .sadaqa-hadith-text {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: #e2ece5;
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #e2ece5;
 }
 
 .sadaqa-hadith-ref {
@@ -3661,7 +3663,7 @@ html[data-theme="light"] .nav-links a.active {
     border-width: 1.5px !important;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6) !important;
   }
-  
+
   .mushaf-header-frame {
     padding-bottom: 0.75rem !important;
     margin-bottom: 0.85rem !important;
@@ -4841,68 +4843,216 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 @media (max-width: 768px) {
+  /* ==========================================================================
+     شريط تنقل الأذكار التفاعلي المطور (Azkar Mobile Nav Bar - Animated Edition)
+     ========================================================================== */
   .azkar-mobile-nav-bar {
     display: flex !important;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.2rem;
-    padding: 0 0.25rem;
-    gap: 0.8rem;
+    margin: 10px 0 16px;
+    padding: 8px 12px;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(7, 46, 37, 0.88) 0%, rgba(4, 28, 22, 0.94) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 9999px;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45), 0 0 14px rgba(212, 175, 55, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: azkarBarSlideDown 0.35s ease-out, azkarBarAura 3.8s infinite ease-in-out;
+    position: relative;
+    z-index: 5;
+  }
+
+  @keyframes azkarBarSlideDown {
+    0% { opacity: 0; transform: translateY(-8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes azkarBarAura {
+    0%, 100% { box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45), 0 0 10px rgba(212, 175, 55, 0.08); }
+    50% { box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45), 0 0 18px rgba(212, 175, 55, 0.24); }
   }
 
   .azkar-scroll-hint {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--gold-300);
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px dashed rgba(212, 175, 55, 0.3);
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-full);
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffd56b;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.16) 0%, rgba(212, 175, 55, 0.08) 50%, rgba(212, 175, 55, 0.16) 100%);
+    background-size: 200% 100%;
+    border: 1px solid rgba(212, 175, 55, 0.38);
+    padding: 5px 12px;
+    border-radius: 9999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    animation: azkarShimmerWave 4s infinite linear;
+    user-select: none;
+    letter-spacing: 0.2px;
+  }
+
+  @keyframes azkarShimmerWave {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .azkar-scroll-hint .hint-icon-glow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.22);
+    color: #ffd56b;
+    font-size: 0.72rem;
+  }
+
+  .azkar-scroll-hint i {
+    animation: azkarSwipeSway 2.4s infinite ease-in-out;
+  }
+
+  @keyframes azkarSwipeSway {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+  }
+
+  .azkar-scroll-hint .hint-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fed668;
+    box-shadow: 0 0 8px #fed668;
+    animation: azkarGlowPulse 1.8s infinite ease-in-out;
+    display: inline-block;
+  }
+
+  @keyframes azkarGlowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.3); }
   }
 
   .azkar-scroll-arrows {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
   }
 
   .btn-scroll-azkar {
     width: 36px;
     height: 36px;
+    min-height: 36px;
+    min-width: 36px;
     border-radius: 50%;
-    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
-    border: 1px solid var(--gold-500);
-    color: var(--gold-300);
+    background: linear-gradient(145deg, #09372c 0%, #031e17 100%);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    color: #ffd56b;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 0.85rem;
-    transition: var(--transition-fast);
+    font-size: 0.82rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    padding: 0;
+    user-select: none;
   }
 
-  .btn-scroll-azkar:hover,
+  .btn-scroll-azkar:hover {
+    background: linear-gradient(145deg, #dfa72b 0%, #b8860b 100%);
+    border-color: #ffd56b;
+    color: #031c15;
+    transform: scale(1.08);
+    box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
+  }
+
   .btn-scroll-azkar:active {
-    background: var(--gold-500);
-    color: var(--bg-dark);
+    transform: scale(0.92);
   }
 
-  .azkar-cards-container {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    gap: 1.2rem !important;
-    padding: 0.5rem 0.3rem 1.5rem !important;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gold-500) rgba(255, 255, 255, 0.08);
+  .btn-scroll-prev:hover i {
+    transform: translateX(2px);
+    transition: transform 0.15s ease;
   }
+
+  .btn-scroll-next:hover i {
+    transform: translateX(-2px);
+    transition: transform 0.15s ease;
+  }
+
+  /* تنسيقات الوضع النهاري (Light Theme) */
+  body.light-theme .azkar-mobile-nav-bar,
+  html[data-theme="light"] .azkar-mobile-nav-bar,
+  [data-theme="light"] .azkar-mobile-nav-bar {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 251, 249, 0.96) 100%) !important;
+    border: 1px solid rgba(184, 134, 11, 0.32) !important;
+    box-shadow: 0 8px 24px -4px rgba(7, 63, 53, 0.08), 0 0 14px rgba(184, 134, 11, 0.08) !important;
+  }
+
+  body.light-theme .azkar-scroll-hint,
+  html[data-theme="light"] .azkar-scroll-hint,
+  [data-theme="light"] .azkar-scroll-hint {
+    background: linear-gradient(90deg, rgba(255, 248, 235, 0.95) 0%, rgba(254, 243, 222, 0.8) 50%, rgba(255, 248, 235, 0.95) 100%) !important;
+    border: 1px solid rgba(184, 134, 11, 0.38) !important;
+    color: #996800 !important;
+    box-shadow: 0 2px 8px rgba(184, 134, 11, 0.1) !important;
+  }
+
+  body.light-theme .azkar-scroll-hint .hint-icon-glow,
+  html[data-theme="light"] .azkar-scroll-hint .hint-icon-glow,
+  [data-theme="light"] .azkar-scroll-hint .hint-icon-glow {
+    background: rgba(184, 134, 11, 0.15) !important;
+    color: #996800 !important;
+  }
+
+  body.light-theme .azkar-scroll-hint .hint-live-dot,
+  html[data-theme="light"] .azkar-scroll-hint .hint-live-dot,
+  [data-theme="light"] .azkar-scroll-hint .hint-live-dot {
+    background: #b8860b !important;
+    box-shadow: 0 0 8px #b8860b !important;
+  }
+
+  body.light-theme .btn-scroll-azkar,
+  html[data-theme="light"] .btn-scroll-azkar,
+  [data-theme="light"] .btn-scroll-azkar {
+    background: #ffffff !important;
+    border: 1px solid rgba(184, 134, 11, 0.35) !important;
+    color: #073f35 !important;
+    box-shadow: 0 4px 12px rgba(7, 63, 53, 0.08) !important;
+  }
+
+  body.light-theme .btn-scroll-azkar:hover,
+  html[data-theme="light"] .btn-scroll-azkar:hover,
+  [data-theme="light"] .btn-scroll-azkar:hover {
+    background: #0ea67a !important;
+    border-color: #0ea67a !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(14, 166, 122, 0.32) !important;
+  }
+
+  body.light-theme .btn-scroll-azkar:active,
+  html[data-theme="light"] .btn-scroll-azkar:active,
+  [data-theme="light"] .btn-scroll-azkar:active {
+    background: #0b8a65 !important;
+    color: #ffffff !important;
+  }
+
+        .azkar-cards-container {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            gap: 1.2rem !important;
+            padding: 0.5rem 0.3rem 1.5rem !important;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-500) rgba(255, 255, 255, 0.08);
+        }
 
   .azkar-cards-container::-webkit-scrollbar {
     height: 6px;
@@ -6616,7 +6766,7 @@ body.show-prayer-images .prayer-item-thumb,
    قسم جدول الورد والمهام الإيمانية اليومية (Daily Wird Checklist & Tracker)
    ========================================================================== */
 .daily-wird-section {
-  padding: 25px 0;
+  padding-bottom: 25px;
   position: relative;
 }
 
@@ -9850,7 +10000,7 @@ input:checked + .slider-round:before {
    2. حديقة الحسنات وشجرة الذكر التفاعلية (Spiritual Garden & Tree)
    ========================================================================== */
 .spiritual-garden-section {
-  padding: 20px 0 45px;
+  padding: 0 0 45px;
   position: relative;
   background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
 }
@@ -15709,7 +15859,7 @@ body.light-theme .btn-banner-close {
     gap: 0.75rem;
     padding: 0.85rem;
   }
-  
+
   .muazzin-card-actions {
     display: flex;
     width: 100%;
@@ -18785,6 +18935,12 @@ body.light-theme textarea {
     color: #193B34 !important;
     border-color: transparent !important;
 }
+
+    html[data-theme="light"] .setting-item-row select,
+    body.light-theme .setting-item-row select
+    {
+        border-color: var(--gold-rgb) !important;
+    }
 
     html[data-theme="light"] #media-search-input,
     body.light-theme #media-search-input {
@@ -23619,7 +23775,7 @@ body.light-theme textarea {
    ============================================================================== */
 
         .wall-of-duas-section {
-            padding: 45px 0 55px;
+            padding: 25px 0 55px;
             position: relative;
             background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
         }
@@ -24886,7 +25042,7 @@ body.light-theme textarea {
    ========================================================================== */
         .prayer-guide-section {
             position: relative;
-            padding: 40px 0 60px;
+            padding: 25px 0 60px;
         }
 
         .prayer-guide-box {

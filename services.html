@@ -50,14 +50,17 @@
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
   
-    <link rel="stylesheet" href="assets/css/user-tools.css?v=3">
+    <link rel="stylesheet" href="assets/css/user-tools.css?v=4">
 <link rel="stylesheet" href="assets/css/radio-player.css?v=5">
+<link rel="stylesheet" href="assets/css/offline-audio.css?v=1">
 <script src="assets/js/radio-navigation.js?v=3"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
-<link rel="stylesheet" href="assets/css/services-personal.css?v=7">
+<link rel="stylesheet" href="assets/css/services-personal.css?v=9">
 <script src="assets/js/services-personal.js?v=4"></script>
 <link rel="stylesheet" href="assets/css/ask-zad.css?v=4">
+    <link rel="stylesheet" href="assets/css/reading-font.css?v=3">
+    <script defer src="assets/js/reading-font.js?v=4"></script>
 </head>
 <body class="services-hub-mode">
 
@@ -93,9 +96,9 @@
     <audio id="audio-adhan-preview" preload="none"></audio>
 
 
-    <main id="services-directory" class="shell container" style="margin-top: 24px; margin-bottom: 60px;">
+    <main id="services-directory" class="shell container" style="margin-top: 16px; margin-bottom: 60px;">
         <!-- رأس الصفحة -->
-        <div class="section-head" style="margin-top: 12px; margin-bottom: 18px;">
+        <div class="section-head" style="margin-top: 0; margin-bottom: 12px;">
             <div>
                 <span class="eyebrow" style="color: var(--green); font-size: 13px; font-weight: 800; display: block; margin-bottom: 4px;">✦ فهرس المنصة الشامل</span>
                 <h1 class="services-page-title" style="margin: 0; font-weight: 900; color: var(--ink);">الخدمات</h1>
@@ -110,24 +113,24 @@
             <button type="button" id="services-clear-search" aria-label="مسح البحث" hidden onclick="clearServicesSearch()">×</button>
         </div>
 
-        <p id="services-search-results" role="status" aria-live="polite"></p>
+        <p id="services-search-results" class="services-results-announcement" role="status" aria-live="polite"></p>
 
 
         <!-- أزرار تبويب التصنيفات السريعة والواضحة -->
         <div class="category-filter-pills" role="group" aria-label="تصنيف الخدمات">
-            <button type="button" class="cat-pill-btn active" data-category-filter="all" aria-pressed="true" onclick="filterCategory('all', this)"><span aria-hidden="true">✦</span><span>الكل</span></button>
-            <button type="button" class="cat-pill-btn" data-category-filter="القرآن الكريم" aria-pressed="false" onclick="filterCategory('القرآن الكريم', this)"><span aria-hidden="true">📖</span><span>القرآن الكريم</span></button>
-            <button type="button" class="cat-pill-btn" data-category-filter="الصلاة" aria-pressed="false" onclick="filterCategory('الصلاة', this)"><span aria-hidden="true">🕌</span><span>الصلاة والقبلة</span></button>
-            <button type="button" class="cat-pill-btn" data-category-filter="الأذكار" aria-pressed="false" onclick="filterCategory('الأذكار', this)"><span aria-hidden="true">📿</span><span>الأذكار والتسبيح</span></button>
-            <button type="button" class="cat-pill-btn" data-category-filter="الدعاء والسكينة" aria-pressed="false" onclick="filterCategory('الدعاء والسكينة', this)"><span aria-hidden="true">🤲</span><span>الدعاء والسكينة</span></button>
-            <button type="button" id="services-more-categories" class="category-more-btn" aria-expanded="false" aria-controls="services-extra-categories" onclick="toggleMoreCategories()"><span class="more-label">باقي التصنيفات</span><span class="more-arrow" aria-hidden="true"> ▾</span></button>
+            <button type="button" class="cat-pill-btn active" data-category-filter="all" aria-pressed="true" onclick="filterCategory('all', this)"><i class="fa-solid fa-border-all" aria-hidden="true"></i><span>الكل</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="القرآن الكريم" aria-pressed="false" onclick="filterCategory('القرآن الكريم', this)"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>القرآن</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="الصلاة" aria-pressed="false" onclick="filterCategory('الصلاة', this)"><i class="fa-solid fa-clock" aria-hidden="true"></i><span>الصلاة</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="الأذكار" aria-pressed="false" onclick="filterCategory('الأذكار', this)"><i class="fa-solid fa-sun" aria-hidden="true"></i><span>الأذكار</span></button>
+            <button type="button" class="cat-pill-btn" data-category-filter="الدعاء والسكينة" aria-pressed="false" onclick="filterCategory('الدعاء والسكينة', this)"><i class="fa-solid fa-heart" aria-hidden="true"></i><span>الدعاء</span></button>
+            <button type="button" id="services-more-categories" class="category-more-btn" aria-expanded="false" aria-controls="services-extra-categories" onclick="toggleMoreCategories()"><i class="fa-solid fa-chevron-down more-arrow" aria-hidden="true"></i><span class="more-label">المزيد</span></button>
             <div id="services-extra-categories" class="services-extra-categories" hidden>
-                <button type="button" class="cat-pill-btn" data-category-filter="الورد والمتابعة" aria-pressed="false" onclick="filterCategory('الورد والمتابعة', this)"><span aria-hidden="true">🌿</span><span>الورد والمتابعة</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="المواسم والتقويم" aria-pressed="false" onclick="filterCategory('المواسم والتقويم', this)"><span aria-hidden="true">🗓️</span><span>مواسم الطاعات</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="المعرفة الإسلامية" aria-pressed="false" onclick="filterCategory('المعرفة الإسلامية', this)"><span aria-hidden="true">📚</span><span>المعرفة والقصص</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="المرئيات" aria-pressed="false" onclick="filterCategory('المرئيات', this)"><i class="fa-solid fa-circle-play text-gold"></i><span>مقتطفات</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="الزكاة" aria-pressed="false" onclick="filterCategory('الزكاة', this)"><span aria-hidden="true">🧮</span><span>حاسبة الزكاة</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="للمتوفى" aria-pressed="false" onclick="filterCategory('للمتوفى', this)"><span aria-hidden="true">🤍</span><span>صدقة للمتوفى</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="الورد والمتابعة" aria-pressed="false" onclick="filterCategory('الورد والمتابعة', this)"><i class="fa-solid fa-seedling" aria-hidden="true"></i><span>الورد والمتابعة</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المواسم والتقويم" aria-pressed="false" onclick="filterCategory('المواسم والتقويم', this)"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i><span>مواسم الطاعات</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المعرفة الإسلامية" aria-pressed="false" onclick="filterCategory('المعرفة الإسلامية', this)"><i class="fa-solid fa-book" aria-hidden="true"></i><span>المعرفة والقصص</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المرئيات" aria-pressed="false" onclick="filterCategory('المرئيات', this)"><i class="fa-solid fa-circle-play" aria-hidden="true"></i><span>مقتطفات</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="الزكاة" aria-pressed="false" onclick="filterCategory('الزكاة', this)"><i class="fa-solid fa-calculator" aria-hidden="true"></i><span>حاسبة الزكاة</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="للمتوفى" aria-pressed="false" onclick="filterCategory('للمتوفى', this)"><i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i><span>صدقة للمتوفى</span></button>
             </div>
         </div>
 
@@ -443,7 +446,7 @@
          الأقسام والخدمات التفاعلية المباشرة
          ========================================== -->
     <section id="quran-khatma" class="service-view-section quran-khatma-section">
-        <div id="services-interactive-hub" class="shell" style="margin-top: 40px; margin-bottom: 20px;">
+        <div id="services-interactive-hub" class="shell" style="margin-bottom: 20px;">
             <div id="khatma"></div>
             <div id="quran-reader"></div>
             <div class="container">
@@ -1114,7 +1117,7 @@
         <!-- ==========================================
              قسم بوصلة القلوب والسكينة (Spiritual First-Aid)
              ========================================== -->
-        <section id="mood-compass-section" class="service-view-section container" style="margin-top: 1.5rem; margin-bottom: 2rem;">
+        <section id="mood-compass-section" class="service-view-section container" style="margin-bottom: 2rem;">
             <div class="section-header">
                 <span class="section-tag"><i class="fa-solid fa-heart-pulse text-gold"></i> دواء القلب بالقرآن والدعاء</span>
                 <h2 class="section-title">بوصلة القلوب والسكينة 🌿</h2>
@@ -1223,16 +1226,19 @@
 
                 <!-- حاوية بطاقات الأذكار التفاعلية لشاشات الجوال والكمبيوتر -->
                 <div class="azkar-cards-wrapper">
-                    <div class="azkar-mobile-nav-bar">
+                    <div class="azkar-mobile-nav-bar" role="navigation" aria-label="تنقل بطاقات الأذكار">
                         <div class="azkar-scroll-hint">
-                            <i class="fa-solid fa-arrows-left-right"></i>
-                            <span>اسحب أفقياً لتصفح بطاقات الأذكار</span>
+                            <span class="hint-icon-glow">
+                                <i class="fa-solid fa-arrows-left-right"></i>
+                            </span>
+                            <span class="hint-label">اسحب أفقياً لتصفح الأذكار</span>
+                            <span class="hint-live-dot" aria-hidden="true"></span>
                         </div>
                         <div class="azkar-scroll-arrows">
-                            <button type="button" class="btn-scroll-azkar" onclick="scrollAzkarContainer('right')" title="الذكر السابق">
+                            <button type="button" class="btn-scroll-azkar btn-scroll-prev" onclick="scrollAzkarContainer('right')" title="الذكر السابق" aria-label="الذكر السابق">
                                 <i class="fa-solid fa-chevron-right"></i>
                             </button>
-                            <button type="button" class="btn-scroll-azkar" onclick="scrollAzkarContainer('left')" title="الذكر التالي">
+                            <button type="button" class="btn-scroll-azkar btn-scroll-next" onclick="scrollAzkarContainer('left')" title="الذكر التالي" aria-label="الذكر التالي">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </button>
                         </div>
@@ -1863,7 +1869,7 @@
         <!-- ==========================================
              زاد المسلم V4 — 1. حاسبة الزكاة الذكية الشاملة (Zakat Calculator)
              ========================================== -->
-        <section id="zakat-calculator-section" class="service-view-section cemetery-guide-section" style="padding: 10px 0;">
+        <section id="zakat-calculator-section" class="service-view-section cemetery-guide-section" style="padding-bottom: 25px;">
             <div class="container">
                 <div class="section-header">
                     <span class="section-tag"><i class="fa-solid fa-calculator"></i> ركن الإسلام الثالث • طهرة وبركة</span>
@@ -3436,7 +3442,7 @@
         <!-- ==========================================
         ويدجت إذاعة القرآن الكريم المباشرة (24/7 Live Radio)
         ========================================== -->
-        <script src="assets/js/radio-widget.js?v=2"></script>
+        <script src="assets/js/radio-widget.js?v=3"></script>
         <!-- نافذة مشغل الالمقتطفاتوالبودكاست (Islamic Media Video Modal) -->
         <div class="modal-overlay" id="media-player-modal" role="dialog" aria-modal="true">
             <div class="modal-card modal-card-media-player">
@@ -3607,7 +3613,8 @@
                 button.setAttribute('aria-expanded',String(open));
                 const selected=extra.querySelector('.cat-pill-btn.active');
                 button.classList.toggle('has-active-child', !!selected);
-                button.textContent=open?'إخفاء التصنيفات ▴':('باقي التصنيفات'+(selected?' — '+selected.textContent.trim():' ▾'));
+                button.querySelector('.more-label').textContent=open?'أقل':'المزيد';
+                button.setAttribute('aria-label', open?'إخفاء باقي التصنيفات':'عرض باقي التصنيفات');
             }
             function toggleMoreCategories() {
                 setMoreCategories(document.getElementById('services-extra-categories').hidden);
@@ -3628,6 +3635,16 @@
                         if (match) count++;
                     });
                     block.style.display = count ? 'block' : 'none'; total += count;
+                    const heading = block.querySelector('.category-title-wrap');
+                    if (heading) {
+                        let resultCount = heading.querySelector('.category-result-count');
+                        if (!resultCount) {
+                            resultCount = document.createElement('span');
+                            resultCount.className = 'category-result-count';
+                            heading.append(resultCount);
+                        }
+                        resultCount.textContent = '· ' + (count === 1 ? 'خدمة واحدة' : count === 2 ? 'خدمتان' : count + (count >= 3 && count <= 10 ? ' خدمات' : ' خدمة'));
+                    }
                 });
                 document.querySelectorAll('.cat-pill-btn').forEach(button => {
                     const active = button.getAttribute('onclick').includes("'" + servicesCategory + "'");
@@ -3685,8 +3702,10 @@
     <script src="assets/js/prayer-cities.js?v=1"></script>
     <script src="assets/js/app.js?v=27"></script>
         <script src="assets/js/quran.js?v=27"></script>
-        <script src="assets/js/radio-player.js?v=3"></script>
-    <script src="assets/js/extended-modules.js?v=39"></script>
+        <script src="assets/js/offline-audio-catalog.js?v=1"></script>
+    <script src="assets/js/offline-audio.js?v=1"></script>
+    <script src="assets/js/radio-player.js?v=4"></script>
+    <script src="assets/js/extended-modules.js?v=40"></script>
         <script src="assets/js/smart-khatma.js?v=3"></script>
         <script src="assets/js/share-card-generator.js?v=1"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
@@ -3695,8 +3714,9 @@
         <script src="assets/js/nearby-mosques.js?v=11"></script>
         <script src="assets/js/wall-of-duas.js?v=1"></script>
         <script src="assets/js/prayer-guide.js?v=1"></script>
-        <script src="assets/js/ask-zad-knowledge.js?v=2"></script>
-        <script src="assets/js/ask-zad.js?v=6"></script>
+        <script src="assets/js/app-developer.js?v=2"></script>
+    <script src="assets/js/ask-zad-knowledge.js?v=2"></script>
+        <script src="assets/js/ask-zad.js?v=8"></script>
 
         <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
         <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">
@@ -4139,6 +4159,6 @@
             });
         </script>
 
-    <script src="assets/js/user-tools.js?v=9"></script>
+    <script src="assets/js/user-tools.js?v=10"></script>
 </body>
 </html>

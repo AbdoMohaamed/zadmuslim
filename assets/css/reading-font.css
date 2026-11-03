@@ -1,0 +1,48 @@
+@font-face {
+    font-family: 'Noto Naskh Arabic';
+    src: url('../fonts/NotoNaskhArabic-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Scheherazade New';
+    src: url('../fonts/ScheherazadeNew-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+.reading-font-controls {
+    margin: 12px 0 20px;
+    color: var(--text-primary);
+    font-family: var(--font-body, sans-serif);
+    font-size: 0.9rem;
+    text-align: start;
+    border: 1px solid var(--gold-400, #b58b27);
+    border-radius: 14px;
+    padding: 12px;
+}
+.reading-font-quick { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.reading-font-quick [data-step] { font-size: 1.2rem; font-weight: 700; min-width: 44px; }
+.reading-font-toggle { margin-inline-start: auto; font-weight: 700 !important; }
+.reading-font-hint { margin: 10px 0 0; color: var(--text-secondary, inherit); font-size: .85rem; }
+.reading-font-controls [hidden] { display: none !important; }
+.reading-font-panel { display: grid; gap: 14px; padding-top: 14px; }
+.reading-font-size { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.reading-font-choice, .reading-font-marks { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.reading-font-choice select { min-width: 140px; max-width: 100%; min-height: 44px; padding: 8px; border-radius: 8px; font: inherit; background: var(--bg-card, #fff); color: var(--text-primary, #123); }
+.reading-font-marks input { width: 22px; height: 22px; accent-color: var(--green, #08634c); }
+.reading-font-preview { margin: 0; padding: 12px; line-height: 2.2; overflow-wrap: anywhere; border-radius: 10px; background: var(--bg-secondary, rgba(128,128,128,.08)); }
+.reading-font-controls button {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--gold-400, #b58b27);
+    border-radius: 12px;
+    background: var(--bg-card, transparent);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+.reading-font-controls button:disabled { opacity: 0.45; cursor: default; }
+.reading-font-controls button:focus-visible { outline: 2px solid var(--gold-400, #b58b27); outline-offset: 3px; }
+.reading-font-controls output { min-width: 42px; text-align: center; }

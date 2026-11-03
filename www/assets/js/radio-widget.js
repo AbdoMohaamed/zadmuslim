@@ -63,9 +63,11 @@
                 </div>
             </div>
 
+            <div id="radio-offline-transport" hidden></div>
             <!-- شريط التبويبات (Tabs) -->
             <div class="radio-tabs-nav" role="tablist">
-                <button type="button" class="radio-tab-btn active" id="tab-btn-stations" role="tab" aria-selected="true" data-tab="stations">المحطات</button>
+                <button type="button" class="radio-tab-btn active" id="tab-btn-stations" role="tab" aria-selected="true" data-tab="stations">البث المباشر</button>
+                <button type="button" class="radio-tab-btn" id="tab-btn-downloads" role="tab" aria-selected="false" data-tab="downloads">تنزيلاتي</button>
                 <button type="button" class="radio-tab-btn" id="tab-btn-timer" role="tab" aria-selected="false" data-tab="timer">مؤقت النوم</button>
             </div>
 
@@ -84,6 +86,7 @@
                 <select id="radio-station-select" class="radio-station-select" style="display:none;" aria-hidden="true"></select>
             </div>
 
+            <div class="radio-tab-content" id="radio-tab-downloads" role="tabpanel" aria-labelledby="tab-btn-downloads" style="display:none;"></div>
             <!-- تبويب مؤقت النوم -->
             <div class="radio-tab-content" id="radio-tab-timer" role="tabpanel" style="display:none;">
                 <div class="radio-timer-options" id="radio-timer-options">

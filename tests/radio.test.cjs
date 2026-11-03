@@ -11,6 +11,12 @@ function setup(){
  return {player,audio,window,navigator,timers,tick,changes};
 }
 const flush=()=>new Promise(r=>setImmediate(r));
+test('saved recitation plays without internet, pauses in place, seeks, and ends without reconnect',async()=>{
+ const h=setup();h.navigator.onLine=false;h.audio.currentTime=42;h.audio.duration=120;
+ h.player.select({id:'offline-123-1',url:'blob:saved-audio',offline:true});h.player.play();await flush();
+ assert.equal(h.audio.plays.length,1);h.audio.dispatchEvent(new Event('playing'));h.player.pause();assert.equal(h.audio.currentTime,42);assert.equal(h.player.wanted,false);
+ h.player.seek(80);assert.equal(h.audio.currentTime,80);h.player.play();await flush();h.audio.dispatchEvent(new Event('ended'));assert.equal(h.player.state,'ended');assert.equal(h.player.wanted,false);assert.equal(h.audio.currentTime,0);assert.equal(h.timers.size,0);
+});
 test('first playback failure reconnects to the selected station and duplicate errors share one retry',async()=>{
  const h=setup();h.audio.reject=new Error('network');h.player.play();await flush();
  h.audio.dispatchEvent(new Event('error'));assert.equal([...h.timers.values()].filter(t=>t.ms===1000).length,1);
@@ -51,6 +57,13 @@ test('buffered audio progress prevents needless reconnect and online does not re
 });
 
 function nativeSetup(stop){const h=setup();h.window.Capacitor={Plugins:{RadioNative:{getState:async()=>({wanted:false,state:'paused'}),stop,play:async()=>{},setVolume:async()=>{}}}};const changes=[];const p=new h.window.ZadNativeRadioPlayer(h.audio,s=>changes.push(s),[]);p.select({id:'cairo',url:'https://stream.test/cairo'});return {...h,p,changes};}
+test('selecting a saved recording exits the web fallback before native playback',async()=>{
+ const h=nativeSetup(async()=>{});let played;
+ h.p.plugin.play=async station=>{played=station;};
+ await h.p.useWebPlayer();assert.ok(h.p.fallback);
+ h.p.select({id:'offline-123-1',url:'zad-offline:offline-123-1',offline:true},true);await h.p.chain;
+ assert.equal(h.p.fallback,null);assert.equal(played.id,'offline-123-1');assert.equal(h.audio.src,'');
+});
 test('alternative playback waits for native stop and retains the same station',async()=>{let finish;const h=nativeSetup(()=>new Promise(r=>finish=r));assert.equal(h.p.survivesNavigation,true);const switched=h.p.useWebPlayer();assert.equal(h.p.survivesNavigation,false);await flush();assert.equal(h.audio.plays.length,0);finish();await switched;assert.equal(h.p.survivesNavigation,false);assert.deepEqual(h.audio.plays,['https://stream.test/cairo']);assert.equal(h.p.wanted,true);h.p.stop();assert.equal(h.p.wanted,false);});
 test('a failed native stop cannot start a second player',async()=>{const h=nativeSetup(async()=>{throw Error('stop failed');});await h.p.useWebPlayer();assert.equal(h.audio.plays.length,0);assert.equal(h.changes.at(-1).state,'failed');});
 test('stopping during a pending switch prevents delayed playback',async()=>{let finish;const h=nativeSetup(()=>new Promise(r=>finish=r));const switched=h.p.useWebPlayer();await flush();h.p.stop();finish();await switched;assert.equal(h.audio.plays.length,0);});

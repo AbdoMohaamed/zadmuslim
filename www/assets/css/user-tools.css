@@ -666,16 +666,14 @@ body.light-theme .zad-personal-panel p {
 }
 
 /* توافق أحجام خطوط القراءة */
-html[data-reading-size=large] .panel p,
-html[data-reading-size=large] .modal p,
-html[data-reading-size=large] .azkar-text {
+html[data-reading-size=large] .panel p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text),
+html[data-reading-size=large] .modal p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text) {
     font-size: 1.2rem !important;
     line-height: 2 !important;
 }
 
-html[data-reading-size=larger] .panel p,
-html[data-reading-size=larger] .modal p,
-html[data-reading-size=larger] .azkar-text {
+html[data-reading-size=larger] .panel p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text),
+html[data-reading-size=larger] .modal p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text) {
     font-size: 1.4rem !important;
     line-height: 2.1 !important;
 }

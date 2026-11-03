@@ -144,8 +144,10 @@
         if (match) { greeting = match[1].startsWith('السلام') ? 'وعليكم السلام ورحمة الله وبركاته 🌿' : match[1] === 'صباح الخير' ? 'صباح النور 🌿' : match[1] === 'مساء الخير' ? 'مساء النور 🌿' : 'أهلًا بيك 🌿';query = query.slice(match[0].length).replace(/^(يا (باشا|زاد|غالي)\s*)/, '').trim(); }
         if (!query) return reply(greeting + ' أقدر أساعدك في إيه؟');
         if (/^(شكرا|متشكر|تسلم|جزاك الله خيرا?|جزاكم الله خيرا?)( يا (باشا|غالي))?$/.test(query)) return reply('وإياك، أهلًا بيك دايمًا 🌿');
-        let result;
-        if (/(اشعار|اشعارات|تنبيه|تنبيهات|منبه|منبهات)/.test(query) && !/(الغ|ايقاف|اقفل|اطفي|تفعيل|تغيير)/.test(query)) result = await notificationReply();
+        const developer = root.ZadAppDeveloper?.answer(query);
+        let result = developer ? reply(developer.answer, developer.actions) : null;
+        if (result) { /* Approved attribution takes precedence over generated guesses. */ }
+        else if (/(اشعار|اشعارات|تنبيه|تنبيهات|منبه|منبهات)/.test(query) && !/(الغ|ايقاف|اقفل|اطفي|تفعيل|تغيير)/.test(query)) result = await notificationReply();
         else if (/(المؤذن|الموذن|مؤذن|موذن|صوت الاذان)/.test(query)) result = reply('تقدر تختار المؤذن وتسمع عينة من إعدادات الأذان. لم أغيّر اختيارك.',[settingsAction]);
         else if (/(الغ|ايقاف|اطفي|اقفل|وقف|تفعيل|شغل)/.test(query) && /(اذان|اشعار|تنبيه)/.test(query)) result = reply('تقدر تعدّل اختيارك من إعدادات التنبيهات. لم أغيّر أي إعداد.',[settingsAction]);
         else if (/(القادمه|فاضل|باقي|متبقي|الساعه كام|ميعاد|موعد|امتي)/.test(query) && /(صلاه|فجر|ظهر|عصر|مغرب|عشاء|اذان)/.test(query)) result = prayerReply(query);
@@ -754,9 +756,11 @@
             for (const act of msg.actions) {
                 const btn = document.createElement('a');
                 btn.className = 'ask-zad-action-btn';
-                if (typeof act.href !== 'string' || !/^(services|settings|index)\.html(?:[?#]|$)/.test(act.href)) continue;
+                const external=root.ZadAppDeveloper?.isContact(act.href)===true;
+                if (typeof act.href !== 'string' || !external&&!/^(services|settings|index)\.html(?:[?#]|$)/.test(act.href)) continue;
                 btn.href = act.href;
                 btn.textContent = act.label;
+                if(external){btn.target='_blank';btn.rel='noopener noreferrer';actionsDiv.appendChild(btn);continue;}
                 btn.addEventListener('click', (e) => {
                     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
                     e.preventDefault();closeChat();

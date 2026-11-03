@@ -314,6 +314,10 @@ test('settings groups expand from navigation and reading settings are separated'
   d.querySelector('a[href="#settings-reading-section"]').click();
   assert.equal(d.querySelector('#settings-reading-section details').open,true);
   assert.ok(d.querySelector('#settings-reading-section #zad-font'));
+  assert.equal(d.querySelector('label[for="zad-font"]').textContent,'حجم النصوص العامة');
+  assert.ok(d.getElementById('zad-font').getAttribute('aria-describedby'));
+  assert.ok(d.querySelector('#settings-reading-section a[href="services.html?reading=azkar#azkar"]'));
+  assert.ok(d.querySelector('#settings-reading-section a[href="index.html?reading=hadith#sadaqa"]'));
   assert.equal(d.getElementById('zad-save-settings').hidden,true);
   assert.deepEqual(errors,[]);
  } finally {dom.window.close();}

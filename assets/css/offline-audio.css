@@ -1,0 +1,24 @@
+#radio-tab-downloads { flex-direction:column; gap:12px; }
+#radio-tab-downloads [hidden], #radio-offline-transport[hidden], #btn-radio-favorite[hidden] { display:none!important; }
+.offline-audio-note, .offline-audio-status, .offline-audio-storage { margin:0; font-size:.85rem; color:var(--text-primary,#e8f2ec); line-height:1.8; }
+.offline-audio-note { color:var(--text-gold,#c6b46c); }
+.offline-audio-list { display:grid; gap:10px; }
+.offline-audio-item { display:flex; align-items:center; gap:8px; padding:12px; border:1px solid var(--border-color,rgba(150,170,150,.3)); border-radius:14px; background:var(--bg-card,transparent); }
+.offline-audio-item > div { flex:1; min-width:0; }
+.offline-audio-item strong, .offline-audio-item span { display:block; overflow-wrap:anywhere; }
+.offline-audio-item span { font-size:.78rem; opacity:.85; margin-top:4px; }
+#radio-tab-downloads button, #radio-offline-transport button { min-height:44px; padding:8px 10px; border:1px solid var(--gold-400,#b69b45); border-radius:10px; background:transparent; color:inherit; font:inherit; font-size:.82rem; cursor:pointer; }
+#radio-tab-downloads button:disabled { opacity:.5; cursor:default; }
+.offline-audio-add { border-top:1px solid var(--border-color,rgba(150,170,150,.3)); padding-top:12px; }
+.offline-audio-add summary { min-height:44px; cursor:pointer; font-weight:700; }
+.offline-audio-add label { display:grid; gap:5px; margin-bottom:10px; }
+.offline-audio-add select { min-height:44px; max-width:100%; width:100%; padding:8px; border:1px solid var(--border-color,#718078); border-radius:10px; background:var(--bg-card,#15372d); color:var(--text-primary,#e8f2ec); font:inherit; }
+html[data-theme="light"] .offline-audio-add select, body.light-theme .offline-audio-add select { background:#fff; color:#17372d; }
+.offline-audio-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.offline-audio-add progress { width:100%; margin-top:12px; accent-color:var(--green,#179368); }
+.offline-audio-size { font-size:.85rem; }
+#radio-offline-transport { padding:12px 0; color:var(--text-primary,#e8f2ec); }
+.offline-audio-seek-label { display:grid; gap:8px; font-size:.85rem; }
+.offline-audio-seek-label input { width:100%; min-height:32px; accent-color:var(--green,#179368); }
+.offline-audio-times { display:flex; justify-content:space-between; font-variant-numeric:tabular-nums; font-size:.8rem; }
+@media(max-width:360px){ .offline-audio-item { flex-wrap:wrap; } .offline-audio-item > div { flex-basis:100%; } }
