@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v126";
+const CACHE_NAME = "zad-muslim-v128";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/app-developer.js?v=2",
@@ -37,8 +37,8 @@ const ASSETS_TO_CACHE = [
   "./assets/fonts/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscQyyS4J0.woff2",
   "./assets/fonts/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscRiyS.woff2",
   "./assets/fonts/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscSCyS4J0.woff2",
-  "./assets/js/reading-font.js?v=4",
-  "./assets/css/reading-font.css?v=3",
+  "./assets/js/reading-font.js?v=6",
+  "./assets/css/reading-font.css?v=4",
   "./assets/js/ask-zad.js?v=8",
   "./assets/js/ask-zad-knowledge.js?v=3",
   "./assets/css/ask-zad.css?v=5",
@@ -57,7 +57,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/location-service.js?v=1",
   "./assets/css/style.css?v=100",
   "./assets/js/theme-controller.js",
-  "./assets/css/user-tools.css?v=4",
+  "./assets/css/user-tools.css?v=5",
   "./assets/js/data.js",
   "./assets/js/azkar-data.js?v=10",
   "./assets/js/asmaa-allah-data.js?v=1",
@@ -79,7 +79,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/mood-compass.js?v=1",
   "./assets/js/smart-tasbih.js?v=1",
   "./assets/js/prayer-guide.js?v=1",
-  "./assets/js/user-tools.js?v=10",
+  "./assets/js/user-tools.js?v=11",
   "./assets/js/zakat-calculator.js?v=1",
   "./assets/js/nearby-mosques.js?v=11",
   "./assets/js/wall-of-duas.js?v=1",
@@ -87,12 +87,12 @@ const ASSETS_TO_CACHE = [
   "./index.html",
   "./services.html",
   "./settings.html",
-  "./assets/js/settings-review.js?v=4",
-  "./assets/css/settings-review.css?v=2",
+  "./assets/js/settings-review.js?v=5",
+  "./assets/css/settings-review.css?v=5",
   "./assets/js/prayer-cities.js?v=1",
   "./privacy.html",
-  "./assets/js/user-tools.js?v=10",
-  "./assets/css/user-tools.css?v=4",
+  "./assets/js/user-tools.js?v=11",
+  "./assets/css/user-tools.css?v=5",
   "./assets/css/style.css",
   "./assets/images/logo.png",
   "./assets/js/theme-controller.js",

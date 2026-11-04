@@ -9,7 +9,7 @@
         'zad_khatma_streak_data', 'zad_7days_challenge_progress', 'zad_quick_tasbeeh_count',
         'tasbeeh_lifetime_total', 'zadmuslim-theme', 'sadqah_theme', 'selected_prayer_city',
         'user_manually_selected_city', 'smart_notify_settings', 'zad_enabled_prayers',
-        'zad_prayer_method', 'zad_prayer_school', 'zad_font_size', 'zad_favorites',
+        'zad_prayer_method', 'zad_prayer_school', 'zad_font_size', 'zad_reading_preferences', 'zad_favorites',
         'zadTasks', 'zad_setup_done', 'spiritual_garden_streak', 'wird_streak_history', 'counter', 'total_dhikr_count',
         'zad_selected_muazzin', 'adhan_sound_enabled', 'smart_notify_configured', 'zad_hijri_offset',
         'zad_zakat_currency', 'zad_zakat_nisab_basis', 'zad_sticky_prayer_notification', 'zad_media_bookmarks', 'zad_media_progress',
@@ -174,8 +174,8 @@
     }
 
     function applyFont() {
-        const size = store.getItem('zad_font_size') || 'normal';
-        document.documentElement.dataset.readingSize = ['normal', 'large', 'larger'].includes(size) ? size : 'normal';
+        document.documentElement.removeAttribute('data-reading-size');
+        root.ZadReadingSettings?.refresh();
     }
 
     function hasCurrentPrayerTimes() {
@@ -766,14 +766,7 @@
                       </select>
                     </div>
 
-                    <div class="zad-form-group">
-                      <label for="zad-font"><i class="fa-solid fa-font text-gold"></i> حجم النصوص العامة:</label>
-                      <select id="zad-font">
-                        <option value="normal">عادي (الافتراضي)</option>
-                        <option value="large">كبير (مريح للعين)</option>
-                        <option value="larger">كبير جدًا (قراءة واضحة)</option>
-                      </select>
-                    </div>
+                    <p><a class="btn outline" href="settings.html#settings-reading-section">الخط والقراءة</a></p>
                   </div>
 
                   <fieldset id="zad-favorite-choices">
@@ -1085,6 +1078,8 @@
                 store.removeItem('zad_prayer_method');
                 store.removeItem('zad_prayer_school');
                 store.removeItem('zad_font_size');
+                store.removeItem('zad_reading_preferences');
+                for (const group of ['azkar','hadith']) { store.removeItem('zad_reading_font_'+group); store.removeItem('zad_reading_font_'+group+'_options'); }
                 store.removeItem('zad_hijri_offset');
                 store.removeItem('zadmuslim-theme');
                 store.removeItem('zad_favorites');

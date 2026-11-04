@@ -5,28 +5,6 @@ function init() {
  const service=()=>window.NativeAdhanService;
  const platform=window.Capacitor?.getPlatform?.();
  const native=window.Capacitor?.isNativePlatform?.();
- const font=$('zad-font')?.closest('.zad-form-group');
- if(font) {
-  const section=document.createElement('section'); section.id='settings-reading-section';section.className='settings-section-card';
-  section.innerHTML='<div class="settings-section-title">القراءة والمظهر</div><p class="settings-section-desc">حجم النصوص العامة للشروحات والنوافذ منفصل عن خط الأذكار والأحاديث. تُحفظ اختياراتك تلقائيًا.</p>';
-  const fontLabel=font.querySelector('label');if(fontLabel)fontLabel.textContent='حجم النصوص العامة';
-  const fontHint=document.createElement('p');fontHint.className='settings-section-desc';fontHint.id='settings-general-font-hint';fontHint.textContent='يغيّر حجم الشروحات والنصوص العامة فقط. للمصحف والأذكار والأحاديث إعدادات قراءة مستقلة.';
-  $('zad-font').setAttribute('aria-describedby',fontHint.id);
-  section.append(font,fontHint);
-  const links=document.createElement('div');links.className='settings-reading-links';
-  for(const item of [
-   {title:'خط الأذكار وتشكيلها',description:'نوع الخط، حجم نص الذكر، وإظهار التشكيل أو إخفاؤه.',href:'services.html?reading=azkar#azkar'},
-   {title:'خط الأحاديث وتشكيلها',description:'نوع الخط وحجم نصوص الأحاديث والتشكيل، باختيار مستقل عن الأذكار.',href:'index.html?reading=hadith#sadaqa'}
-  ]){
-   const link=document.createElement('a');link.className='settings-reading-link';link.href=item.href;
-   const title=document.createElement('strong');title.textContent=item.title;
-   const description=document.createElement('span');description.textContent=item.description;
-   const action=document.createElement('span');action.className='settings-reading-link-action';action.textContent='فتح إعدادات القراءة ←';
-   link.append(title,description,action);links.append(link);
-  }
-  section.append(links);$('settings-prayer-timing-section').after(section);
-  const link=document.createElement('a');link.className='settings-nav-chip';link.href='#settings-reading-section';link.textContent='القراءة والمظهر';document.querySelector('.settings-nav-strip')?.append(link);
- }
  const notice=document.createElement('p');notice.className='settings-autosave-note';notice.textContent='تُحفظ التغييرات تلقائيًا. حالة التنبيهات أدناه توضّح هل تم تطبيقها في الهاتف.';
  document.querySelector('.settings-nav-strip')?.after(notice);
  document.querySelectorAll('.settings-section-card').forEach(section=>{

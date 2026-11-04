@@ -665,19 +665,6 @@ body.light-theme .zad-personal-panel p {
     font-size: 0.75rem;
 }
 
-/* توافق أحجام خطوط القراءة */
-html[data-reading-size=large] .panel p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text),
-html[data-reading-size=large] .modal p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text) {
-    font-size: 1.2rem !important;
-    line-height: 2 !important;
-}
-
-html[data-reading-size=larger] .panel p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text),
-html[data-reading-size=larger] .modal p:not(.reading-text-custom):not(.reading-font-preview):not(.azkar-text) {
-    font-size: 1.4rem !important;
-    line-height: 2.1 !important;
-}
-
 :focus-visible {
     outline: 2px solid var(--gold-400, #d4af37) !important;
     outline-offset: 2px;
@@ -704,8 +691,6 @@ html[data-reading-size=larger] .modal p:not(.reading-text-custom):not(.reading-f
 }
 
 .settings-fav-card{font:inherit;text-align:right;width:100%;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-html[data-reading-size=large] .settings-section-desc{font-size:1.1rem;line-height:1.9}
-html[data-reading-size=larger] .settings-section-desc{font-size:1.25rem;line-height:2}
 @media(max-width:768px){
   .features.quick-access-grid{grid-template-columns:repeat(var(--shortcut-columns,4),minmax(0,1fr))!important;gap:8px!important}
   .app-quick-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}

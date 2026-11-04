@@ -1,161 +1,94 @@
-(function () {
+(function(root){
     'use strict';
-    const groups = [
-        { name: 'azkar', label: 'خط الأذكار', selector: '.azkar-text', host: '#azkar .container' },
-        { name: 'hadith', label: 'خط الأحاديث', selector: '.hadith-text, .sadaqa-hadith-text, #wisdom-hadith-text, .pg-prohibition-hadith', host: '.pg-card-body, .sadaqa-hadith-card, section' }
-    ];
-    const fonts = { amiri: ['أميري', 'Amiri'], naskh: ['نسخ', 'Noto Naskh Arabic'], scheherazade: ['شهرزاد', 'Scheherazade New'], cairo: ['القاهرة', 'Cairo'] };
-    // Leave combining hamza and madda intact: these are parts of letters.
-    const stripMarks = text => text.replace(/[\u0610-\u061A\u064B-\u0652\u0656-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
-    let initialized = false;
-    function init() {
-        if (initialized) return;
-        initialized = true;
-        groups.forEach(group => {
-            const key = 'zad_reading_font_' + group.name;
-            let size = 100;
-            try {
-                const saved = Number(localStorage.getItem(key));
-                if (Number.isFinite(saved) && saved >= 100 && saved <= 200) size = Math.round(saved / 10) * 10;
-            } catch (_) { /* Reading controls also work without storage. */ }
-            let font = 'amiri';
-            let showMarks = true;
-            try {
-                const saved = JSON.parse(localStorage.getItem(key + '_options') || '{}');
-                if (saved && Object.hasOwn(fonts, saved.font)) font = saved.font;
-                if (saved && typeof saved.showMarks === 'boolean') showMarks = saved.showMarks;
-            } catch (_) {}
-            const originals = new WeakMap();
-            function renderText(node) {
-                const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
-                let text;
-                while ((text = walker.nextNode())) {
-                    const previous = originals.get(text);
-                    const original = previous && text.data === previous.rendered ? previous.original : text.data;
-                    const rendered = showMarks ? original : stripMarks(original);
-                    originals.set(text, { original, rendered });
-                    if (text.data !== rendered) text.data = rendered;
-                }
-            }
-            function save() {
-                try {
-                    localStorage.setItem(key, String(size));
-                    localStorage.setItem(key + '_options', JSON.stringify({ font, showMarks }));
-                } catch (_) {}
-                paint();
-            }
-            const texts = new Map();
-            const toolbars = new Map();
-            let deepLinkOpened = false;
-            function paint() {
-                texts.forEach((base, node) => {
-                    node.style.fontSize = `calc(${base}rem * ${size / 100})`;
-                    node.style.overflowWrap = 'anywhere';
-                    node.style.fontFamily = `'${fonts[font][1]}', serif`;
-                    renderText(node);
-                });
-                toolbars.forEach(bar => {
-                    const output = bar.querySelector('output');
-                    if (output.textContent !== size + '٪') output.textContent = size + '٪';
-                    bar.querySelector('select').value = font;
-                    bar.querySelector('input').checked = showMarks;
-                    const preview = bar.querySelector('.reading-font-preview');
-                    preview.style.fontFamily = `'${fonts[font][1]}', serif`;
-                    preview.style.fontSize = `${1.3 * size / 100}rem`;
-                    const sample = 'اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ';
-                    const sampleText = showMarks ? sample : stripMarks(sample);
-                    if (preview.textContent !== sampleText) preview.textContent = sampleText;
-                    bar.querySelector('[data-step="-10"]').disabled = size === 100;
-                    bar.querySelector('[data-step="10"]').disabled = size === 200;
-                });
-            }
-            function scan() {
-                if (!window.document) return;
-                let changed = false;
-                document.querySelectorAll(group.selector).forEach(node => {
-                    if (texts.has(node)) { renderText(node); return; }
-                    const host = node.closest(group.host) || node.parentElement;
-                    if (!host) return;
-                    node.classList.add('reading-text-custom');
-                    texts.set(node, parseFloat(getComputedStyle(node).fontSize) / parseFloat(getComputedStyle(document.documentElement).fontSize));
-                    if (!toolbars.has(host)) {
-                        const bar = document.createElement('div');
-                        bar.className = 'reading-font-controls';
-                        bar.setAttribute('role', 'group');
-                        bar.setAttribute('aria-label', group.label);
-                        const panelId = 'reading-options-' + group.name + '-' + toolbars.size;
-                        bar.innerHTML = `<div class="reading-font-quick"><button type="button" data-step="-10" aria-label="تصغير ${group.label}"><span aria-hidden="true">أ −</span></button><button type="button" data-step="10" aria-label="تكبير ${group.label}"><span aria-hidden="true">أ +</span></button><output aria-label="حجم الخط" aria-live="polite"></output><button type="button" class="reading-font-toggle" data-toggle aria-expanded="false" aria-controls="${panelId}"><span aria-hidden="true">⚙</span> الخط والتشكيل</button></div><p class="reading-font-hint" hidden>ظبّط الخط والتشكيل لقراءة أريح</p><div class="reading-font-panel" id="${panelId}" hidden><label class="reading-font-choice">نوع الخط<select aria-label="نوع ${group.label}">${Object.entries(fonts).map(([value, item]) => `<option value="${value}">${item[0]}</option>`).join('')}</select></label><label class="reading-font-marks"><input type="checkbox"> إظهار التشكيل</label><p class="reading-font-preview" dir="rtl"></p><button type="button" data-reset>استعادة الافتراضي</button></div>`;
-                        const hint = bar.querySelector('.reading-font-hint');
-                        const hintKey = key + '_hint_seen';
-                        function dismissHint() {
-                            hint.hidden = true;
-                            try { localStorage.setItem(hintKey, '1'); } catch (_) {}
-                        }
-                        let hintSeen = false;
-                        try { hintSeen = localStorage.getItem(hintKey) === '1'; } catch (_) {}
-                        if (!hintSeen) {
-                            if (typeof IntersectionObserver === 'function') {
-                                const observer = new IntersectionObserver(entries => {
-                                    if (!entries.some(entry => entry.isIntersecting)) return;
-                                    hint.hidden = false;
-                                    try { localStorage.setItem(hintKey, '1'); } catch (_) {}
-                                    observer.disconnect();
-                                });
-                                observer.observe(bar);
-                            } else {
-                                hint.hidden = false;
-                                try { localStorage.setItem(hintKey, '1'); } catch (_) {}
-                            }
-                        }
-                        bar.addEventListener('change', event => {
-                            if (event.target.matches('select') && Object.hasOwn(fonts, event.target.value)) font = event.target.value;
-                            if (event.target.matches('input')) showMarks = event.target.checked;
-                            save();
-                        });
-                        bar.addEventListener('click', event => {
-                            const button = event.target.closest('button');
-                            if (!button) return;
-                            dismissHint();
-                            if (button.hasAttribute('data-toggle')) {
-                                const expanded = button.getAttribute('aria-expanded') !== 'true';
-                                button.setAttribute('aria-expanded', String(expanded));
-                                bar.querySelector('.reading-font-panel').hidden = !expanded;
-                                return;
-                            }
-                            size = button.hasAttribute('data-reset') ? 100 : Math.max(100, Math.min(200, size + Number(button.dataset.step)));
-                            if (button.hasAttribute('data-reset')) { font = 'amiri'; showMarks = true; }
-                            save();
-                        });
-                        const header = host.querySelector(':scope > .section-header');
-                        if (header) header.after(bar);
-                        else host.prepend(bar);
-                        toolbars.set(host, bar);
-                        if (!deepLinkOpened && new URLSearchParams(location.search).get('reading') === group.name) {
-                            deepLinkOpened = true;
-                            bar.querySelector('[data-toggle]').click();
-                            setTimeout(() => {
-                                if (!bar.isConnected) return;
-                                bar.scrollIntoView?.({ block: 'center' });
-                                bar.querySelector('[data-toggle]').focus({ preventScroll: true });
-                            }, 0);
-                        }
-                    }
-                    changed = true;
-                });
-                texts.forEach((_, node) => { if (!node.isConnected) texts.delete(node); });
-                toolbars.forEach((_, host) => { if (!host.isConnected) toolbars.delete(host); });
-                if (changed) paint();
-            }
-            scan();
-            new MutationObserver(records => {
-                if (records.some(record => {
-                    const element = record.target.nodeType === 1 ? record.target : record.target.parentElement;
-                    if (element && element.closest('.reading-font-controls')) return false;
-                    return record.type === 'characterData' || record.addedNodes.length || record.removedNodes.length;
-                })) scan();
-            }).observe(document.body, { childList: true, characterData: true, subtree: true });
-        });
+    const KEY='zad_reading_preferences';
+    const fonts={amiri:['أميري','Amiri'],naskh:['نسخ','Noto Naskh Arabic'],scheherazade:['شهرزاد','Scheherazade New'],cairo:['القاهرة','Cairo']};
+    const defaults={size:100,font:'amiri',showMarks:true};
+    const selector=['.azkar-text','.azkar-virtue span','.hadith-text','.sadaqa-hadith-text','#wisdom-hadith-text','#wisdom-hadith-lesson','.hadith-explanation','.hadith-meaning','.hadith-lesson','.pg-prohibition-hadith','.pg-prohibition-explanation','.pg-card-intro','.pg-item-detail','.cat-dua-body','.cat-dua-source','.fasting-dua-text','.mood-dua-text','.mood-dua-note','.dua-text','.cemetery-dua-text','.prophetic-text'].join(',');
+    // Preserve combining hamza and madda, which are parts of letters.
+    const stripMarks=text=>text.replace(/[\u0610-\u061A\u064B-\u0652\u0656-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g,'');
+    const get=key=>{try{return localStorage.getItem(key);}catch{return null;}};
+    function clean(value){
+        const size=Number(value?.size);
+        return {size:Number.isFinite(size)&&size>=100&&size<=200?Math.round(size/10)*10:100,font:Object.prototype.hasOwnProperty.call(fonts,value?.font)?value.font:'amiri',showMarks:typeof value?.showMarks==='boolean'?value.showMarks:true};
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-    else init();
-})();
+    function load(){
+        const raw=get(KEY);
+        if(raw!==null){try{return clean(JSON.parse(raw));}catch{return {...defaults};}}
+        for(const group of ['azkar','hadith']){
+            const size=get('zad_reading_font_'+group),options=get('zad_reading_font_'+group+'_options');
+            if(size===null&&options===null)continue;
+            let parsed={};try{parsed=JSON.parse(options)||{};}catch{}
+            return clean({...parsed,size:size===null?100:Number(size)});
+        }
+        return {...defaults,size:({large:120,larger:140})[get('zad_font_size')]||100};
+    }
+    let preferences=load(),initialized=false,controls;
+    const texts=new Map(),originals=new WeakMap();
+    function write(){try{localStorage.setItem(KEY,JSON.stringify(preferences));}catch{}}
+    function renderText(node){
+        const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);let text;
+        while((text=walker.nextNode())){
+            if(text.parentElement?.closest('button,select,input,textarea,a,svg,[aria-hidden="true"]'))continue;
+            const previous=originals.get(text);
+            const original=previous&&text.data===previous.rendered?previous.original:text.data;
+            const rendered=preferences.showMarks?original:stripMarks(original);
+            originals.set(text,{original,rendered});if(text.data!==rendered)text.data=rendered;
+        }
+    }
+    function apply(node,base){
+        node.style.fontFamily=`'${fonts[preferences.font][1]}', serif`;
+        node.style.fontSize=`${base*preferences.size/100}rem`;
+        node.style.overflowWrap='anywhere';renderText(node);
+    }
+    function paint(){
+        texts.forEach((base,node)=>{if(!node.isConnected)texts.delete(node);else apply(node,base);});
+        if(!controls?.isConnected)return;
+        controls.querySelector('select').value=preferences.font;
+        controls.querySelector('[data-size]').value=preferences.size;
+        controls.querySelector('[data-size]').setAttribute('aria-valuetext',preferences.size+'٪');
+        const output=controls.querySelector('output'),label=preferences.size+'٪';if(output.textContent!==label)output.textContent=label;
+        controls.querySelector('[data-marks]').checked=preferences.showMarks;
+        controls.querySelector('[data-step="-10"]').disabled=preferences.size===100;
+        controls.querySelector('[data-step="10"]').disabled=preferences.size===200;
+        const preview=controls.querySelector('.reading-font-preview');
+        preview.style.fontFamily=`'${fonts[preferences.font][1]}', serif`;
+        preview.style.fontSize=1.3*preferences.size/100+'rem';
+        const sample='اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ';
+        const text=preferences.showMarks?sample:stripMarks(sample);if(preview.textContent!==text)preview.textContent=text;
+    }
+    function update(value){preferences=clean({...preferences,...value});write();paint();}
+    function mount(){
+        const host=document.getElementById('settings-reading-controls');if(!host||controls?.isConnected)return;
+        controls=document.createElement('div');controls.className='reading-font-controls';controls.setAttribute('role','group');controls.setAttribute('aria-label','الخط والقراءة');
+        controls.innerHTML=`<label class="reading-font-choice">نوع الخط<select aria-label="نوع خط القراءة">${Object.entries(fonts).map(([value,item])=>`<option value="${value}">${item[0]}</option>`).join('')}</select></label><label class="reading-font-size-label" for="reading-size-slider">حجم الخط <output for="reading-size-slider" aria-live="polite"></output></label><div class="reading-font-size"><button type="button" data-step="-10" aria-label="تصغير خط القراءة">أ −</button><input id="reading-size-slider" data-size type="range" min="100" max="200" step="10" aria-label="حجم خط القراءة"><button type="button" data-step="10" aria-label="تكبير خط القراءة">أ +</button></div><label class="reading-font-marks"><input type="checkbox" data-marks> إظهار التشكيل</label><p class="reading-font-preview" aria-label="معاينة القراءة" dir="rtl"></p><button type="button" data-reset>استعادة الافتراضي</button><p class="reading-font-save-note" role="status" aria-live="polite"></p>`;
+        const saved=()=>{controls.querySelector('.reading-font-save-note').textContent='تم حفظ إعدادات القراءة وتطبيقها.';};
+        controls.addEventListener('change',event=>{if(event.target.matches('select'))update({font:event.target.value});else if(event.target.matches('[data-marks]'))update({showMarks:event.target.checked});else if(event.target.matches('[data-size]'))update({size:Number(event.target.value)});else return;saved();});
+        controls.querySelector('[data-size]').addEventListener('input',event=>update({size:Number(event.target.value)}));
+        controls.addEventListener('click',event=>{const button=event.target.closest('button');if(!button)return;if(button.hasAttribute('data-reset'))update(defaults);else update({size:Math.max(100,Math.min(200,preferences.size+Number(button.dataset.step)))});saved();});
+        host.append(controls);paint();
+    }
+    function scan(){
+        if(!root.document)return;
+        document.querySelectorAll(selector).forEach(node=>{
+            if(node.closest('#quran-khatma,.golden-quran-page,.reading-font-controls'))return;
+            if(!texts.has(node)){
+                node.classList.add('reading-text-custom');
+                const base=parseFloat(getComputedStyle(node).fontSize)/parseFloat(getComputedStyle(document.documentElement).fontSize);
+                texts.set(node,Number.isFinite(base)&&base>0?base:1.2);
+            }
+            apply(node,texts.get(node));
+        });
+        texts.forEach((_,node)=>{if(!node.isConnected)texts.delete(node);});mount();
+    }
+    function refresh(){preferences=load();paint();scan();}
+    function init(){
+        if(initialized)return;initialized=true;document.documentElement.removeAttribute('data-reading-size');write();scan();
+        new MutationObserver(records=>{
+            if(records.some(record=>{const node=record.target.nodeType===1?record.target:record.target.parentElement;return !node?.closest('.reading-font-controls')&&(record.type==='characterData'||record.addedNodes.length||record.removedNodes.length);}))scan();
+        }).observe(document.body,{childList:true,subtree:true,characterData:true});
+        root.addEventListener('storage',event=>{if(event.key===KEY||event.key===null)refresh();});
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+    }
+    root.ZadReadingSettings={get:()=>({...preferences}),set:update,refresh,key:KEY};
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})(window);

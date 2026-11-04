@@ -58,13 +58,14 @@ test('services renders settings, saves choices and handles offline timings',asyn
         await new Promise(r=>setTimeout(r,0));
         assert.equal(d.getElementById('notifications-modal').classList.contains('open'),true);
         assert.equal(d.getElementById('notif-view-settings').style.display,'block');
-        d.getElementById('zad-font').value='large';
+        assert.equal(d.getElementById('zad-font'),null);
+        w.ZadReadingSettings.set({size:120});
         d.getElementById('zad-method').value='5';
         d.getElementById('zad-school').value='1';
         d.getElementById('zad-save-settings').click();
         assert.equal(w.localStorage.getItem('zad_prayer_method'),'5');
         assert.equal(w.localStorage.getItem('zad_prayer_school'),'1');
-        assert.equal(d.documentElement.dataset.readingSize,'large');
+        assert.equal(w.ZadReadingSettings.get().size,120);
         assert.match(d.getElementById('zad-tools-status').textContent,/تم حفظ/);
         d.getElementById('btn-close-notifications-modal').click();
         assert.equal(d.getElementById('notifications-modal').classList.contains('open'),false);
@@ -107,11 +108,11 @@ test('standalone settings persist shortcuts independently of Save, theme, and pr
         d.getElementById('zad-city').value='London';
         d.getElementById('zad-method').value='3';
         d.getElementById('zad-school').value='1';
-        d.getElementById('zad-font').value='larger';
+        w.ZadReadingSettings.set({size:140});
         await d.getElementById('zad-save-settings').onclick();
         assert.equal(w.localStorage.getItem('zad_favorites'),favorites);
         assert.equal(w.localStorage.getItem('selected_prayer_city'),'London');
-        assert.equal(d.documentElement.dataset.readingSize,'larger');
+        assert.equal(w.ZadReadingSettings.get().size,140);
         assert.equal(new URL(d.getElementById('btn-settings-back').href).pathname,'/services.html');
         assert.equal(new URL(d.getElementById('settings-open-notifications').href).search,'?panel=notifications');
         saved=Object.fromEntries(Object.keys(w.localStorage).map(k=>[k,w.localStorage.getItem(k)]));
@@ -313,11 +314,11 @@ test('settings groups expand from navigation and reading settings are separated'
   assert.equal(d.querySelector('#settings-reading-section details').open,false);
   d.querySelector('a[href="#settings-reading-section"]').click();
   assert.equal(d.querySelector('#settings-reading-section details').open,true);
-  assert.ok(d.querySelector('#settings-reading-section #zad-font'));
-  assert.equal(d.querySelector('label[for="zad-font"]').textContent,'حجم النصوص العامة');
-  assert.ok(d.getElementById('zad-font').getAttribute('aria-describedby'));
-  assert.ok(d.querySelector('#settings-reading-section a[href="services.html?reading=azkar#azkar"]'));
-  assert.ok(d.querySelector('#settings-reading-section a[href="index.html?reading=hadith#sadaqa"]'));
+  assert.equal(d.getElementById('zad-font'),null);
+  assert.equal(d.querySelectorAll('.reading-font-controls').length,1);
+  assert.ok(d.querySelector('#settings-reading-section [data-size]'));
+  assert.equal(d.querySelector('#settings-reading-section select').options.length,4);
+  assert.equal(d.querySelector('.settings-reading-links'),null);
   assert.equal(d.getElementById('zad-save-settings').hidden,true);
   assert.deepEqual(errors,[]);
  } finally {dom.window.close();}

@@ -13,6 +13,8 @@
     font-display: swap;
 }
 .reading-font-controls {
+    display: grid;
+    gap: 16px;
     margin: 12px 0 20px;
     color: var(--text-primary);
     font-family: var(--font-body, sans-serif);
@@ -46,3 +48,7 @@
 .reading-font-controls button:disabled { opacity: 0.45; cursor: default; }
 .reading-font-controls button:focus-visible { outline: 2px solid var(--gold-400, #b58b27); outline-offset: 3px; }
 .reading-font-controls output { min-width: 42px; text-align: center; }
+.reading-font-size input[type="range"] { flex: 1; min-width: 60px; min-height: 44px; accent-color: var(--green, #08634c); }
+.reading-font-size-label { display: flex; justify-content: space-between; gap: 8px; }
+.reading-font-choice select { flex: 1; }
+.reading-font-save-note { margin: 0; color: var(--text-secondary, inherit); font-size: .85rem; }

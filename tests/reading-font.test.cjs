@@ -1,107 +1,53 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const { JSDOM } = require('jsdom');
-const source = fs.readFileSync('assets/js/reading-font.js', 'utf8');
-const original = 'أَذْكَارٌ إِيمَانٌ آيَةٌ ا\u0654 ا\u0655 ا\u0653';
-function setup(saved = {}, url = 'https://reading.test') {
-    const dom = new JSDOM('<section id="azkar"><div class="container"><p class="azkar-text" style="font-size:24px"></p></div></section><section><div class="sadaqa-hadith-card"><p class="sadaqa-hadith-text">حَدِيثٌ</p></div></section>', { url, runScripts: 'outside-only' });
-    const w = dom.window;
-    w.document.documentElement.style.fontSize = '16px';
-    w.document.querySelector('.azkar-text').innerHTML = `<strong>${original}</strong>`;
-    for (const [key, value] of Object.entries(saved)) w.localStorage.setItem(key, value);
-    w.eval(source);
-    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
-    return dom;
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
+const source=fs.readFileSync('assets/js/reading-font.js','utf8');
+const text='أَذْكَارٌ إِيمَانٌ آيَةٌ ا\u0654 ا\u0655 ا\u0653';
+function setup(saved={},settings=true,legacy=false){
+ const dom=new JSDOM((settings?'<section><div id="settings-reading-controls"></div></section>':'')+'<p class="azkar-text" style="font-size:24px"><strong>'+text+'</strong></p><p class="sadaqa-hadith-text" style="font-size:20px">حَدِيثٌ</p><div class="cat-dua-body">دُعَاءٌ</div><div class="pg-prohibition-explanation">شَرْحٌ</div><div class="azkar-virtue"><span>فَضْلٌ</span></div><div id="quran-khatma"><p class="hadith-text">قُرْآنٌ</p></div><button>زِرٌّ</button>',{url:'https://reading.test',runScripts:'outside-only'});
+ const w=dom.window;w.document.documentElement.style.fontSize='16px';if(legacy)w.Object.hasOwn=undefined;for(const [k,v]of Object.entries(saved))w.localStorage.setItem(k,v);w.eval(source);w.document.dispatchEvent(new w.Event('DOMContentLoaded'));return dom;
 }
-const tick = w => new Promise(resolve => w.setTimeout(resolve, 0));
-test('diacritics restore exactly, preserve markup and letter hamzas, and follow replaced content', async () => {
-    const d = setup(), w = d.window;
-    try {
-        const bar = w.document.querySelector('.reading-font-controls');
-        const toggle = bar.querySelector('input');
-        const text = w.document.querySelector('.azkar-text');
-        toggle.click();
-        assert.equal(text.textContent, 'أذكار إيمان آية ا\u0654 ا\u0655 ا\u0653');
-        assert.ok(text.querySelector('strong'));
-        assert.equal(w.document.querySelector('.sadaqa-hadith-text').textContent, 'حَدِيثٌ');
-        toggle.click();
-        assert.equal(text.textContent, original);
-        toggle.click();
-        text.querySelector('strong').firstChild.data = 'ذِكْرٌ جَدِيدٌ';
-        await tick(w);
-        assert.equal(text.textContent, 'ذكر جديد');
-        toggle.click();
-        assert.equal(text.textContent, 'ذِكْرٌ جَدِيدٌ');
-    } finally { w.close(); }
+const tick=w=>new Promise(resolve=>w.setTimeout(resolve,0));
+test('reading settings work without Object.hasOwn on older supported iOS engines',()=>{
+ const d=setup({zad_reading_preferences:'{"size":140,"font":"cairo","showMarks":true}'},true,true),w=d.window;
+ try{assert.equal(w.ZadReadingSettings.get().font,'cairo');w.ZadReadingSettings.set({font:'naskh',size:160,showMarks:false});assert.equal(w.document.querySelector('select').value,'naskh');assert.equal(w.document.querySelector('output').textContent,'160٪');assert.equal(w.document.querySelector('.sadaqa-hadith-text').textContent,'حديث');}finally{w.close();}
 });
-test('four fonts, saved preferences, dynamic cards, size bounds and full reset', async () => {
-    const d = setup({ zad_reading_font_azkar: '140', zad_reading_font_azkar_options: JSON.stringify({font:'naskh', showMarks:false}) }), w = d.window;
-    try {
-        const bar = w.document.querySelector('.reading-font-controls');
-        const select = bar.querySelector('select');
-        const panel = bar.querySelector('.reading-font-panel');
-        const toggle = bar.querySelector('[data-toggle]');
-        assert.equal(panel.hidden, true);
-        assert.equal(bar.querySelector('[data-step="10"]').closest('[hidden]'), null);
-        assert.equal(bar.querySelector('.reading-font-hint').hidden, false);
-        toggle.click();
-        assert.equal(panel.hidden, false);
-        assert.equal(toggle.getAttribute('aria-expanded'), 'true');
-        assert.equal(bar.querySelector('output').textContent, '140٪');
-        assert.equal(bar.querySelector('.reading-font-hint').hidden, true);
-        assert.equal(w.localStorage.getItem('zad_reading_font_azkar_hint_seen'), '1');
-        toggle.click();
-        assert.equal(panel.hidden, true);
-        assert.equal(select.options.length, 4);
-        assert.equal(select.value, 'naskh');
-        assert.equal(bar.querySelector('input').checked, false);
-        for (const value of ['scheherazade', 'cairo', 'amiri', 'naskh']) {
-            select.value = value;
-            select.dispatchEvent(new w.Event('change', {bubbles:true}));
-            assert.equal(JSON.parse(w.localStorage.getItem('zad_reading_font_azkar_options')).font, value);
-        }
-        const fresh = w.document.createElement('p');
-        fresh.className = 'azkar-text'; fresh.style.fontSize = '24px'; fresh.textContent = 'ذِكْرٌ';
-        w.document.querySelector('#azkar .container').append(fresh);
-        await tick(w);
-        assert.equal(fresh.textContent, 'ذكر');
-        assert.ok(fresh.style.fontFamily.includes('Noto Naskh Arabic'));
-        assert.equal(fresh.style.fontSize, w.document.querySelector('.azkar-text').style.fontSize);
-        assert.equal(w.document.querySelectorAll('.reading-font-controls').length, 2);
-        for(let i=0;i<20;i++) bar.querySelector('[data-step="10"]').click();
-        assert.equal(bar.querySelector('output').textContent, '200٪');
-        assert.ok(bar.querySelector('[data-step="10"]').disabled);
-        bar.querySelector('[data-reset]').click();
-        assert.equal(select.value, 'amiri');
-        assert.equal(fresh.textContent, 'ذِكْرٌ');
-        assert.equal(bar.querySelector('output').textContent, '100٪');
-    } finally { w.close(); }
+test('one settings panel controls every reading category and preserves Quran, buttons and markup',async()=>{
+ const d=setup(),w=d.window;
+ try{
+  assert.equal(w.document.querySelectorAll('.reading-font-controls').length,1);
+  assert.ok(w.document.querySelector('#settings-reading-controls .reading-font-controls'));
+  const toggle=w.document.querySelector('[data-marks]');toggle.click();
+  assert.equal(w.document.querySelector('.azkar-text').textContent,'أذكار إيمان آية ا\u0654 ا\u0655 ا\u0653');
+  assert.equal(w.document.querySelector('.sadaqa-hadith-text').textContent,'حديث');
+  assert.equal(w.document.querySelector('.cat-dua-body').textContent,'دعاء');
+  assert.equal(w.document.querySelector('.pg-prohibition-explanation').textContent,'شرح');
+  assert.equal(w.document.querySelector('.azkar-virtue span').textContent,'فضل');
+  assert.equal(w.document.querySelector('#quran-khatma p').textContent,'قُرْآنٌ');
+  assert.equal(w.document.querySelector('#quran-khatma p').style.fontSize,'');
+  assert.equal(w.document.querySelector('body > button').textContent,'زِرٌّ');
+  assert.ok(w.document.querySelector('.azkar-text strong'));
+  toggle.click();assert.equal(w.document.querySelector('.azkar-text').textContent,text);
+  toggle.click();w.document.querySelector('.azkar-text strong').firstChild.data='ذِكْرٌ جَدِيدٌ';await tick(w);
+  assert.equal(w.document.querySelector('.azkar-text').textContent,'ذكر جديد');toggle.click();assert.equal(w.document.querySelector('.azkar-text').textContent,'ذِكْرٌ جَدِيدٌ');
+ }finally{w.close();}
 });
-test('reading hint stays hidden on later visits', () => {
-    const d = setup({zad_reading_font_azkar_hint_seen: '1'});
-    try { assert.equal(d.window.document.querySelector('.reading-font-hint').hidden, true); }
-    finally { d.window.close(); }
+test('four fonts, shared size and shaping persist across pages without injecting controls into content',async()=>{
+ const d=setup(),w=d.window;let saved;
+ try{
+  const select=w.document.querySelector('select');assert.equal(select.options.length,4);select.value='naskh';select.dispatchEvent(new w.Event('change',{bubbles:true}));
+  const slider=w.document.querySelector('[data-size]');slider.value='150';slider.dispatchEvent(new w.Event('input',{bubbles:true}));w.document.querySelector('[data-marks]').click();
+  const item=w.document.createElement('p');item.className='mood-dua-text';item.textContent='دُعَاءٌ';w.document.body.append(item);await tick(w);assert.equal(item.textContent,'دعاء');assert.ok(item.style.fontFamily.includes('Noto Naskh Arabic'));
+  assert.equal(w.document.querySelector('.azkar-text').style.fontSize,'2.25rem');
+  saved={zad_reading_preferences:w.localStorage.getItem('zad_reading_preferences')};
+ }finally{w.close();}
+ const other=setup(saved,false);
+ try{assert.equal(other.window.document.querySelectorAll('.reading-font-controls').length,0);assert.equal(other.window.document.querySelector('.sadaqa-hadith-text').textContent,'حديث');assert.ok(other.window.document.querySelector('.cat-dua-body').style.fontFamily.includes('Noto Naskh Arabic'));assert.equal(other.window.document.querySelector('.azkar-text').style.fontSize,'2.25rem');}finally{other.window.close();}
 });
-test('settings links open only the requested reading controls without changing saved choices', async () => {
-    for (const name of ['azkar', 'hadith']) {
-        const d = setup({ ['zad_reading_font_' + name]: '150' }, 'https://reading.test/?reading=' + name);
-        try {
-            const bars=d.window.document.querySelectorAll('.reading-font-controls');
-            const index=name==='azkar'?0:1;
-            assert.equal(bars[index].querySelector('.reading-font-panel').hidden,false);
-            assert.equal(bars[1-index].querySelector('.reading-font-panel').hidden,true);
-            assert.equal(bars[index].querySelector('output').textContent,'150٪');
-            assert.equal(d.window.localStorage.getItem('zad_reading_font_' + name),'150');
-            assert.ok(d.window.document.querySelector('.azkar-text').classList.contains('reading-text-custom'));
-            await tick(d.window);
-        } finally { d.window.close(); }
-    }
+test('existing preferences migrate once and reset replaces all old independent options',()=>{
+ for(const [saved,expected]of [[{zad_reading_font_azkar:'150',zad_reading_font_azkar_options:'{"font":"cairo","showMarks":false}'},150],[{zad_font_size:'larger'},140]]){
+  const d=setup(saved);try{const w=d.window;assert.equal(w.ZadReadingSettings.get().size,expected);assert.ok(w.localStorage.getItem('zad_reading_preferences'));w.document.querySelector('[data-reset]').click();assert.equal(w.ZadReadingSettings.get().size,100);assert.equal(w.ZadReadingSettings.get().font,'amiri');assert.equal(w.ZadReadingSettings.get().showMarks,true);w.ZadReadingSettings.refresh();assert.equal(w.ZadReadingSettings.get().size,100);}finally{d.window.close();}
+ }
 });
-test('invalid saved options fall back safely', () => {
-    for (const value of ['null', '{bad', '{"font":"__proto__","showMarks":"no"}']) {
-        const d = setup({zad_reading_font_azkar_options:value});
-        try { assert.equal(d.window.document.querySelector('.reading-font-controls select').value, 'amiri'); }
-        finally { d.window.close(); }
-    }
+test('updated storage applies across open pages and malformed preferences are safe',()=>{
+ const d=setup({zad_reading_preferences:'null'}),w=d.window;
+ try{assert.equal(w.ZadReadingSettings.get().size,100);w.localStorage.setItem('zad_reading_preferences',JSON.stringify({size:170,font:'scheherazade',showMarks:false}));w.dispatchEvent(new w.StorageEvent('storage',{key:'zad_reading_preferences'}));assert.equal(w.document.querySelector('output').textContent,'170٪');assert.equal(w.document.querySelector('.sadaqa-hadith-text').textContent,'حديث');for(let i=0;i<30;i++)w.document.querySelector('[data-step="10"]').click();assert.equal(w.ZadReadingSettings.get().size,200);assert.ok(w.document.querySelector('[data-step="10"]').disabled);}finally{w.close();}
 });
