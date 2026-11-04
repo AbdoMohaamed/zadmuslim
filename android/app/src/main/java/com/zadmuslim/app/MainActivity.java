@@ -29,10 +29,10 @@ public class MainActivity extends BridgeActivity {
             if (manager != null) {
                 NotificationChannel channel = new NotificationChannel(
                     AdhanAlarmReceiver.BROADCAST_CHANNEL_ID,
-                    "رسائل زاد المسلم",
+                    NativeLanguage.text(this, "رسائل زاد المسلم"),
                     NotificationManager.IMPORTANCE_HIGH
                 );
-                channel.setDescription("الإشعارات المرسلة من إدارة زاد المسلم");
+                channel.setDescription(NativeLanguage.text(this, "الإشعارات المرسلة من إدارة زاد المسلم"));
                 channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
                 manager.createNotificationChannel(channel);
             }

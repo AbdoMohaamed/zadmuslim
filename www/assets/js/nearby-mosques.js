@@ -831,7 +831,7 @@ out body center;`;
             const marker = L.marker([m.lat, m.lon], { icon: mosqueIcon });
             const distFormatted = m.distanceKm < 1 ? `${Math.round(m.distanceKm * 1000)} متر` : `${m.distanceKm.toFixed(1)} كم`;
             marker.bindPopup(`
-                <div style="font-family:'Tajawal',sans-serif; text-align:right; direction:rtl; min-width:190px; padding:4px;">
+                <div style="font-family:'Tajawal',sans-serif; text-align:start; direction:inherit; min-width:190px; padding:4px;">
                     <strong style="color:#064034; font-size:14px; display:block; margin-bottom:4px;">${escapeHtml(m.name)}</strong>
                     <div style="font-size:12px; color:#555; margin-bottom:6px;"><i class="fa-solid fa-location-dot text-gold"></i> ${escapeHtml(m.address)}</div>
                     <div style="font-size:12px; font-weight:700; color:#d4af37; margin-bottom:8px;"><i class="fa-solid fa-route"></i> المسافة: ${distFormatted}</div>

@@ -2,6 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <script src="assets/js/i18n-dictionary.js?v=11"></script>
+    <script src="assets/js/i18n.js?v=14"></script>
+    <link rel="stylesheet" href="assets/css/i18n.css?v=6">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>اكتشف خدمات زاد المسلم | دليلك الشامل لجميع الأقسام الإيمانية</title>
@@ -45,20 +48,20 @@
     
     <!-- تنسيقات الموقع المتطابقة مع النموذج المرجعي -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <link rel="stylesheet" href="assets/css/style.css?v=100">
+    <link rel="stylesheet" href="assets/css/style.css?v=105">
     
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
   
-    <link rel="stylesheet" href="assets/css/user-tools.css?v=5">
-<link rel="stylesheet" href="assets/css/radio-player.css?v=5">
+    <link rel="stylesheet" href="assets/css/user-tools.css?v=7">
+<link rel="stylesheet" href="assets/css/radio-player.css?v=6">
 <link rel="stylesheet" href="assets/css/offline-audio.css?v=1">
-<link rel="stylesheet" href="assets/css/quran-reading.css?v=3">
+<link rel="stylesheet" href="assets/css/quran-reading.css?v=4">
 <script src="assets/js/radio-navigation.js?v=3"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
-<link rel="stylesheet" href="assets/css/services-personal.css?v=9">
-<script src="assets/js/services-personal.js?v=4"></script>
+<link rel="stylesheet" href="assets/css/services-personal.css?v=10">
+<script src="assets/js/services-personal.js?v=5"></script>
 <link rel="stylesheet" href="assets/css/ask-zad.css?v=4">
     <link rel="stylesheet" href="assets/css/reading-font.css?v=4">
     <script defer src="assets/js/reading-font.js?v=6"></script>
@@ -77,6 +80,10 @@
                 <a href="#islamic-media">مقتطفات</a>
             </nav>
             <div class="settings-header-actions" style="display: flex; align-items: center; gap: 8px;">
+<label class="zad-language-switch" title="لغة التطبيق">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/></svg>
+ <select data-language-select aria-label="لغة التطبيق"><option value="ar" translate="no" lang="ar">العربية</option><option value="en" translate="no" lang="en">English</option><option value="ur" translate="no" lang="ur">اردو</option></select>
+</label>
                 <button class="btn outline btn-theme-toggle settings-action-btn" id="btn-toggle-theme-nav" title="المظهر النهاري / الليلي" aria-label="تبديل المظهر">
                     <i class="fa-solid fa-circle-half-stroke text-gold" id="theme-toggle-icon"></i>
                 </button>
@@ -433,6 +440,10 @@
          ========================================== -->
     <div id="serviceFocusHeader" class="service-focus-header">
         <div class="shell container service-focus-bar">
+<label class="zad-language-switch" title="لغة التطبيق">
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6h14M5 18h14"/></svg>
+ <select data-language-select aria-label="لغة التطبيق"><option value="ar" translate="no" lang="ar">العربية</option><option value="en" translate="no" lang="en">English</option><option value="ur" translate="no" lang="ur">اردو</option></select>
+</label>
             <button type="button" class="btn-focus-back" id="btnServiceFocusBack" aria-label="رجوع للخدمات" title="رجوع للخدمات" onclick="closeServiceFocusView(true)">
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
@@ -3385,7 +3396,7 @@
 
                     <div class="story-lessons-box" style="padding: 1.2rem; border-radius: var(--radius-md); border-right: 3px solid var(--emerald-400); margin-top: 1.2rem;">
                         <label class="form-label text-emerald-400" style="font-weight: 700; margin-bottom: 0.6rem; display: block;"><i class="fa-solid fa-lightbulb"></i> أهم الدروس والعِبر المستفادة:</label>
-                        <ul id="modal-story-lessons" style="padding-right: 1.2rem; font-size: 0.95rem; line-height: 1.8; margin: 0;">
+                        <ul id="modal-story-lessons" style="padding-inline-start: 1.2rem; font-size: 0.95rem; line-height: 1.8; margin: 0;">
                         </ul>
                     </div>
 
@@ -3445,7 +3456,7 @@
         <!-- ==========================================
         ويدجت إذاعة القرآن الكريم المباشرة (24/7 Live Radio)
         ========================================== -->
-        <script src="assets/js/radio-widget.js?v=3"></script>
+        <script src="assets/js/radio-widget.js?v=4"></script>
         <!-- نافذة مشغل الالمقتطفاتوالبودكاست (Islamic Media Video Modal) -->
         <div class="modal-overlay" id="media-player-modal" role="dialog" aria-modal="true">
             <div class="modal-card modal-card-media-player">
@@ -3631,7 +3642,8 @@
                 document.querySelectorAll('.category-block').forEach(block => {
                     let count = 0;
                     block.querySelectorAll('.service-card').forEach(card => {
-                        const searchable=normalizeServiceSearch((card.querySelector('h3')?.textContent||'')+' '+(card.querySelector('p')?.textContent||'')+' '+(serviceSearchAliases[card.getAttribute('href')]||''));
+                        const canonical=window.ZadI18n?.originalText(card)||card.textContent;
+                        const searchable=normalizeServiceSearch(canonical+' '+card.textContent+' '+(serviceSearchAliases[card.getAttribute('href')]||''));
                         const match = (!query || query.split(/\s+/).every(word=>searchable.includes(word))) && (servicesCategory === 'all' || block.dataset.category === servicesCategory);
                         card.style.display = match ? 'flex' : 'none';
                         if (card.parentElement.classList.contains('service-card-shell')) card.parentElement.hidden=!match;
@@ -3676,6 +3688,7 @@
                 requestAnimationFrame(()=>window.scrollTo({top:servicesScroll,behavior:'instant'}));
             }
             window.addEventListener('pagehide',saveServicesPosition);
+            window.addEventListener('zad:language-change',renderServices);
         </script>
 
 
@@ -3699,27 +3712,27 @@
         <script src="assets/js/media-data.js?v=2"></script>
         <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="assets/js/firebase-config.js"></script>
-        <script src="assets/js/native-adhan-service.js?v=14"></script>
+        <script src="assets/js/native-adhan-service.js?v=15"></script>
         <script src="assets/js/onesignal-service.js?v=4"></script>
         <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=27"></script>
+    <script src="assets/js/app.js?v=29"></script>
         <script src="assets/js/quran.js?v=30"></script>
         <script src="assets/js/offline-audio-catalog.js?v=1"></script>
     <script src="assets/js/offline-audio.js?v=2"></script>
     <script src="assets/js/radio-player.js?v=5"></script>
-    <script src="assets/js/extended-modules.js?v=41"></script>
+    <script src="assets/js/extended-modules.js?v=45"></script>
         <script src="assets/js/smart-khatma.js?v=4"></script>
         <script src="assets/js/share-card-generator.js?v=1"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
         <script src="assets/js/smart-tasbih.js?v=1"></script>
         <script src="assets/js/zakat-calculator.js?v=1"></script>
-        <script src="assets/js/nearby-mosques.js?v=11"></script>
+        <script src="assets/js/nearby-mosques.js?v=12"></script>
         <script src="assets/js/wall-of-duas.js?v=1"></script>
         <script src="assets/js/prayer-guide.js?v=1"></script>
-        <script src="assets/js/app-developer.js?v=2"></script>
+        <script src="assets/js/app-developer.js?v=3"></script>
     <script src="assets/js/ask-zad-knowledge.js?v=2"></script>
-        <script src="assets/js/ask-zad.js?v=8"></script>
+        <script src="assets/js/ask-zad.js?v=9"></script>
 
         <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
         <div class="ayah-action-sheet-overlay" id="ayah-action-sheet" onclick="if(event.target===this)closeAyahActionSheet()">
@@ -4162,6 +4175,6 @@
             });
         </script>
 
-    <script src="assets/js/user-tools.js?v=11"></script>
+    <script src="assets/js/user-tools.js?v=13"></script>
 </body>
 </html>

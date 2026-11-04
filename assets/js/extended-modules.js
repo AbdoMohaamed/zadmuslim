@@ -2285,7 +2285,8 @@ function initEnhancedCategorizedDuas() {
         if (!container) return;
         const card = container.querySelector(".cat-dua-card, .azkar-card");
         const scrollAmount = card ? (card.offsetWidth + 20) : 320;
-        const delta = direction === "left" ? -scrollAmount : scrollAmount;
+        const rtl = (getComputedStyle(container).direction || document.documentElement.dir) === "rtl";
+    const delta = (direction === "left" ? -scrollAmount : scrollAmount) * (rtl ? 1 : -1);
         container.scrollBy({ left: delta, behavior: "smooth" });
     };
 
@@ -2295,7 +2296,8 @@ function initEnhancedCategorizedDuas() {
         if (!container) return;
         const card = container.querySelector(".asmaa-card");
         const scrollAmount = card ? (card.offsetWidth + 16) : 260;
-        const delta = direction === "left" ? -scrollAmount : scrollAmount;
+        const rtl = (getComputedStyle(container).direction || document.documentElement.dir) === "rtl";
+    const delta = (direction === "left" ? -scrollAmount : scrollAmount) * (rtl ? 1 : -1);
         container.scrollBy({ left: delta, behavior: "smooth" });
     };
 
@@ -2590,7 +2592,8 @@ function initIslamicStories() {
         if (!container) return;
         const card = container.querySelector(".story-card");
         const scrollAmount = card ? (card.offsetWidth + 20) : 340;
-        const delta = direction === "left" ? -scrollAmount : scrollAmount;
+        const rtl = (getComputedStyle(container).direction || document.documentElement.dir) === "rtl";
+    const delta = (direction === "left" ? -scrollAmount : scrollAmount) * (rtl ? 1 : -1);
         container.scrollBy({ left: delta, behavior: "smooth" });
     };
 
@@ -2795,13 +2798,13 @@ function initLiveRadioWidgetWithSleepTimer() {
  const Player=nativeRadio?window.ZadNativeRadioPlayer:window.ZadRadioPlayer;
  const player=new Player(audio,({state,station,wanted,error,fallback})=>{
   panel.dataset.state=state;
-  if($('radio-play-label'))$('radio-play-label').textContent=wanted?'إيقاف':'سماع';
+  if($('radio-play-label'))$('radio-play-label').textContent=wanted?'إيقاف':'تشغيل';
   const label=error||(station?.offline&&state==='failed'?'تعذّر تشغيل التلاوة؛ أعد تنزيلها':state==='playing'?(station?.offline?(station.saved===false?'تلاوة':'تلاوة محفوظة'):'مباشر'):(state==='ended'?'اكتملت التلاوة':labels[state]||state));
   document.dispatchEvent(new CustomEvent('zad:radio-state',{detail:{state,station,wanted}}));
   if(statusText)statusText.textContent=label+(fallback?' — مشغّل بديل':'');
   if(alternative)alternative.hidden=!!station?.offline||!!fallback||!['failed','retrying','blocked'].includes(state);
   if(icon)icon.className=wanted?'fa-solid fa-pause':'fa-solid fa-play';
-  if(play){play.title=wanted?'إيقاف':'سماع';play.setAttribute('aria-label',play.title);play.setAttribute('aria-pressed',String(wanted));}
+  if(play){play.title=wanted?'إيقاف':'تشغيل';play.setAttribute('aria-label',play.title);play.setAttribute('aria-pressed',String(wanted));}
   for(const element of [panel,fab,$('btn-toggle-radio-nav')])element?.classList.toggle('is-playing',state==='playing');
   if($('radio-waves'))$('radio-waves').style.display=state==='playing'?'flex':'none';
   if(station){
@@ -3776,10 +3779,9 @@ function initIslamicMediaHub() {
             }
 
             const q = searchQuery.trim().toLowerCase();
-            const matchesSearch = !q ||
-                item.title.toLowerCase().includes(q) ||
-                item.speaker.toLowerCase().includes(q) ||
-                item.desc.toLowerCase().includes(q);
+            const matchesSearch = !q || [item.title,item.speaker,item.desc].some(text =>
+                [text,window.ZadI18n?.t(text,'en'),window.ZadI18n?.t(text,'ur')]
+                    .some(value => typeof value==='string' && value.toLowerCase().includes(q)));
             return matchesCat && matchesSearch;
         });
 
@@ -4242,7 +4244,8 @@ function initIslamicMediaHub() {
         if (!container) return;
         const card = container.querySelector(".media-card");
         const scrollAmount = card ? (card.offsetWidth + 20) : 320;
-        const delta = direction === "left" ? -scrollAmount : scrollAmount;
+        const rtl = (getComputedStyle(container).direction || document.documentElement.dir) === "rtl";
+    const delta = (direction === "left" ? -scrollAmount : scrollAmount) * (rtl ? 1 : -1);
         container.scrollBy({ left: delta, behavior: "smooth" });
     };
 
@@ -4623,7 +4626,7 @@ function init7DaysChallengeModal() {
                 ">
                     ${isCompleted ? '✓' : g.day}
                 </div>
-                <div style="flex: 1; text-align: right;">
+                <div style="flex: 1; text-align:start;">
                     <div style="font-size: 0.92rem; font-weight: 700; color: ${isCompleted ? '#10b981' : 'var(--text-primary)'};">
                         ${g.title}
                     </div>

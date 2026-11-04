@@ -401,7 +401,7 @@
 .ask-zad-msg-row.user .ask-zad-msg-bubble {
     background: linear-gradient(135deg, #0e6654 0%, #115e4f 100%);
     color: #ffffff;
-    border-bottom-left-radius: 4px;
+    border-end-end-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -410,7 +410,7 @@
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary, #f1f5f9);
     border: 1px solid rgba(212, 175, 55, 0.2);
-    border-bottom-right-radius: 4px;
+    border-end-start-radius: 4px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
@@ -505,7 +505,8 @@
     background: rgba(0, 0, 0, 0.25);
     border: 1.5px solid rgba(212, 175, 55, 0.3);
     border-radius: 9999px;
-    padding: 3px 4px 3px 14px;
+    padding-block: 3px;
+    padding-inline: 4px 14px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -1034,7 +1035,7 @@ body.ask-zad-open {
 .ask-zad-fab-sparkle { display: block; }
 .ask-zad-overlay {
     box-sizing: border-box;
-    direction: rtl;
+    direction: inherit;
     overscroll-behavior: contain !important;
     touch-action: none;
 }

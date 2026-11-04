@@ -37,6 +37,7 @@ async function load(file, options = {}) {
             w.ResizeObserver=class{observe(){}disconnect(){}};
             w.fetch=async()=>{throw Error('Offline test');};
             w.confirm=()=>true;
+            w.localStorage.setItem('zad_language','ar');
             w.localStorage.setItem('user_manually_selected_city','true');
             w.localStorage.setItem('selected_prayer_city','Cairo');
             for (const [key,value] of Object.entries(options.storage || {})) w.localStorage.setItem(key,value);
@@ -47,6 +48,112 @@ async function load(file, options = {}) {
     await new Promise(resolve=>setTimeout(resolve,30));
     return {dom,errors};
 }
+test('generated surah and group completion lists follow language changes without altering selections',async()=>{
+ const {dom,errors}=await load('services.html',{storage:{zad_language:'en'}});
+ try{
+  const w=dom.window,d=w.document,select=d.getElementById('offline-audio-surah');assert.deepEqual(errors,[]);
+  assert.equal(select.options.length,114);assert.equal(select.value,'67');
+  assert.equal(select.options[61].textContent,'62 · Al-Jumuah');assert.equal(select.options[88].textContent,'89 · Al-Fajr');
+  assert.equal(select.options[102].textContent,'103 · Al-Asr');
+  assert.doesNotMatch(d.querySelector('.juz-card').textContent,/[\u0600-\u06ff]/);
+  for(const language of ['ur','ar','en']){
+   w.ZadI18n.set(language);await new Promise(resolve=>setTimeout(resolve,20));assert.equal(select.value,'67');
+   assert.equal(d.documentElement.dir,language==='en'?'ltr':'rtl');
+   assert.equal(select.options[0].textContent,language==='en'?'1 · Al-Fatihah':'1 · الفاتحة');
+  }
+ }finally{dom.window.close();}
+});
+
+test('web notification state translates all fragments and refreshes on language changes',async()=>{
+ const {dom,errors}=await load('settings.html',{storage:{zad_language:'en'}});
+ try{
+  const w=dom.window,d=w.document,box=d.getElementById('zad-notification-state');assert.deepEqual(errors,[]);
+  assert.match(box.textContent,/Permission:/);assert.doesNotMatch(box.textContent,/[\u0600-\u06ff]/);
+  w.ZadI18n.set('ur');await new Promise(resolve=>setTimeout(resolve,20));assert.match(box.textContent,/اجازت/);assert.doesNotMatch(box.textContent,/Permission:/);
+  w.ZadI18n.set('ar');await new Promise(resolve=>setTimeout(resolve,20));assert.match(box.textContent,/الإذن:/);assert.doesNotMatch(box.textContent,/Today's/);
+ }finally{dom.window.close();}
+});
+
+test('settings language control updates the whole interface and preserves reading preferences',async()=>{
+ const {dom,errors}=await load('settings.html',{storage:{zad_language:'en'}});
+ try{
+  const w=dom.window,d=w.document,select=d.getElementById('zad-language');
+  assert.deepEqual(errors,[]);assert.ok(select);assert.equal(select.value,'en');
+  assert.match(d.querySelector('#settings-language-section').textContent,/App language/);
+  assert.equal(d.documentElement.dir,'ltr');
+  const previous=JSON.stringify(w.ZadReadingSettings.get());select.value='ur';select.dispatchEvent(new w.Event('change',{bubbles:true}));
+  await new Promise(r=>setTimeout(r,0));
+  assert.equal(d.documentElement.lang,'ur');assert.equal(d.documentElement.dir,'rtl');assert.equal(w.localStorage.getItem('zad_language'),'ur');
+  assert.match(d.querySelector('#settings-language-section').textContent,/ایپ کی زبان/);
+  assert.equal(JSON.stringify(w.ZadReadingSettings.get()),previous);
+  select.value='ar';select.dispatchEvent(new w.Event('change',{bubbles:true}));await new Promise(r=>setTimeout(r,0));
+  assert.match(d.querySelector('#settings-language-section').textContent,/لغة التطبيق/);
+ }finally{dom.window.close();}
+});
+
+test('English and Urdu service search retain Arabic aliases and stable favorite links',async()=>{
+ const {dom,errors}=await load('services.html',{storage:{zad_language:'en'}});
+ try{
+  const w=dom.window,d=w.document,input=d.getElementById('servicesSearch');assert.deepEqual(errors,[]);
+  const card=d.querySelector('.service-card[href="#azkar"]');assert.match(card.textContent,/Daily adhkar/);
+  for(const query of ['adhkar','أذكار']){input.value=query;w.filterServices();assert.notEqual(card.style.display,'none');}
+  input.value='';w.filterServices();card.parentElement.querySelector('.service-favorite').click();await new Promise(r=>setTimeout(r,0));
+  const favorites=w.localStorage.getItem('zad_services_favorites');assert.match(favorites,/#azkar/);
+  w.ZadI18n.set('ur');await new Promise(r=>setTimeout(r,0));input.value='اذکار';w.filterServices();
+  assert.notEqual(card.style.display,'none');assert.equal(w.localStorage.getItem('zad_services_favorites'),favorites);
+  w.ZadI18n.set('ar');await new Promise(r=>setTimeout(r,0));assert.match(card.textContent,/أذكار اليوم وحصن المسلم/);
+ }finally{dom.window.close();}
+});
+
+test('daily featured clip translates all metadata and media search accepts its translated titles',async()=>{
+ const home=await load('index.html',{storage:{zad_language:'en'}});
+ try{
+  const w=home.dom.window,d=w.document;assert.deepEqual(home.errors,[]);
+  const item=w.getActiveIslamicMediaList().find(item=>item.title===w.ZadI18n.originalText(d.getElementById('daily-clip-title')));assert.ok(item);
+  for(const language of ['en','ur','ar']){
+   w.ZadI18n.set(language);w.initDailyFeaturedMediaClip();await new Promise(r=>setTimeout(r,0));
+   for(const [id,field] of [['daily-clip-title','title'],['daily-clip-desc','desc'],['daily-clip-cat-tag','badge']])assert.equal(d.getElementById(id).textContent,w.ZadI18n.t(item[field]));
+   assert.equal(d.getElementById('daily-clip-thumb').alt,w.ZadI18n.t(item.title));assert.ok(d.getElementById('daily-clip-speaker').textContent.includes(w.ZadI18n.t(item.speaker)));
+  }
+ }finally{home.dom.window.close();}
+ const services=await load('services.html',{storage:{zad_language:'en'}});
+ try{
+  const w=services.dom.window,d=w.document,input=d.getElementById('media-search-input');assert.deepEqual(services.errors,[]);
+  for(const query of ['understanding the Quran','قرآن کو سمجھنا','كيف يمكن فهمك']){
+   input.value=query;input.dispatchEvent(new w.Event('input',{bubbles:true}));await new Promise(r=>setTimeout(r,10));
+   assert.ok(d.querySelector('.media-card[data-id="pod_top_1"]'),query);
+  }
+ }finally{services.dom.window.close();}
+});
+
+test('next and previous cards scroll in reading order in English, Arabic and Urdu',async()=>{
+ const {dom,errors}=await load('services.html');
+ try{
+  const w=dom.window,d=w.document;assert.deepEqual(errors,[]);
+  const carousels=[['scrollKhatmaGrid','khatma-grid-container'],['scrollAzkarContainer','azkar-cards-container'],['scrollDuasContainer','categorized-duas-grid'],['scrollAsmaaContainer','asmaa-grid'],['scrollStoriesContainer','stories-grid'],['scrollMediaContainer','islamic-media-grid']];
+  for(const language of ['en','ar','ur']){
+   w.ZadI18n.set(language);
+   for(const [action,id]of carousels){
+    const container=d.getElementById(id);assert.ok(container,id);let amount;
+    container.scrollBy=options=>{amount=options.left;};
+    w[action]('left');assert.equal(Math.sign(amount),language==='en'?1:-1,action+' next '+language);
+    w[action]('right');assert.equal(Math.sign(amount),language==='en'?-1:1,action+' previous '+language);
+   }
+  }
+ }finally{dom.window.close();}
+});
+
+test('home dates follow the selected language and retain the Hijri adjustment',async()=>{
+ const {dom,errors}=await load('index.html',{storage:{zad_language:'en'}});
+ try{
+  const w=dom.window,d=w.document,date=new w.Date('2026-11-04T12:00:00');assert.deepEqual(errors,[]);
+  assert.match(w.getFullFormattedDate(date),/Wednesday/);assert.match(d.getElementById('today').textContent,/November/);
+  const before=w.getFullFormattedDate(date);w.localStorage.setItem('zad_hijri_offset','1');assert.notEqual(w.getFullFormattedDate(date),before);
+  w.ZadI18n.set('ur');assert.match(w.getFullFormattedDate(date),/بدھ/);assert.doesNotMatch(d.getElementById('today').textContent,/November/);
+  w.ZadI18n.set('ar');assert.match(w.getFullFormattedDate(date),/الأربعاء/);assert.match(d.getElementById('today').textContent,/نوفمبر/);
+ }finally{dom.window.close();}
+});
+
 test('services renders settings, saves choices and handles offline timings',async()=>{
     const {dom,errors}=await load('services.html');
     try {
@@ -386,6 +493,22 @@ test('Quran listening controls are in a dismissible sheet and successful playbac
  }finally{dom.window.close();}
 });
 
+test('phone permission status is translated and refreshed when the interface language changes',async()=>{
+ const {dom,errors}=await load('settings.html',{storage:{zad_language:'en'},setup(w){
+  w.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{
+   AdhanNative:{checkAlarmPermissions:async()=>({notificationsGranted:true,exactAlarmsGranted:false,batteryOptimizationsIgnored:true,fullScreenIntentGranted:false}),getPrayerScheduleStatus:async()=>({count:5,next:Date.now()+60000,until:Date.now()+86400000})},
+   LocalNotifications:{checkPermissions:async()=>({display:'granted'}),getPending:async()=>({notifications:[]}),createChannel:async()=>{},addListener:()=>{}}
+  }};
+ }});
+ try{
+  const w=dom.window,d=w.document;assert.deepEqual(errors,[]);
+  const status=()=>d.querySelector('.settings-delivery-status>p').textContent;
+  assert.match(status(),/Notifications: allowed/);assert.match(status(),/Exact alarms: permission needed/);assert.doesNotMatch(status(),/[\u0600-\u06ff]/);
+  w.ZadI18n.set('ur');await new Promise(r=>setTimeout(r,20));assert.match(status(),/اطلاعات/);assert.doesNotMatch(status(),/Notifications/);
+  w.ZadI18n.set('ar');await new Promise(r=>setTimeout(r,20));assert.match(status(),/المواعيد الدقيقة: تحتاج إذنًا/);
+ }finally{dom.window.close();}
+});
+
 test('Android settings show actual prayer coverage and synchronize volume before scheduling',async()=>{
  const volumeCalls=[];
  const {dom,errors}=await load('settings.html',{setup(w){
@@ -431,13 +554,34 @@ test('Android settings surface full-screen intent permission requirement and req
  } finally {dom.window.close();}
 });
 
+test('open radio panel translates station changes, playback, empty favorites and timer across languages',async()=>{
+ const {dom,errors}=await load('index.html',{storage:{zad_language:'en'}});const w=dom.window,d=w.document;
+ try{
+  assert.deepEqual(errors,[]);d.getElementById('radio-fab-btn').click();assert.ok(d.getElementById('radio-panel').classList.contains('open'));
+  const select=d.getElementById('radio-station-select'),button=d.getElementById('btn-radio-play'),audio=d.getElementById('live-radio-audio');
+  for(const id of [...select.options].map(o=>o.value)){
+   select.value=id;select.dispatchEvent(new w.Event('change'));await new Promise(r=>setTimeout(r,0));
+   for(const target of ['current-station-name','current-station-desc'])assert.doesNotMatch(d.getElementById(target).textContent,/[\u0600-\u06ff]/,id);
+  }
+  const selected=select.value;d.getElementById('btn-radio-favorite').click();await new Promise(r=>setTimeout(r,0));const favorites=w.localStorage.getItem('zadmuslim_radio_favorites');
+  for(const language of ['ur','ar','en']){w.ZadI18n.set(language);await new Promise(r=>setTimeout(r,0));assert.equal(select.value,selected);assert.equal(w.localStorage.getItem('zadmuslim_radio_favorites'),favorites);}
+  assert.equal(button.getAttribute('aria-label'),'Play');button.click();await new Promise(r=>setTimeout(r,0));
+  audio.dispatchEvent(new w.Event('playing'));await new Promise(r=>setTimeout(r,0));assert.doesNotMatch(d.querySelector('.radio-live-status-text').textContent,/[\u0600-\u06ff]/);
+  audio.dispatchEvent(new w.Event('error'));await new Promise(r=>setTimeout(r,0));assert.equal(select.value,selected);assert.doesNotMatch(d.querySelector('.radio-live-status-text').textContent,/[\u0600-\u06ff]/);
+  button.click();await new Promise(r=>setTimeout(r,0));assert.equal(button.getAttribute('aria-label'),'Play');
+  d.getElementById('btn-radio-favorite').click();const filter=d.getElementById('radio-fav-only-checkbox');filter.checked=true;filter.dispatchEvent(new w.Event('change'));await new Promise(r=>setTimeout(r,0));assert.equal(d.querySelector('.radio-empty-state').textContent,'No favorite stations yet');
+  d.querySelector('.radio-timer-chip[data-minutes="15"]').click();await new Promise(r=>setTimeout(r,0));assert.doesNotMatch(d.getElementById('radio-timer-countdown').textContent,/[\u0600-\u06ff]/);
+  d.querySelector('.radio-timer-chip[data-minutes="0"]').click();assert.equal(errors.length,0);
+ }finally{w.close();}
+});
+
 test('radio starts with Cairo, preserves station on failure, and exposes accessible stop and favorites',async()=>{
  const {dom,errors}=await load('index.html');const w=dom.window,d=w.document;
  const select=d.getElementById('radio-station-select');assert.equal(select.value,'cairo');
  assert.ok(d.querySelector('.radio-sleep-details summary'));
  const button=d.getElementById('btn-radio-play');button.click();assert.equal(button.getAttribute('aria-label'),'إيقاف');
  const audio=d.getElementById('live-radio-audio');audio.dispatchEvent(new w.Event('error'));assert.equal(select.value,'cairo');
- button.click();assert.equal(button.getAttribute('aria-label'),'سماع');
+ button.click();assert.equal(button.getAttribute('aria-label'),'تشغيل');
  const favorite=[...d.querySelectorAll('#radio-panel button')].find(b=>b.textContent.includes('إضافة للمفضلة'));favorite.click();assert.deepEqual(JSON.parse(w.localStorage.getItem('zadmuslim_radio_favorites')),['cairo']);
  const fab=d.getElementById('radio-fab-btn');const panel=d.getElementById('radio-panel');
  fab.click();assert.equal(panel.classList.contains('open'),true);

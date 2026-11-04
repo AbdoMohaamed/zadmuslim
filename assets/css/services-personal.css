@@ -253,7 +253,8 @@
   min-height: 52px;
   height: 52px;
   font-size: 0.98rem !important;
-  padding: 0 54px 0 50px !important;
+  padding-block: 0 !important;
+  padding-inline: 54px 50px !important;
   border-radius: 9999px;
   background: rgba(8, 34, 27, 0.88);
   border: 1.5px solid rgba(212, 175, 55, 0.35);

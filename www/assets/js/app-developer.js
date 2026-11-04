@@ -14,6 +14,7 @@
     const normalize=text=>String(text||'').normalize('NFC').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[إأآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[^\u0600-\u06FFa-z0-9\s]/gi,' ').replace(/\s+/g,' ').trim().toLowerCase();
     function isQuestion(text){
         const q=normalize(text);
+        if (/(who (made|built|created|developed|owns)|(?:app|application|zad).*(developer|creator)|contact.*developer|developer.*contact|(?:ایپ|اپلیکیشن).*(?:بنای|بنائ|مالک|ڈویلپر)|(?:کس نے).*(?:بنایا|بنائی))/.test(q)) return true;
         const app=/(تطبيق|برنامج|موقع|ابلكيشن|ابليكشن|ابليكيشن|زاد المسلم)/.test(q);
         const creator=/(^|\s)(مين|من)(\s|$)/.test(q)||/(اسم|صاحب|مطور|مبرمج|مصمم|تطوير|برمجه|تواصل|اتواصل|واتساب|واتس|فيسبوك|فيس|تويتر|حساب)/.test(q);
         return app&&creator&&/(عمل|عامل|صنع|صانع|صمم|برمج|انشا|طور|صاحب|مطور|مبرمج|مصمم|تطوير|برمجه)/.test(q)||/(مين (عملك|برمجك|صممك|طورك)|من (برمجك|صممك|طورك)|مطورك|مبرمجك|(?:رقم|حساب|التواصل مع|لينك) (?:المطور|المبرمج))/.test(q);
@@ -26,7 +27,12 @@
         }
         return {
             isContact(href){try{return links.some(link=>link.href===new URL(href).href);}catch{return false;}},
-            answer(query){if(!name||!isQuestion(query))return null;return {answer:'تطبيق زاد المسلم من تطوير '+name+'.\n'+(links.length?'تقدر تتواصل مع مطوّر التطبيق من الروابط التالية:':''),actions:links.map(link=>({...link}))};},
+            answer(query,language='ar'){
+                if(!name||!isQuestion(query))return null;
+                const displayName=name===profile.name?'Engineer Abdel Maaboud Mohamed, known as Abdo Mohamed':name;
+                const answer=language==='en'?'Zad Al Muslim was developed by '+displayName+'.\n'+(links.length?'You can contact the developer using these links:':''):language==='ur'?'زاد المسلم کے ڈویلپر انجینئر عبدالمعبود محمد ہیں، جو عبدو محمد کے نام سے معروف ہیں۔\n'+(links.length?'ڈویلپر سے رابطے کے لیے یہ لنکس استعمال کریں:':''):'تطبيق زاد المسلم من تطوير '+name+'.\n'+(links.length?'تقدر تتواصل مع مطوّر التطبيق من الروابط التالية:':'');
+                return {answer,actions:links.map(link=>({...link,label:language==='en'?({'واتساب':'WhatsApp','فيسبوك':'Facebook'}[link.label]||link.label):language==='ur'?({'واتساب':'واٹس ایپ','فيسبوك':'فیس بک'}[link.label]||link.label):link.label}))};
+            },
             instruction(){return name?'معلومة ثابتة: تطبيق زاد المسلم من تطوير '+name+'. روابط المطوّر المعتمدة: '+links.map(link=>link.label+': '+link.href).join('،')+'. لا تنسب التطبيق إلى شخص آخر ولا تختلق بيانات تواصل.':'لا تتوفر بيانات معتمدة عن اسم مطوّر التطبيق أو حساباته. لا تختلق اسمًا أو رقمًا أو رابط تواصل.';}
         };
     }

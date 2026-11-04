@@ -36,6 +36,17 @@ function setup(options = {}) {
     } };
 }
 
+test('AI response language is validated, sent to the model and isolated in the public cache',async()=>{
+ for(const language of ['en','ur']){
+  const h=setup();const response=await h.send({body:{query:'ما معنى الإحسان باختصار؟',language}});
+  assert.equal(response.code,200);
+  const provider=h.calls.find(call=>!call.url.includes('upstash.io'));
+  assert.match(provider.body.systemInstruction.parts[0].text,language==='en'?/Reply in English/:/اردو میں جواب دیں/);
+  assert.ok(h.calls.some(call=>call.body[0]==='GET'&&call.body[1].endsWith(':'+language)));
+ }
+ const invalid=setup();assert.equal((await invalid.send({body:{query:'Hello',language:'xx'}})).code,400);assert.equal(invalid.calls.length,0);
+});
+
 test('AI endpoint reserves shared quota and returns only answer text, using server credentials and prompt', async () => {
     const h = setup(); const r = await h.send();
     assert.equal(r.code, 200); assert.deepEqual(Object.keys(r.body), ['answer']);

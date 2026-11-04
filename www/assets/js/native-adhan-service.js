@@ -8,6 +8,19 @@ const NativeAdhanService = {
     isNative: false,
     channelsCreated: false,
 
+    localizedNotifications(notifications) {
+        const translate = text => typeof text==='string' ? (window.ZadI18n?.t(text) || text) : text;
+        return notifications.map(item => ({...item, title:translate(item.title), body:['sleep_azkar','hourly_salawat'].includes(item.extra?.type) ? item.body : translate(item.body)}));
+    },
+
+    async syncLanguage() {
+        const plugin = window.Capacitor?.Plugins?.AdhanNative;
+        if (window.Capacitor?.isNativePlatform?.() && plugin?.setLanguage) {
+            try { await plugin.setLanguage({language:window.ZadI18n?.language || 'ar',cityName:this.widgetCityName()}); }
+            catch (error) { console.warn('Native language update deferred', error); }
+        }
+    },
+
     getSalawatAudioUrl() {
         const voice=this.getNotificationSettings().salawatVoice;
         return 'assets/audio/' + ({voice1:'salawat-1',voice2:'salawat-2'}[voice] || 'salawat') + '.mp3';
@@ -15,16 +28,18 @@ const NativeAdhanService = {
 
     widgetCityName() {
         const key = localStorage.getItem('selected_prayer_city');
-        if (!key) return 'اختر المدينة من التطبيق';
-        if (key === 'gps') return 'موقعك الحالي';
+        const translate = text => window.ZadI18n?.t(text) || text;
+        if (!key) return translate('اختر المدينة من التطبيق');
+        if (key === 'gps') return translate('موقعك الحالي');
         const option = Array.from(document.getElementById('select-prayer-city')?.options || []).find(o => o.value === key);
-        return option?.textContent?.trim() || window.ZadPrayerCities?.[key]?.label || window.ZadPrayerCities?.[key]?.city || key;
+        return translate(option?.textContent?.trim() || window.ZadPrayerCities?.[key]?.label || window.ZadPrayerCities?.[key]?.city || key);
     },
 
     async init() {
         // التحقق مما إذا كان التطبيق يعمل كـ Native App (Capacitor)
         if (typeof window !== "undefined" && window.Capacitor && window.Capacitor.isNativePlatform()) {
             this.isNative = true;
+            await this.syncLanguage();
             console.log("🕌 Native Adhan Service: Running on Native Platform (Android / iOS)");
             await this.requestPermissions();
             await this.createNotificationChannels();
@@ -66,7 +81,7 @@ const NativeAdhanService = {
     async registerPrayerActions() {
         const plugin = window.Capacitor?.Plugins?.LocalNotifications;
         if (window.Capacitor?.getPlatform?.() !== 'ios' || this.prayerActionsRegistered || !plugin?.registerActionTypes) return;
-        await plugin.registerActionTypes({types:[{id:'OPEN_PRAYER',actions:[{id:'dismiss_adhan',title:'إغلاق التنبيه',foreground:false}]}]});
+        await plugin.registerActionTypes({types:[{id:'OPEN_PRAYER',actions:[{id:'dismiss_adhan',title:window.ZadI18n?.t('إغلاق التنبيه') || 'إغلاق التنبيه',foreground:false}]}]});
         this.prayerActionsRegistered = true;
     },
 
@@ -117,7 +132,7 @@ const NativeAdhanService = {
                 try {
                     await LocalNotifications.createChannel({
                         id: ch.id,
-                        name: ch.name,
+                        name: window.ZadI18n?.t(ch.name) || ch.name,
                         description: `قناة تنبيهات ${ch.name}`,
                         sound: ch.sound,
                         importance: ch.importance, // 5 = MAX (Heads-up notification + Full Sound), 4 = HIGH
@@ -502,7 +517,7 @@ const NativeAdhanService = {
 
             if (notificationsForLocal.length > 0) {
                 // جدولة الإشعارات الكاملة في نظام التشغيل (يدعم نظام iOS وأندرويد)
-                await LocalNotifications.schedule({ notifications: notificationsForLocal });
+                await LocalNotifications.schedule({ notifications: this.localizedNotifications(notificationsForLocal) });
                 console.log(`✅ Native Adhan Service: Scheduled ${notificationsForLocal.length} notifications via LocalNotifications directly into OS.`);
             }
             if (isAndroid && !hasNativePlugin && (notifySettings.adhan !== false || notifySettings.prePrayer !== false)) {
@@ -584,7 +599,7 @@ const NativeAdhanService = {
 
             const recurring = await this.recurringReminders(notifySettings);
             if (recurring.length > 0) {
-                await LocalNotifications.schedule({ notifications: recurring });
+                await LocalNotifications.schedule({ notifications: this.localizedNotifications(recurring) });
             }
 
             if ((notifySettings.adhan !== false || notifySettings.prePrayer !== false)) {
@@ -928,6 +943,16 @@ const NativeAdhanService = {
 // إتاحة الكائن عالمياً
 if (typeof window !== "undefined") {
     window.NativeAdhanService = NativeAdhanService;
+    window.addEventListener?.('zad:language-change', async () => {
+        if (!window.Capacitor?.isNativePlatform?.()) return;
+        await NativeAdhanService.syncLanguage();
+        try {
+            NativeAdhanService.channelsCreated=false;
+            await NativeAdhanService.createNotificationChannels();
+            await NativeAdhanService.registerPrayerActions();
+            if (localStorage.getItem('smart_notify_configured')==='true') await NativeAdhanService.scheduleLocalNotifications();
+        } catch (error) { console.warn('Notification language update deferred',error); }
+    });
 }
 
 // التهيئة التلقائية فور تجهيز DOM

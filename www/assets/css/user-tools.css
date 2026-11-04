@@ -334,9 +334,9 @@
     cursor: pointer;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: left 10px center;
+    background-position: var(--select-arrow-side, left) 10px center;
     background-size: 14px;
-    padding-left: 30px;
+    padding-inline-end: 30px;
     appearance: none;
     -webkit-appearance: none;
 }
@@ -690,7 +690,7 @@ body.light-theme .zad-personal-panel p {
     }
 }
 
-.settings-fav-card{font:inherit;text-align:right;width:100%;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.settings-fav-card{font:inherit;text-align: start;width:100%;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 @media(max-width:768px){
   .features.quick-access-grid{grid-template-columns:repeat(var(--shortcut-columns,4),minmax(0,1fr))!important;gap:8px!important}
   .app-quick-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}

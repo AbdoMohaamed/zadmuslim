@@ -217,13 +217,13 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         String channelId="zad_prayer_during_call_v1";
         NotificationManager manager=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT>=26 && manager!=null) {
-            NotificationChannel channel=new NotificationChannel(channelId,"تنبيهات الصلاة الصامتة أثناء المكالمات",NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel channel=new NotificationChannel(channelId,NativeLanguage.text(context, "تنبيهات الصلاة الصامتة أثناء المكالمات"),NotificationManager.IMPORTANCE_LOW);
             channel.setSound(null,null);channel.enableVibration(false);manager.createNotificationChannel(channel);
         }
         PendingIntent open=PendingIntent.getActivity(context,9994,new Intent(context,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         return new NotificationCompat.Builder(context,channelId).setSmallIcon(R.drawable.ic_stat_icon)
-            .setContentTitle((pre?"اقترب موعد ":"حان موعد ")+name)
-            .setContentText("تنبيه الصلاة")
+            .setContentTitle(NativeLanguage.text(context, (pre?"اقترب موعد ":"حان موعد ")+name))
+            .setContentText(NativeLanguage.text(context, "تنبيه الصلاة"))
             .setContentIntent(open).setSilent(true).setPriority(NotificationCompat.PRIORITY_LOW).setAutoCancel(true).build();
     }
     public static void showQuietPrayerNotification(Context context,String name,boolean pre) {
@@ -237,10 +237,10 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         if (nm != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     ADHAN_ALARM_CHANNEL_ID,
-                    "أذان الصلوات المفروضة (صوت كامل)",
+                    NativeLanguage.text(context, "أذان الصلوات المفروضة (صوت كامل)"),
                     NotificationManager.IMPORTANCE_HIGH
             );
-            channel.setDescription("تشغيل الأذان والتنبيه بدخول وقت الصلاة");
+            channel.setDescription(NativeLanguage.text(context, "تشغيل الأذان والتنبيه بدخول وقت الصلاة"));
             channel.enableVibration(true);
             channel.enableLights(true);
             channel.setLightColor(0xFFD4AF37);
@@ -281,12 +281,12 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, ADHAN_ALARM_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_icon)
-                .setContentTitle("🕌 حَانَ الآنَ مَوْعِدُ " + prayerName)
+                .setContentTitle(NativeLanguage.text(context, "🕌 حَانَ الآنَ مَوْعِدُ " + prayerName))
                 .setContentText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح")
                 .setContentIntent(pendingFullScreen)
                 .setFullScreenIntent(pendingFullScreen, true)
                 .setDeleteIntent(pendingStop) // عند مسح الإشعار يتم إيقاف الصوت
-                .addAction(R.drawable.ic_stat_icon, "إيقاف الأذان ⏹", pendingStop)
+                .addAction(R.drawable.ic_stat_icon, NativeLanguage.text(context, "إيقاف الأذان ⏹"), pendingStop)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -306,7 +306,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                         builder.setLargeIcon(bitmap);
                         builder.setStyle(new NotificationCompat.BigPictureStyle()
                                 .bigPicture(bitmap)
-                                .setBigContentTitle("🕌 حَانَ الآنَ مَوْعِدُ " + prayerName)
+                                .setBigContentTitle(NativeLanguage.text(context, "🕌 حَانَ الآنَ مَوْعِدُ " + prayerName))
                                 .setSummaryText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح"));
                     }
                 }
@@ -340,10 +340,10 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     PRE_ALERT_CHANNEL_ID,
-                    "تنبيه اقتراب موعد الصلاة",
+                    NativeLanguage.text(context, "تنبيه اقتراب موعد الصلاة"),
                     NotificationManager.IMPORTANCE_HIGH
             );
-            channel.setDescription("تذكير بالاستعداد للصلاة والوضوء قبل الأذان");
+            channel.setDescription(NativeLanguage.text(context, "تذكير بالاستعداد للصلاة والوضوء قبل الأذان"));
             channel.enableVibration(true);
             channel.enableLights(true);
             channel.setSound(null, null); // الصوت يتم تشغيله ناطقاً عبر AdhanPlayer
@@ -363,14 +363,17 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         String minutesWord = (intervalMinutes == 1) ? "دقيقة واحدة" : (intervalMinutes == 2) ? "دقيقتين" : (intervalMinutes <= 10) ? (intervalMinutes + " دقائق") : (intervalMinutes + " دقيقة");
-        String contentText = "بقي " + minutesWord + " على دخول وقت " + prayerName + ". تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿";
+        String contentText = NativeLanguage.choose(context,
+            "بقي " + minutesWord + " على دخول وقت " + prayerName + ". تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿",
+            intervalMinutes + " minutes until " + NativeLanguage.text(context, prayerName) + ". Prepare for wudu and prayer 🌿",
+            NativeLanguage.text(context, prayerName) + " میں " + intervalMinutes + " منٹ باقی ہیں۔ وضو اور نماز کی تیاری کریں 🌿");
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, PRE_ALERT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_icon)
-                .setContentTitle("⏳ اقتربت " + prayerName)
+                .setContentTitle(NativeLanguage.text(context, "⏳ اقتربت " + prayerName))
                 .setContentText(contentText)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(contentText))
-                .addAction(R.drawable.ic_stat_icon, "إيقاف الصوت", pendingStop)
+                .addAction(R.drawable.ic_stat_icon, NativeLanguage.text(context, "إيقاف الصوت"), pendingStop)
                 .setDeleteIntent(pendingStop)
                 .setContentIntent(pendingOpen)
                 .setAutoCancel(true)
@@ -389,7 +392,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                         builder.setLargeIcon(bitmap);
                         builder.setStyle(new NotificationCompat.BigPictureStyle()
                                 .bigPicture(bitmap)
-                                .setBigContentTitle("⏳ اقتربت " + prayerName)
+                                .setBigContentTitle(NativeLanguage.text(context, "⏳ اقتربت " + prayerName))
                                 .setSummaryText(contentText));
                     }
                 }

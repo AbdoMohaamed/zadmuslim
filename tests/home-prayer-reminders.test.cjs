@@ -6,6 +6,30 @@ const source = fs.readFileSync('assets/js/extended-modules.js', 'utf8');
 const helpers = source.slice(source.indexOf('function getHomePrayerTimings()'), source.indexOf('/* ==========================================================================', source.indexOf('function initSmartTimelyReminders()')));
 const strip = fs.readFileSync('assets/js/home-prayer-display.js', 'utf8');
 const timings = { Fajr: '05:00', Sunrise: '06:30', Dhuhr: '12:00', Asr: '15:00', Maghrib: '18:00', Isha: '20:00' };
+test('every contextual reminder translates its title, explanation and action and restores Arabic',async()=>{
+ const dom=setup(12,0,26),w=dom.window,d=w.document;
+ try{
+  w.localStorage.setItem('zad_language','ar');
+  for(const name of ['i18n-dictionary','i18n'])w.eval(fs.readFileSync('assets/js/'+name+'.js','utf8'));
+  d.body.insertAdjacentHTML('beforeend','<div id="smart-reminder-banner"><h3 class="smart-reminder-title"></h3><p class="smart-reminder-desc"></p><button class="btn-reminder-act"><span></span></button><button class="btn-dismiss-reminder"></button></div>');
+  const slots=['friday_kahf','fasting','eve_fasting','night_qiyam_sahoor','morning_azkar','duha_prayer','noon_quran','evening_azkar','maghrib_isha_awabin','night_mulk'];
+  for(const day of [26,29]){
+   const NativeDate=w.Date;w.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[2026,9,day,12,0]));}};
+   for(const slot of slots){
+    w.ZadI18n.set('ar');w.getHomeReminderSlot=()=>slot;w.initSmartTimelyReminders();await new Promise(r=>setTimeout(r,0));
+    const fields=[d.querySelector('.smart-reminder-title'),d.querySelector('.smart-reminder-desc'),d.querySelector('.btn-reminder-act span')];
+    const originals=fields.map(el=>el.textContent);
+    for(const language of ['en','ur']){
+     w.ZadI18n.set(language);await new Promise(r=>setTimeout(r,0));
+     fields.forEach((el,index)=>assert.notEqual(el.textContent,originals[index],`${slot}: ${language}: field ${index}`));
+     if(language==='en')for(const el of [fields[0],fields[2]])assert.doesNotMatch(el.textContent,/[\u0600-\u06ff]/,slot);
+     if(slot==='fasting')assert.ok(fields[1].textContent.includes('تُعرض الأعمال يوم الاثنين والخميس، فأحب أن يُعرض عملي وأنا صائم'));
+    }
+    w.ZadI18n.set('ar');await new Promise(r=>setTimeout(r,0));assert.deepEqual(fields.map(el=>el.textContent),originals);
+   }
+  }
+ }finally{w.close();}
+});
 function setup(hour, minute = 0, day = 27) {
     const ids = ['daily-next-prayer-name', 'daily-next-prayer-time', 'home-prayer-remaining', 'home-prayer-time', 'home-prayer-progress-bar', 'next-prayer-name', 'next-prayer-timer'];
     const dom = new JSDOM(ids.map(id => '<div id="' + id + '"></div>').join(''), { url: 'https://home.test', runScripts: 'outside-only' });

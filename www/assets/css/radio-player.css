@@ -25,7 +25,7 @@
   border-radius: 24px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.1);
   color: var(--radio-text-light);
-  direction: rtl;
+  direction: inherit;
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
@@ -206,7 +206,7 @@
 #radio-panel .radio-station-text {
   flex: 1;
   min-width: 0;
-  text-align: right;
+  text-align: start;
 }
 
 #radio-panel .radio-station-name {
@@ -409,7 +409,7 @@
   color: var(--radio-text-muted);
   font-variant-numeric: tabular-nums;
   min-width: 34px;
-  text-align: left;
+  text-align: end;
   user-select: none;
 }
 
@@ -504,7 +504,7 @@
   max-height: 220px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-left: 2px;
+  padding-inline-end: 2px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -544,7 +544,7 @@
 #radio-panel .radio-item-info {
   flex: 1;
   min-width: 0;
-  text-align: right;
+  text-align: start;
 }
 
 #radio-panel .radio-item-title {
@@ -610,7 +610,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #d0ded8;
   font-size: 0.85rem;
-  text-align: right;
+  text-align: start;
   cursor: pointer;
   transition: all 0.2s;
   min-height: 40px;

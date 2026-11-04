@@ -86,6 +86,11 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             android.appwidget.AppWidgetProviderInfo info = appWidgetManager.getAppWidgetInfo(widgetId);
             int layout = info != null ? info.initialLayout : R.layout.prayer_widget_layout;
             RemoteViews views = new RemoteViews(context.getPackageName(), layout);
+            views.setInt(R.id.widget_root, "setLayoutDirection", "en".equals(NativeLanguage.language(context)) ? 0 : 1);
+            if (layout != R.layout.prayer_widget_wide) views.setTextViewText(R.id.widget_label_next, NativeLanguage.text(context, "الصلاة القادمة"));
+            int[] labelIds = {R.id.widget_label_fajr, R.id.widget_label_dhuhr, R.id.widget_label_asr, R.id.widget_label_maghrib, R.id.widget_label_isha};
+            String[] labelNames = {"الفجر", "الظهر", "العصر", "المغرب", "العشاء"};
+            for (int i=0; i<labelIds.length; i++) views.setTextViewText(labelIds[i], NativeLanguage.text(context, labelNames[i]));
 
             // 1. فتح التطبيق عند النقر على الويدجت
             Intent appIntent = new Intent(context, MainActivity.class);
@@ -106,7 +111,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             // 3. قراءة البيانات المحفوظة لمواقيت الصلاة والتاريخ
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             String timingsJson = prefs.getString("last_timings_json", null);
-            views.setTextViewText(R.id.widget_city, prefs.getString("widget_city", "اختر المدينة من التطبيق"));
+            views.setTextViewText(R.id.widget_city, prefs.getString("widget_city", NativeLanguage.text(context, "اختر المدينة من التطبيق")));
             String savedHijri = prefs.getString("widget_hijri_date", null);
             String savedGregorian = prefs.getString("widget_gregorian_date", null);
 
@@ -117,8 +122,8 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
                 savedGregorian = getNativeGregorianDate();
             }
 
-            views.setTextViewText(R.id.widget_txt_hijri_date, savedHijri);
-            views.setTextViewText(R.id.widget_txt_gregorian_date, savedGregorian);
+            views.setTextViewText(R.id.widget_txt_hijri_date, NativeLanguage.text(context, savedHijri));
+            views.setTextViewText(R.id.widget_txt_gregorian_date, NativeLanguage.text(context, savedGregorian));
 
             // اختيار ذكر / آية دورية بحسب ساعة اليوم
             Calendar nowCal = Calendar.getInstance();
@@ -134,25 +139,25 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
                 String maghribTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Maghrib", "maghrib", "18:00"));
                 String ishaTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Isha", "isha", "19:30"));
 
-                views.setTextViewText(R.id.widget_time_fajr, fajrTime);
-                views.setTextViewText(R.id.widget_time_dhuhr, dhuhrTime);
-                views.setTextViewText(R.id.widget_time_asr, asrTime);
-                views.setTextViewText(R.id.widget_time_maghrib, maghribTime);
-                views.setTextViewText(R.id.widget_time_isha, ishaTime);
+                views.setTextViewText(R.id.widget_time_fajr, NativeLanguage.text(context, fajrTime));
+                views.setTextViewText(R.id.widget_time_dhuhr, NativeLanguage.text(context, dhuhrTime));
+                views.setTextViewText(R.id.widget_time_asr, NativeLanguage.text(context, asrTime));
+                views.setTextViewText(R.id.widget_time_maghrib, NativeLanguage.text(context, maghribTime));
+                views.setTextViewText(R.id.widget_time_isha, NativeLanguage.text(context, ishaTime));
 
                 // حساب الصلاة القادمة والوقت المتبقي
                 PrayerCalculation calc = calculateNextPrayer(json);
-                views.setTextViewText(R.id.widget_txt_next_prayer_name, calc.prayerName);
-                views.setTextViewText(R.id.widget_txt_next_prayer_time, calc.prayerTime12H);
-                views.setTextViewText(R.id.widget_txt_countdown, calc.countdownText);
+                views.setTextViewText(R.id.widget_txt_next_prayer_name, NativeLanguage.text(context, calc.prayerName));
+                views.setTextViewText(R.id.widget_txt_next_prayer_time, NativeLanguage.text(context, calc.prayerTime12H));
+                views.setTextViewText(R.id.widget_txt_countdown, NativeLanguage.text(context, calc.countdownText));
 
                 // إبراز عمود الصلاة القادمة بلون ذهبي متناسق
                 resetPrayerColumnBackgrounds(views);
                 highlightActivePrayerColumn(views, calc.prayerKey);
             } else {
-                views.setTextViewText(R.id.widget_txt_next_prayer_name, "افتح التطبيق لتحديث المواقيت");
+                views.setTextViewText(R.id.widget_txt_next_prayer_name, NativeLanguage.text(context, "افتح التطبيق لتحديث المواقيت"));
                 views.setTextViewText(R.id.widget_txt_next_prayer_time, "--:--");
-                views.setTextViewText(R.id.widget_txt_countdown, "انقر هنا 🕌");
+                views.setTextViewText(R.id.widget_txt_countdown, NativeLanguage.text(context, "انقر هنا 🕌"));
                 resetPrayerColumnBackgrounds(views);
             }
 

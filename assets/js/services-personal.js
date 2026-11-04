@@ -21,7 +21,7 @@
   (directory.querySelector('.category-filter-pills') || directory.querySelector('#services-search-results') || directory.querySelector('.services-search-wrapper')).after(area);
   const $=id=>document.getElementById(id);
   const say=text=>{$('services-personal-status').textContent=text;};
-  const title=id=>byId.get(id).querySelector('h3').textContent.trim();
+  const title=id=>{const node=byId.get(id).querySelector('h3');return (window.ZadI18n?.originalText(node)||node.textContent).trim();};
   const launch=id=>{const card=byId.get(id);if(card)card.click();};
   function links(container,ids){container.replaceChildren();for(const id of ids){const button=document.createElement('button');button.type='button';button.textContent=title(id);button.onclick=()=>launch(id);container.append(button);}}
   function render(){

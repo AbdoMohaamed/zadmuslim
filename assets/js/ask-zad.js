@@ -605,7 +605,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 signal: controller.signal,
-                body: JSON.stringify({ query })
+                body: JSON.stringify({ query, ...(window.ZadI18n?.language && window.ZadI18n.language !== 'ar' ? {language:window.ZadI18n.language} : {}) })
             }).then(res => {
                 if (res.status === 429) return res.json().then(limit => ({ rateLimited: true, limit }));
                 if (!res.ok) throw new Error('AI service unavailable');
@@ -681,7 +681,14 @@
             pendingReplies.delete(timer);
             if(currentGeneration!==generation)return;
             let result;
-            try { result = await contextualReply(query); } catch (_) { result = reply('تعذّر التحقق الآن. جرّب تاني أو افتح الإعدادات.',[settingsAction]); }
+            const language=window.ZadI18n?.language||'ar';
+            try {
+                if(language==='ar')result=await contextualReply(query);
+                else {
+                    const developer=window.ZadAppDeveloper?.answer(query,language);
+                    result=developer?reply(developer.answer,developer.actions):{found:false};
+                }
+            } catch (_) { result = reply('تعذّر التحقق الآن. جرّب تاني أو افتح الإعدادات.',[settingsAction]); }
             if (currentGeneration !== generation) return;
 
             // Unknown questions use the server; credentials never enter the browser.
@@ -690,7 +697,8 @@
                 if (aiResult && aiResult.found && currentGeneration === generation) {
                     result = aiResult;
                 } else if (currentGeneration === generation) {
-                    result = { ...result, found: false, fallbackMessage: aiResult?.reason === 'limit' ? aiResult.message : 'تعذّر الاتصال بالمساعد الذكي الآن. جرّب مرة أخرى، أو استخدم الخيارات التالية.' };
+                    const unavailable=language==='en'?'The assistant is unavailable right now. Try again later. You can still use Quran, adhkar and other app tools.':language==='ur'?'معاون اس وقت دستیاب نہیں۔ بعد میں دوبارہ کوشش کریں۔ قرآن، اذکار اور ایپ کے دیگر آلات استعمال کیے جا سکتے ہیں۔':'تعذّر الاتصال بالمساعد الذكي الآن. جرّب مرة أخرى، أو استخدم الخيارات التالية.';
+                    result = { ...result, found: false, fallbackMessage: aiResult?.reason === 'limit' && language==='ar' ? aiResult.message : unavailable };
                 }
             }
             if (currentGeneration !== generation) return;

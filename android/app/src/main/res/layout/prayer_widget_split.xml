@@ -54,7 +54,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="الصلاة القادمة"
+            android:id="@+id/widget_label_next"
+                android:text="الصلاة القادمة"
             android:textSize="9sp"
             android:textColor="#E6CA65" />
 
@@ -82,7 +83,7 @@
             android:id="@+id/widget_txt_countdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="متبقي عليها"
+                android:text="متبقي عليها"
             android:textSize="9sp"
             android:textColor="#95B5A8"
             android:maxLines="1"

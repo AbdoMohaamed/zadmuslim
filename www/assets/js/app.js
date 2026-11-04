@@ -212,11 +212,24 @@ function initDeceasedInfo() {
 /**
  * حساب وعرض التاريخ الهجري والميلادي واليوم بتنسيق عربي كامل وفاخر
  */
+function localizedCalendarParts(date, offsetDays = 0) {
+    if (!window.ZadI18n || window.ZadI18n.language === 'ar') return null;
+    const locale = window.ZadI18n.locale();
+    const hijri = new Date(date.getTime() + offsetDays * 86400000);
+    const options = {day:'numeric',month:'long',year:'numeric'};
+    let hijriPart;
+    try { hijriPart = new Intl.DateTimeFormat(locale, {...options, calendar:'islamic-umalqura'}).format(hijri); }
+    catch { hijriPart = new Intl.DateTimeFormat(locale, {...options, calendar:'islamic'}).format(hijri); }
+    return { weekday:new Intl.DateTimeFormat(locale,{weekday:'long'}).format(date), hijriPart, gregPart:new Intl.DateTimeFormat(locale,{...options,calendar:'gregory'}).format(date) };
+}
+
 function getFullFormattedDate(date = new Date()) {
     let offsetDays = 0;
     try {
         offsetDays = parseInt(localStorage.getItem('zad_hijri_offset') || '0', 10) || 0;
     } catch (e) {}
+    const localized = localizedCalendarParts(date, offsetDays);
+    if (localized) return localized.weekday + (window.ZadI18n.language === 'en' ? ', ' : '، ') + localized.hijriPart + ' • ' + localized.gregPart;
     const hijriDate = new Date(date.getTime() + (offsetDays * 86400000));
 
     // 1. اليوم (اسم يوم الأسبوع بالعربية)
@@ -323,7 +336,7 @@ function initHijriDate() {
         "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
     ];
 
-    const weekday = ARABIC_WEEKDAYS[now.getDay()];
+    let weekday = ARABIC_WEEKDAYS[now.getDay()];
 
     let hijriPart = "";
     try {
@@ -364,7 +377,10 @@ function initHijriDate() {
         gregPart = `${d} ${m} ${y} م`;
     }
 
-    const fullFormatted = `${weekday}، ${hijriPart} • ${gregPart}`;
+    const localized = localizedCalendarParts(now, offsetDays);
+    if (localized) ({weekday, hijriPart, gregPart} = localized);
+    const dateSeparator = window.ZadI18n?.language === 'en' ? ', ' : '، ';
+    const fullFormatted = weekday + dateSeparator + hijriPart + ' • ' + gregPart;
 
     if (todayEl) {
         todayEl.setAttribute("aria-label", fullFormatted);
@@ -372,7 +388,7 @@ function initHijriDate() {
             <div class="home-date-pill">
                 <span class="date-chip date-chip-hijri">
                     <i class="fa-solid fa-moon text-gold"></i>
-                    <span class="date-hijri-text">${weekday}، ${hijriPart}</span>
+                    <span class="date-hijri-text">${weekday}${dateSeparator}${hijriPart}</span>
                 </span>
                 <span class="date-chip-divider" aria-hidden="true">✦</span>
                 <span class="date-chip date-chip-greg">
@@ -384,11 +400,12 @@ function initHijriDate() {
     }
     initDailyQuranVerse();
 
-    let formattedDate = `${weekday}، ${hijriPart}`;
+    let formattedDate = weekday + dateSeparator + hijriPart;
     if (heroHijriEl) heroHijriEl.textContent = formattedDate;
     if (prayerHijriEl) prayerHijriEl.textContent = formattedDate;
 }
 window.initHijriDate = initHijriDate;
+window.addEventListener("zad:language-change", initHijriDate);
 
 /* ==========================================================================
    آية اليوم المتجددة تلقائياً (Daily Quranic Verse)
@@ -2893,7 +2910,8 @@ window.scrollKhatmaGrid = function(direction) {
     const grid = document.getElementById("khatma-grid-container");
     if (!grid) return;
     const scrollAmount = 270;
-    const delta = direction === "left" ? -scrollAmount : scrollAmount;
+    const rtl = (getComputedStyle(grid).direction || document.documentElement.dir) === "rtl";
+    const delta = (direction === "left" ? -scrollAmount : scrollAmount) * (rtl ? 1 : -1);
     grid.scrollBy({ left: delta, behavior: "smooth" });
 };
 
@@ -2903,7 +2921,8 @@ window.scrollAzkarContainer = function(direction) {
     if (!container) return;
     const card = container.querySelector(".azkar-card");
     const scrollAmount = card ? (card.offsetWidth + 20) : 320;
-    const delta = direction === "left" ? -scrollAmount : scrollAmount;
+    const rtl = (getComputedStyle(container).direction || document.documentElement.dir) === "rtl";
+    const delta = (direction === "left" ? -scrollAmount : scrollAmount) * (rtl ? 1 : -1);
     container.scrollBy({ left: delta, behavior: "smooth" });
 };
 

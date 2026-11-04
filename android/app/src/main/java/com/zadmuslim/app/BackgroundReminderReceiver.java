@@ -47,8 +47,12 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
         String[] names={"أذكار وتذكيرات يومية","الصلاة على النبي ﷺ","الصلاة على النبي ﷺ بدون صوت","الصلاة على النبي ﷺ — الصوت الأول","الصلاة على النبي ﷺ — الصوت الثاني"};
         String[] sounds={null,"salawat",null,"salawat_1","salawat_2"};
         for(int i=0;i<ids.length;i++) {
-            if(manager.getNotificationChannel(ids[i])!=null) continue;
-            NotificationChannel channel=new NotificationChannel(ids[i],names[i],NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel existing = manager.getNotificationChannel(ids[i]);
+            if (existing != null) {
+                existing.setName(NativeLanguage.text(c, names[i]));
+                manager.createNotificationChannel(existing); continue;
+            }
+            NotificationChannel channel=new NotificationChannel(ids[i],NativeLanguage.text(c, names[i]),NotificationManager.IMPORTANCE_HIGH);
             channel.enableVibration(true);
             channel.setSound(sounds[i]!=null ? android.net.Uri.parse("android.resource://"+c.getPackageName()+"/raw/"+sounds[i]) : null,
                 new android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION).build());
@@ -86,7 +90,7 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
                 ensureChannels(c);
                 Intent launch=c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
                 NotificationCompat.Builder builder=new NotificationCompat.Builder(c,rule.optString("channelId","daily_adhkar"))
-                    .setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(rule.getString("title")).setContentText(rule.getString("body"))
+                    .setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(NativeLanguage.text(c, rule.getString("title"))).setContentText(NativeLanguage.reminderBody(c, rule.getString("body")))
                     .setAutoCancel(true).setVisibility(NotificationCompat.VISIBILITY_PUBLIC).setPriority(NotificationCompat.PRIORITY_HIGH);
                 if(Build.VERSION.SDK_INT < 26) {
                     String sound=rule.optString("sound", "").replace(".mp3", "");

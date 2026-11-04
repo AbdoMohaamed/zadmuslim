@@ -49,9 +49,9 @@
 
             <!-- صف التحكم: التشغيل ومستوى الصوت -->
             <div class="radio-controls-row">
-                <button type="button" class="btn-radio-play" id="btn-radio-play" title="سماع" aria-label="سماع">
+                <button type="button" class="btn-radio-play" id="btn-radio-play" title="تشغيل" aria-label="تشغيل">
                     <i class="fa-solid fa-play" id="radio-play-icon"></i>
-                    <span id="radio-play-label" class="sr-only">سماع</span>
+                    <span id="radio-play-label" class="sr-only">تشغيل</span>
                 </button>
 
                 <div class="radio-volume-group">

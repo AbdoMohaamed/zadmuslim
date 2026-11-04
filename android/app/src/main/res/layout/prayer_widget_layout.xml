@@ -92,6 +92,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/widget_label_next"
                 android:text="الصلاة القادمة"
                 android:textSize="10sp"
                 android:textColor="#E6CA65" />

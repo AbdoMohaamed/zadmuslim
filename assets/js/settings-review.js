@@ -9,7 +9,7 @@ function init() {
  document.querySelector('.settings-nav-strip')?.after(notice);
  document.querySelectorAll('.settings-section-card').forEach(section=>{
   const title=section.querySelector(':scope > .settings-section-title'); if(!title)return;
-  const details=document.createElement('details');details.open=section.id==='notifications-section';
+  const details=document.createElement('details');details.open=['notifications-section','settings-language-section'].includes(section.id);
   const summary=document.createElement('summary');summary.append(title);details.append(summary);
   while(section.firstChild)details.append(section.firstChild);
   section.append(details);
@@ -33,24 +33,26 @@ function init() {
  }
  if(native)button('اختبار الأذان بعد دقيقة',()=>service().scheduleBackgroundDiagnosticTest('adhan',60));
  const help=document.createElement('p');help.className='settings-test-help';help.textContent=native?'«سماع » يشغّل الصوت الآن. اختبار الخلفية يجدول تنبيهًا بعد دقيقة؛ اقفل الشاشة بعد تأكيد الجدولة.':'سماع العينة يختبر الصوت فقط. اختبار الخلفية متاح داخل تطبيق الهاتف.';panel.append(help);
+ const tr=value=>value.replace(value.trim(),()=>window.ZadI18n?.t(value.trim())||value.trim());
  async function refresh(){
   try {
    if(platform==='android') {
     const plugin=window.Capacitor.Plugins.AdhanNative;
     const [permissions,schedule]=await Promise.all([plugin.checkAlarmPermissions(),plugin.getPrayerScheduleStatus()]);
-    const fmt=value=>new Date(value).toLocaleString('ar-EG');
-    text.textContent='الإشعارات: '+(permissions.notificationsGranted?'مسموح بها':'غير مسموح بها')+' — المواعيد الدقيقة: '+(permissions.exactAlarmsGranted?'مسموح بها':'تحتاج إذنًا')+(permissions.fullScreenIntentGranted===false?' — شاشة الأذان: تحتاج إذنًا لفتح الشاشة عند القفل':'')+'. '+(schedule.count ? 'تنبيه الصلاة القادم: '+fmt(schedule.next)+'. المواعيد محفوظة حتى '+fmt(schedule.until)+(schedule.automaticRenewal?'. يتم تجديدها تلقائيًا دون إنترنت حسب الموقع المحفوظ.':'. افتح التطبيق قبلها لتجديدها.') : 'لا توجد تنبيهات صلاة قادمة محفوظة. راجع تفعيل الأذان ومواقيت مدينتك.');
+    const fmt=value=>new Date(value).toLocaleString(window.ZadI18n?.locale() || 'ar-EG');
+    text.textContent=tr('الإشعارات: ')+(permissions.notificationsGranted?tr('مسموح بها'):tr('غير مسموح بها'))+tr(' — المواعيد الدقيقة: ')+(permissions.exactAlarmsGranted?tr('مسموح بها'):tr('تحتاج إذنًا'))+(permissions.fullScreenIntentGranted===false?tr(' — شاشة الأذان: تحتاج إذنًا لفتح الشاشة عند القفل'):'')+'. '+(schedule.count ? tr('تنبيه الصلاة القادم: ')+fmt(schedule.next)+tr('. المواعيد محفوظة حتى ')+fmt(schedule.until)+(schedule.automaticRenewal?tr('. يتم تجديدها تلقائيًا دون إنترنت حسب الموقع المحفوظ.'):tr('. افتح التطبيق قبلها لتجديدها.')) : tr('لا توجد تنبيهات صلاة قادمة محفوظة. راجع تفعيل الأذان ومواقيت مدينتك.'));
     notificationButton.hidden=permissions.notificationsGranted===true;exactButton.hidden=permissions.exactAlarmsGranted===true;batteryButton.hidden=permissions.batteryOptimizationsIgnored===true;
     if(fullScreenButton)fullScreenButton.hidden=permissions.fullScreenIntentGranted!==false;
-    if(!permissions.batteryOptimizationsIgnored)text.textContent+=' راجع قيود البطارية إذا تأخر التنبيه.';
+    if(!permissions.batteryOptimizationsIgnored)text.textContent+=tr(' راجع قيود البطارية إذا تأخر التنبيه.');
    } else if(native) {
     const plugin=window.Capacitor.Plugins.LocalNotifications;
     const [permission,pending]=await Promise.all([plugin.checkPermissions(),plugin.getPending()]);
     const times=(pending.notifications||[]).filter(n=>n.id>0&&n.id<70000).map(n=>new Date(n.schedule?.at).getTime()).filter(t=>t>Date.now()).sort((a,b)=>a-b);
-    text.textContent='إذن الإشعارات: '+(permission.display==='granted'?'مسموح':'غير مفعّل')+'. '+(times.length?'تنبيه الصلاة القادم: '+new Date(times[0]).toLocaleString('ar-EG')+'. الجدولة حتى '+new Date(times.at(-1)).toLocaleString('ar-EG')+'. افتح التطبيق لتجديدها؛ يصلك تذكير قبل انتهاء الجدولة.':'لا توجد تنبيهات صلاة قادمة يمكن تأكيدها.');
-   } else text.textContent='المتصفح لا يضمن تشغيل الأذان عند إغلاقه.';
-  }catch{text.textContent='تعذّر التحقق من الجدولة. حدّث التطبيق أو أعد المحاولة؛ حفظ الاختيارات لا يؤكد وصول التنبيه.';}
+    text.textContent=tr('إذن الإشعارات: ')+(permission.display==='granted'?tr('مسموح'):tr('غير مفعّل'))+'. '+(times.length?tr('تنبيه الصلاة القادم: ')+new Date(times[0]).toLocaleString(window.ZadI18n?.locale() || 'ar-EG')+tr('. الجدولة حتى ')+new Date(times.at(-1)).toLocaleString(window.ZadI18n?.locale() || 'ar-EG')+tr('. افتح التطبيق لتجديدها؛ يصلك تذكير قبل انتهاء الجدولة.'):tr('لا توجد تنبيهات صلاة قادمة يمكن تأكيدها.'));
+   } else text.textContent=tr('المتصفح لا يضمن تشغيل الأذان عند إغلاقه.');
+  }catch{text.textContent=tr('تعذّر التحقق من الجدولة. حدّث التطبيق أو أعد المحاولة؛ حفظ الاختيارات لا يؤكد وصول التنبيه.');}
  }
+ window.addEventListener('zad:language-change',refresh);
  $('zad-refresh-notifications')?.addEventListener('click',refresh);
  document.addEventListener('zad:notification-saved',refresh);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});

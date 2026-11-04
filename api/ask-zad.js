@@ -27,7 +27,7 @@ function publicQuestionIndex(query) {
 }
 
 const SYSTEM_PROMPT = [
-    'أنت «اسأل زاد»، مساعد تطبيق زاد المسلم. أجب بالعربية برفق واختصار.',
+    'أنت «اسأل زاد»، مساعد تطبيق زاد المسلم. أجب برفق واختصار باللغة المحددة أدناه.',
     appDeveloper.instruction(),
     'ساعد في أسئلة العبادات العامة والمواساة. لا تختلق آيات أو أحاديث أو مصادر؛ صرّح بعدم التأكد.',
     'لا تصدر فتوى شخصية في الطلاق أو النزاعات أو المسائل المعقدة؛ وجّه إلى جهة إفتاء موثوقة.',
@@ -56,11 +56,12 @@ module.exports = async function handler(req, res) {
     if (req.method !== 'POST') { res.setHeader('Allow', 'POST, OPTIONS'); return res.status(405).json({ code: 'method' }); }
     if (!/^application\/json(?:\s*;|$)/i.test(req.headers['content-type'] || '')) return res.status(415).json({ code: 'content_type' });
     const query = req.body?.query;
-    if (typeof query !== 'string' || !query.trim() || query.length > 1000 || Object.keys(req.body).some(key => key !== 'query')) {
+    const language = req.body?.language === undefined ? 'ar' : req.body.language;
+    if (!['ar','en','ur'].includes(language) || typeof query !== 'string' || !query.trim() || query.length > 1000 || Object.keys(req.body).some(key => !['query','language'].includes(key))) {
         return res.status(400).json({ code: 'invalid_query' });
     }
 
-    const developerReply = appDeveloper.answer(query);
+    const developerReply = appDeveloper.answer(query, language);
     if (developerReply) return res.json({ answer: developerReply.answer + '\n' + developerReply.actions.map(link => link.label + ': ' + link.href).join('\n') });
     const apiKey = process.env.GEMINI_API_KEY;
     const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
@@ -91,7 +92,7 @@ module.exports = async function handler(req, res) {
             return data.result;
         };
         const questionIndex = publicQuestionIndex(query);
-        const cacheKey = questionIndex < 0 ? null : 'zad:ai:public:v1:' + model + ':' + questionIndex;
+        const cacheKey = questionIndex < 0 ? null : 'zad:ai:public:v1:' + model + ':' + questionIndex + ':' + language;
         if (cacheKey) {
             let cached;
             try { cached = await redis(['GET', cacheKey]); } catch {}
@@ -120,7 +121,7 @@ module.exports = async function handler(req, res) {
             method: 'POST', signal: AbortSignal.timeout(8000),
             headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
             body: JSON.stringify({
-                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                systemInstruction: { parts: [{ text: SYSTEM_PROMPT + '\n' + ({ar:'أجب باللغة العربية.',en:'Reply in English. Preserve quoted Quran, hadith and dua texts in Arabic; distinguish explanations from quotations.',ur:'اردو میں جواب دیں۔ قرآن، حدیث اور دعا کے اصل اقتباسات عربی میں رکھیں اور وضاحت کو اقتباس سے الگ رکھیں۔'})[language] }] },
                 contents: [{ role: 'user', parts: [{ text: query.trim() }] }],
                 generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
             })

@@ -9,7 +9,7 @@
         'zad_khatma_streak_data', 'zad_7days_challenge_progress', 'zad_quick_tasbeeh_count',
         'tasbeeh_lifetime_total', 'zadmuslim-theme', 'sadqah_theme', 'selected_prayer_city',
         'user_manually_selected_city', 'smart_notify_settings', 'zad_enabled_prayers',
-        'zad_prayer_method', 'zad_prayer_school', 'zad_font_size', 'zad_reading_preferences', 'zad_favorites',
+        'zad_prayer_method', 'zad_prayer_school', 'zad_font_size', 'zad_language', 'zad_reading_preferences', 'zad_favorites',
         'zadTasks', 'zad_setup_done', 'spiritual_garden_streak', 'wird_streak_history', 'counter', 'total_dhikr_count',
         'zad_selected_muazzin', 'adhan_sound_enabled', 'smart_notify_configured', 'zad_hijri_offset',
         'zad_zakat_currency', 'zad_zakat_nisab_basis', 'zad_sticky_prayer_notification', 'zad_media_bookmarks', 'zad_media_progress',
@@ -33,6 +33,7 @@
         for (const [key, val] of entries) {
             if (!allowed(key) || typeof val !== 'string' || val.length > 200000) throw Error('الملف يحتوي على بيانات غير مسموح بها.');
             if (['zad_adhan_volume', 'zadmuslim_radio_volume'].includes(key) && (val.trim() === '' || !Number.isFinite(Number(val)) || Number(val) < 0 || Number(val) > 1)) throw Error('مستوى الصوت غير صالح.');
+            if (key === 'zad_language' && !['ar','en','ur'].includes(val)) throw Error('لغة غير صالحة.');
             if (key === 'zad_show_prayer_images' && !['0', '1'].includes(val)) throw Error('إعداد صور الصلاة غير صالح.');
             if (/^daily_wird_home_import_\d{4}-\d{2}-\d{2}$/.test(key)) {
                 if (!['true', 'false'].includes(val)) throw Error('علامة ورد يومي غير صالحة.');
@@ -187,25 +188,28 @@
     async function refreshNotifications() {
         const box = $('zad-notification-state');
         if (!box) return;
-        let message = 'الإذن: ' + ({ granted: 'مسموح', denied: 'مرفوض؛ غيّره من إعدادات المتصفح', default: 'لم يُطلب بعد' }[root.Notification?.permission] || 'غير مدعوم في هذا المتصفح');
+        const tr = value => root.ZadI18n?.t(value) || value;
+        const status = value => tr(({granted:'مسموح',denied:'مرفوض؛ غيّره من إعدادات المتصفح',default:'لم يُطلب بعد',prompt:'لم يُطلب بعد','prompt-with-rationale':'لم يُطلب بعد'})[value] || value || 'غير مدعوم في هذا المتصفح');
+        let message = tr('الإذن:') + ' ' + status(root.Notification?.permission);
         const native = root.Capacitor?.Plugins?.LocalNotifications;
         if (root.Capacitor?.isNativePlatform() && native) {
             try {
                 const permission = await native.checkPermissions();
                 const pending = await native.getPending();
                 const dates = pending.notifications.map(n => ({ ...n, at: new Date(n.schedule?.at) })).filter(n => n.at > new Date()).sort((a,b) => a.at - b.at);
-                message = 'إذن الهاتف: ' + permission.display + '. التذكير المحلي القادم: ' + (dates.length ? dates[0].at.toLocaleString('ar') : 'لا توجد تذكيرات محلية مجدولة');
-                if (root.Capacitor?.getPlatform?.() === 'android') message += '. أذان Android يُدار أيضًا بواسطة منبّه الصلاة الأصلي.';
+                message = tr('إذن الهاتف:') + ' ' + status(permission.display) + '. ' + tr('التذكير المحلي القادم:') + ' ' + (dates.length ? dates[0].at.toLocaleString(root.ZadI18n?.locale() || 'ar-EG') : tr('لا توجد تذكيرات محلية مجدولة'));
+                if (root.Capacitor?.getPlatform?.() === 'android') message += '. ' + tr('أذان Android يُدار أيضًا بواسطة منبّه الصلاة الأصلي.');
                 if (native.checkExactNotificationSetting) {
                     const exact = await native.checkExactNotificationSetting();
-                    message += '. إذن الموعد الدقيق: ' + exact.exact_alarm;
+                    message += '. ' + tr('إذن الموعد الدقيق:') + ' ' + status(exact.exact_alarm);
                 }
-            } catch { message = 'تعذّر قراءة حالة تنبيهات الهاتف.'; }
+            } catch { message = tr('تعذّر قراءة حالة تنبيهات الهاتف.'); }
         } else {
-            message += '. تنبيهات الصلاة في الويب لا تُضمن عند إغلاق المتصفح.';
+            message += '. ' + tr('تنبيهات الصلاة في الويب لا تُضمن عند إغلاق المتصفح.');
         }
-        box.textContent = message + (hasCurrentPrayerTimes() ? ' مواقيت اليوم محدّثة.' : ' مواقيت اليوم لم تُؤكد بعد؛ اتصل بالإنترنت وحدّث المدينة.');
+        box.textContent = message + ' ' + tr(hasCurrentPrayerTimes() ? 'مواقيت اليوم محدّثة.' : 'مواقيت اليوم لم تُؤكد بعد؛ اتصل بالإنترنت وحدّث المدينة.');
     }
+    root.addEventListener('zad:language-change', refreshNotifications);
 
     async function testNotification() {
         const native = root.Capacitor?.Plugins?.LocalNotifications;
@@ -1078,6 +1082,7 @@
                 store.removeItem('zad_prayer_method');
                 store.removeItem('zad_prayer_school');
                 store.removeItem('zad_font_size');
+                store.removeItem('zad_language');
                 store.removeItem('zad_reading_preferences');
                 for (const group of ['azkar','hadith']) { store.removeItem('zad_reading_font_'+group); store.removeItem('zad_reading_font_'+group+'_options'); }
                 store.removeItem('zad_hijri_offset');

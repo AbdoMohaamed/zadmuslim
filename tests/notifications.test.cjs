@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
+const {JSDOM} = require('jsdom');
 const source = fs.readFileSync('assets/js/native-adhan-service.js', 'utf8');
 const off = { morning:false, evening:false, sleep:false, friday:false, fasting:false, hourlySalawat:false, prePrayer:false, adhan:false };
 function harness({platform='android', permission='granted', settings={}, verified=true, exact=true}={}) {
@@ -36,6 +37,29 @@ function harness({platform='android', permission='granted', settings={}, verifie
     vm.runInNewContext(source,context);
     return {service:context.NativeAdhanService,calls,context,data,local,native,timings};
 }
+test('native language bridge uses the current interface language and keeps alarm configuration intact',async()=>{
+ const h=harness(),updates=[];
+ h.native.setLanguage=async value=>updates.push(value);h.context.ZadI18n={language:'ur',t:value=>value};
+ await h.service.syncLanguage();assert.equal(updates[0].language,'ur');assert.equal(updates[0].cityName,'Cairo');
+ assert.equal(h.calls.native.length,0);assert.equal(h.calls.cancel.length,0);
+ delete h.native.setLanguage;await h.service.syncLanguage();
+});
+
+test('iOS notification payloads localize interface text while retaining prayer identities and Arabic duas',async()=>{
+ const dom=new JSDOM('<html><head></head><body><p></p></body></html>',{url:'https://zad.test',runScripts:'outside-only'});
+ try{
+  const w=dom.window;w.localStorage.setItem('zad_language','en');
+  for(const name of ['i18n-dictionary','i18n'])w.eval(fs.readFileSync('assets/js/'+name+'.js','utf8'));
+  const h=harness({platform:'ios',settings:{adhan:true,prePrayer:true,morning:true,sleep:true}});h.context.ZadI18n=w.ZadI18n;
+  await h.service.schedulePrayers();
+  const pre=h.calls.local.find(n=>n.extra?.type==='pre_prayer_alert');assert.ok(pre);assert.match(pre.title,/Coming up:/);
+  assert.equal(pre.extra.prayerName,'صلاة الفجر');assert.equal(pre.extra.prayerKey,'fajr');
+  const morning=h.calls.local.find(n=>n.extra?.type==='morning_azkar');assert.equal(morning.title,'Morning adhkar');assert.doesNotMatch(morning.body,/[\u0600-\u06ff]/);
+  const sleep=h.calls.local.find(n=>n.extra?.type==='sleep_azkar');assert.equal(sleep.title,'Bedtime adhkar');assert.equal(sleep.body,'باسمك ربي وضعت جنبي وبك أرفعه');
+  w.ZadI18n.set('ur');const localized=h.service.localizedNotifications([{title:'أذكار الصباح',body:'ابدأ يومك بذكر الله',id:70000}]);assert.equal(localized[0].title,'صبح کے اذکار');assert.equal(localized[0].id,70000);
+ }finally{dom.window.close();}
+});
+
 test('disabling every alert cancels old schedules but preserves diagnostics and cloud messages',async()=>{
     const h=harness();
     assert.equal((await h.service.schedulePrayers()).success,true);

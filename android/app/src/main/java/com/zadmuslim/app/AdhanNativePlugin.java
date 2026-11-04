@@ -31,6 +31,24 @@ public class AdhanNativePlugin extends Plugin {
     public static final int STICKY_NOTIF_ID = 10099;
 
     @PluginMethod
+    public void setLanguage(PluginCall call) {
+        String language = call.getString("language", "ar");
+        if (!"ar".equals(language) && !"en".equals(language) && !"ur".equals(language)) {
+            call.reject("Unsupported language"); return;
+        }
+        Context context = getContext();
+        boolean changed = !language.equals(NativeLanguage.language(context));
+        context.getSharedPreferences(PREFS_NAME, 0).edit().putString("interface_language", language).apply();
+        String city = call.getString("cityName", "");
+        if (!city.isEmpty() && city.length() <= 150) context.getSharedPreferences(PREFS_NAME, 0).edit().putString("widget_city", city).apply();
+        if (changed) {
+            PrayerWidgetProvider.updateAllWidgets(context);
+            updateStickyNotificationInternal(context);
+        }
+        JSObject result = new JSObject(); result.put("success", true); call.resolve(result);
+    }
+
+    @PluginMethod
     public void setAdhanVolume(PluginCall call) {
         Double value=call.getDouble("volume",1.0);
         float volume=(float)Math.max(0.1,Math.min(1.0,Double.isFinite(value)?value:1.0));
@@ -343,10 +361,10 @@ public class AdhanNativePlugin extends Plugin {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel channel = new NotificationChannel(
                         STICKY_CHANNEL_ID,
-                        "إشعار الصلاة والذكر الدائم",
+                        NativeLanguage.text(context, "إشعار الصلاة والذكر الدائم"),
                         NotificationManager.IMPORTANCE_LOW
                 );
-                channel.setDescription("عرض الصلاة القادمة والوقت المتبقي والذكر في شريط الإشعارات");
+                channel.setDescription(NativeLanguage.text(context, "عرض الصلاة القادمة والوقت المتبقي والذكر في شريط الإشعارات"));
                 channel.setShowBadge(false);
                 channel.enableLights(false);
                 channel.enableVibration(false);
@@ -372,8 +390,8 @@ public class AdhanNativePlugin extends Plugin {
             };
             int dhikrIndex = nowCal.get(Calendar.HOUR_OF_DAY) % reminders.length;
 
-            String title = "الصلاة القادمة: " + calc.prayerName + " (" + calc.prayerTime12H + ")";
-            String content = calc.countdownText + " • " + reminders[dhikrIndex];
+            String title = NativeLanguage.text(context, "الصلاة القادمة: " + calc.prayerName + " (" + calc.prayerTime12H + ")");
+            String content = NativeLanguage.text(context, calc.countdownText) + " • " + reminders[dhikrIndex];
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, STICKY_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_stat_icon)

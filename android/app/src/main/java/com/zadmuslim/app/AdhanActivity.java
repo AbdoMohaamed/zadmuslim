@@ -114,6 +114,7 @@ public class AdhanActivity extends AppCompatActivity {
 
         // Container رئيسي (FrameLayout) لملء الشاشة بالكامل بالصورة كخلفية
         FrameLayout rootLayout = new FrameLayout(this);
+        rootLayout.setLayoutDirection("en".equals(NativeLanguage.language(this)) ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
         rootLayout.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -159,7 +160,7 @@ public class AdhanActivity extends AppCompatActivity {
 
         // أ) زر الاستكمال (أخضر فخم)
         Button continueBtn = new Button(this);
-        continueBtn.setText("استمرار الأذان");
+        continueBtn.setText(NativeLanguage.text(this, "استمرار الأذان"));
         continueBtn.setTextSize(16);
         continueBtn.setTextColor(Color.WHITE);
         continueBtn.setTypeface(Typeface.DEFAULT_BOLD);
@@ -181,7 +182,7 @@ public class AdhanActivity extends AppCompatActivity {
 
         // ب) زر الإيقاف (أحمر أنيق)
         Button stopBtn = new Button(this);
-        stopBtn.setText("إيقاف الأذان");
+        stopBtn.setText(NativeLanguage.text(this, "إيقاف الأذان"));
         stopBtn.setTextSize(16);
         stopBtn.setTextColor(Color.WHITE);
         stopBtn.setTypeface(Typeface.DEFAULT_BOLD);

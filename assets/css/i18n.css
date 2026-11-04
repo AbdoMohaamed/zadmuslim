@@ -1,0 +1,274 @@
+@font-face{font-family:ZadUrdu;src:url('../fonts/NotoNaskhArabic-Regular.ttf') format('truetype');font-display:swap}
+html{--inline-flow:-1;--select-arrow-side:left}
+html[dir=ltr]{--inline-flow:1;--select-arrow-side:right}
+html[lang=en]{--font-body:system-ui,-apple-system,'Segoe UI',sans-serif;--font-heading:system-ui,-apple-system,'Segoe UI',sans-serif}
+html[lang=en] body,html[lang=en] button,html[lang=en] select,html[lang=en] input{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+html[lang=ur]{--font-body:ZadUrdu,serif;--font-heading:ZadUrdu,serif}
+html[lang=ur] body,html[lang=ur] button,html[lang=ur] select,html[lang=ur] input{font-family:ZadUrdu,serif;line-height:1.8}
+
+/* Standalone & form data-language-select */
+[data-language-select]{
+    min-width:160px;
+    max-width:100%;
+    min-height:46px;
+    box-sizing:border-box;
+    padding:10px 16px 10px 42px;
+    border:1.5px solid rgba(212,175,55,0.35);
+    border-radius:14px;
+    background-color:var(--settings-row-bg,#14221b);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:left 14px center;
+    background-size:16px;
+    color:inherit;
+    font:inherit;
+    font-weight:700;
+    cursor:pointer;
+    transition:border-color 0.2s ease,box-shadow 0.2s ease;
+    appearance:none;
+    -webkit-appearance:none;
+}
+html[dir=ltr] [data-language-select]{
+    padding:10px 42px 10px 16px;
+    background-position:right 14px center;
+}
+[data-language-select]:focus{
+    outline:none;
+    border-color:var(--gold,#d4af37);
+    box-shadow:0 0 0 3px rgba(212,175,55,0.22);
+}
+[data-theme="light"] [data-language-select]{
+    background-color:#fffaf0;
+    color:#1b3528;
+    border-color:rgba(184,154,85,0.45);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a6519' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+[data-theme="light"] [data-language-select]:focus{
+    border-color:#8a6519;
+    box-shadow:0 0 0 3px rgba(184,154,85,0.22);
+}
+[data-language-select] option{
+    background-color:#121c17;
+    color:#f6eedb;
+    padding:12px 16px;
+    font-size:0.98rem;
+    font-weight:700;
+}
+[data-theme="light"] [data-language-select] option{
+    background-color:#fffaf0;
+    color:#1b3528;
+}
+
+/* Quran page order and Arabic scripture retain their reading direction in every UI language. */
+#golden-quran-page,.golden-quran-page,[lang=ar][dir=rtl]{direction:rtl}
+#golden-mushaf-viewport,.golden-spread-container,.continuous-reading-flow{direction:rtl}
+/* UI navigation mirrors with the language; Quran page turns and geographic bearings do not. */
+html[dir=ltr] body .i18n-direction-icon{transform:scaleX(-1)!important}
+html[dir=ltr] .mobile-nav-content{transform:translateX(-100%)}
+html[dir=ltr] .mobile-nav-drawer.open .mobile-nav-content{transform:translateX(0)}
+/* Playback timelines, amounts and machine identifiers keep their conventional order. */
+input[type=range],input[type=number],input[type=time],input[type=date],input[type=email],input[type=url],input[type=tel],.offline-audio-times,#radio-volume-value,#radio-timer-rem-time{direction:ltr;unicode-bidi:isolate}
+textarea,input[type=text],input[type=search],.ask-zad-msg-bubble>div:first-child{unicode-bidi:plaintext}
+.ask-zad-msg-bubble>div:first-child{text-align:start}
+.service-info,.radio-station-text,.radio-item-info,.settings-fav-info,.setting-item-info,.golden-player-info{min-width:0;overflow-wrap:anywhere}
+html[lang=en] .services-resume-button::after{content:'Continue →'}
+html[lang=ur] .services-resume-button::after{content:'جاری رکھیں ←'}
+html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-row,html[dir=ltr] .service-card,html[dir=ltr] .quran-listen-bar{text-align:start}
+html[dir=ltr] .category-filter-pills{direction:ltr}
+html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-align:start}
+
+/* --- Redesigned zad-language-switch button & dropdown list --- */
+.zad-language-switch{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 42px;
+    width:42px;
+    height:42px;
+    box-sizing:border-box;
+    border:1px solid rgba(212,175,55,0.28);
+    border-radius:14px;
+    color:#e5c07b;
+    background:rgba(255,255,255,0.04);
+    vertical-align:middle;
+    cursor:pointer;
+    transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
+    user-select:none;
+    -webkit-user-select:none;
+}
+[data-theme="light"] .zad-language-switch{
+    background:rgba(0,0,0,0.035);
+    border-color:rgba(140,110,35,0.25);
+    color:#8a6519;
+}
+.zad-language-switch:hover{
+    border-color:rgba(212,175,55,0.6);
+    color:#f59e0b;
+    box-shadow:0 4px 14px rgba(212,175,55,0.25);
+    transform:translateY(-1.5px);
+}
+[data-theme="light"] .zad-language-switch:hover{
+    border-color:#b89a55;
+    color:#725211;
+    box-shadow:0 4px 12px rgba(184,154,85,0.2);
+    transform:translateY(-1.5px);
+}
+.zad-language-switch:active,.zad-language-switch.is-open{
+    transform:scale(0.95);
+    border-color:#d4af37;
+}
+.zad-language-switch svg{
+    width:22px;
+    height:22px;
+    pointer-events:none;
+    transition:transform 0.3s ease;
+}
+.zad-language-switch:hover svg{
+    transform:scale(1.1) rotate(15deg);
+}
+
+/* Badge for current language on the switch */
+.zad-lang-badge{
+    position:absolute;
+    bottom:-3px;
+    inset-inline-end:-3px;
+    background:linear-gradient(135deg,#d4af37 0%,#aa8422 100%);
+    color:#0d1512;
+    font-size:0.62rem;
+    font-weight:900;
+    line-height:1;
+    padding:2px 4px;
+    border-radius:6px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.4);
+    pointer-events:none;
+    letter-spacing:0;
+}
+[data-theme="light"] .zad-lang-badge{
+    background:linear-gradient(135deg,#264434 0%,#15291e 100%);
+    color:#fdfaf3;
+}
+
+/* Accessible native select inside the switch */
+.zad-language-switch select[data-language-select]{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    min-width:0;
+    max-width:none;
+    margin:0;
+    padding:0;
+    opacity:0;
+    cursor:pointer;
+    border:0;
+    background:transparent;
+    pointer-events:none;
+}
+.zad-language-switch:focus-within{
+    outline:2px solid currentColor;
+    outline-offset:3px;
+}
+
+/* The dropdown menu list that appears on switch click */
+.zad-language-dropdown{
+    position:absolute;
+    top:calc(100% + 8px);
+    inset-inline-end:0;
+    z-index:100050;
+    width:200px;
+    background:linear-gradient(180deg,#15241c 0%,#0d1612 100%);
+    border:1.5px solid rgba(212,175,55,0.38);
+    border-radius:18px;
+    padding:8px;
+    box-shadow:0 14px 40px rgba(0,0,0,0.8),0 0 0 1px rgba(212,175,55,0.15) inset;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    animation:langMenuDropIn 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
+    transform-origin:top end;
+}
+.zad-language-dropdown[hidden]{
+    display:none!important;
+}
+[data-theme="light"] .zad-language-dropdown{
+    background:linear-gradient(180deg,#fdfaf3 0%,#f7eee2 100%);
+    border:1.5px solid rgba(184,154,85,0.45);
+    box-shadow:0 14px 35px rgba(45,35,20,0.2),0 0 0 1px rgba(184,154,85,0.25) inset;
+}
+@keyframes langMenuDropIn{
+    from{opacity:0;transform:translateY(-8px) scale(0.95);}
+    to{opacity:1;transform:translateY(0) scale(1);}
+}
+.zad-lang-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    padding:10px 14px;
+    border-radius:12px;
+    border:1px solid transparent;
+    background:transparent;
+    color:#f1ebd9;
+    font-family:inherit;
+    font-size:0.92rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all 0.2s ease;
+    text-align:start;
+    user-select:none;
+}
+[data-theme="light"] .zad-lang-item{
+    color:#264434;
+}
+.zad-lang-item:hover{
+    background:rgba(212,175,55,0.12);
+    border-color:rgba(212,175,55,0.25);
+    transform:translateX(-2px);
+}
+[data-theme="light"] .zad-lang-item:hover{
+    background:rgba(38,68,52,0.08);
+    border-color:rgba(184,154,85,0.3);
+    transform:translateX(-2px);
+}
+.zad-lang-item.active{
+    background:rgba(212,175,55,0.18);
+    border-color:rgba(212,175,55,0.45);
+    color:#f3d082;
+}
+[data-theme="light"] .zad-lang-item.active{
+    background:rgba(38,68,52,0.12);
+    border-color:#8a6519;
+    color:#163023;
+}
+.zad-lang-label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.zad-lang-flag{
+    font-size:1.15rem;
+    line-height:1;
+}
+.zad-lang-name{
+    font-size:0.94rem;
+    font-weight:700;
+}
+.zad-lang-check{
+    font-size:0.85rem;
+    color:#e5c07b;
+    opacity:0;
+    transform:scale(0.5);
+    transition:all 0.2s ease;
+}
+[data-theme="light"] .zad-lang-check{
+    color:#8a6519;
+}
+.zad-lang-item.active .zad-lang-check{
+    opacity:1;
+    transform:scale(1);
+}
+
+.embed-language-header{position:fixed;inset-block-start:12px;inset-inline-end:12px;z-index:20;background:#17392e;border-radius:12px}
+.service-focus-bar>.zad-language-switch{order:3;margin-inline-start:auto}
+@media(max-width:380px){.settings-header-actions{gap:4px!important}.settings-header-actions .zad-language-switch{width:36px;height:40px;flex-basis:36px}}

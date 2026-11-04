@@ -56,9 +56,9 @@ public class RadioService extends Service {
   PendingIntent stop=PendingIntent.getService(this,ID,new Intent(this,RadioService.class).setAction(offline?(wanted?"PAUSE":"RESUME"):"STOP"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   String text="playing".equals(state)?(offline?(downloaded?"تلاوة محفوظة · بدون إنترنت":"تلاوة القرآن · عبر الإنترنت"):"يعمل الآن"):"paused".equals(state)?"متوقف مؤقتًا":"interrupted".equals(state)?"متوقف مؤقتًا للمكالمة أو الأذان":offline?"جاري فتح التلاوة":"جاري الاتصال بالبث";
   Notification.Builder builder=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);
-  return builder.setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(name).setContentText(text).setContentIntent(content)
+  return builder.setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(name).setContentText(NativeLanguage.text(this, text)).setContentIntent(content)
     .setOngoing(wanted).setVisibility(Notification.VISIBILITY_PUBLIC).setOnlyAlertOnce(true)
-    .addAction(new Notification.Action.Builder(offline&&!wanted?android.R.drawable.ic_media_play:android.R.drawable.ic_media_pause,offline?(wanted?"إيقاف مؤقت":"استكمال"):"إيقاف",stop).build())
+    .addAction(new Notification.Action.Builder(offline&&!wanted?android.R.drawable.ic_media_play:android.R.drawable.ic_media_pause,NativeLanguage.text(this, offline?(wanted?"إيقاف مؤقت":"استكمال"):"إيقاف"),stop).build())
     .setStyle(new Notification.MediaStyle().setMediaSession(session.getSessionToken()).setShowActionsInCompactView(0)).build();
  }
  @Override public int onStartCommand(Intent intent,int flags,int startId){
