@@ -4,12 +4,13 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v128";
+const CACHE_NAME = "zad-muslim-v131";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
+  "./assets/css/quran-reading.css?v=3",
   "./assets/js/app-developer.js?v=2",
   "./assets/js/offline-audio-catalog.js?v=1",
-  "./assets/js/offline-audio.js?v=1",
+  "./assets/js/offline-audio.js?v=2",
   "./assets/css/offline-audio.css?v=1",
   "./assets/fonts/Iura6YBj_oCad4k1nzGBCw.woff2",
   "./assets/fonts/Iura6YBj_oCad4k1nzSBC45I.woff2",
@@ -53,7 +54,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/radio-widget.js?v=3",
   "./assets/js/radio-navigation.js?v=3",
   "./assets/css/radio-player.css?v=5",
-  "./assets/js/radio-player.js?v=4",
+  "./assets/js/radio-player.js?v=5",
   "./assets/js/location-service.js?v=1",
   "./assets/css/style.css?v=100",
   "./assets/js/theme-controller.js",
@@ -71,10 +72,10 @@ const ASSETS_TO_CACHE = [
   "./assets/js/native-adhan-service.js?v=14",
   "./assets/js/onesignal-service.js?v=4",
   "./assets/js/app.js?v=27",
-  "./assets/js/quran.js?v=27",
-  "./assets/js/extended-modules.js?v=40",
+  "./assets/js/quran.js?v=30",
+  "./assets/js/extended-modules.js?v=41",
   "./assets/js/home-prayer-display.js?v=2",
-  "./assets/js/smart-khatma.js?v=3",
+  "./assets/js/smart-khatma.js?v=4",
   "./assets/js/share-card-generator.js?v=1",
   "./assets/js/mood-compass.js?v=1",
   "./assets/js/smart-tasbih.js?v=1",

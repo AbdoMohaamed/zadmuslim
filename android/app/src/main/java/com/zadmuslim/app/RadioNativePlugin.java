@@ -6,11 +6,11 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 public class RadioNativePlugin extends Plugin {
  @PluginMethod public void play(PluginCall call){
   String url=call.getString("url", "");String backup=call.getString("backupUrl", "");
-  boolean offline=url.startsWith("zad-offline:");
-  if(offline){try{String id=call.getString("id","");OfflineAudioStore.metadata(getContext(),id);url=OfflineAudioStore.file(getContext(),id).getAbsolutePath();backup="";}catch(Exception e){call.reject("Recording missing",e);return;}}
-  else if(!allowed(url)||(!backup.isEmpty()&&!allowed(backup))){call.reject("Unsupported stream");return;}
+  boolean saved=url.startsWith("zad-offline:"),recording=call.getBoolean("recording",false),offline=saved||recording;
+  if(saved){try{String id=call.getString("id","");OfflineAudioStore.metadata(getContext(),id);url=OfflineAudioStore.file(getContext(),id).getAbsolutePath();backup="";}catch(Exception e){call.reject("Recording missing",e);return;}}
+  else if(!(allowed(url)||recording&&OfflineAudioStore.allowed(url))||(!backup.isEmpty()&&!allowed(backup))){call.reject("Unsupported stream");return;}
   Intent intent=new Intent(getContext(),RadioService.class).setAction("PLAY");
-  intent.putExtra("offline",offline).putExtra("url",url).putExtra("backup",backup).putExtra("name",call.getString("name","راديو القرآن"))
+  intent.putExtra("offline",offline).putExtra("saved",saved).putExtra("url",url).putExtra("backup",backup).putExtra("name",call.getString("name","راديو القرآن"))
    .putExtra("id",call.getString("id", "")).putExtra("volume",call.getDouble("volume",.8).floatValue());
   try{androidx.core.content.ContextCompat.startForegroundService(getContext(),intent);call.resolve();}catch(Exception e){call.reject("Cannot start radio",e);}
  }

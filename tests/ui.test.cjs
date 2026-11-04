@@ -324,6 +324,68 @@ test('settings groups expand from navigation and reading settings are separated'
  } finally {dom.window.close();}
 });
 
+test('new Quran readers start at the Fatiha and page navigation accepts Arabic digits without opening tafsir',async()=>{
+ const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html#quran-khatma?tab=mushaf'});
+ try{
+  const w=dom.window,d=w.document;
+  assert.equal(JSON.parse(w.localStorage.getItem('zad_quran_last_read')).pageNumber,1);
+  assert.equal(d.querySelector('#golden-index-wird').contains(d.getElementById('smart-khatma-dashboard-slot')),true);
+  assert.equal(d.querySelector('.quran-tab-btn[data-tab="mushaf"] span').textContent,'المصحف');
+  d.getElementById('golden-page-pill').click();assert.ok(d.getElementById('golden-page-jump').classList.contains('open'));assert.equal(d.getElementById('golden-ayah-modal').classList.contains('open'),false);
+  const input=d.getElementById('quran-page-number');input.value='٦٠٤';d.getElementById('quran-page-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+  assert.equal(JSON.parse(w.localStorage.getItem('zad_quran_last_read')).pageNumber,604);assert.equal(d.getElementById('golden-page-jump').classList.contains('open'),false);
+  d.getElementById('golden-page-pill').click();input.value='0';d.getElementById('quran-page-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));assert.equal(input.getAttribute('aria-invalid'),'true');assert.equal(JSON.parse(w.localStorage.getItem('zad_quran_last_read')).pageNumber,604);
+  d.getElementById('quran-page-close').click();d.getElementById('golden-btn-tafsir-sheet').click();assert.ok(d.getElementById('golden-ayah-modal').classList.contains('open'));
+  assert.deepEqual(errors,[]);
+ }finally{dom.window.close();}
+});
+test('saved Quran reading position survives the simplified reader and reciter choices reach the shared player',async()=>{
+ const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html#quran-khatma?tab=mushaf',storage:{zad_quran_last_read:JSON.stringify({pageNumber:293})}});
+ try{
+  const w=dom.window,d=w.document;assert.equal(JSON.parse(w.localStorage.getItem('zad_quran_last_read')).pageNumber,293);
+  let played,downloaded;
+  w.ZadQuranAudio={playSurah:async value=>played=value,getState:()=>({}),openDownloads:value=>downloaded=value};
+  d.getElementById('quran-reciter-select').value='54';d.getElementById('quran-reciter-select').dispatchEvent(new w.Event('change'));
+  d.getElementById('btn-surah-audio').click();await new Promise(resolve=>setTimeout(resolve,0));assert.equal(played.surahId,18);assert.equal(played.reciterId,'54');
+  d.getElementById('quran-open-downloads').click();assert.equal(downloaded.surahId,18);assert.equal(downloaded.reciterId,'54');assert.deepEqual(errors,[]);
+  const playback={station:{id:'recitation-54-18',surahId:18,reciterId:'54',offline:true,saved:false,name:'سورة الكهف',desc:'السديس'},wanted:true,state:'playing',position:30};
+  w.ZadQuranAudio.getState=()=>playback;w.ZadQuranAudio.stop=()=>{playback.wanted=false;};w.updateQuranAudioUI(playback);
+  assert.equal(d.getElementById('golden-mini-player').style.display,'block');d.getElementById('golden-player-btn-close').click();w.updateQuranAudioUI(playback);assert.equal(d.getElementById('golden-mini-player').style.display,'none');
+ }finally{dom.window.close();}
+});
+test('personal wird lives in the Quran index and starting it closes the index without resetting the plan',async()=>{
+ const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html#quran-khatma?tab=mushaf'});
+ try{
+  const w=dom.window,d=w.document,modal=d.getElementById('golden-index-modal'),panel=d.getElementById('golden-index-wird');
+  assert.equal(d.querySelectorAll('#smart-khatma-dashboard-slot').length,1);
+  assert.equal(d.getElementById('subpart-mushaf').contains(d.getElementById('smart-khatma-dashboard-slot')),false);
+  d.getElementById('golden-btn-index').click();d.querySelector('.golden-index-tab-btn[data-tab="wird"]').click();
+  assert.equal(panel.hidden,false);assert.equal(d.getElementById('golden-index-list').hidden,true);assert.equal(d.querySelector('.golden-index-search').hidden,true);assert.ok(panel.querySelector('.smart-khatma-card'));
+  const before=w.localStorage.getItem('zad_smart_khatma_plan');panel.querySelector('.btn-read-wird').click();
+  assert.equal(modal.classList.contains('open'),false);assert.equal(w.localStorage.getItem('zad_smart_khatma_plan'),before);
+  d.getElementById('golden-btn-index').click();d.querySelector('.golden-index-tab-btn[data-tab="surahs"]').click();assert.equal(panel.hidden,true);assert.equal(d.getElementById('golden-index-list').hidden,false);
+  assert.deepEqual(errors,[]);
+ }finally{dom.window.close();}
+});
+test('Quran listening controls are in a dismissible sheet and successful playback leaves only the mini player',async()=>{
+ const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html#quran-khatma?tab=mushaf'});
+ try{
+  const w=dom.window,d=w.document,sheet=d.getElementById('quran-listen-sheet'),trigger=d.getElementById('golden-btn-listen');
+  assert.ok(sheet.contains(d.querySelector('.quran-listen-bar')));assert.equal(d.getElementById('golden-quran-wrapper').contains(d.querySelector('.quran-listen-bar')),false);assert.equal(sheet.classList.contains('open'),false);
+  trigger.click();assert.equal(sheet.classList.contains('open'),true);assert.equal(trigger.getAttribute('aria-expanded'),'true');
+  d.getElementById('quran-listen-close').click();assert.equal(sheet.classList.contains('open'),false);assert.equal(d.activeElement,trigger);
+  trigger.click();d.getElementById('quran-open-downloads').click();assert.equal(sheet.classList.contains('open'),false);assert.equal(d.getElementById('radio-panel').classList.contains('open'),true);assert.equal(d.getElementById('tab-btn-downloads').getAttribute('aria-selected'),'true');
+  d.getElementById('btn-close-radio').click();
+  const actual=w.ZadQuranAudio;let play;
+  w.ZadQuranAudio={...actual,playSurah:async value=>{play=value;return true;}};
+  trigger.click();d.getElementById('quran-reciter-select').value='54';d.getElementById('quran-reciter-select').dispatchEvent(new w.Event('change'));assert.equal(sheet.classList.contains('open'),true);
+  d.getElementById('btn-surah-audio').click();await new Promise(resolve=>setTimeout(resolve,0));assert.equal(play.reciterId,'54');assert.equal(sheet.classList.contains('open'),false);assert.equal(trigger.getAttribute('aria-expanded'),'false');
+  w.updateQuranAudioUI({station:{id:'recitation-54-1',offline:true,saved:false,surahId:1,reciterId:'54',name:'الفاتحة',desc:'السديس'},wanted:true,state:'playing',position:0});assert.equal(d.getElementById('golden-mini-player').style.display,'block');
+  trigger.click();w.ZadQuranAudio.playSurah=async()=>{throw Error('تعذّر الاتصال');};d.getElementById('btn-surah-audio').click();await new Promise(resolve=>setTimeout(resolve,0));assert.equal(sheet.classList.contains('open'),true);assert.match(d.getElementById('quran-audio-status').textContent,/تعذّر الاتصال/);
+  assert.deepEqual(errors,[]);
+ }finally{dom.window.close();}
+});
+
 test('Android settings show actual prayer coverage and synchronize volume before scheduling',async()=>{
  const volumeCalls=[];
  const {dom,errors}=await load('settings.html',{setup(w){

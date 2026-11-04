@@ -14,7 +14,7 @@ public class RadioService extends Service {
  public static volatile boolean wanted=false;
  public static volatile long sleepDeadline=0;
  public static volatile double position=0,duration=0;
- private boolean offline=false;
+ private boolean offline=false,downloaded=false;
  public static void pausePlayback(){RadioService s=instance;if(s!=null)s.handler.post(()->{if(!s.offline){stopPlayback();return;}wanted=false;s.clearTimers();if(s.player!=null){try{s.player.pause();s.savePosition();}catch(Exception ignored){}}s.publish("paused");});}
  public static void seek(double seconds){RadioService s=instance;if(s!=null)s.handler.post(()->{if(s.offline&&s.player!=null&&Double.isFinite(seconds)){try{s.player.seekTo((int)(Math.max(0,Math.min(seconds,duration))*1000));position=Math.max(0,Math.min(seconds,duration));s.savePosition();s.publish(state);}catch(Exception ignored){}}});}
  private void savePosition(){if(offline&&player!=null){try{position=player.getCurrentPosition()/1000.0;duration=player.getDuration()/1000.0;getSharedPreferences("offline-audio",0).edit().putLong(stationId,(long)(position*1000)).apply();}catch(Exception ignored){}}}
@@ -54,7 +54,7 @@ public class RadioService extends Service {
   Intent open=getPackageManager().getLaunchIntentForPackage(getPackageName());
   PendingIntent content=PendingIntent.getActivity(this,ID,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   PendingIntent stop=PendingIntent.getService(this,ID,new Intent(this,RadioService.class).setAction(offline?(wanted?"PAUSE":"RESUME"):"STOP"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-  String text="playing".equals(state)?(offline?"تلاوة محفوظة · بدون إنترنت":"يعمل الآن"):"paused".equals(state)?"متوقف مؤقتًا":"interrupted".equals(state)?"متوقف مؤقتًا للمكالمة أو الأذان":offline?"جاري فتح التلاوة":"جاري الاتصال بالبث";
+  String text="playing".equals(state)?(offline?(downloaded?"تلاوة محفوظة · بدون إنترنت":"تلاوة القرآن · عبر الإنترنت"):"يعمل الآن"):"paused".equals(state)?"متوقف مؤقتًا":"interrupted".equals(state)?"متوقف مؤقتًا للمكالمة أو الأذان":offline?"جاري فتح التلاوة":"جاري الاتصال بالبث";
   Notification.Builder builder=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);
   return builder.setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(name).setContentText(text).setContentIntent(content)
     .setOngoing(wanted).setVisibility(Notification.VISIBILITY_PUBLIC).setOnlyAlertOnce(true)
@@ -67,6 +67,7 @@ public class RadioService extends Service {
   if("RESUME".equals(intent.getAction())){resumePlayback();return START_NOT_STICKY;}
   releasePlayer();
   offline=intent.getBooleanExtra("offline",false);
+  downloaded=intent.getBooleanExtra("saved",offline);
   name=intent.getStringExtra("name");url=intent.getStringExtra("url");backup=intent.getStringExtra("backup");stationId=intent.getStringExtra("id");volume=intent.getFloatExtra("volume",.8f);
   position=offline?getSharedPreferences("offline-audio",0).getLong(stationId,0)/1000.0:0;duration=0;
   lastError="";

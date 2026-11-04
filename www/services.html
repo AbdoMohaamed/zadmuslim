@@ -53,6 +53,7 @@
     <link rel="stylesheet" href="assets/css/user-tools.css?v=5">
 <link rel="stylesheet" href="assets/css/radio-player.css?v=5">
 <link rel="stylesheet" href="assets/css/offline-audio.css?v=1">
+<link rel="stylesheet" href="assets/css/quran-reading.css?v=3">
 <script src="assets/js/radio-navigation.js?v=3"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
@@ -450,36 +451,21 @@
             <div id="khatma"></div>
             <div id="quran-reader"></div>
             <div class="container">
-                <div class="section-header">
-                    <span class="section-tag">
-                        <i class="fa-solid fa-book-quran"></i>
-                        تلاوة وتدبر • ختمة قرآنية جماعية
-                    </span>
-
-                    <h2 class="section-title">
-                        المصحف الشريف والختمة الجماعية
-                    </h2>
-
-                    <p class="section-desc">
-                        عش مع آيات القرآن الكريم تلاوةً وتدبرًا، وشارك في الختمات القرآنية الجماعية
-                        مع المسلمين من مختلف أنحاء العالم، لنتعاون معًا على تلاوة كتاب الله
-                        ونيل الأجر والثواب، سائلين الله أن يتقبل منا ومنكم صالح الأعمال.
-                    </p>
-                </div>
+                <div class="section-header quran-reading-intro"><h2 class="section-title">القرآن الكريم</h2><p class="section-desc">اقرأ من آخر موضع، أو اختار سورة من الفهرس.</p></div>
                 <!-- أزرار التبديل والتنقل بين المصحف وأجزاء الختمة -->
                 <div class="quran-khatma-tabs">
                     <button type="button" class="quran-tab-btn active" data-tab="mushaf">
                         <i class="fa-solid fa-book-open-reader"></i>
-                        <span>مصحف الصدقة الجارية (تلاوة وتدبر)</span>
+                        <span>المصحف</span>
                     </button>
                     <button type="button" class="quran-tab-btn" data-tab="khatma">
                         <i class="fa-solid fa-star-and-crescent"></i>
-                        <span>ختمة الـ 30 جزء الجماعية</span>
+                        <span>الختمة الجماعية</span>
                     </button>
                 </div>
 
                 <!-- لوحة الختمة الذكية والورد اليومي (Personal Smart Khatma Planner & Tracker) -->
-                <div id="smart-khatma-dashboard-slot" style="margin-top: 1rem; margin-bottom: 1.5rem;"></div>
+
 
                 <!-- الجزء الأول: مصحف الصدقة الجارية (تلاوة وتدبر) -->
                 <div class="quran-subpart-block" id="subpart-mushaf">
@@ -488,19 +474,17 @@
                         <!-- الترويسة الذهبية العلوية -->
                         <div class="golden-mushaf-header" id="golden-mushaf-header">
                             <button type="button" class="golden-hdr-btn golden-hdr-surah" id="golden-btn-surah" title="اختيار السورة">
-                                <span id="golden-surah-title">سورة يس</span>
+                                <span id="golden-surah-title">الفاتحة</span>
                                 <i class="fa-solid fa-chevron-left"></i>
                             </button>
 
-                            <button type="button" class="golden-hdr-btn golden-hdr-grid" id="golden-btn-index" title="فهرس القرآن الكريم">
-                                <div class="golden-grid-icon">
-                                    <div></div><div></div>
-                                    <div></div><div></div>
-                                </div>
+                            <button type="button" class="golden-hdr-btn golden-hdr-grid" id="golden-btn-index" title="فهرس القرآن الكريم" aria-label="فهرس القرآن الكريم">
+                                <i class="fa-solid fa-list-ul"></i>
                             </button>
 
                             <div class="golden-hdr-left">
-                                <span class="golden-juz-title" id="golden-juz-title">الجزء ٢٣</span>
+                                <span class="golden-juz-title" id="golden-juz-title">الجزء ١</span>
+                                <button type="button" class="golden-hdr-btn" id="golden-btn-listen" title="الاستماع للسورة" aria-label="فتح خيارات الاستماع" aria-controls="quran-listen-sheet" aria-expanded="false"><i class="fa-solid fa-headphones" aria-hidden="true"></i></button>
                                 <button type="button" class="golden-hdr-btn golden-hdr-memorize" id="golden-btn-memorize" title="تلاوة وتكرار الآيات لتسهيل الحفظ (مساعد الحفظ)">
                                     <i class="fa-solid fa-repeat"></i>
                                 </button>
@@ -530,11 +514,11 @@
                             <!-- حاوية الصفحتين المتقابلتين (Dual Page Spread للشاشات الكبيرة وصفحة واحدة للهاتف) -->
                             <div class="golden-spread-container" id="golden-spread-container">
                                 <div class="golden-page-side golden-page-right" id="golden-page-right-wrap">
-                                    <img id="mushaf-real-page-img-right" class="golden-mushaf-img" loading="lazy" decoding="async" src="assets/quran-pages/561.svg" alt="الصفحة اليمنى" draggable="false">
+                                    <img id="mushaf-real-page-img-right" class="golden-mushaf-img" loading="lazy" decoding="async" src="assets/quran-pages/001.svg" alt="الصفحة اليمنى" draggable="false">
                                 </div>
                                 <div class="golden-spread-spine" id="golden-spread-spine"></div>
                                 <div class="golden-page-side golden-page-left" id="golden-page-left-wrap">
-                                    <img id="mushaf-real-page-img" class="golden-mushaf-img" loading="lazy" decoding="async" src="assets/quran-pages/562.svg" alt="الصفحة اليسرى" draggable="false">
+                                    <img id="mushaf-real-page-img" class="golden-mushaf-img" loading="lazy" decoding="async" src="assets/quran-pages/002.svg" alt="الصفحة اليسرى" draggable="false">
                                 </div>
                             </div>
 
@@ -553,15 +537,29 @@
 
                         <!-- التذييل السفلي الأنيق (كبسولة الصفحة والحزب فقط) -->
                         <div class="golden-mushaf-footer" id="golden-mushaf-footer">
-                            <div class="golden-page-pill" id="golden-page-pill" title="انقر لفتح التفسير، التلاوة، والمراجع">
-                                <span id="golden-page-num">٥٦٢</span>
+                            <button type="button" class="golden-page-pill" id="golden-page-pill" title="انتقل إلى صفحة" aria-label="الانتقال إلى صفحة محددة">
+                                <span id="golden-page-num">١</span>
                                 <span class="golden-pill-divider">•</span>
-                                <span id="golden-hizb-num">الحزب ٥٧</span>
-                                <span class="golden-pill-tag"><i class="fa-solid fa-book-open"></i> التفسير والمراجع</span>
-                            </div>
+                                <span id="golden-hizb-num">الحزب ١</span>
+                                <span class="golden-pill-tag">انتقل لصفحة</span>
+                            </button>
                         </div>
                     </div>
 
+                    <div class="golden-index-modal quran-listen-sheet" id="quran-listen-sheet" role="dialog" aria-modal="true" aria-labelledby="quran-listen-title">
+                        <div class="golden-index-card quran-listen-card"><div class="golden-index-hdr"><h3 id="quran-listen-title">الاستماع للسورة</h3><button type="button" id="quran-listen-close" class="golden-index-close-btn" aria-label="إغلاق خيارات الاستماع">×</button></div>
+                        <div class="quran-listen-bar">
+                            <label for="quran-reciter-select">القارئ<select id="quran-reciter-select"><option value="123">مشاري العفاسي</option></select></label>
+                            <button type="button" id="btn-surah-audio" aria-pressed="false"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <span class="btn-audio-text">استماع</span></button>
+                            <button type="button" id="quran-open-downloads">تنزيل السورة</button>
+                            <p id="quran-audio-status" role="status" aria-live="polite">تُستخدم التلاوة المحفوظة إن توفّرت.</p>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="golden-index-modal" id="golden-page-jump" role="dialog" aria-modal="true" aria-labelledby="quran-page-title">
+                        <div class="golden-index-card quran-page-jump-card"><div class="golden-index-hdr"><h3 id="quran-page-title">انتقل لصفحة</h3><button type="button" id="quran-page-close" class="golden-index-close-btn" aria-label="إغلاق">×</button></div>
+                        <form id="quran-page-form" novalidate><label for="quran-page-number">رقم الصفحة من ١ إلى ٦٠٤</label><input id="quran-page-number" type="text" inputmode="numeric" autocomplete="off" maxlength="3" aria-describedby="quran-page-error"><p id="quran-page-error" role="alert"></p><button type="submit">انتقل</button></form></div>
+                    </div>
                     <!-- مودال الفهرس السريع المدمج (Index Modal) -->
                     <div class="golden-index-modal" id="golden-index-modal">
                         <div class="golden-index-card">
@@ -572,7 +570,11 @@
                             <div class="golden-index-tabs">
                                 <button type="button" class="golden-index-tab-btn active" data-tab="surahs">السور (114)</button>
                                 <button type="button" class="golden-index-tab-btn" data-tab="juz">الأجزاء (30)</button>
-                                <button type="button" class="golden-index-tab-btn" data-tab="bookmarks">علاماتي المحفوظة</button>
+                                <button type="button" class="golden-index-tab-btn" data-tab="bookmarks">علاماتي</button>
+                                <button type="button" class="golden-index-tab-btn" data-tab="wird">ختمتي ووردي</button>
+                            </div>
+                            <div id="golden-index-wird" class="golden-index-wird" hidden>
+                                <div id="smart-khatma-dashboard-slot"></div>
                             </div>
                             <div class="golden-index-search">
                                 <input type="text" id="golden-index-search-input" placeholder="ابحث باسم السورة أو رقمها (مثال: الكهف، 18)...">
@@ -790,6 +792,7 @@
                             </div>
                         </div>
                     </div>
+
 
                 </div>
 
@@ -3701,12 +3704,12 @@
         <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
     <script src="assets/js/app.js?v=27"></script>
-        <script src="assets/js/quran.js?v=27"></script>
+        <script src="assets/js/quran.js?v=30"></script>
         <script src="assets/js/offline-audio-catalog.js?v=1"></script>
-    <script src="assets/js/offline-audio.js?v=1"></script>
-    <script src="assets/js/radio-player.js?v=4"></script>
-    <script src="assets/js/extended-modules.js?v=40"></script>
-        <script src="assets/js/smart-khatma.js?v=3"></script>
+    <script src="assets/js/offline-audio.js?v=2"></script>
+    <script src="assets/js/radio-player.js?v=5"></script>
+    <script src="assets/js/extended-modules.js?v=41"></script>
+        <script src="assets/js/smart-khatma.js?v=4"></script>
         <script src="assets/js/share-card-generator.js?v=1"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
         <script src="assets/js/smart-tasbih.js?v=1"></script>

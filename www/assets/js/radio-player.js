@@ -35,7 +35,7 @@ class RadioPlayer {
  async connect(){
   if(!this.wanted)return;
   const generation=++this.generation;this.clear();
-  if(!this.online()&&!this.station?.offline){this.setState('offline');return;}
+  if(!this.online()&&(!this.station?.offline||this.station?.recording&&this.station?.saved===false)){if(this.station?.recording)this.wanted=false;this.setState('offline');return;}
   this.lastPosition=-1;this.setState('connecting');
   if(this.station?.offline){
    if(this.audio.src!==this.station.url){this.audio.src=this.station.url;this.audio.load();}
@@ -60,8 +60,13 @@ class RadioPlayer {
 }
 class NativeRadioPlayer {
  constructor(audio,notify,stations){this.audio=audio;this.notify=notify;this.stations=stations;this.wanted=false;this.chain=Promise.resolve();this.state='paused';this.plugin=global.Capacitor.Plugins.RadioNative;
- this.poll=async()=>{if(document.hidden||this.busy||this.fallback||this.switching)return;try{const result=await this.plugin.getState();if(this.busy||this.fallback||this.switching)return;if(result.wanted||result.id?.startsWith('offline-'))this.station=this.stations.find(s=>s.id===result.id)||this.station;this.wanted=result.wanted;this.state=result.state;this.position=result.position;this.duration=result.duration;this.notify({...result,station:this.station});}catch{}};
+ this.poll=async()=>{if(document.hidden||this.busy||this.fallback||this.switching)return;try{const result=await this.plugin.getState();if(this.busy||this.fallback||this.switching)return;if(result.wanted||/^(offline|recitation)-/.test(result.id||''))this.station=this.stations.find(s=>s.id===result.id)||this.restoreRecording(result.id)||this.station;this.wanted=result.wanted;this.state=result.state;this.position=result.position;this.duration=result.duration;this.notify({...result,station:this.station});}catch{}};
  this.interval=setInterval(()=>{if(this.fallback&&this.deadline&&Date.now()>=this.deadline){this.deadline=0;this.fallback.stop();}else this.poll();},1500);document.addEventListener('visibilitychange',this.poll);this.poll();
+ }
+ restoreRecording(id){
+  const match=/^(offline|recitation)-(\d+)-(\d+)$/.exec(id||''),catalog=global.ZadOfflineCatalog;if(!match||!catalog)return null;
+  const reciter=catalog.reciters.find(r=>r.id===match[2]),surah=catalog.surahs.find(s=>s.id===Number(match[3]));if(!reciter||!surah)return null;
+  const saved=match[1]==='offline',station={id,name:'سورة '+surah.name,desc:reciter.name,url:saved?'zad-offline:'+id:reciter.server+String(surah.id).padStart(3,'0')+'.mp3',offline:true,recording:true,saved,surahId:surah.id,reciterId:reciter.id};this.stations.push(station);return station;
  }
  get survivesNavigation(){return !this.fallback&&!this.switching;}
  async useWebPlayer(){

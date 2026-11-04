@@ -1,12 +1,3 @@
-let downloadedAudioObjectUrl = null;
-async function getDownloadedAudioUrl(url) {
-    if (downloadedAudioObjectUrl) { URL.revokeObjectURL(downloadedAudioObjectUrl); downloadedAudioObjectUrl = null; }
-    try {
-        const saved = await (await caches.open('zad-downloads-v1')).match(url);
-        if (saved) { downloadedAudioObjectUrl = URL.createObjectURL(await saved.blob()); return downloadedAudioObjectUrl; }
-    } catch {}
-    return url;
-}
 async function fetchQuranReference(url) {
     try { const saved = await (await caches.open('zad-downloads-v1')).match(url); if (saved) return saved; } catch {}
     return fetch(url);
@@ -180,9 +171,10 @@ const HIZB_STARTS = [
 ];
 
 const TOTAL_MUSHAF_PAGES = 604;
-let currentPageNumber = 562; // البداية الافتراضية
-let quranAudio = new Audio();
+let currentPageNumber = 1; // البداية الافتراضية
+
 let isQuranAudioPlaying = false;
+let quranMiniDismissedId = null;
 
 // تحويل الأرقام الإنجليزية لأرقام عربية مشرقية (مثل: ٤٤٢)
 function toArabicDigits(num) {
@@ -226,13 +218,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initGoldenQuran() {
-    ["golden-index-modal", "golden-memorize-modal", "golden-ayah-modal", "golden-mini-player"].forEach(id => {
+    ["quran-listen-sheet", "golden-page-jump", "golden-index-modal", "golden-memorize-modal", "golden-ayah-modal", "golden-mini-player"].forEach(id => {
         const el = document.getElementById(id);
         if (el && el.parentElement && el.parentElement !== document.body) {
             document.body.appendChild(el);
         }
     });
     setupGoldenNavigation();
+    setupQuranSharedAudio();
     setupGoldenBookmarks();
     setupGoldenTheme();
     setupGoldenIndexModal();
@@ -402,6 +395,8 @@ function goToMushafPage(pageNumber) {
     localStorage.setItem("zad_quran_last_read", JSON.stringify(lastReadData));
     localStorage.setItem("mushaf_last_page", String(pageNumber));
 
+    updateQuranAudioUI(sharedQuranAudio()?.getState());
+
     // 6. تحديث بطاقة "أكمل من حيث توقفت"
     updateResumeCardUI(pageNumber, surah);
 
@@ -508,9 +503,21 @@ function setupGoldenNavigation() {
     // النقر على كبسولة الصفحة للانتقال السريع وفتح لوحة التفسير والتلاوة
     if (pagePill) {
         pagePill.addEventListener("click", () => {
-            openGoldenAyahSheet(currentPageNumber);
+            openQuranPageJump();
         });
     }
+
+    const jump=document.getElementById('golden-page-jump');
+    const form=document.getElementById('quran-page-form');
+    if(form)form.onsubmit=event=>{
+        event.preventDefault();const input=document.getElementById('quran-page-number');
+        const value=input.value.trim().replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+        const page=Number(value);
+        if(!/^\d+$/.test(value)||!Number.isInteger(page)||page<1||page>TOTAL_MUSHAF_PAGES){input.setAttribute('aria-invalid','true');document.getElementById('quran-page-error').textContent='اكتب رقم صفحة من ١ إلى ٦٠٤.';return;}
+        goToMushafPage(page);closeQuranPageJump();
+    };
+    const closeJump=document.getElementById('quran-page-close');if(closeJump)closeJump.onclick=closeQuranPageJump;
+    if(jump){jump.addEventListener('click',event=>{if(event.target===jump)closeQuranPageJump();});jump.addEventListener('keydown',event=>{if(event.key==='Escape'){event.stopPropagation();closeQuranPageJump();}});}
 
     // زر التفسير والتلاوة المباشر في الترويسة العلوية
     const btnTafsirSheet = document.getElementById("golden-btn-tafsir-sheet");
@@ -526,39 +533,83 @@ function setupGoldenNavigation() {
     }
 }
 
-async function toggleSurahRecitation() {
-    const surah = getSurahForPage(currentPageNumber);
-    const paddedSurah = String(surah.id).padStart(3, "0");
-    const btnAudio = document.getElementById("btn-surah-audio");
-    const textSpan = btnAudio ? btnAudio.querySelector(".btn-audio-text") : null;
-    const icon = btnAudio ? btnAudio.querySelector("i") : null;
-
-    if (isQuranAudioPlaying) {
-        quranAudio.pause();
-        isQuranAudioPlaying = false;
-        if (textSpan) textSpan.textContent = "تلاوة";
-        if (icon) icon.className = "fa-solid fa-volume-high";
-        if (typeof showToast === "function") showToast("تم إيقاف التلاوة ⏸️");
-    } else {
-        quranAudio.src = await getDownloadedAudioUrl(`https://server8.mp3quran.net/afs/${paddedSurah}.mp3`);
-        quranAudio.play().then(() => {
-            isQuranAudioPlaying = true;
-            if (textSpan) textSpan.textContent = "إيقاف";
-            if (icon) icon.className = "fa-solid fa-pause";
-            if (typeof showToast === "function") showToast(`جاري تشغيل تلاوة سورة ${surah.name} 🎙️`);
-        }).catch(() => {
-            if (typeof showToast === "function") showToast("تعذر تشغيل التلاوة بدون اتصال بالإنترنت");
+function sharedQuranAudio() {
+    if (window.ZadQuranAudio) return window.ZadQuranAudio;
+    try { if (parent !== window && parent.location.origin === location.origin) return parent.ZadQuranAudio; } catch (_) {}
+    return null;
+}
+function quranReciter() { return document.getElementById('quran-reciter-select')?.value || localStorage.getItem('zad_quran_reciter') || '123'; }
+async function playQuranSurah(toggle = true) {
+    const bridge=sharedQuranAudio(),button=document.getElementById('btn-surah-audio'),status=document.getElementById('quran-audio-status');
+    if(!bridge){if(status)status.textContent='المشغّل غير جاهز بعد. حاول مرة أخرى.';return;}
+    if(button)button.disabled=true;
+    try {
+        if (typeof stopMemorizeAudio === 'function') stopMemorizeAudio();
+        const result=await bridge.playSurah({surahId:getSurahForPage(currentPageNumber).id,reciterId:quranReciter(),toggle});
+        if(result!==false)closeQuranListenSheet();
+    } catch(error) {if(status)status.textContent=error.message;if(typeof showToast==='function')showToast(error.message);}
+    finally {if(button)button.disabled=false;}
+}
+async function toggleSurahRecitation() { return playQuranSurah(true); }
+function closeQuranListenSheet(restoreFocus=true) {
+    document.getElementById('quran-listen-sheet')?.classList.remove('open');
+    const button=document.getElementById('golden-btn-listen');button?.setAttribute('aria-expanded','false');
+    if(restoreFocus)button?.focus();
+}
+function setupQuranSharedAudio() {
+    const sheet=document.getElementById('quran-listen-sheet'),trigger=document.getElementById('golden-btn-listen');
+    if(trigger&&sheet)trigger.onclick=()=>{
+        sheet.classList.toggle('is-paper',document.getElementById('golden-quran-wrapper')?.classList.contains('theme-golden-cream')||document.documentElement.dataset.theme==='light');
+        sheet.classList.add('open');trigger.setAttribute('aria-expanded','true');document.getElementById('quran-reciter-select')?.focus();
+    };
+    const close=document.getElementById('quran-listen-close');if(close)close.onclick=()=>closeQuranListenSheet();
+    if(sheet){
+        sheet.addEventListener('click',event=>{if(event.target===sheet)closeQuranListenSheet();});
+        sheet.addEventListener('keydown',event=>{
+            if(event.key==='Escape'){event.stopPropagation();closeQuranListenSheet();}
+            if(event.key==='Tab'){
+                const nodes=Array.from(sheet.querySelectorAll('button,select')).filter(node=>!node.disabled),first=nodes[0],last=nodes[nodes.length-1];
+                if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+                else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+            }
         });
     }
-
-    quranAudio.onended = () => {
-        isQuranAudioPlaying = false;
-        if (textSpan) textSpan.textContent = "تلاوة";
-        if (icon) icon.className = "fa-solid fa-volume-high";
-    };
+    const select=document.getElementById('quran-reciter-select');
+    if(select){
+        const catalog=window.ZadOfflineCatalog;
+        if(catalog){select.replaceChildren();for(const r of catalog.reciters){const option=document.createElement('option');option.value=r.id;option.textContent=r.name;select.append(option);}}
+        const saved=localStorage.getItem('zad_quran_reciter');if(saved&&Array.from(select.options).some(o=>o.value===saved))select.value=saved;
+        select.onchange=()=>{localStorage.setItem('zad_quran_reciter',select.value);updateQuranAudioUI(sharedQuranAudio()?.getState());};
+    }
+    const downloads=document.getElementById('quran-open-downloads');
+    if(downloads)downloads.onclick=event=>{event.stopPropagation();const bridge=sharedQuranAudio();if(!bridge)return;closeQuranListenSheet(false);bridge.openDownloads({surahId:getSurahForPage(currentPageNumber).id,reciterId:quranReciter()});};
+    let unsubscribe;
+    const attach=()=>{const bridge=sharedQuranAudio();if(bridge&&!unsubscribe)unsubscribe=bridge.subscribe(updateQuranAudioUI);};
+    attach();window.addEventListener('zad:quran-audio-ready',attach);
+    if(document.readyState==='loading')window.addEventListener('load',attach,{once:true});
+    window.addEventListener('pagehide',()=>{unsubscribe?.();unsubscribe=null;});
+    window.addEventListener('pageshow',attach);
 }
-
-// حفظ وحذف الفواصل المرجعية
+function updateQuranAudioUI(state) {
+    if(state?.wanted&&typeof isMemorizePlaying!=='undefined'&&isMemorizePlaying)stopMemorizeAudio();
+    const station=state?.station,recording=!!station?.offline;
+    isQuranAudioPlaying=recording&&!!state.wanted;
+    const current=getSurahForPage(currentPageNumber),matching=recording&&Number(station.surahId)===current.id&&String(station.reciterId)===quranReciter();
+    const button=document.getElementById('btn-surah-audio');
+    if(button){button.setAttribute('aria-pressed',String(matching&&!!state.wanted));const label=button.querySelector('.btn-audio-text');if(label)label.textContent=matching&&state.wanted?'إيقاف مؤقت':matching&&state.position>0?'استكمال':'استماع';}
+    const status=document.getElementById('quran-audio-status');
+    if(status)status.textContent=recording?(state.state==='failed'?'تعذّر تشغيل التلاوة؛ أعد المحاولة.':state.state==='connecting'?'جاري فتح التلاوة…':station.name+' · '+station.desc+(station.saved?' · بدون إنترنت':'')):'اختار القارئ؛ تُستخدم التلاوة المحفوظة إن توفّرت.';
+    if(recording&&state.wanted)quranMiniDismissedId=null;
+    const mini=document.getElementById('golden-mini-player');if(mini)mini.style.display=recording&&station.id!==quranMiniDismissedId&&(state.wanted||state.position>0)?'block':'none';
+    const title=document.getElementById('golden-player-title');if(title&&station)title.textContent=station.name;
+    const reciter=document.querySelector('.golden-player-reciter');if(reciter&&station)reciter.textContent=station.desc;
+    const icon=document.getElementById('golden-player-icon');if(icon)icon.className=isQuranAudioPlaying?'fa-solid fa-pause':'fa-solid fa-play';
+}
+function openQuranPageJump() {
+    const modal=document.getElementById('golden-page-jump'),input=document.getElementById('quran-page-number');if(!modal||!input)return;
+    input.value=String(currentPageNumber);input.removeAttribute('aria-invalid');document.getElementById('quran-page-error').textContent='';modal.classList.add('open');input.focus();input.select();
+}
+function closeQuranPageJump(){document.getElementById('golden-page-jump')?.classList.remove('open');document.getElementById('golden-page-pill')?.focus();}
 function setupGoldenBookmarks() {
     const btnBookmark = document.getElementById("golden-btn-bookmark");
     if (!btnBookmark) return;
@@ -692,40 +743,28 @@ function setupGoldenIndexModal() {
 
     if (!modal) return;
 
-    const openModal = () => {
-        modal.classList.add("open");
-        renderSurahsInIndex();
+    let selectedTab='surahs';
+    const list=document.getElementById('golden-index-list'),wird=document.getElementById('golden-index-wird'),search=searchInput?.closest('.golden-index-search');
+    const activate=name=>{
+        selectedTab=name;
+        tabs.forEach(tab=>{const active=tab.dataset.tab===name;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));});
+        if(list){list.hidden=name==='wird';list.style.display=name==='wird'?'none':'';}
+        if(wird)wird.hidden=name!=='wird';
+        if(search){search.hidden=name!=='surahs';search.style.display=name==='surahs'?'':'none';}
+        if(name==='surahs')renderSurahsInIndex(searchInput?.value.trim().toLowerCase()||'');
+        else if(name==='juz')renderJuzInIndex();
+        else if(name==='bookmarks')renderBookmarksInIndex();
+        else if(name==='wird')window.SmartKhatmaService?.renderDashboardCard();
     };
+    const openModal=()=>{modal.classList.add('open');activate(selectedTab);};
+    const closeModal=()=>modal.classList.remove('open');
+    if(btnOpenGrid)btnOpenGrid.addEventListener('click',openModal);
+    if(btnOpenSurah)btnOpenSurah.addEventListener('click',openModal);
+    if(btnClose)btnClose.addEventListener('click',closeModal);
+    modal.addEventListener('click',event=>{if(event.target===modal)closeModal();});
+    tabs.forEach(tab=>tab.addEventListener('click',()=>activate(tab.dataset.tab)));
+    if(searchInput)searchInput.addEventListener('input',event=>{if(selectedTab==='surahs')renderSurahsInIndex(event.target.value.trim().toLowerCase());});
 
-    const closeModal = () => {
-        modal.classList.remove("open");
-    };
-
-    if (btnOpenGrid) btnOpenGrid.addEventListener("click", openModal);
-    if (btnOpenSurah) btnOpenSurah.addEventListener("click", openModal);
-    if (btnClose) btnClose.addEventListener("click", closeModal);
-
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) closeModal();
-    });
-
-    tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            tabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-            const tabName = tab.getAttribute("data-tab");
-            if (tabName === "surahs") renderSurahsInIndex();
-            else if (tabName === "juz") renderJuzInIndex();
-            else if (tabName === "bookmarks") renderBookmarksInIndex();
-        });
-    });
-
-    if (searchInput) {
-        searchInput.addEventListener("input", (e) => {
-            const query = e.target.value.trim().toLowerCase();
-            renderSurahsInIndex(query);
-        });
-    }
 }
 
 function renderSurahsInIndex(filter = "") {
@@ -992,7 +1031,7 @@ function setupGoldenFullScreen() {
         if (icon) icon.className = "fa-solid fa-compress";
         updateHeight();
         // Ensure Quran modals and floating overlays are stacked above the fullscreen reader
-        ["golden-index-modal", "golden-memorize-modal", "golden-ayah-modal", "golden-mini-player"].forEach(id => {
+        ["quran-listen-sheet", "golden-page-jump", "golden-index-modal", "golden-memorize-modal", "golden-ayah-modal", "golden-mini-player"].forEach(id => {
             const el = document.getElementById(id);
             if (el) document.body.appendChild(el);
         });
@@ -1001,6 +1040,7 @@ function setupGoldenFullScreen() {
         if (e.key === "Escape") {
             const openModal = document.querySelector(".golden-index-modal.open, .golden-ayah-modal.open, .golden-memorize-modal.open");
             if (openModal) {
+                if(openModal.id==='quran-listen-sheet'){closeQuranListenSheet();return;}
                 openModal.classList.remove("open");
                 return;
             }
@@ -1154,6 +1194,7 @@ function setupGoldenAyahSheet() {
 function openGoldenAyahSheet(page) {
     const modal = document.getElementById("golden-ayah-modal");
     if (!modal) return;
+    modal.classList.toggle('is-paper', document.getElementById('golden-quran-wrapper')?.classList.contains('theme-golden-cream') || document.documentElement.dataset.theme === 'light');
 
     const surah = getSurahForPage(page || currentPageNumber);
     const txtEl = document.getElementById("golden-ayah-text");
@@ -1246,58 +1287,11 @@ function renderSheetTafsir(ayahs, container) {
 // 4. المشغل الصوتي العائم المدمج للتلاوة (Floating Mini Player)
 // ==========================================================================
 function setupGoldenMiniPlayer() {
-    const player = document.getElementById("golden-mini-player");
-    const btnToggle = document.getElementById("golden-player-btn-toggle");
-    const btnClose = document.getElementById("golden-player-btn-close");
-    const icon = document.getElementById("golden-player-icon");
-
-    if (btnToggle) {
-        btnToggle.addEventListener("click", () => {
-            if (isQuranAudioPlaying) {
-                quranAudio.pause();
-                isQuranAudioPlaying = false;
-                if (icon) icon.className = "fa-solid fa-play";
-            } else {
-                quranAudio.play();
-                isQuranAudioPlaying = true;
-                if (icon) icon.className = "fa-solid fa-pause";
-            }
-        });
-    }
-
-    if (btnClose && player) {
-        btnClose.addEventListener("click", () => {
-            quranAudio.pause();
-            isQuranAudioPlaying = false;
-            player.style.display = "none";
-        });
-    }
-
-    quranAudio.addEventListener("ended", () => {
-        isQuranAudioPlaying = false;
-        if (icon) icon.className = "fa-solid fa-play";
-    });
+    const toggle=document.getElementById('golden-player-btn-toggle'),close=document.getElementById('golden-player-btn-close');
+    if(toggle)toggle.onclick=()=>{const state=sharedQuranAudio()?.getState();if(state?.station?.offline)sharedQuranAudio().playSurah({surahId:state.station.surahId,reciterId:state.station.reciterId,toggle:true}).catch(error=>{if(typeof showToast==='function')showToast(error.message);});};
+    if(close)close.onclick=()=>{quranMiniDismissedId=sharedQuranAudio()?.getState()?.station?.id;sharedQuranAudio()?.stop();document.getElementById('golden-mini-player').style.display='none';};
 }
-
-async function startGoldenAudioPlayer() {
-    const player = document.getElementById("golden-mini-player");
-    const titleEl = document.getElementById("golden-player-title");
-    const icon = document.getElementById("golden-player-icon");
-    const surah = getSurahForPage(currentPageNumber);
-    const padded = String(surah.id).padStart(3, "0");
-
-    if (player) player.style.display = "block";
-    if (titleEl) titleEl.textContent = `تلاوة سورة ${surah.name}`;
-
-    quranAudio.src = await getDownloadedAudioUrl(`https://server8.mp3quran.net/afs/${padded}.mp3`);
-    quranAudio.play().then(() => {
-        isQuranAudioPlaying = true;
-        if (icon) icon.className = "fa-solid fa-pause";
-        if (typeof showToast === "function") showToast(`جاري الاستماع لتلاوة سورة ${surah.name} 🎙️`);
-    }).catch(() => {
-        if (typeof showToast === "function") showToast("تتطلب التلاوة الصوتية اتصالاً بالإنترنت.");
-    });
-}
+async function startGoldenAudioPlayer() { return playQuranSurah(false); }
 
 // ==========================================================================
 // 5. استوديو ومساعد الحفظ وتكرار الآيات الشريفة آية آية (Ayah Memorization & Repetition)
@@ -1539,6 +1533,7 @@ function playCurrentAyahWithRepeat() {
     const audioUrl = `https://cdn.islamic.network/quran/audio/128/${selectedMemorizeReciter}/${ayah.number}.mp3`;
     ayahMemorizeAudio.src = audioUrl;
 
+    sharedQuranAudio()?.pause();
     ayahMemorizeAudio.play().then(() => {
         isMemorizePlaying = true;
         updateMemorizeCounterUI();

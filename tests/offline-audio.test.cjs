@@ -47,3 +47,22 @@ test('radio library mounts with four reciters and all surahs; tab data and contr
   w.document.dispatchEvent(new w.CustomEvent('zad:radio-state'));assert.equal(w.document.getElementById('radio-offline-transport').hidden,true);
  }finally{await new Promise(r=>setImmediate(r));w.close();}
 });
+test('Quran and downloads share the same recording, pause and resume without replacing its source',async()=>{
+ const dom=new JSDOM('<div id="radio-tab-downloads"></div><div id="radio-offline-transport"></div>',{url:'https://app.test',runScripts:'outside-only'}),w=dom.window;
+ try{
+  w.eval(fs.readFileSync('assets/js/offline-audio-catalog.js','utf8'));w.eval(source);
+  let starts=0,pauses=0,selections=0;
+  w.Capacitor={Plugins:{RadioNative:{listDownloads:async()=>({items:[{...recording,bytes:100}]})}}};
+  const player={wanted:false,station:null,chain:Promise.resolve(),position:42,duration:120,poll:async()=>{},stop(){this.wanted=false;},seek(){},pause(){pauses++;this.wanted=false;}};
+  w.ZadOfflineAudio.mount({player,audio:w.document.createElement('audio'),stations:[],setStation(item){selections++;player.station=item;},start(){starts++;player.wanted=true;},native:true});
+  await w.ZadQuranAudio.playSurah({surahId:1,reciterId:'123'});assert.equal(player.station.url,'zad-offline:offline-123-1');assert.equal(player.station.saved,true);
+  await w.ZadQuranAudio.playSurah({surahId:1,reciterId:'123'});assert.equal(pauses,1);assert.equal(player.position,42);
+  await w.ZadQuranAudio.playSurah({surahId:1,reciterId:'123'});assert.equal(starts,2);assert.equal(selections,1);assert.equal(player.position,42);
+  Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});
+  await assert.rejects(w.ZadQuranAudio.playSurah({surahId:1,reciterId:'54'}),/مش محفوظة/);
+  Object.defineProperty(w.navigator,'onLine',{value:true});
+  await w.ZadQuranAudio.playSurah({surahId:1,reciterId:'54'});assert.equal(player.station.saved,false);assert.ok(player.station.url.startsWith('https://cdn.mp3quran.net/audio/abdulrahman-sudais/r1/'));
+  w.Capacitor.Plugins.RadioNative.listDownloads=async()=>({items:[{...recording,id:'offline-54-1'}]});
+  await w.ZadQuranAudio.playSurah({surahId:1,reciterId:'54'});assert.equal(player.station.id,'recitation-54-1');assert.equal(player.wanted,false);assert.equal(pauses,2);
+ }finally{await new Promise(resolve=>setImmediate(resolve));w.close();}
+});

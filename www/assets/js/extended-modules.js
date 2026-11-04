@@ -2796,7 +2796,7 @@ function initLiveRadioWidgetWithSleepTimer() {
  const player=new Player(audio,({state,station,wanted,error,fallback})=>{
   panel.dataset.state=state;
   if($('radio-play-label'))$('radio-play-label').textContent=wanted?'إيقاف':'سماع';
-  const label=error||(station?.offline&&state==='failed'?'تعذّر تشغيل التلاوة؛ أعد تنزيلها':state==='playing'?(station?.offline?'تلاوة محفوظة':'مباشر'):(state==='ended'?'اكتملت التلاوة':labels[state]||state));
+  const label=error||(station?.offline&&state==='failed'?'تعذّر تشغيل التلاوة؛ أعد تنزيلها':state==='playing'?(station?.offline?(station.saved===false?'تلاوة':'تلاوة محفوظة'):'مباشر'):(state==='ended'?'اكتملت التلاوة':labels[state]||state));
   document.dispatchEvent(new CustomEvent('zad:radio-state',{detail:{state,station,wanted}}));
   if(statusText)statusText.textContent=label+(fallback?' — مشغّل بديل':'');
   if(alternative)alternative.hidden=!!station?.offline||!!fallback||!['failed','retrying','blocked'].includes(state);
@@ -2813,7 +2813,7 @@ function initLiveRadioWidgetWithSleepTimer() {
   renderStationsList();
   if(!nativeRadio&&'mediaSession' in navigator){
    navigator.mediaSession.playbackState=state==='playing'?'playing':'paused';
-   if(station&&window.MediaMetadata)navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:'زاد المسلم',album:station.offline?'تلاوة محفوظة':'بث إذاعي مباشر',artwork:[{src:new URL('assets/branding/app-logo.png',document.baseURI).href,sizes:'395x395',type:'image/png'}]});
+   if(station&&window.MediaMetadata)navigator.mediaSession.metadata=new MediaMetadata({title:station.name,artist:'زاد المسلم',album:station.offline?(station.saved===false?'تلاوة القرآن':'تلاوة محفوظة'):'بث إذاعي مباشر',artwork:[{src:new URL('assets/branding/app-logo.png',document.baseURI).href,sizes:'395x395',type:'image/png'}]});
   }
  },stations);
  window.ZadRadioHost?.attach(player);

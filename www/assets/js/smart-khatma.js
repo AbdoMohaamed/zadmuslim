@@ -458,6 +458,7 @@
         },
 
         openTodayWirdInMushaf() {
+            document.getElementById('golden-index-modal')?.classList.remove('open');
             const wird = this.getTodayWirdPages();
             const destination = 'quran-khatma?tab=mushaf&page=' + wird.fromPage;
             if (typeof window.openServiceView === 'function') window.openServiceView(destination, true);
@@ -465,6 +466,7 @@
         },
 
         openSetupModal() {
+            document.getElementById('golden-index-modal')?.classList.remove('open');
             let existingModal = document.getElementById("khatma-setup-modal");
             if (existingModal) existingModal.remove();
 
@@ -549,6 +551,7 @@
         },
 
         openBadgesModal() {
+            document.getElementById('golden-index-modal')?.classList.remove('open');
             let existing = document.getElementById("zad-badges-modal");
             if (existing) existing.remove();
 
@@ -666,7 +669,7 @@
                         </div>
                         <div class="wird-box-actions">
                             <button type="button" class="btn gold btn-read-wird" onclick="SmartKhatmaService.openTodayWirdInMushaf()">
-                                <i class="fa-solid fa-book-open"></i> <span>قراءة الورد</span>
+                                <i class="fa-solid fa-book-open"></i> <span>ابدأ ورد اليوم</span>
                             </button>
                             ${!wird.isCompletedToday ? `
                                 <button type="button" class="btn solid btn-complete-wird" onclick="SmartKhatmaService.markTodayWirdComplete()">

@@ -64,6 +64,12 @@ test('selecting a saved recording exits the web fallback before native playback'
  h.p.select({id:'offline-123-1',url:'zad-offline:offline-123-1',offline:true},true);await h.p.chain;
  assert.equal(h.p.fallback,null);assert.equal(played.id,'offline-123-1');assert.equal(h.audio.src,'');
 });
+test('native Quran playback restores the reader and surah after page navigation',async()=>{
+ const h=nativeSetup(async()=>{});await flush();
+ h.window.ZadOfflineCatalog={reciters:[{id:'123',name:'القارئ',server:'https://cdn.mp3quran.net/audio/mishary-alafasy/r1/'}],surahs:[{id:1,name:'الفاتحة'}]};
+ h.p.plugin.getState=async()=>({id:'recitation-123-1',wanted:true,state:'playing',position:45,duration:120});await h.p.poll();
+ assert.equal(h.p.station.surahId,1);assert.equal(h.p.station.reciterId,'123');assert.equal(h.p.station.saved,false);assert.equal(h.p.position,45);
+});
 test('alternative playback waits for native stop and retains the same station',async()=>{let finish;const h=nativeSetup(()=>new Promise(r=>finish=r));assert.equal(h.p.survivesNavigation,true);const switched=h.p.useWebPlayer();assert.equal(h.p.survivesNavigation,false);await flush();assert.equal(h.audio.plays.length,0);finish();await switched;assert.equal(h.p.survivesNavigation,false);assert.deepEqual(h.audio.plays,['https://stream.test/cairo']);assert.equal(h.p.wanted,true);h.p.stop();assert.equal(h.p.wanted,false);});
 test('a failed native stop cannot start a second player',async()=>{const h=nativeSetup(async()=>{throw Error('stop failed');});await h.p.useWebPlayer();assert.equal(h.audio.plays.length,0);assert.equal(h.changes.at(-1).state,'failed');});
 test('stopping during a pending switch prevents delayed playback',async()=>{let finish;const h=nativeSetup(()=>new Promise(r=>finish=r));const switched=h.p.useWebPlayer();await flush();h.p.stop();finish();await switched;assert.equal(h.audio.plays.length,0);});
