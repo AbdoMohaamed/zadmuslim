@@ -20,6 +20,7 @@
  }
  const texts=new WeakMap(),attributes=new WeakMap();
  const sacred='.azkar-text,.azkar-virtue,.hadith-text,.hadith-explanation,.hadith-meaning,.hadith-lesson,.sadaqa-hadith-text,#wisdom-hadith-text,#wisdom-hadith-lesson,.reading-font-preview,.pg-prohibition-hadith,.pg-prohibition-explanation,.pg-card-intro,.pg-item-detail,.cat-dua-body,.cat-dua-source,.fasting-dua-text,.mood-dua-text,.mood-dua-note,.dua-text,.cemetery-dua-text,.prophetic-text,.ayah-verse-text,.memorize-ayah-text,.story-verse-box,.story-verse-preview,.ayah-sheet-text,#wisdom-ayah-text,.daily-verse-text,.quran-ayah-text,.tafsir-ayah-text';
+ const originalQuotes='.golden-ayah-text,.hifz-verse-text,.pg-dua-arabic,.quick-dhikr-text,.challenge-quote-text,.prayer-main-text,.prayer-body,.verse-text,.asmaa-card-name,#modal-asmaa-name';
  const skip='script,style,noscript,textarea,svg,canvas,[translate="no"],[data-i18n-skip],.ask-zad-msg-bubble>div:first-child,.dua-wall-text,.visitor-dua-text,.dua-author-info,.visitor-dua-name';
  // Textarea contents belong to the user; their placeholder and label are UI.
  const attributeSkip=skip.replace('textarea,','');
@@ -30,6 +31,20 @@
   return names[normalize(name)]?.[lang]||t(name,lang);
  }
  const templates=[
+  [/^حَانَ الآنَ مَوْعِدُ (.+)$/,name=>[`It is time for ${t(name,'en')}`,`اب وقت ہے: ${t(name,'ur')}`]],
+  [/^موعد الأذان: (\d{1,2}:\d{2} [صم])(?: \((متبقي .+)\))?$/, (time,left)=>[`Adhan: ${t(time,'en')}${left?' ('+t(left,'en')+')':''}`,`اذان: ${t(time,'ur')}${left?' ('+t(left,'ur')+')':''}`]],
+  [/^متبقي (\d+) د$/,n=>[`${n} min remaining`,`${n} منٹ باقی`]],
+  [/^تمت الجدولة في الهاتف؛ الأذان حتى (.+)\. افتح التطبيق لتجديد المواعيد قبل انتهاء المدة\.$/,date=>[`Scheduled on your phone. Adhan reminders are set through ${date}. Open the app before then to renew them.`,`فون میں اوقات مقرر ہو گئے۔ اذان کی یاد دہانیاں ${date} تک مقرر ہیں۔ تجدید کے لیے اس سے پہلے ایپ کھولیں۔`]],
+  [/^تمت جدولة (?:إشعار )?(التنبيه المسبق الناطق|التنبيه المسبق|الأذان الكامل|الأذان)(?: في نظام الهاتف| بنجاح) بعد (\d+) ثانية \((.+)\)\..+📱(?:✨)?$/, (kind,n,time)=>{
+   const pre=kind.startsWith('التنبيه');
+   return [`${pre?'Pre-prayer reminder':'Adhan'} scheduled in ${n} seconds (${t(time,'en')}). Lock your phone to test it. 📱`,`${pre?'نماز سے پہلے یاد دہانی':'اذان'} ${n} سیکنڈ بعد (${t(time,'ur')}) مقرر ہے۔ آزمائش کے لیے فون مقفل کریں۔ 📱`];
+  }],
+  [/^سورة (.+) [-–] آية (\d+)$/, (name,n)=>[`Surah ${surahName(name,'en')} – Ayah ${n}`,`سورۃ ${surahName(name,'ur')} – آیت ${n}`]],
+  [/^المال أقل من النصاب الشرعي \((.+)\)، فلا زكاة واجبة فيه شرعاً، وتُستحب الصدقة\.$/,amount=>[`Your wealth is below the nisab (${t(amount,'en')}). Zakat is not due; voluntary charity is encouraged.`,`آپ کا مال نصاب (${t(amount,'ur')}) سے کم ہے۔ زکوٰۃ واجب نہیں؛ نفلی صدقہ مستحب ہے۔`]],
+  [/^منذ (\d+) (دقيقة|دقائق|ساعة|ساعات|يوم|أيام)$/, (n,unit)=>{
+   const [en,ur]=/دقيق/.test(unit)?['minute','منٹ']:/ساع/.test(unit)?['hour','گھنٹے']:['day','دن'];
+   return [`${n} ${en}${n==='1'?'':'s'} ago`,`${n} ${ur} پہلے`];
+  }],
   [/^(.+) — مشغّل بديل$/,label=>[`${t(label,'en')} — alternative player`,`${t(label,'ur')} — متبادل پلیئر`]],
   [/^تعذّر تشغيل البث على مشغّل أندرويد \((.+)\)$/,code=>[`Android stream playback failed (${code})`,`اینڈرائیڈ پر نشریات نہیں چل سکیں (${code})`]],
   [/^(\d+) تلاوة · (.+)$/, (n,size)=>[`${n} saved recitations · ${t(size,'en')}`,`${n} محفوظ تلاوتیں · ${t(size,'ur')}`]],
@@ -129,7 +144,7 @@
   return Array.from(node.childNodes||[],original).join('');
  }
  function renderText(node){
-  const parent=node.parentElement;if(!parent||parent.closest(skip+','+sacred))return;
+  const parent=node.parentElement;if(!parent||parent.closest(skip+','+sacred+','+originalQuotes))return;
   const previous=texts.get(node),source=previous&&node.data===previous.rendered?previous.original:node.data;
   const key=normalize(source);if(!key)return;
   const translated=parent.closest('#golden-surah-title')?surahName(key,language):parent.matches('option[value="naskh"]')?(language==='en'?'Naskh':language==='ur'?'نسخ':key):t(key);
@@ -144,14 +159,15 @@
   if(element.matches('.fa-arrow-left,.fa-arrow-right,.fa-chevron-left,.fa-chevron-right,.fa-angle-left,.fa-angle-right,.fa-angles-left,.fa-angles-right')){
    element.classList.toggle('i18n-direction-icon',!element.closest('[data-direction-fixed],#golden-mushaf-viewport,.compass-container,.qibla-compass,.media-player-controls'));
   }
-  if(element.matches('textarea,input:not([type]),input[type="text"],input[type="search"]')&&!element.hasAttribute('dir'))element.dir='auto';
+  if(element.matches('input[type="search"],input[inputmode="search"]'))element.dir=language==='en'?'ltr':'rtl';
+  else if(element.matches('textarea,input:not([type]),input[type="text"]')&&!element.hasAttribute('dir'))element.dir='auto';
   if(element.matches('input[type="email"],input[type="url"],input[type="tel"],input[type="number"],input[type="date"],input[type="time"],input[type="range"],input[inputmode="numeric"],input[inputmode="decimal"]'))element.dir='ltr';
   if(element.matches('.ask-zad-msg-bubble>div:first-child'))element.dir='auto';
   // Untranslated Arabic paragraphs and mixed-language notes retain their own text flow
   // without reversing the surrounding English card, toolbar or form.
   if(element.matches('p,h1,h2,h3,h4,h5,h6,blockquote,option,.category-desc,.category-result-count,.radio-station-name,.radio-station-desc,.radio-item-name,.radio-item-desc,.golden-player-title,.golden-index-name,.golden-index-meta,.offline-audio-status')&&!element.hasAttribute('dir'))element.dir='auto';
-  if(element.matches(sacred)){element.lang='ar';element.dir='rtl';return;}
-  if(element.closest(attributeSkip+','+sacred))return;
+  if(element.matches(sacred+','+originalQuotes)){element.lang='ar';element.dir='rtl';return;}
+  if(element.closest(attributeSkip+','+sacred+','+originalQuotes))return;
   const saved=attributes.get(element)||{};
   for(const name of ['title','aria-label','placeholder','alt']){
    const value=element.getAttribute(name);if(value===null)continue;
@@ -183,6 +199,32 @@
    });
   });
  }
+ function positionDropdown(sw,menu){
+  if(menu.hidden)return;
+  menu.style.transform='';
+  menu.classList.remove('open-upward');
+  const swRect=sw.getBoundingClientRect();
+  const menuRect=menu.getBoundingClientRect();
+  if(!menuRect.width&&!menuRect.height)return;
+  const viewportWidth=doc.documentElement.clientWidth||root.innerWidth||360;
+  const viewportHeight=doc.documentElement.clientHeight||root.innerHeight||640;
+  const padding=8;
+  let shiftX=0;
+  if(menuRect.left<padding){
+   shiftX=padding-menuRect.left;
+  }else if(menuRect.right>viewportWidth-padding){
+   shiftX=(viewportWidth-padding)-menuRect.right;
+  }
+  if(shiftX!==0){
+   menu.style.transform='translateX('+shiftX+'px)';
+  }
+  if(menuRect.bottom>viewportHeight-padding&&swRect.top>menuRect.height+padding){
+   menu.classList.add('open-upward');
+  }
+ }
+ function closeAllDropdowns(){
+  doc.querySelectorAll('.zad-language-dropdown').forEach(m=>{m.hidden=true;m.parentElement?.classList.remove('is-open');});
+ }
  function setupLanguageDropdowns(){
   doc.querySelectorAll('.zad-language-switch').forEach(sw=>{
    if(sw.querySelector('.zad-language-dropdown'))return;
@@ -199,8 +241,8 @@
    menu.setAttribute('translate','no');
    menu.hidden=true;
    const options=[
-    {code:'ar',name:'العربية',flag:'AR'},
-    {code:'en',name:'English',flag:'US'},
+    {code:'ar',name:'العربية',flag:'🇸🇦'},
+    {code:'en',name:'English',flag:'🇬🇧'},
     {code:'ur',name:'اردو',flag:'🇵🇰'}
    ];
    options.forEach(opt=>{
@@ -220,8 +262,7 @@
      }else{
       set(opt.code);
      }
-     menu.hidden=true;
-     sw.classList.remove('is-open');
+     closeAllDropdowns();
     });
     menu.append(btn);
    });
@@ -230,9 +271,12 @@
     if(e.target.closest('.zad-language-dropdown'))return;
     e.preventDefault();
     const isOpen=!menu.hidden;
-    doc.querySelectorAll('.zad-language-dropdown').forEach(m=>{m.hidden=true;m.parentElement?.classList.remove('is-open');});
+    closeAllDropdowns();
     menu.hidden=isOpen;
     sw.classList.toggle('is-open',!isOpen);
+    if(!menu.hidden){
+     positionDropdown(sw,menu);
+    }
    });
   });
  }
@@ -263,12 +307,20 @@
   setupLanguageDropdowns();
   doc.addEventListener('click',e=>{
    if(!e.target.closest('.zad-language-switch')){
-    doc.querySelectorAll('.zad-language-dropdown').forEach(m=>{m.hidden=true;m.parentElement?.classList.remove('is-open');});
+    closeAllDropdowns();
    }
   });
+  doc.addEventListener('pointerdown',e=>{
+   if(!e.target.closest('.zad-language-switch')){
+    closeAllDropdowns();
+   }
+  });
+  if(root.addEventListener){
+   root.addEventListener('resize',closeAllDropdowns,{passive:true});
+  }
   doc.addEventListener('keydown',e=>{
    if(e.key==='Escape'){
-    doc.querySelectorAll('.zad-language-dropdown').forEach(m=>{m.hidden=true;m.parentElement?.classList.remove('is-open');});
+    closeAllDropdowns();
    }
   });
   const observer=new root.MutationObserver(records=>{

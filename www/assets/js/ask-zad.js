@@ -768,7 +768,14 @@
                 if (typeof act.href !== 'string' || !external&&!/^(services|settings|index)\.html(?:[?#]|$)/.test(act.href)) continue;
                 btn.href = act.href;
                 btn.textContent = act.label;
-                if(external){btn.target='_blank';btn.rel='noopener noreferrer';actionsDiv.appendChild(btn);continue;}
+                if (external) {
+                    // Capacitor hands off top-level external navigation to the
+                    // device. A new WebView window can swallow the tap.
+                    btn.target = root.Capacitor?.isNativePlatform?.() ? '_self' : '_blank';
+                    btn.rel = 'noopener noreferrer';
+                    actionsDiv.appendChild(btn);
+                    continue;
+                }
                 btn.addEventListener('click', (e) => {
                     if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
                     e.preventDefault();closeChat();

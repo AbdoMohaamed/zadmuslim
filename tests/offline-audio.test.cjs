@@ -36,14 +36,14 @@ test('native backend delegates download, cancellation, listing and deletion with
  const calls=[];const plugin={downloadAudio:async item=>{calls.push('download');return {...item,bytes:100};},downloadProgress:async()=>({received:50,total:100}),listDownloads:async()=>({items:[recording]}),cancelDownload:async()=>calls.push('cancel'),deleteDownload:async()=>calls.push('delete')};
  const h=setup(()=>{throw Error('unexpected fetch');}),store=new h.Library(plugin);await store.download({...recording},()=>{});await store.cancel();assert.equal((await store.list()).length,1);assert.equal(await store.source(recording),'zad-offline:'+recording.id);await store.remove(recording);assert.deepEqual(calls,['download','cancel','delete']);
 });
-test('radio library mounts with four reciters and all surahs; tab data and controls stay accessible',async()=>{
+test('radio library offers every reciter, each surah and a complete Quran download',async()=>{
  const dom=new JSDOM('<div id="radio-tab-downloads"></div><div id="radio-offline-transport"></div>',{url:'https://app.test',runScripts:'outside-only'});const w=dom.window;
  try{
   w.eval(fs.readFileSync('assets/js/offline-audio-catalog.js','utf8'));w.eval(source);
   const player={wanted:false,station:null,poll:async()=>{},stop(){},seek(){},pause(){}};const audio=w.document.createElement('audio');
   w.ZadOfflineAudio.mount({player,audio,stations:[],setStation(){},start(){},native:false});
-  assert.equal(w.document.querySelectorAll('#offline-audio-reciter option').length,4);assert.equal(w.document.querySelectorAll('#offline-audio-surah option').length,114);
-  assert.equal(w.document.querySelector('[data-download]').disabled,true);assert.equal(w.document.getElementById('radio-offline-transport').hidden,true);
+  assert.equal(w.document.querySelectorAll('#offline-audio-reciter option').length,8);assert.equal(w.document.querySelectorAll('#offline-audio-surah option').length,115);
+  assert.equal(w.document.querySelector('[data-recitation-download]').disabled,false);assert.equal(w.document.getElementById('radio-offline-transport').hidden,true);
   w.document.dispatchEvent(new w.CustomEvent('zad:radio-state'));assert.equal(w.document.getElementById('radio-offline-transport').hidden,true);
  }finally{await new Promise(r=>setImmediate(r));w.close();}
 });
@@ -65,4 +65,36 @@ test('Quran and downloads share the same recording, pause and resume without rep
   w.Capacitor.Plugins.RadioNative.listDownloads=async()=>({items:[{...recording,id:'offline-54-1'}]});
   await w.ZadQuranAudio.playSurah({surahId:1,reciterId:'54'});assert.equal(player.station.id,'recitation-54-1');assert.equal(player.wanted,false);assert.equal(pauses,2);
  }finally{await new Promise(resolve=>setImmediate(resolve));w.close();}
+});
+
+test('complete reciter downloads keep finished surahs and retry only missing files',async()=>{
+ const dom=new JSDOM('<div id="radio-tab-downloads"></div><div id="radio-offline-transport"></div>',{url:'https://app.test',runScripts:'outside-only'});
+ const w=dom.window,d=w.document,saved=[],requests=[];
+ try{
+  w.eval(fs.readFileSync('assets/js/offline-audio-catalog.js','utf8'));w.eval(source);
+  w.ZadOfflineCatalog.surahs=w.ZadOfflineCatalog.surahs.slice(0,3);
+  w.confirm=()=>true;
+  let fail=true;
+  w.Capacitor={Plugins:{RadioNative:{
+   listDownloads:async()=>({items:saved}),
+   async downloadAudio(item){
+    requests.push(item.id);
+    if(fail&&item.id.endsWith('-2'))throw Error('Connection lost');
+    saved.push({...item,bytes:100});
+   }
+  }}};
+  w.ZadOfflineAudio.mount({player:{},audio:d.createElement('audio'),native:true});
+  await new Promise(resolve=>setImmediate(resolve));
+  d.getElementById('offline-audio-reciter').value='20';
+  const surah=d.getElementById('offline-audio-surah');
+  surah.value='all';surah.dispatchEvent(new w.Event('change'));
+  const download=d.querySelector('[data-recitation-download]');
+  await download.onclick();
+  assert.deepEqual(saved.map(item=>item.id),['offline-20-1']);
+  assert.match(d.querySelector('.offline-audio-status').textContent,/تعذّر/);
+  fail=false;
+  await download.onclick();
+  assert.deepEqual(requests,['offline-20-1','offline-20-2','offline-20-2','offline-20-3']);
+  assert.match(d.querySelector('.offline-audio-status').textContent,/اكتمل تنزيل المصحف/);
+ }finally{w.close();}
 });

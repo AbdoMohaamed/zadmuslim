@@ -217,9 +217,17 @@ function localizedCalendarParts(date, offsetDays = 0) {
     const locale = window.ZadI18n.locale();
     const hijri = new Date(date.getTime() + offsetDays * 86400000);
     const options = {day:'numeric',month:'long',year:'numeric'};
-    let hijriPart;
-    try { hijriPart = new Intl.DateTimeFormat(locale, {...options, calendar:'islamic-umalqura'}).format(hijri); }
-    catch { hijriPart = new Intl.DateTimeFormat(locale, {...options, calendar:'islamic'}).format(hijri); }
+    // Some WebViews format the Islamic calendar with Gregorian month names
+    // and era labels in Urdu. Use its calendar numbers and our month names.
+    const hijriOptions = {day:'numeric', month:'numeric', year:'numeric'};
+    let parts;
+    try { parts = new Intl.DateTimeFormat('en', {...hijriOptions, calendar:'islamic-umalqura'}).formatToParts(hijri); }
+    catch { parts = new Intl.DateTimeFormat('en', {...hijriOptions, calendar:'islamic'}).formatToParts(hijri); }
+    const values = Object.fromEntries(parts.map(({type, value}) => [type, value]));
+    const months = ['محرّم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان', 'رمضان', 'شوّال', 'ذو القعدة', 'ذو الحجة'];
+    const month = window.ZadI18n.t(months[Number(values.month) - 1]);
+    const era = window.ZadI18n.language === 'ur' ? 'ھ' : 'AH';
+    const hijriPart = `${values.day} ${month} ${values.year} ${era}`;
     return { weekday:new Intl.DateTimeFormat(locale,{weekday:'long'}).format(date), hijriPart, gregPart:new Intl.DateTimeFormat(locale,{...options,calendar:'gregory'}).format(date) };
 }
 

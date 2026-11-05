@@ -1022,6 +1022,9 @@ body.ask-zad-open {
     overscroll-behavior: none !important;
     touch-action: none !important;
 }
+html.ask-zad-open #live-radio-widget {
+    display: none;
+}
 .ask-zad-fab {
     min-height: 48px;
     min-width: 48px;

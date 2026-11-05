@@ -16,7 +16,7 @@ final class OfflineAudioStore {
  private static volatile HttpURLConnection connection;
  static boolean validId(String id){return id!=null&&id.matches("offline-[0-9]{1,4}-[0-9]{1,3}");}
  static boolean allowed(String value){
-  try{URI uri=new URI(value);return "https".equals(uri.getScheme())&&uri.getUserInfo()==null&&uri.getPort()==-1&&uri.getQuery()==null&&uri.getFragment()==null&&"cdn.mp3quran.net".equals(uri.getHost())&&uri.getPath().matches("/audio/(mishary-alafasy/r1|abdulrahman-sudais/r1|mahmoud-husary/r2|muhammad-minshawi/r3)/[0-9]{3}\\.mp3");}catch(Exception e){return false;}
+  try{URI uri=new URI(value);return "https".equals(uri.getScheme())&&uri.getUserInfo()==null&&uri.getPort()==-1&&uri.getQuery()==null&&uri.getFragment()==null&&"cdn.mp3quran.net".equals(uri.getHost())&&uri.getPath().matches("/audio/(mishary-alafasy/r1|abdulrahman-sudais/r1|mahmoud-husary/r2|muhammad-minshawi/r3|khalid-jalil/r1|yasser-dosari/r1|maher-muaiqly/r1|ali-jaber/r1)/[0-9]{3}\\.mp3");}catch(Exception e){return false;}
  }
  static File directory(Context context){File dir=new File(context.getFilesDir(),"offline-audio");dir.mkdirs();return dir;}
  static File file(Context context,String id)throws IOException {if(!validId(id))throw new IOException("Invalid recording");return new File(directory(context),id+".mp3");}

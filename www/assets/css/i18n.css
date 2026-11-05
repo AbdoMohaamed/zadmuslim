@@ -86,6 +86,8 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
     flex:0 0 42px;
     width:42px;
     height:42px;
+    min-width:42px;
+    min-height:42px;
     box-sizing:border-box;
     border:1px solid rgba(212,175,55,0.28);
     border-radius:14px;
@@ -96,6 +98,7 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
     transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
     user-select:none;
     -webkit-user-select:none;
+    touch-action:manipulation;
 }
 [data-theme="light"] .zad-language-switch{
     background:rgba(0,0,0,0.035);
@@ -119,8 +122,8 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
     border-color:#d4af37;
 }
 .zad-language-switch svg{
-    width:22px;
-    height:22px;
+    width:21px;
+    height:21px;
     pointer-events:none;
     transition:transform 0.3s ease;
 }
@@ -131,14 +134,14 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
 /* Badge for current language on the switch */
 .zad-lang-badge{
     position:absolute;
-    bottom:-3px;
-    inset-inline-end:-3px;
+    bottom:-2px;
+    inset-inline-end:-2px;
     background:linear-gradient(135deg,#d4af37 0%,#aa8422 100%);
     color:#0d1512;
     font-size:0.62rem;
     font-weight:900;
     line-height:1;
-    padding:2px 4px;
+    padding:2px 4.5px;
     border-radius:6px;
     box-shadow:0 1px 4px rgba(0,0,0,0.4);
     pointer-events:none;
@@ -176,7 +179,10 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
     top:calc(100% + 8px);
     inset-inline-end:0;
     z-index:100050;
-    width:200px;
+    min-width:180px;
+    width:max-content;
+    max-width:min(220px,calc(100vw - 20px));
+    box-sizing:border-box;
     background:linear-gradient(180deg,#15241c 0%,#0d1612 100%);
     border:1.5px solid rgba(212,175,55,0.38);
     border-radius:18px;
@@ -186,7 +192,15 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
     flex-direction:column;
     gap:4px;
     animation:langMenuDropIn 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
-    transform-origin:top end;
+    transform-origin:top center;
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+}
+.zad-language-dropdown.open-upward{
+    top:auto;
+    bottom:calc(100% + 8px);
+    animation:langMenuDropUp 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
+    transform-origin:bottom center;
 }
 .zad-language-dropdown[hidden]{
     display:none!important;
@@ -200,11 +214,17 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
     from{opacity:0;transform:translateY(-8px) scale(0.95);}
     to{opacity:1;transform:translateY(0) scale(1);}
 }
+@keyframes langMenuDropUp{
+    from{opacity:0;transform:translateY(8px) scale(0.95);}
+    to{opacity:1;transform:translateY(0) scale(1);}
+}
 .zad-lang-item{
     display:flex;
     align-items:center;
     justify-content:space-between;
     width:100%;
+    min-height:44px;
+    box-sizing:border-box;
     padding:10px 14px;
     border-radius:12px;
     border:1px solid transparent;
@@ -217,6 +237,7 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
     transition:all 0.2s ease;
     text-align:start;
     user-select:none;
+    -webkit-user-select:none;
 }
 [data-theme="light"] .zad-lang-item{
     color:#264434;
@@ -271,4 +292,97 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
 
 .embed-language-header{position:fixed;inset-block-start:12px;inset-inline-end:12px;z-index:20;background:#17392e;border-radius:12px}
 .service-focus-bar>.zad-language-switch{order:3;margin-inline-start:auto}
-@media(max-width:380px){.settings-header-actions{gap:4px!important}.settings-header-actions .zad-language-switch{width:36px;height:40px;flex-basis:36px}}
+
+/* =========================================================
+   RESPONSIVE MEDIA QUERIES FOR ALL SCREEN SIZES
+   ========================================================= */
+
+/* Tablets & Mobile devices (<= 480px) */
+@media(max-width:480px){
+    .zad-language-switch,
+    header.top .zad-language-switch,
+    .settings-header-actions .zad-language-switch,
+    .service-focus-bar .zad-language-switch,
+    .nav-actions .zad-language-switch{
+        width:40px!important;
+        height:40px!important;
+        min-width:40px!important;
+        min-height:40px!important;
+        flex:0 0 40px!important;
+        border-radius:12px!important;
+    }
+    .zad-language-switch svg{
+        width:19px;
+        height:19px;
+    }
+    .zad-lang-badge{
+        font-size:0.58rem;
+        padding:1.5px 3.5px;
+        border-radius:5px;
+    }
+    .zad-language-dropdown{
+        min-width:170px;
+        max-width:calc(100vw - 20px);
+        padding:6px;
+        border-radius:16px;
+    }
+    .zad-lang-item{
+        min-height:44px;
+        padding:9px 12px;
+        font-size:0.9rem;
+    }
+    .zad-lang-flag{
+        font-size:1.1rem;
+    }
+    .settings-header-actions{
+        gap:6px!important;
+    }
+}
+
+/* Small mobile phones (<= 380px) */
+@media(max-width:380px){
+    .settings-header-actions{
+        gap:4px!important;
+    }
+}
+
+/* Ultra-compact screens & Foldables (<= 360px) */
+@media(max-width:360px){
+    .zad-language-switch,
+    header.top .zad-language-switch,
+    .settings-header-actions .zad-language-switch,
+    .service-focus-bar .zad-language-switch,
+    .nav-actions .zad-language-switch{
+        width:36px!important;
+        height:36px!important;
+        min-width:36px!important;
+        min-height:36px!important;
+        flex:0 0 36px!important;
+        border-radius:10px!important;
+    }
+    .zad-language-switch svg{
+        width:17px;
+        height:17px;
+    }
+    .zad-lang-badge{
+        font-size:0.52rem;
+        padding:1px 3px;
+        border-radius:4px;
+        bottom:-1px;
+        inset-inline-end:-1px;
+    }
+    .zad-language-dropdown{
+        min-width:160px;
+        max-width:calc(100vw - 16px);
+        padding:5px;
+        border-radius:14px;
+    }
+    .zad-lang-item{
+        min-height:40px;
+        padding:8px 10px;
+        font-size:0.86rem;
+    }
+}
+input[type="search"], input[inputmode="search"] {
+    text-align: start;
+}

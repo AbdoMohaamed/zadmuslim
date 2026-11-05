@@ -1113,6 +1113,16 @@
 مشاري راشد العفاسي|Mishary Rashid Alafasy|مشاری راشد العفاسی
 عبد الباسط عبد الصمد|Abdul Basit Abdus Samad|عبدالباسط عبدالصمد
 ماهر المعيقلي|Maher Al-Muaiqly|ماہر المعیقلی
+خالد الجليل|Khalid Al-Jaleel|خالد الجلیل
+ياسر الدوسري|Yasser Al-Dosari|یاسر الدوسری
+علي جابر|Ali Jaber|علی جابر
+المصحف كاملًا|Complete Quran|پورا قرآن
+تنزيل المصحف كاملًا|Download the complete Quran|پورا قرآن ڈاؤن لوڈ کریں
+سيتم تنزيل السور غير المحفوظة واحدة تلو الأخرى. قد يحتاج المصحف الكامل إلى مساحة كبيرة.|Unsaved surahs will download one at a time. The complete Quran may need substantial storage.|غیر محفوظ سورتیں ایک ایک کر کے ڈاؤن لوڈ ہوں گی۔ پورے قرآن کے لیے کافی جگہ درکار ہو سکتی ہے۔
+تنزيل المصحف كاملًا؟ قد يستهلك مساحة وبيانات كثيرة.|Download the complete Quran? This may use substantial storage and data.|پورا قرآن ڈاؤن لوڈ کریں؟ اس میں کافی جگہ اور انٹرنیٹ ڈیٹا استعمال ہو سکتا ہے۔
+كل سور القارئ محفوظة بالفعل.|All surahs by this reciter are already saved.|اس قاری کی تمام سورتیں پہلے سے محفوظ ہیں۔
+اكتمل تنزيل المصحف؛ السور جاهزة بدون إنترنت.|The complete Quran is ready to listen offline.|پورا قرآن ڈاؤن لوڈ ہو گیا۔ سورتیں انٹرنیٹ کے بغیر سن سکتے ہیں۔
+تم إيقاف التنزيل. السور المكتملة محفوظة.|Download stopped. Completed surahs are saved.|ڈاؤن لوڈ روک دیا گیا۔ مکمل سورتیں محفوظ ہیں۔
 سعد الغامدي|Saad Al-Ghamdi|سعد الغامدی
 حان الآن وقت أذكار الصباح ☀️|It is time for morning adhkar ☀️|صبح کے اذکار کا وقت ہے ☀️
 حان الآن وقت أذكار المساء 🌙|It is time for evening adhkar 🌙|شام کے اذکار کا وقت ہے 🌙
@@ -2081,6 +2091,214 @@
 ثبّت التطبيق للوصول السريع للقرآن ومواقيت الصلاة والأذكار بدون نت|Install the app for quick access to Quran, prayer times and downloaded adhkar offline|قرآن، نماز کے اوقات اور ڈاؤن لوڈ شدہ اذکار تک فوری آف لائن رسائی کے لیے ایپ انسٹال کریں
 وسيظهر التطبيق فوراً على شاشة هاتفك مع سائر تطبيقاتك الأساسية|The app will appear on your phone's home screen|ایپ آپ کے فون کی ہوم اسکرین پر ظاہر ہوگی
 اكتب اسم فقيدك العزيز وسنقوم بإنشاء رابط مخصص يظهر فيه اسمه ودعاؤه في جميع أرجاء التطبيق لتشاركه مع أهلك وأحبابك لنيل الأجر.|Enter your loved one's name to create a personalized link with their name and dua, then share it with family and friends.|اپنے مرحوم عزیز کا نام درج کر کے ان کے نام اور دعا کے ساتھ خصوصی لنک بنائیں اور اہل خانہ اور دوستوں سے شیئر کریں۔
+متبقي أقل من دقيقة|Less than a minute remaining|ایک منٹ سے کم باقی
+تم حفظ الاختيارات، لكن تعذّر تطبيق مستوى صوت أندرويد. حدّث التطبيق وأعد المحاولة.|Preferences saved, but the Android volume could not be applied. Update the app and try again.|انتخاب محفوظ ہیں، لیکن اینڈرائیڈ پر آواز کی سطح لاگو نہیں ہوئی۔ ایپ اپ ڈیٹ کر کے دوبارہ کوشش کریں۔
+تم حفظ الاختيارات، لكن تعذّرت جدولة التنبيهات.|Preferences saved, but reminders could not be scheduled.|انتخاب محفوظ ہیں، لیکن یاد دہانیاں مقرر نہیں ہو سکیں۔
+تم حفظ إعدادات التنبيهات.|Reminder settings saved.|یاد دہانیوں کی ترتیبات محفوظ ہو گئیں۔
+إذن الإشعارات غير متاح؛ فعّله من إعدادات الهاتف.|Enable notification permission in your phone settings.|فون کی ترتیبات میں اطلاعات کی اجازت دیں۔
+تم حفظ التذكيرات، لكن تعذّر تفعيل تشغيل الأذان الكامل في أندرويد. أعد التفعيل بعد مراجعة الأذونات.|Reminders saved, but the full Adhan could not be enabled on Android. Check permissions and try again.|یاد دہانیاں محفوظ ہیں، لیکن اینڈرائیڈ پر مکمل اذان فعال نہیں ہوئی۔ اجازتیں دیکھ کر دوبارہ کوشش کریں۔
+لا توجد مواعيد صلاة قادمة مجدولة. حدّث المواقيت من الرئيسية؛ التذكيرات الأخرى محفوظة.|No upcoming prayers are scheduled. Refresh prayer times on Home. Other reminders are saved.|آنے والی نمازوں کے اوقات مقرر نہیں ہیں۔ ہوم پر اوقات تازہ کریں۔ باقی یاد دہانیاں محفوظ ہیں۔
+حُفظت التنبيهات، لكن إذن المنبّهات الدقيقة غير مفعّل. فعّله لضبط توقيت الأذان وتشغيله في الخلفية.|Reminders saved. Enable exact alarms for on-time Adhan playback in the background.|یاد دہانیاں محفوظ ہیں۔ پس منظر میں وقت پر اذان چلانے کے لیے درست وقت کے الارم کی اجازت دیں۔
+تم حفظ الأذان وتجديد مواقيته تلقائيًا على أندرويد حسب الموقع المحفوظ، دون إنترنت.|Adhan reminders are saved and renew automatically on Android for the saved location, even offline.|اذان کی یاد دہانیاں محفوظ ہیں اور اینڈرائیڈ پر محفوظ مقام کے مطابق انٹرنیٹ کے بغیر بھی خود بخود تازہ ہوتی ہیں۔
+تم حفظ التذكيرات المتكررة في الهاتف.|Recurring reminders saved on your phone.|بار بار آنے والی یاد دہانیاں فون میں محفوظ ہو گئیں۔
+تعذّرت جدولة التنبيهات في نظام الهاتف.|Your phone could not schedule notifications.|فون میں اطلاعات مقرر نہیں ہو سکیں۔
+تم حفظ الأذكار والصلاة على النبي، لكن الأذان لم يُجدول لعدم توفر مواقيت مؤكدة. افتح الرئيسية وحدّث مواقيت الصلاة لموقعك ثم أعد التفعيل.|Adhkar and salawat reminders are saved. Refresh prayer times for your location on Home before enabling Adhan reminders again.|اذکار اور درود کی یاد دہانیاں محفوظ ہیں۔ اذان کی یاد دہانیاں دوبارہ فعال کرنے سے پہلے ہوم پر اپنے مقام کے اوقات نماز تازہ کریں۔
+تعذّرت جدولة التذكيرات في نظام الهاتف.|Your phone could not schedule reminders.|فون میں یاد دہانیاں مقرر نہیں ہو سکیں۔
+الإشعارات غير مدعومة في هذا المتصفح.|This browser does not support notifications.|یہ براؤزر اطلاعات کی سہولت نہیں دیتا۔
+إذن الإشعارات مرفوض؛ غيّره من إعدادات المتصفح.|Notifications are blocked. Allow them in browser settings.|اطلاعات مسدود ہیں۔ براؤزر کی ترتیبات میں اجازت دیں۔
+تعذّر إرسال الإشعار التجريبي.|Could not send the test notification.|آزمائشی اطلاع نہیں بھیجی جا سکی۔
+اختبار الخلفية يحتاج تطبيق الهاتف؛ المتصفح لا يضمن التنبيه عند قفل الشاشة.|Use the mobile app to test reminders with the screen locked.|اسکرین مقفل ہونے پر یاد دہانی کی آزمائش کے لیے موبائل ایپ استعمال کریں۔
+فعّل إذن الإشعارات قبل الاختبار.|Enable notification permission before testing.|آزمائش سے پہلے اطلاعات کی اجازت دیں۔
+فعّل إذن المنبّهات الدقيقة من إعدادات الهاتف ثم أعد الاختبار.|Allow exact alarms in phone settings, then run the test again.|فون کی ترتیبات میں درست وقت کے الارم کی اجازت دیں اور دوبارہ آزمائیں۔
+تعذّرت جدولة اختبار الخلفية. راجع أذونات الهاتف؛ مؤقت المتصفح لا يضمن العمل والشاشة مقفولة.|Could not schedule the background test. Check your phone permissions; browser timers may stop when the screen locks.|پس منظر کی آزمائش مقرر نہیں ہو سکی۔ فون کی اجازتیں دیکھیں؛ اسکرین مقفل ہونے پر براؤزر کا ٹائمر رک سکتا ہے۔
+اللهم اغفر له وارحمه وعافه واعف عنه...|Dua for mercy and pardon…|رحمت اور درگزر کی دعا…
+اللهم اجعل قبره روضة من رياض الجنة...|Dua for a grave like a garden of Paradise…|قبر کو جنت کا باغ بنانے کی دعا…
+اللهم يمن كتابه ويسر حسابه...|Dua for an easy reckoning…|آسان حساب کی دعا…
+اللهم أبدله داراً خيراً من داره...|Dua for a better home in the Hereafter…|آخرت میں بہتر گھر کی دعا…
+اللهم إنه كان يشهد أنك لا إله إلا أنت...|Dua for mercy for one who testified to Allah’s oneness…|توحید کی گواہی دینے والے کے لیے رحمت کی دعا…
+تم تفعيل إذن التنبيهات بنجاح في جهازك ✓|Notifications are enabled on your device ✓|آپ کے آلے پر اطلاعات فعال ہیں ✓
+على أجهزة iPhone و iOS: لإتاحة استقبال التنبيهات والأذان، اضغط على زر المشاركة (Share) في متصفح Safari ثم اختر "إضافة إلى الصفحة الرئيسية (Add to Home Screen)".|On iPhone, open the Share menu in Safari and choose Add to Home Screen to enable notifications and Adhan reminders.|آئی فون پر اطلاعات اور اذان کی یاد دہانیوں کے لیے سفاری میں شیئر مینو کھولیں اور ہوم اسکرین پر شامل کریں۔
+أفضل أوقات استجابة الدعاء دبر الصلوات المكتوبة، وبين الأذان والإقامة، وفي الثلث الأخير من الليل.|Good times to make dua include after obligatory prayers, between the Adhan and Iqamah, and during the last third of the night.|دعا کے بہترین اوقات فرض نمازوں کے بعد، اذان اور اقامت کے درمیان، اور رات کے آخری تہائی حصے میں ہیں۔
+خير يوم طلعت عليه الشمس؛ لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ، واغتنام ساعة الاستجابة بالدعاء لفقيدنا الغالي.|On this blessed day, read Surah Al-Kahf, send abundant blessings on the Prophet ﷺ, and remember our loved one in your duas.|اس مبارک دن سورۃ الکہف پڑھیں، نبی ﷺ پر کثرت سے درود بھیجیں اور قبولیت کی گھڑی میں ہمارے عزیز مرحوم کے لیے دعا کریں۔
+"للصائم عند فطره دعوة لا تُرد"... اغتنم هذه النفحات بالدعاء لفقيدنا الحبيب.|When you break your fast, take a moment to pray for our departed loved one.|افطار کے وقت اس مبارک موقع پر ہمارے عزیز مرحوم کے لیے دعا کریں۔
+داوم على أذكار يومك وانوِ بركتها وأجرها لروحه الطاهرة، فالذكر حصن منيع وسكينة للقلوب وبركة في العمر والعمل.|Keep up your daily remembrance and pray that its blessings and reward reach him. Dhikr brings protection, peace, and blessings.|روزانہ کے اذکار کی پابندی کریں اور ان کی برکت اور اجر مرحوم کے لیے مانگیں۔ ذکر حفاظت، دل کا سکون اور زندگی و عمل میں برکت لاتا ہے۔
+في ذمة الله وحفظه|Under Allah’s protection|اللہ کی حفاظت میں
+بكل حرف عشر حسنات|Ten good deeds for each letter|ہر حرف پر دس نیکیاں
+حصن وبركة لليوم كله|Protection and blessings throughout the day|دن بھر حفاظت اور برکت
+حفظ وسكينة طوال الليل|Protection and peace throughout the night|رات بھر حفاظت اور سکون
+صدقة عن كل مفصل|Charity for every joint|ہر جوڑ کی طرف سے صدقہ
+ملك يحرسك حتى تصبح|An angel guards you until morning|صبح تک ایک فرشتہ حفاظت کرتا ہے
+يُكفى همك ويُغفر ذنبك|Relief from worry and forgiveness of sins|پریشانی سے نجات اور گناہوں کی بخشش
+تطفئ غضب الرب وتدفع البلاء|A means of averting divine anger and hardship|اللہ کے غضب اور مصیبت کو دور کرنے کا ذریعہ
+حبيبتان إلى الرحمن، خفيفتان على اللسان، ثقيلتان في الميزان.|Two phrases beloved to the Most Merciful, easy to say and heavy on the scales.|دو کلمات جو رحمان کو محبوب، زبان پر ہلکے اور میزان میں بھاری ہیں۔
+قال رسول الله ﷺ:|The Messenger of Allah ﷺ said:|رسول اللہ ﷺ نے فرمایا:
+قال تعالى:|Allah the Exalted says:|اللہ تعالیٰ فرماتا ہے:
+[متفق عليه]|[Agreed upon]|[متفق علیہ]
+[صحيح مسلم]|[Sahih Muslim]|[صحیح مسلم]
+كل دعوة تؤمّن عليها أو تكتبها ترفع درجته وتؤنس وحشته وتثقل ميزانك بالأجر إن شاء الله.|Each dua you write or say Ameen to is a prayer for his comfort and higher rank, and a source of reward for you, insha’Allah.|ہر دعا جو آپ لکھیں یا جس پر آمین کہیں، ان کے لیے راحت اور بلندیٔ درجات کی دعا اور آپ کے لیے اجر کا ذریعہ ہے، ان شاء اللہ۔
+صدقة جارية على روح جدي الغالي (عبدالمعبود أمين سعيد) رحمه الله، وستي الغالية (حكم عبدالصمد) رحمها الله|An ongoing charity in memory of my beloved grandfather, Abdul-Maboud Amin Saeed, and grandmother, Hakam Abdulsamad. May Allah have mercy on them.|میرے پیارے نانا دادا عبدالمعبود امین سعید اور پیاری دادی حکم عبدالصمد کے لیے صدقہ جاریہ۔ اللہ ان پر رحم فرمائے۔
+— نسألكم الفاتحة وصالح الدعاء لهما ولكل موتى المسلمين.|— Please recite Al-Fatihah and pray for them and all departed Muslims.|— ان دونوں اور تمام مرحوم مسلمانوں کے لیے سورۃ الفاتحہ پڑھیں اور دعا کریں۔
+وعد الله رسوله الكريم بأن عمل ابن آدم لا ينقطع بدعاء ولده وأحبابه ومحبيه.|The duas of one’s children and loved ones can continue to benefit a person after death.|اولاد اور عزیزوں کی دعائیں وفات کے بعد بھی انسان کو فائدہ پہنچا سکتی ہیں۔
+رواه مسلم عن أبي هريرة رضي الله عنه|Narrated by Muslim from Abu Hurayrah, may Allah be pleased with him|مسلم نے ابو ہریرہ رضی اللہ عنہ سے روایت کیا
+رواه مسلم عن بريدة رضي الله عنه|Narrated by Muslim from Buraydah, may Allah be pleased with him|مسلم نے بریدہ رضی اللہ عنہ سے روایت کیا
+رواه ابن ماجه وأحمد بإسناد حسن|Narrated by Ibn Majah and Ahmad with a sound chain|ابن ماجہ اور احمد نے حسن سند کے ساتھ روایت کیا
+فتاوى وأحكام شرعية موثقة|Referenced Islamic rulings|حوالوں کے ساتھ شرعی احکام
+إجابات شرعية موثقة من الكتاب والسنّة وإجماع العلماء حول ما يصل للميت من دعاء وصدقات وأحكام الحج والصيام عنه.|Answers from the Quran, Sunnah, and scholarly consensus on dua, charity, Hajj, and fasting on behalf of the deceased.|قرآن، سنت اور اجماع کی روشنی میں مرحوم کے لیے دعا، صدقہ، حج اور روزے کے احکام۔
+سنّة نبوية وهدي قويم|Prophetic practice and guidance|نبوی سنت اور رہنمائی
+زيارة القبور تذكّر بالآخرة، وترقق القلوب، وينتفع بها الميت بالدعاء له والاستغفار وطلب الرحمة لروحه.|Visiting graves reminds us of the Hereafter, softens the heart, and gives us a chance to pray for mercy and forgiveness for the deceased.|قبروں کی زیارت آخرت کی یاد دلاتی ہے، دل کو نرم کرتی ہے اور مرحوم کے لیے بخشش اور رحمت مانگنے کا موقع دیتی ہے۔
+ما يقوله المسلم عند دخول المقابر:|What to say when entering a cemetery:|قبرستان میں داخل ہوتے وقت کی دعا:
+الدعاء والاستغفار:|Dua and seeking forgiveness:|دعا اور استغفار:
+أنفع ما يقدمه الحي للميت، ويرفع درجته في الجنة.|Among the best gifts to the deceased, raising their rank in Paradise.|مرحوم کے لیے بہترین تحفوں میں سے ہے اور جنت میں ان کے درجات بلند کرتا ہے۔
+الصدقة الجارية:|Ongoing charity:|صدقہ جاریہ:
+كإطعام الطعام، حفر الآبار، طباعة المصاحف، وبناء المساجد.|Examples include feeding people, digging wells, printing Qurans, and building mosques.|مثلاً کھانا کھلانا، کنویں کھدوانا، قرآن چھپوانا اور مسجدیں تعمیر کرنا۔
+الحج والعمرة عنه:|Hajj and Umrah on their behalf:|مرحوم کی طرف سے حج اور عمرہ:
+لمن حج واعتمر عن نفسه أولاً.|For someone who has already performed Hajj and Umrah for themselves.|اس شخص کے لیے جو پہلے اپنی طرف سے حج اور عمرہ کر چکا ہو۔
+قضاء ديونه ونذوره:|Settling debts and fulfilling vows:|قرض اور نذر کی ادائیگی:
+إبراء لذمته وتخفيف عنه.|This discharges their obligations and eases their burden.|اس سے ان کی ذمہ داری ادا ہوتی ہے اور بوجھ کم ہوتا ہے۔
+إخلاص النية:|Sincere intention:|نیت میں اخلاص:
+للاتعاظ وتذكر الآخرة والإحسان للميت بالدعاء.|Reflect, remember the Hereafter, and pray for the deceased.|عبرت حاصل کریں، آخرت کو یاد کریں اور مرحوم کے لیے دعا کریں۔
+إلقاء السلام:|Offering greetings of peace:|سلام کہنا:
+على أهل القبور كما ورد في السنة.|Greet the people of the graves as taught in the Sunnah.|سنت کے مطابق اہل قبور کو سلام کہیں۔
+استقبال القبلة:|Facing the Qiblah:|قبلے کی طرف رخ کرنا:
+عند الدعاء للميت والتضرع ورفع اليدين.|When raising your hands in supplication for the deceased.|مرحوم کے لیے ہاتھ اٹھا کر عاجزی سے دعا کرتے وقت۔
+الدعاء بثباته ومغفرته:|Praying for steadfastness and forgiveness:|ثابت قدمی اور مغفرت کی دعا:
+وسؤال الفسحة والنور له في قبره.|Also ask for spaciousness and light in their grave.|ان کی قبر میں کشادگی اور نور بھی مانگیں۔
+عدم الجلوس أو المشي فوق القبور:|Avoid sitting or walking on graves:|قبروں پر بیٹھنے یا چلنے سے پرہیز:
+لنهي النبي ﷺ الصريح عن ذلك تعظيماً للمسلم.|The Prophet ﷺ forbade this out of respect for the deceased.|نبی ﷺ نے مرحوم کے احترام میں اس سے منع فرمایا۔
+اجتناب النياحة وشق الجيوب:|Avoid wailing and tearing clothes:|نوحہ کرنے اور گریبان چاک کرنے سے پرہیز:
+والرضا بقضاء الله وقدره واحتساب الصبر.|Accept Allah’s decree and seek reward through patience.|اللہ کی تقدیر پر راضی رہیں اور صبر کا اجر مانگیں۔
+الدعاء للميت لا دعاء الميت:|Pray to Allah for the deceased:|مرحوم کے لیے اللہ سے دعا کریں:
+فالميت فقير إلى رحمة ربه ودعائكم له.|The deceased needs Allah’s mercy and your prayers.|مرحوم کو اپنے رب کی رحمت اور آپ کی دعاؤں کی ضرورت ہے۔
+جدي عبدالمعبود ✦|My grandfather Abdul-Maboud ✦|میرے دادا عبدالمعبود ✦
+ملاحظة: لصلاة الفجر يتم تشغيل أذان الفجر المخصوص بعبارة "الصلاة خير من النوم" تلقائياً.|The Fajr Adhan automatically includes “Prayer is better than sleep.”|فجر کی اذان میں «نماز نیند سے بہتر ہے» کے الفاظ خود بخود شامل ہوتے ہیں۔
+كأي تطبيق رسمي من متجر أبل يعمل بدون إنترنت بخطوتين بسيطتين:|Add the app to your iPhone in two steps:|دو آسان مرحلوں میں ایپ آئی فون پر شامل کریں:
+يفتح التطبيق بضغطة زر، ويعمل بكفاءة 100% بدون اتصال بالإنترنت!|Open it with one tap. Offline features are available without an internet connection.|ایک بار دبانے سے ایپ کھل جاتی ہے۔ آف لائن سہولتیں انٹرنیٹ کے بغیر دستیاب ہیں۔
+بشارة نبوية شريفة:|Glad tidings from the Prophet ﷺ:|نبی ﷺ کی خوش خبری:
+فقه الصلاة خطوة بخطوة: الأركان، الشروط، السنن والرواتب، النوافل والقيام، وأدعية الركوع والسجود والمنهيات.|A step-by-step prayer guide: essentials, conditions, Sunnah and voluntary prayers, duas, and what to avoid.|نماز کی مرحلہ وار رہنمائی: ارکان، شرائط، سنتیں، نوافل، دعائیں اور ممنوع کام۔
+تبطل الصلاة بتركها|Omitting these invalidates prayer|انہیں چھوڑنے سے نماز باطل ہو جاتی ہے
+تُجبر بسجود السهو|Make up for these with the prostration of forgetfulness|ان کی تلافی سجدۂ سہو سے ہوتی ہے
+تبطل الصلاة بها|These invalidate prayer|ان سے نماز باطل ہو جاتی ہے
+تحذير نبوي|Prophetic warning|نبوی تنبیہ
+بعد التسليم من ركعتي الاستخارة|After completing the two rakahs of Istikharah|استخارے کی دو رکعت کا سلام پھیرنے کے بعد
+سنة نبوية مؤكدة|Emphasized Sunnah|سنت مؤکدہ
+دعاء نبوي مأثور|Supplication from the Sunnah|مسنون دعا
+السيرة النبوية|Life of the Prophet ﷺ|سیرت نبوی ﷺ
+حان الآن وقت أذكار الصباح وسؤال العافية ☀️|It’s time for morning remembrance and prayers for well-being ☀️|صبح کے اذکار اور عافیت کی دعا کا وقت ہے ☀️
+حان الآن وقت أذكار المساء وحفظ الليل 🌙|It’s time for evening remembrance and prayers for protection through the night 🌙|شام کے اذکار اور رات کی حفاظت کی دعا کا وقت ہے 🌙
+1. الإسلام|1. Islam|۱۔ اسلام
+2. العقل|2. Sound mind|۲۔ عقل
+3. التمييز|3. Discernment|۳۔ سمجھ بوجھ
+4. رفع الحدث (الوضوء أو الغسل)|4. Ritual purification (wudu or ghusl)|۴۔ طہارت (وضو یا غسل)
+5. إزالة النجاسة|5. Removing impurities|۵۔ نجاست دور کرنا
+6. ستر العورة|6. Covering the required parts of the body|۶۔ ستر ڈھانپنا
+7. دخول الوقت|7. The prayer time has begun|۷۔ نماز کا وقت داخل ہونا
+8. استقبال القبلة|8. Facing the Qiblah|۸۔ قبلہ رخ ہونا
+9. النية|9. Intention|۹۔ نیت
+1. القيام في الفريضة للقادر|1. Standing for obligatory prayer if able|۱۔ استطاعت ہو تو فرض نماز میں قیام
+2. تكبيرة الإحرام|2. The opening takbir|۲۔ تکبیر تحریمہ
+3. قراءة سورة الفاتحة|3. Reciting Surah Al-Fatihah|۳۔ سورۃ الفاتحہ پڑھنا
+5. الرفع والاعتدال من الركوع|5. Rising from ruku and standing upright|۵۔ رکوع سے اٹھ کر سیدھا کھڑا ہونا
+6. السجود على الأعضاء السبعة|6. Prostrating on the seven points of contact|۶۔ سات اعضا پر سجدہ کرنا
+7. الرفع من السجود|7. Rising from prostration|۷۔ سجدے سے اٹھنا
+9. الطمأنينة في جميع الأركان|9. Pausing calmly in each posture|۹۔ ہر رکن میں اطمینان
+10. التشهد الأخير|10. The final tashahhud|۱۰۔ آخری تشہد
+11. الجلوس للتشهد الأخير والتسليمتين|11. Sitting for the final tashahhud and the two salams|۱۱۔ آخری تشہد اور دونوں سلام کے لیے بیٹھنا
+12. الصلاة على النبي ﷺ في التشهد الأخير|12. Sending blessings on the Prophet ﷺ in the final tashahhud|۱۲۔ آخری تشہد میں نبی ﷺ پر درود پڑھنا
+13. التسليمتان|13. The two closing salams|۱۳۔ دونوں سلام پھیرنا
+14. الترتيب بين الأركان|14. Performing the pillars in order|۱۴۔ ارکان کو ترتیب سے ادا کرنا
+1. جميع التكبيرات غير تكبيرة الإحرام|1. All takbirs except the opening takbir|۱۔ تکبیر تحریمہ کے سوا تمام تکبیریں
+2. قول: «سَمِعَ اللهُ لِمَنْ حَمِدَه»|2. Say: «سَمِعَ اللهُ لِمَنْ حَمِدَه»|۲۔ پڑھیں: «سَمِعَ اللهُ لِمَنْ حَمِدَه»
+3. قول: «رَبَّنَا وَلَكَ الحَمْد»|3. Say: «رَبَّنَا وَلَكَ الحَمْد»|۳۔ پڑھیں: «رَبَّنَا وَلَكَ الحَمْد»
+4. قول: «سُبْحَانَ رَبِّيَ العَظِيم»|4. Say: «سُبْحَانَ رَبِّيَ العَظِيم»|۴۔ پڑھیں: «سُبْحَانَ رَبِّيَ العَظِيم»
+5. قول: «سُبْحَانَ رَبِّيَ الأَعْلَى»|5. Say: «سُبْحَانَ رَبِّيَ الأَعْلَى»|۵۔ پڑھیں: «سُبْحَانَ رَبِّيَ الأَعْلَى»
+6. قول: «رَبِّ اغْفِرْ لِي»|6. Say: «رَبِّ اغْفِرْ لِي»|۶۔ پڑھیں: «رَبِّ اغْفِرْ لِي»
+7. التشهد الأول|7. The first tashahhud|۷۔ پہلا تشہد
+8. الجلوس للتشهد الأول|8. Sitting for the first tashahhud|۸۔ پہلے تشہد کے لیے بیٹھنا
+ركعتان مفروضتان (جهريتان)|Two obligatory rakahs (recited aloud)|دو فرض رکعتیں (بلند آواز سے قراءت)
+4 ركعات مفروضة (سرية)|Four obligatory rakahs (quiet recitation)|چار فرض رکعتیں (آہستہ قراءت)
+3 ركعات مفروضة (الأولى والثانية جهرية، والثالثة سرية)|Three obligatory rakahs (first two aloud, third quietly)|تین فرض رکعتیں (پہلی دو میں بلند، تیسری میں آہستہ قراءت)
+4 ركعات مفروضة (الأولى والثانية جهرية، والثالثة والرابعة سرية)|Four obligatory rakahs (first two aloud, last two quietly)|چار فرض رکعتیں (پہلی دو میں بلند، آخری دو میں آہستہ قراءت)
+من ركعتين إلى 8 ركعات (مثنى مثنى)|Two to eight rakahs, in pairs|دو سے آٹھ رکعتیں، دو دو کر کے
+مثنى مثنى، وأقلها ركعتان، وأكملها 8 أو 10 ركعات ثم الوتر|Pray in pairs, at least two rakahs, or eight or ten followed by Witr.|دو دو رکعت کر کے پڑھیں، کم از کم دو، یا آٹھ یا دس اور پھر وتر۔
+أقلها ركعة واحدة، وأدنى الكمال 3 ركعات (ركعتان شفع ثم ركعة وتر)|At least one rakah; three can be prayed as two followed by one Witr.|کم از کم ایک رکعت؛ تین پڑھیں تو دو رکعت کے بعد ایک وتر۔
+ركعتان من غير الفريضة|Two voluntary rakahs|دو نفل رکعتیں
+4 تكبيرات قياماً دون ركوع ولا سجود|Four takbirs while standing, without ruku or prostration|کھڑے ہو کر چار تکبیریں، رکوع اور سجدے کے بغیر
+ركعتان جهريتان بعد الخطبتين|Two rakahs recited aloud after the two sermons|دو خطبوں کے بعد دو رکعتیں بلند قراءت کے ساتھ
+ركعتان|Two rakahs|دو رکعتیں
+ركعتان بهيئة خاصة|Two rakahs in a special form|خاص طریقے سے دو رکعتیں
+⚠️ 1. نقر الغراب (العجلة وعدم الطمأنينة)|⚠️ 1. Rushing through the prayer postures|⚠️ ۱۔ نماز کے ارکان جلدی اور بے اطمینانی سے ادا کرنا
+⚠️ 2. افتراش السبع (بسط الذراعين في السجود)|⚠️ 2. Resting the forearms on the ground in prostration|⚠️ ۲۔ سجدے میں بازو زمین پر بچھانا
+⚠️ 3. الالتفات في الصلاة|⚠️ 3. Turning aside during prayer|⚠️ ۳۔ نماز میں ادھر ادھر رخ کرنا
+⚠️ 4. إقعاء الكلب في الجلوس|⚠️ 4. Sitting like a dog|⚠️ ۴۔ کتے کی طرح بیٹھنا
+⚠️ 5. رفع البصر إلى السماء أثناء الصلاة|⚠️ 5. Looking up at the sky during prayer|⚠️ ۵۔ نماز میں آسمان کی طرف دیکھنا
+⚠️ 6. التخصر في الصلاة (وضع اليدين على الخاصرة)|⚠️ 6. Placing the hands on the hips in prayer|⚠️ ۶۔ نماز میں کمر پر ہاتھ رکھنا
+⚠️ 7. كفت الثياب وعقص الشعر في الصلاة|⚠️ 7. Gathering up clothes or tying up hair for prayer|⚠️ ۷۔ نماز کے لیے کپڑے سمیٹنا یا بال باندھنا
+⚠️ 8. الصلاة بحضرة الطعام أو مدافعة الأخبثين|⚠️ 8. Praying when food is served or while needing the toilet|⚠️ ۸۔ کھانا سامنے ہو یا حاجت روک کر نماز پڑھنا
+⚠️ 9. السدل وتغطية الفم (التلثم) لغير حاجة|⚠️ 9. Letting garments hang loose or covering the mouth without need|⚠️ ۹۔ بلا ضرورت کپڑا لٹکانا یا منہ ڈھانپنا
+⚠️ 10. تشبيك الأصابع والعبث بالحركات الزائدة|⚠️ 10. Interlacing fingers and fidgeting|⚠️ ۱۰۔ انگلیاں پھنسانا اور بے جا حرکت کرنا
+❌ 1. الحدث الأصغر أو الأكبر|❌ 1. Losing ritual purity|❌ ۱۔ وضو یا طہارت ٹوٹ جانا
+❌ 2. الكلام العمد لغير مصلحة الصلاة|❌ 2. Deliberately speaking about something unrelated to prayer|❌ ۲۔ نماز سے غیر متعلق بات جان بوجھ کر کرنا
+❌ 3. الضحك والقهقهة|❌ 3. Laughing aloud|❌ ۳۔ ہنسنا اور قہقہہ لگانا
+❌ 4. الأكل والشرب عمداً|❌ 4. Deliberately eating or drinking|❌ ۴۔ جان بوجھ کر کھانا یا پینا
+❌ 5. كثرة الحركة المتوالية لغير ضرورة|❌ 5. Repeated unnecessary movement|❌ ۵۔ بلا ضرورت مسلسل زیادہ حرکت کرنا
+❌ 6. ترك ركن أو شرط عمداً|❌ 6. Deliberately omitting a pillar or condition|❌ ۶۔ جان بوجھ کر کوئی رکن یا شرط چھوڑنا
+❌ 7. تعمد زيادة ركعة أو ركن فعلي|❌ 7. Deliberately adding a rakah or a physical pillar|❌ ۷۔ جان بوجھ کر رکعت یا عملی رکن بڑھانا
+الصيغة الأولى (المشهورة):|First wording (well known):|پہلے الفاظ (مشہور):
+الصيغة الثانية (المأثورة في الصحيحين):|Second wording (reported in both Sahih collections):|دوسرے الفاظ (صحیحین میں منقول):
+الواجب (يكرر 3 مرات مستحباً):|Required wording (recommended three times):|واجب کلمات (تین بار پڑھنا مستحب ہے):
+أدعية نبوية مأثورة في الركوع:|Prophetic duas for ruku:|رکوع کی مسنون دعائیں:
+دعاء الجمع بين الحمد والمغفرة:|Dua of praise and forgiveness:|حمد اور مغفرت کی دعا:
+عند الرفع (للإمام والمنفرد):|When rising (for the imam and those praying alone):|اٹھتے وقت (امام اور اکیلے نماز پڑھنے والے کے لیے):
+عند الاستواء قائماً (للجميع):|When standing upright (for everyone):|سیدھا کھڑے ہونے پر (سب کے لیے):
+صيغة التمام النبوية:|Full wording from the Sunnah:|سنت سے ثابت مکمل الفاظ:
+دعاء الاستغفار الجامع في السجود:|A comprehensive dua for forgiveness in prostration:|سجدے میں مغفرت کی جامع دعا:
+دعاء الخضوع والانكسار:|Dua of humility and submission:|عاجزی اور انکساری کی دعا:
+الواجب المجزئ:|Minimum required wording:|واجب ادا کرنے کے لیے کافی الفاظ:
+الدعاء النبوي الجامع لحاجات الدنيا والآخرة:|A Prophetic dua for this world and the Hereafter:|دنیا اور آخرت کی حاجات کے لیے جامع مسنون دعا:
+نص التشهد (حديث ابن مسعود رضي الله عنه):|Tashahhud (hadith of Ibn Masud):|تشہد کے الفاظ (ابن مسعود رضی اللہ عنہ کی حدیث):
+الصلاة الإبراهيمية (في التشهد الأخير):|Ibrahimic blessings (in the final tashahhud):|درود ابراہیمی (آخری تشہد میں):
+الاستعاذة النبوية الأكيدة:|Prophetic supplication for protection:|پناہ مانگنے کی مسنون دعا:
+دعاء معاذ بن جبل المشهور:|The well-known dua taught to Muadh ibn Jabal:|معاذ بن جبل کو سکھائی گئی مشہور دعا:
+نص دعاء الاستخارة النبوي الشريف:|The Prophetic dua for Istikharah:|استخارے کی مسنون دعا:
+منذ قليل|Just now|ابھی کچھ دیر پہلے
+أمس|Yesterday|گزشتہ روز
+1 رجب (من الأشهر الحُرُم)|1 Rajab (one of the sacred months)|یکم رجب (حرمت والے مہینوں میں سے ایک)
+2 إلى 30 شوّال|2 to 30 Shawwal|۲ سے ۳۰ شوال
+9 و 10 محرّم|9 and 10 Muharram|۹ اور ۱۰ محرم
+يس 36|Ya-Sin 36|یٰسین ۳۶
+ملاحظة: حلي المرأة الشخصي المعتاد لا زكاة فيه عند جمهور الفقهاء. الزكاة في سبائك الادخار والاستثمار.|Most jurists exempt customary personal jewelry from zakat. Gold bars held as savings or investments are subject to zakat.|اکثر فقہا کے نزدیک عام ذاتی زیور پر زکوٰۃ نہیں۔ بچت یا سرمایہ کاری کے لیے رکھی گئی سونے کی سلاخوں پر زکوٰۃ ہے۔
+أبو البشر|Father of humanity|انسانیت کے جد
+أول الرسل|First messenger|پہلے رسول
+خليل الرحمن|Close friend of the Most Merciful|رحمان کے خلیل
+أحسن القصص|The finest of stories|بہترین قصہ
+كليم الله|The one Allah spoke to|کلیم اللہ
+سيد ولد آدم|Leader of the children of Adam|اولادِ آدم کے سردار
+الصديق الأكبر|The foremost believer in the truth|صدیقِ اکبر
+أمير المؤمنين|Commander of the faithful|امیر المؤمنین
+ذو النورين|Possessor of two lights|ذوالنورین
+رابع الخلفاء|Fourth caliph|چوتھے خلیفہ
+طلحة الفياض|Talhah the generous|سخی طلحہ
+حواري النبي|The Prophet’s devoted disciple|نبی ﷺ کے حواری
+المنفق الصادق|The sincere giver|مخلص سخی
+فارس القادسية|Hero of Al-Qadisiyyah|قادسیہ کے شہسوار
+المستجاب الدعوة|One whose duas were answered|مستجاب الدعوات
+أمين الأمة|Trustee of the Ummah|امینِ امت
+خلق الله آدم بيده من طين ونفخ فيه من روحه وأسجد له ملائكته تعظيماً، وعلمه الأسماء كلها، ثم أهبطه إلى الأرض ليعمرها بالتوحيد بعد توبته الصادقة.|Allah created Adam from clay, taught him the names, and commanded the angels to bow before him. After Adam repented, Allah sent him to earth to live in worship of Him alone.|اللہ نے آدم کو مٹی سے پیدا کیا، انہیں نام سکھائے اور فرشتوں کو ان کے سامنے سجدے کا حکم دیا۔ توبہ کے بعد انہیں زمین پر بھیجا تاکہ وہ اللہ وحدہ کی عبادت کریں۔
+دعا قومه 950 سنة ليلاً ونهاراً وسراً وجهاراً بالصبر الجميل، وصنع الفلك بوحي الله لينجي الله به المؤمنين من الطوفان العظيم.|Nuh called his people to Allah for 950 years, night and day, privately and openly. By Allah’s command he built the ark, in which the believers were saved from the flood.|نوح نے ۹۵۰ سال رات دن، پوشیدہ اور علانیہ اپنی قوم کو اللہ کی طرف بلایا۔ اللہ کے حکم سے کشتی بنائی جس میں اہل ایمان طوفان سے بچ گئے۔
+حطم الأصنام وجادل قومه بالبرهان العقلي، وألقي في النار فكانت برداً وسلاماً، وامتثل لأمر ذبح ابنه ففداه الله بذبح عظيم وبنى البيت الحرام.|Ibrahim challenged his people’s idols. Allah made the fire cool and safe for him, provided a sacrifice in place of his son, and Ibrahim built the Sacred House.|ابراہیم نے اپنی قوم کے بتوں کو چیلنج کیا۔ اللہ نے آگ کو ان کے لیے ٹھنڈا اور سلامتی والا بنایا اور بیٹے کے بدلے قربانی عطا کی۔ ابراہیم نے بیت اللہ تعمیر کیا۔
+ألقي في البئر، وبيع بثمن بخس، وفتن في قصر العزيز فاستعصم، وسجن ظلماً، ثم مكنه الله ليصير عزيز مصر وينقذ البلاد من القحط ويعفو عن إخوته.|Yusuf was thrown into a well, sold cheaply, and imprisoned unjustly. Allah gave him authority in Egypt, where he saved the people from famine and forgave his brothers.|یوسف کو کنویں میں ڈالا گیا، کم قیمت پر بیچا گیا اور ناحق قید کیا گیا۔ اللہ نے انہیں مصر میں اختیار دیا، جہاں انہوں نے لوگوں کو قحط سے بچایا اور اپنے بھائیوں کو معاف کیا۔
+ألقي رضيعاً في اليم، ورباه عدوه في قصره، وكلّمه الله في الوادي المقدس، وأيده بالمعجزات الباهرة حتى فلق له البحر وأغرق فرعون وجنوده.|Musa was placed in the river as a baby and raised in his enemy’s palace. Allah spoke to him in the sacred valley and parted the sea for him, drowning Pharaoh and his army.|موسیٰ کو شیر خوارگی میں دریا میں ڈالا گیا اور دشمن کے محل میں پرورش پائی۔ اللہ نے مقدس وادی میں ان سے کلام کیا اور سمندر کو چیر دیا، جس میں فرعون اور اس کا لشکر ڈوب گئے۔
+أرسله الله شاهداً ومبشراً ونذيراً، أخرج الناس من ظلمات الجهل والشرك إلى نور التوحيد، وبلغ الرسالة وأدى الأمانة وتركنا على المحجة البيضاء.|Allah sent Muhammad ﷺ as a witness, bearer of good news, and warner. He called people to worship Allah alone and conveyed the message faithfully.|اللہ نے محمد ﷺ کو گواہ، خوش خبری دینے والا اور خبردار کرنے والا بنا کر بھیجا۔ آپ نے توحید کی دعوت دی اور امانت سے پیغام پہنچایا۔
+أول من أسلم من الرجال، صدّق النبي في الإسراء والمعراج، أنفق ماله كله لله، وثبت الأمة بعد وفاة النبي ﷺ وحارب المرتدين وجمع المصحف الشريف.|Abu Bakr was among the first believers, affirmed the Night Journey, and spent his wealth for Allah. After the Prophet ﷺ died, he held the community together and had the Quran collected.|ابو بکر اولین اہل ایمان میں تھے، انہوں نے واقعۂ اسرا کی تصدیق کی اور اللہ کی راہ میں مال خرچ کیا۔ نبی ﷺ کی وفات کے بعد امت کو سنبھالا اور قرآن جمع کروایا۔
+فرق الله به بين الحق والباطل، شهدت خلافته الفتوحات الكبرى (الشام، العراق، مصر، والقدس)، وأسس الدواوين والتأريخ الهجري بنظام العدل التاريخي.|Umar’s caliphate saw major conquests in the Levant, Iraq, Egypt, and Jerusalem. He established public registers and the Hijri calendar and became known for justice.|عمر کی خلافت میں شام، عراق، مصر اور بیت المقدس کی بڑی فتوحات ہوئیں۔ انہوں نے دیوان اور ہجری تقویم قائم کی اور عدل کے لیے مشہور ہوئے۔
+تزوج ابنتي رسول الله ﷺ (رقية ثم أم كلثوم)، جهز جيش العسرة واشترى بئر رومة وجعلها وقفاً للمسلمين، ونسخ القرآن ووزعه على الأمصار.|Uthman married two daughters of the Prophet ﷺ, equipped the army in a time of hardship, endowed the well of Rumah, and sent copies of the Quran to the provinces.|عثمان نے نبی ﷺ کی دو صاحبزادیوں سے نکاح کیا، مشکل وقت میں لشکر کا سامان مہیا کیا، بئر رومہ وقف کیا اور قرآن کے نسخے مختلف علاقوں میں بھیجے۔
+ابن عم رسول الله ﷺ وزوج فاطمة الزهراء وأبو الحسن والحسين، أول من أسلم من الصبيان، وفدى النبي ﷺ بالنوم في فراشه ليلة الهجرة.|Ali was the Prophet’s cousin, Fatimah’s husband, and the father of Hasan and Husayn. He embraced Islam as a boy and slept in the Prophet’s bed on the night of the migration.|علی نبی ﷺ کے چچا زاد، فاطمہ کے شوہر اور حسن و حسین کے والد تھے۔ بچپن میں اسلام قبول کیا اور ہجرت کی رات نبی ﷺ کے بستر پر سوئے۔
+أحد الثمانية السابقين إلى الإسلام، فدى النبي ﷺ يوم أحد بجسده وترسه حتى شُلّت إصبعه الشريفة، وسماه النبي طلحة الخير وطلحة الجود لكرمه وسخائه المنقطع النظير.|Talhah was among the earliest Muslims. He shielded the Prophet ﷺ at Uhud and was known for his remarkable generosity.|طلحہ اولین مسلمانوں میں تھے۔ احد میں نبی ﷺ کی حفاظت کی اور اپنی بے مثال سخاوت کے لیے مشہور ہوئے۔
+ابن عمة النبي ﷺ (صفية بنت عبد المطلب) وابن أخي خديجة، أول من سلّ سيفاً في سبيل الله وهو حدث صغير، وفارس غزوات بدر وأحد واليرموك.|Al-Zubayr was the son of Safiyyah, the Prophet’s aunt, and a nephew of Khadijah. He defended Islam from a young age and fought at Badr, Uhud, and Yarmuk.|زبیر نبی ﷺ کی پھوپھی صفیہ کے بیٹے اور خدیجہ کے بھتیجے تھے۔ کم عمری سے اسلام کا دفاع کیا اور بدر، احد اور یرموک میں شریک ہوئے۔
+أحد الثمانية السابقين للإسلام، هاجر إلى المدينة معدماً فقال: «دلوني على السوق»، فبارك الله في تجارته حتى جهز الجيوش وأعتق مئات الرقاب وتصدق بقوافل كاملة.|Abd al-Rahman ibn Awf migrated to Madinah with little wealth and asked to be shown the market. Allah blessed his trade, and he used his wealth to equip armies, free enslaved people, and give to charity.|عبد الرحمن بن عوف تھوڑے مال کے ساتھ مدینہ پہنچے اور بازار کا راستہ پوچھا۔ اللہ نے تجارت میں برکت دی۔ انہوں نے لشکروں کی مدد کی، غلام آزاد کیے اور صدقہ دیا۔
+خال النبي ﷺ وأول من رمى بسهم في سبيل الله، جمع له النبي أبويه في أحد: «ارمِ فداك أبي وأمي»، وقاد جيوش المسلمين في معركة القادسية وفتح المدائن.|Sa’d ibn Abi Waqqas was among the earliest defenders of Islam. The Prophet ﷺ encouraged him at Uhud, and he later commanded the Muslims at Al-Qadisiyyah.|سعد بن ابی وقاص اسلام کے ابتدائی محافظوں میں تھے۔ نبی ﷺ نے احد میں ان کی حوصلہ افزائی کی اور بعد میں انہوں نے قادسیہ میں مسلمانوں کی قیادت کی۔
+ابن زيد بن عمرو بن نفيل الباحث عن ملة إبراهيم، زوج فاطمة أخت عمر بن الخطاب وكان سبباً في إسلامه، شهد اليرموك وكان من أشجع فرسان المسلمين.|Sa’id ibn Zayd was the son of Zayd ibn Amr, who sought the faith of Ibrahim. He married Umar’s sister Fatimah and was a courageous fighter at Yarmuk.|سعید بن زید، زید بن عمرو کے بیٹے تھے جو ملتِ ابراہیم کے طالب تھے۔ انہوں نے عمر کی بہن فاطمہ سے نکاح کیا اور یرموک میں بہادری سے لڑے۔
+عامر بن عبد الله بن الجراح، لقبه النبي ﷺ بأمين الأمة، فدى النبي بأسنانه يوم أحد لنزع حلقتي الدرع من وجنته الشريفة، وقاد فتوحات الشام بحكمة وتواضع أذهل التاريخ.|Abu Ubaydah ibn al-Jarrah was called the trustee of the Ummah by the Prophet ﷺ. He helped the Prophet at Uhud and later led the campaigns in the Levant with wisdom and humility.|ابو عبیدہ بن جراح کو نبی ﷺ نے امینِ امت کہا۔ انہوں نے احد میں نبی ﷺ کی مدد کی اور بعد میں شام کی مہمات میں حکمت اور عاجزی سے قیادت کی۔
 `.trim().split('\n');
  interfaceRows.forEach(row=>{const [ar,en,ur]=row.split('|');dictionary[ar]={en,ur};});
  const juzOrdinals=['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر','الحادي عشر','الثاني عشر','الثالث عشر','الرابع عشر','الخامس عشر','السادس عشر','السابع عشر','الثامن عشر','التاسع عشر','العشرون','الحادي والعشرون','الثاني والعشرون','الثالث والعشرون','الرابع والعشرون','الخامس والعشرون','السادس والعشرون','السابع والعشرون','الثامن والعشرون','التاسع والعشرون','الثلاثون'];

@@ -20,7 +20,11 @@ window.ZadOfflineCatalog = {
       "id": "112",
       "name": "محمد صديق المنشاوي",
       "server": "https://cdn.mp3quran.net/audio/muhammad-minshawi/r3/"
-    }
+    },
+    {"id":"20","name":"خالد الجليل","server":"https://cdn.mp3quran.net/audio/khalid-jalil/r1/"},
+    {"id":"92","name":"ياسر الدوسري","server":"https://cdn.mp3quran.net/audio/yasser-dosari/r1/"},
+    {"id":"102","name":"ماهر المعيقلي","server":"https://cdn.mp3quran.net/audio/maher-muaiqly/r1/"},
+    {"id":"76","name":"علي جابر","server":"https://cdn.mp3quran.net/audio/ali-jaber/r1/"}
   ],
   "surahs": [
     {

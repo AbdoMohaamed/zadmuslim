@@ -2029,6 +2029,13 @@ html {
   font-size: 16px;
 }
 
+/* Footer tabs should land on their destination in one step. */
+html:has(#home:target),
+html:has(#daily:target),
+html:has(#islamic-media:target) {
+  scroll-behavior: auto;
+}
+
 body {
   font-family: var(--font-body);
   background: var(--bg);
@@ -2910,24 +2917,24 @@ html[data-theme="light"] .nav-links a.active {
    النافذة المنبثقة: إضافة دعاء (Modal)
    ========================================================================== */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(4, 8, 15, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2500;
-  opacity: 0;
-  visibility: hidden;
-  transition: var(--transition-smooth);
-  padding: calc(4.5rem + env(safe-area-inset-top, 0px)) 1.2rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(16, 185, 129, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2500;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition-smooth);
+    padding: calc(4.5rem + env(safe-area-inset-top, 0px)) 1.2rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-overlay.open,
@@ -4844,9 +4851,13 @@ html[data-theme="light"] .nav-links a.active {
 
 @media (max-width: 768px) {
   /* ==========================================================================
-     شريط تنقل الأذكار التفاعلي المطور (Azkar Mobile Nav Bar - Animated Edition)
+     أشرطة التنقل الأفقية التفاعلية المطورة للشاشات الصغيرة
+     (Mobile Nav Bars - Animated Royal Edition: Azkar, Duas, Stories, Media)
      ========================================================================== */
-  .azkar-mobile-nav-bar {
+  .azkar-mobile-nav-bar,
+  .duas-mobile-nav-bar,
+  .stories-mobile-nav-bar,
+  .media-mobile-nav-bar {
     display: flex !important;
     justify-content: space-between;
     align-items: center;
@@ -4874,7 +4885,10 @@ html[data-theme="light"] .nav-links a.active {
     50% { box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45), 0 0 18px rgba(212, 175, 55, 0.24); }
   }
 
-  .azkar-scroll-hint {
+  .azkar-scroll-hint,
+  .duas-scroll-hint,
+  .stories-scroll-hint,
+  .media-scroll-hint {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -4897,7 +4911,10 @@ html[data-theme="light"] .nav-links a.active {
     100% { background-position: 200% 0; }
   }
 
-  .azkar-scroll-hint .hint-icon-glow {
+  .azkar-scroll-hint .hint-icon-glow,
+  .duas-scroll-hint .hint-icon-glow,
+  .stories-scroll-hint .hint-icon-glow,
+  .media-scroll-hint .hint-icon-glow {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -4909,7 +4926,10 @@ html[data-theme="light"] .nav-links a.active {
     font-size: 0.72rem;
   }
 
-  .azkar-scroll-hint i {
+  .azkar-scroll-hint i,
+  .duas-scroll-hint i,
+  .stories-scroll-hint i,
+  .media-scroll-hint i {
     animation: azkarSwipeSway 2.4s infinite ease-in-out;
   }
 
@@ -4919,7 +4939,10 @@ html[data-theme="light"] .nav-links a.active {
     75% { transform: translateX(-4px); }
   }
 
-  .azkar-scroll-hint .hint-live-dot {
+  .azkar-scroll-hint .hint-live-dot,
+  .duas-scroll-hint .hint-live-dot,
+  .stories-scroll-hint .hint-live-dot,
+  .media-scroll-hint .hint-live-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
@@ -4934,13 +4957,19 @@ html[data-theme="light"] .nav-links a.active {
     50% { opacity: 1; transform: scale(1.3); }
   }
 
-  .azkar-scroll-arrows {
+  .azkar-scroll-arrows,
+  .duas-scroll-arrows,
+  .stories-scroll-arrows,
+  .media-scroll-arrows {
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  .btn-scroll-azkar {
+  .btn-scroll-azkar,
+  .btn-scroll-duas,
+  .btn-scroll-stories,
+  .btn-scroll-media {
     width: 36px;
     height: 36px;
     min-height: 36px;
@@ -4960,7 +4989,10 @@ html[data-theme="light"] .nav-links a.active {
     user-select: none;
   }
 
-  .btn-scroll-azkar:hover {
+  .btn-scroll-azkar:hover,
+  .btn-scroll-duas:hover,
+  .btn-scroll-stories:hover,
+  .btn-scroll-media:hover {
     background: linear-gradient(145deg, #dfa72b 0%, #b8860b 100%);
     border-color: #ffd56b;
     color: #031c15;
@@ -4968,16 +5000,25 @@ html[data-theme="light"] .nav-links a.active {
     box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
   }
 
-  .btn-scroll-azkar:active {
+  .btn-scroll-azkar:active,
+  .btn-scroll-duas:active,
+  .btn-scroll-stories:active,
+  .btn-scroll-media:active {
     transform: scale(0.92);
   }
 
-  .btn-scroll-prev:hover i {
+  .btn-scroll-prev:hover i,
+  .btn-scroll-duas:first-child:hover i,
+  .btn-scroll-stories:first-child:hover i,
+  #btn-scroll-media-prev:hover i {
     transform: translateX(2px);
     transition: transform 0.15s ease;
   }
 
-  .btn-scroll-next:hover i {
+  .btn-scroll-next:hover i,
+  .btn-scroll-duas:last-child:hover i,
+  .btn-scroll-stories:last-child:hover i,
+  #btn-scroll-media-next:hover i {
     transform: translateX(-2px);
     transition: transform 0.15s ease;
   }
@@ -4985,7 +5026,16 @@ html[data-theme="light"] .nav-links a.active {
   /* تنسيقات الوضع النهاري (Light Theme) */
   body.light-theme .azkar-mobile-nav-bar,
   html[data-theme="light"] .azkar-mobile-nav-bar,
-  [data-theme="light"] .azkar-mobile-nav-bar {
+  [data-theme="light"] .azkar-mobile-nav-bar,
+  body.light-theme .duas-mobile-nav-bar,
+  html[data-theme="light"] .duas-mobile-nav-bar,
+  [data-theme="light"] .duas-mobile-nav-bar,
+  body.light-theme .stories-mobile-nav-bar,
+  html[data-theme="light"] .stories-mobile-nav-bar,
+  [data-theme="light"] .stories-mobile-nav-bar,
+  body.light-theme .media-mobile-nav-bar,
+  html[data-theme="light"] .media-mobile-nav-bar,
+  [data-theme="light"] .media-mobile-nav-bar {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 251, 249, 0.96) 100%) !important;
     border: 1px solid rgba(184, 134, 11, 0.32) !important;
     box-shadow: 0 8px 24px -4px rgba(7, 63, 53, 0.08), 0 0 14px rgba(184, 134, 11, 0.08) !important;
@@ -4993,7 +5043,16 @@ html[data-theme="light"] .nav-links a.active {
 
   body.light-theme .azkar-scroll-hint,
   html[data-theme="light"] .azkar-scroll-hint,
-  [data-theme="light"] .azkar-scroll-hint {
+  [data-theme="light"] .azkar-scroll-hint,
+  body.light-theme .duas-scroll-hint,
+  html[data-theme="light"] .duas-scroll-hint,
+  [data-theme="light"] .duas-scroll-hint,
+  body.light-theme .stories-scroll-hint,
+  html[data-theme="light"] .stories-scroll-hint,
+  [data-theme="light"] .stories-scroll-hint,
+  body.light-theme .media-scroll-hint,
+  html[data-theme="light"] .media-scroll-hint,
+  [data-theme="light"] .media-scroll-hint {
     background: linear-gradient(90deg, rgba(255, 248, 235, 0.95) 0%, rgba(254, 243, 222, 0.8) 50%, rgba(255, 248, 235, 0.95) 100%) !important;
     border: 1px solid rgba(184, 134, 11, 0.38) !important;
     color: #996800 !important;
@@ -5002,21 +5061,48 @@ html[data-theme="light"] .nav-links a.active {
 
   body.light-theme .azkar-scroll-hint .hint-icon-glow,
   html[data-theme="light"] .azkar-scroll-hint .hint-icon-glow,
-  [data-theme="light"] .azkar-scroll-hint .hint-icon-glow {
+  [data-theme="light"] .azkar-scroll-hint .hint-icon-glow,
+  body.light-theme .duas-scroll-hint .hint-icon-glow,
+  html[data-theme="light"] .duas-scroll-hint .hint-icon-glow,
+  [data-theme="light"] .duas-scroll-hint .hint-icon-glow,
+  body.light-theme .stories-scroll-hint .hint-icon-glow,
+  html[data-theme="light"] .stories-scroll-hint .hint-icon-glow,
+  [data-theme="light"] .stories-scroll-hint .hint-icon-glow,
+  body.light-theme .media-scroll-hint .hint-icon-glow,
+  html[data-theme="light"] .media-scroll-hint .hint-icon-glow,
+  [data-theme="light"] .media-scroll-hint .hint-icon-glow {
     background: rgba(184, 134, 11, 0.15) !important;
     color: #996800 !important;
   }
 
   body.light-theme .azkar-scroll-hint .hint-live-dot,
   html[data-theme="light"] .azkar-scroll-hint .hint-live-dot,
-  [data-theme="light"] .azkar-scroll-hint .hint-live-dot {
+  [data-theme="light"] .azkar-scroll-hint .hint-live-dot,
+  body.light-theme .duas-scroll-hint .hint-live-dot,
+  html[data-theme="light"] .duas-scroll-hint .hint-live-dot,
+  [data-theme="light"] .duas-scroll-hint .hint-live-dot,
+  body.light-theme .stories-scroll-hint .hint-live-dot,
+  html[data-theme="light"] .stories-scroll-hint .hint-live-dot,
+  [data-theme="light"] .stories-scroll-hint .hint-live-dot,
+  body.light-theme .media-scroll-hint .hint-live-dot,
+  html[data-theme="light"] .media-scroll-hint .hint-live-dot,
+  [data-theme="light"] .media-scroll-hint .hint-live-dot {
     background: #b8860b !important;
     box-shadow: 0 0 8px #b8860b !important;
   }
 
   body.light-theme .btn-scroll-azkar,
   html[data-theme="light"] .btn-scroll-azkar,
-  [data-theme="light"] .btn-scroll-azkar {
+  [data-theme="light"] .btn-scroll-azkar,
+  body.light-theme .btn-scroll-duas,
+  html[data-theme="light"] .btn-scroll-duas,
+  [data-theme="light"] .btn-scroll-duas,
+  body.light-theme .btn-scroll-stories,
+  html[data-theme="light"] .btn-scroll-stories,
+  [data-theme="light"] .btn-scroll-stories,
+  body.light-theme .btn-scroll-media,
+  html[data-theme="light"] .btn-scroll-media,
+  [data-theme="light"] .btn-scroll-media {
     background: #ffffff !important;
     border: 1px solid rgba(184, 134, 11, 0.35) !important;
     color: #073f35 !important;
@@ -5025,7 +5111,16 @@ html[data-theme="light"] .nav-links a.active {
 
   body.light-theme .btn-scroll-azkar:hover,
   html[data-theme="light"] .btn-scroll-azkar:hover,
-  [data-theme="light"] .btn-scroll-azkar:hover {
+  [data-theme="light"] .btn-scroll-azkar:hover,
+  body.light-theme .btn-scroll-duas:hover,
+  html[data-theme="light"] .btn-scroll-duas:hover,
+  [data-theme="light"] .btn-scroll-duas:hover,
+  body.light-theme .btn-scroll-stories:hover,
+  html[data-theme="light"] .btn-scroll-stories:hover,
+  [data-theme="light"] .btn-scroll-stories:hover,
+  body.light-theme .btn-scroll-media:hover,
+  html[data-theme="light"] .btn-scroll-media:hover,
+  [data-theme="light"] .btn-scroll-media:hover {
     background: #0ea67a !important;
     border-color: #0ea67a !important;
     color: #ffffff !important;
@@ -5034,7 +5129,16 @@ html[data-theme="light"] .nav-links a.active {
 
   body.light-theme .btn-scroll-azkar:active,
   html[data-theme="light"] .btn-scroll-azkar:active,
-  [data-theme="light"] .btn-scroll-azkar:active {
+  [data-theme="light"] .btn-scroll-azkar:active,
+  body.light-theme .btn-scroll-duas:active,
+  html[data-theme="light"] .btn-scroll-duas:active,
+  [data-theme="light"] .btn-scroll-duas:active,
+  body.light-theme .btn-scroll-stories:active,
+  html[data-theme="light"] .btn-scroll-stories:active,
+  [data-theme="light"] .btn-scroll-stories:active,
+  body.light-theme .btn-scroll-media:active,
+  html[data-theme="light"] .btn-scroll-media:active,
+  [data-theme="light"] .btn-scroll-media:active {
     background: #0b8a65 !important;
     color: #ffffff !important;
   }
@@ -8144,7 +8248,8 @@ body.show-prayer-images .prayer-item-thumb,
 
 .asmaa-search-input {
   width: 100%;
-  padding: 0.85rem 3.2rem 0.85rem 2.8rem;
+  padding-block: 0.85rem;
+  padding-inline: 3.2rem 2.8rem;
   background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: var(--radius-full);
@@ -9191,53 +9296,6 @@ input:checked + .slider-round:before {
     justify-content: space-between !important;
   }
 
-  .duas-mobile-nav-bar {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.2rem;
-    padding: 0 0.25rem;
-    gap: 0.8rem;
-  }
-
-  .duas-scroll-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--gold-300);
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px dashed rgba(212, 175, 55, 0.3);
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-full);
-  }
-
-  .duas-scroll-arrows {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .btn-scroll-duas {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
-    border: 1px solid var(--gold-500);
-    color: var(--gold-300);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: var(--transition-fast);
-  }
-
-  .btn-scroll-duas:hover,
-  .btn-scroll-duas:active {
-    background: var(--gold-500);
-    color: var(--bg-dark);
-  }
 
   /* 3. مكتبة أسماء الله الحسنى الـ 99 */
   .asmaa-mobile-nav-bar {
@@ -9337,54 +9395,6 @@ input:checked + .slider-round:before {
     font-size: 1.85rem !important;
   }
 
-  /* 4. قسم قصص الأنبياء وسير الصحابة الكرام */
-  .stories-mobile-nav-bar {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.2rem;
-    padding: 0 0.25rem;
-    gap: 0.8rem;
-  }
-
-  .stories-scroll-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--gold-300);
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px dashed rgba(212, 175, 55, 0.3);
-    padding: 0.4rem 0.9rem;
-    border-radius: var(--radius-full);
-  }
-
-  .stories-scroll-arrows {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .btn-scroll-stories {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
-    border: 1px solid var(--gold-500);
-    color: var(--gold-300);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: var(--transition-fast);
-  }
-
-  .btn-scroll-stories:hover,
-  .btn-scroll-stories:active {
-    background: var(--gold-500);
-    color: var(--bg-dark);
-  }
 
   .stories-grid {
     display: flex !important;
@@ -10480,7 +10490,8 @@ input:checked + .slider-round:before {
 
 .media-search-input {
   width: 100%;
-  padding: 0.75rem 2.8rem 0.75rem 2.5rem;
+  padding-block: 0.75rem;
+  padding-inline: 2.8rem 2.5rem;
   background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
   border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: var(--radius-full);
@@ -10494,7 +10505,6 @@ input:checked + .slider-round:before {
   outline: none;
   border-color: var(--gold-400);
   box-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
-  background: rgba(18, 32, 54, 0.95);
 }
 
 .media-search-clear {
@@ -10581,7 +10591,8 @@ input:checked + .slider-round:before {
 
   .media-search-input {
     font-size: 14px !important;
-    padding: 0.65rem 2.5rem 0.65rem 2.2rem !important;
+    padding-block: 0.65rem !important;
+    padding-inline: 2.5rem 2.2rem !important;
   }
 
   .media-stats-pill {
@@ -10590,53 +10601,6 @@ input:checked + .slider-round:before {
     padding: 0.35rem 0.85rem !important;
   }
 
-  .media-mobile-nav-bar {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.9rem !important;
-    padding: 0 0.25rem;
-    gap: 0.8rem;
-  }
-
-  .media-scroll-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.82rem;
-    color: var(--gold-300);
-    background: rgba(212, 175, 55, 0.08);
-    border: 1px dashed rgba(212, 175, 55, 0.3);
-    padding: 0.4rem 0.85rem;
-    border-radius: var(--radius-full);
-  }
-
-  .media-scroll-arrows {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .btn-scroll-media {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #07382d 0%, #031c15 100%);
-    border: 1px solid var(--gold-500);
-    color: var(--gold-300);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: var(--transition-fast);
-  }
-
-  .btn-scroll-media:hover,
-  .btn-scroll-media:active {
-    background: var(--gold-500);
-    color: var(--bg-dark);
-  }
 
   .media-grid {
     display: flex !important;
@@ -13391,22 +13355,14 @@ body.light-theme .juz-reader-info {
 }
 
 body.light-theme .btn-scroll-khatma,
-body.light-theme .btn-scroll-azkar,
-body.light-theme .btn-scroll-media,
-body.light-theme .btn-scroll-duas,
-body.light-theme .btn-scroll-asmaa,
-body.light-theme .btn-scroll-stories {
+body.light-theme .btn-scroll-asmaa {
   background: #ffffff !important;
   border: 1px solid #c59318 !important;
   color: #7d5a00 !important;
 }
 
 body.light-theme .khatma-scroll-hint,
-body.light-theme .azkar-scroll-hint,
-body.light-theme .media-scroll-hint,
-body.light-theme .duas-scroll-hint,
-body.light-theme .asmaa-scroll-hint,
-body.light-theme .stories-scroll-hint {
+body.light-theme .asmaa-scroll-hint {
   background: rgba(184, 134, 11, 0.08) !important;
   color: #7d5a00 !important;
   border-color: rgba(184, 134, 11, 0.3) !important;
@@ -26431,20 +26387,23 @@ body.light-theme textarea {
            ========================================================================== */
         #home .home-hero-compact {
             min-height: 0;
-            padding: 26px 28px;
+            padding: 28px 32px;
             margin-top: 16px;
             border-radius: 28px;
-            background: radial-gradient(circle at 100% 0%, rgba(212, 175, 55, 0.14) 0%, transparent 45%),
-                        radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
-                        linear-gradient(145deg, #072e25 0%, #041f18 55%, #02120e 100%) !important;
-            border: 1px solid rgba(212, 175, 55, 0.32) !important;
-            box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.65), 0 0 24px -2px rgba(212, 175, 55, 0.09) !important;
+            background-color: #041f18;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M22 2 L26 18 L42 22 L26 26 L22 42 L18 26 L2 22 L18 18 Z' fill='none' stroke='%23d4af37' stroke-width='0.75' stroke-opacity='0.12'/%3E%3Ccircle cx='22' cy='22' r='4' fill='none' stroke='%23d4af37' stroke-width='0.75' stroke-opacity='0.12'/%3E%3C/svg%3E"),
+                radial-gradient(circle at 90% 0%, rgba(212, 175, 55, 0.18) 0%, transparent 50%),
+                radial-gradient(circle at 10% 100%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+                linear-gradient(150deg, #072f25 0%, #041f18 55%, #02140f 100%) !important;
+            border: 1.5px solid rgba(212, 175, 55, 0.38) !important;
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: stretch;
             justify-content: space-between;
-            gap: 20px;
+            gap: 24px;
         }
 
         #home .home-hero-compact::before {
@@ -26452,82 +26411,75 @@ body.light-theme textarea {
             position: absolute;
             top: 0;
             inset-inline: 0;
-            height: 2.5px;
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4) 25%, #fed668 50%, rgba(212, 175, 55, 0.4) 75%, transparent);
-            box-shadow: 0 0 10px rgba(254, 214, 104, 0.7);
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4) 20%, #fed668 50%, rgba(212, 175, 55, 0.4) 80%, transparent);
+            box-shadow: 0 0 12px rgba(254, 214, 104, 0.8);
             z-index: 2;
         }
 
-        /* أركان الزخرفة الإسلامية الملكية */
+        /* أركان الزخرفة الإسلامية الملكية المذهبة */
         .hero-corner-ornament {
             position: absolute;
-            width: 18px;
-            height: 18px;
+            width: 24px;
+            height: 24px;
             pointer-events: none;
             z-index: 2;
-            opacity: 0.45;
+            opacity: 0.75;
         }
         .hero-corner-ornament.corner-tr {
-            top: 7px;
-            right: 7px;
+            top: 8px;
+            right: 8px;
             border-top: 2px solid #fed668;
             border-right: 2px solid #fed668;
-            border-top-right-radius: 8px;
+            border-top-right-radius: 9px;
+            box-shadow: 1px -1px 8px rgba(254, 214, 104, 0.3);
         }
         .hero-corner-ornament.corner-tl {
-            top: 7px;
-            left: 7px;
+            top: 8px;
+            left: 8px;
             border-top: 2px solid #fed668;
             border-left: 2px solid #fed668;
-            border-top-left-radius: 8px;
+            border-top-left-radius: 9px;
+            box-shadow: -1px -1px 8px rgba(254, 214, 104, 0.3);
         }
         .hero-corner-ornament.corner-br {
-            bottom: 7px;
-            right: 7px;
+            bottom: 8px;
+            right: 8px;
             border-bottom: 2px solid #fed668;
             border-right: 2px solid #fed668;
-            border-bottom-right-radius: 8px;
+            border-bottom-right-radius: 9px;
+            box-shadow: 1px 1px 8px rgba(254, 214, 104, 0.3);
         }
         .hero-corner-ornament.corner-bl {
-            bottom: 7px;
-            left: 7px;
+            bottom: 8px;
+            left: 8px;
             border-bottom: 2px solid #fed668;
             border-left: 2px solid #fed668;
-            border-bottom-left-radius: 8px;
+            border-bottom-left-radius: 9px;
+            box-shadow: -1px 1px 8px rgba(254, 214, 104, 0.3);
         }
 
-        /* زخرفة الأرابيسك الهندسية الشفافة */
-        .home-hero-arabesque {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0.06;
-            z-index: 1;
-        }
-
-        /* هالات الضوء المحيطية */
+        /* هالات الضوء الروحانية المحيطية */
         .hero-ambient-glow {
             position: absolute;
             border-radius: 50%;
-            filter: blur(48px);
+            filter: blur(52px);
             pointer-events: none;
             z-index: 1;
         }
         .hero-ambient-glow.glow-gold {
             top: -40px;
             left: -40px;
-            width: 180px;
-            height: 180px;
-            background: rgba(212, 175, 55, 0.12);
+            width: 200px;
+            height: 200px;
+            background: rgba(212, 175, 55, 0.14);
         }
         .hero-ambient-glow.glow-emerald {
             bottom: -50px;
             right: -50px;
-            width: 200px;
-            height: 200px;
-            background: rgba(16, 185, 129, 0.1);
+            width: 220px;
+            height: 220px;
+            background: rgba(16, 185, 129, 0.12);
         }
 
         /* محتوى الهيرو */
@@ -26538,13 +26490,13 @@ body.light-theme textarea {
             min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
         }
 
         /* الشريط العلوي */
         .home-hero-top-bar {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: space-between;
             gap: 16px;
             flex-wrap: wrap;
@@ -26553,7 +26505,7 @@ body.light-theme textarea {
         .home-hero-brand {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
         }
 
         .home-hero-brand .brand-name {
@@ -26562,29 +26514,32 @@ body.light-theme textarea {
             margin: 0 !important;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             line-height: 1.25 !important;
         }
 
         .home-hero-brand .brand-sparkle {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #fed668;
-            opacity: 0.85;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 6px #fed668);
+            animation: pulseGlowDot 2.8s infinite ease-in-out;
         }
 
         .home-hero-brand .brand-tagline {
-            font-size: 0.84rem;
-            color: rgba(209, 250, 229, 0.78);
+            font-size: 0.85rem;
+            color: #a7f3d0;
             margin: 0;
-            font-weight: 500;
-            letter-spacing: 0.3px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
 
         .text-gold-gradient {
-            background: linear-gradient(135deg, #ffffff 15%, #ffe6a3 45%, #e5b95c 75%, #caa03c 100%) !important;
+            background: linear-gradient(135deg, #ffffff 0%, #fff2c6 25%, #ffd668 55%, #dfa72b 85%, #b3821a 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
-            filter: drop-shadow(0 2px 6px rgba(212, 175, 55, 0.25));
+            filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.35));
         }
 
         /* Urdu joins and dots need the bundled Naskh face and a taller line box. */
@@ -26614,109 +26569,123 @@ body.light-theme textarea {
         .home-date-wrapper {
             display: inline-flex;
             align-items: center;
+            max-width: 100%;
         }
 
         .home-date-pill {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 6px;
-            background: rgba(3, 24, 18, 0.88);
-            border: 1px solid rgba(212, 175, 55, 0.32);
+            gap: 8px;
+            padding: 5px 10px;
+            background: rgba(3, 24, 18, 0.92);
+            border: 1.5px solid rgba(212, 175, 55, 0.35);
             border-radius: 9999px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            flex-wrap: wrap;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            flex-wrap: nowrap !important;
+            white-space: nowrap !important;
+            max-width: 100%;
+            transition: all 0.25s ease;
+        }
+
+        .home-date-pill:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(212, 175, 55, 0.15);
         }
 
         .date-chip {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .date-chip-hijri {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(212, 175, 55, 0.08) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.28);
-            color: #ffd56b;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.26) 0%, rgba(212, 175, 55, 0.1) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.36);
+            color: #fed668;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .date-chip-divider {
-            color: rgba(212, 175, 55, 0.55);
-            font-size: 0.65rem;
+            color: rgba(212, 175, 55, 0.65);
+            font-size: 0.7rem;
             user-select: none;
         }
 
         .date-chip-greg {
-            color: rgba(209, 250, 229, 0.9);
-            font-size: 0.78rem;
-            font-weight: 500;
+            color: #d1fae5;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
         /* بطاقة آية اليوم المصحفية الملكية */
         .home-daily-verse-card {
-            background: linear-gradient(180deg, rgba(6, 36, 28, 0.88) 0%, rgba(4, 25, 19, 0.92) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.34);
-            border-radius: 18px;
-            padding: 16px 20px;
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: linear-gradient(165deg, rgba(8, 44, 34, 0.88) 0%, rgba(4, 26, 20, 0.94) 100%);
+            border: 1.5px solid rgba(212, 175, 55, 0.36);
+            border-radius: 20px;
+            padding: 18px 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 24px rgba(16, 185, 129, 0.08);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             position: relative;
             overflow: hidden;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .home-daily-verse-card:hover {
-            border-color: rgba(212, 175, 55, 0.55);
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.15);
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 24px rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
         }
 
         .daily-verse-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(6, 78, 59, 0.55);
+            padding-bottom: 11px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
         }
 
         .daily-verse-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #ffd56b;
-            letter-spacing: 0.5px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: #fed668;
+            letter-spacing: 0.4px;
         }
 
         .btn-verse-action {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 8px;
-            background: rgba(3, 20, 15, 0.75);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #a7f3d0;
-            font-size: 0.75rem;
-            font-weight: 600;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            background: rgba(3, 20, 15, 0.85);
+            border: 1px solid rgba(212, 175, 55, 0.32);
+            color: #fed668;
+            font-size: 0.78rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.22s ease;
         }
 
         .btn-verse-action:hover {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(212, 175, 55, 0.45);
-            color: #fef3c7;
+            background: rgba(212, 175, 55, 0.18);
+            border-color: #fed668;
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.25);
+            transform: translateY(-1px);
         }
 
         .daily-verse-body {
@@ -26725,52 +26694,60 @@ body.light-theme textarea {
             unicode-bidi: isolate;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 4px 0;
+            gap: 10px;
+            padding: 6px 0;
             text-align: center;
         }
 
         .quran-bracket {
             flex-shrink: 0;
-            font-family: var(--font-quran, 'Amiri', serif);
+            font-family: var(--font-quran, 'Scheherazade New', 'Amiri', serif);
             color: #fed668;
-            font-size: 1.45rem;
+            font-size: 1.6rem;
             font-weight: 700;
             line-height: 1;
             user-select: none;
-            filter: drop-shadow(0 0 6px rgba(254, 214, 104, 0.4));
+            filter: drop-shadow(0 0 8px rgba(254, 214, 104, 0.6));
+            transition: transform 0.25s ease;
+        }
+
+        .home-daily-verse-card:hover .quran-bracket-start {
+            transform: translateX(2px);
+        }
+        .home-daily-verse-card:hover .quran-bracket-end {
+            transform: translateX(-2px);
         }
 
         .daily-verse-text {
-            font-family: var(--font-quran, 'Amiri', serif);
-            font-size: clamp(1.05rem, 2.7vw, 1.3rem);
+            font-family: var(--font-quran, 'Scheherazade New', 'Amiri', serif);
+            font-size: clamp(1.15rem, 3.2vw, 1.42rem);
             font-weight: 600;
-            line-height: 2.1;
-            color: #f0fdf4;
+            line-height: 2.25;
+            color: #f7fee7;
             margin: 0;
             padding: 0;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-            max-width: 600px;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            max-width: 620px;
         }
 
         .daily-verse-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 10px;
-            border-top: 1px solid rgba(6, 78, 59, 0.55);
-            font-size: 0.75rem;
+            padding-top: 11px;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            font-size: 0.78rem;
         }
 
         .daily-verse-ref-pill {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 2px 10px;
+            gap: 7px;
+            padding: 3px 12px;
             border-radius: 9999px;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.28);
-            color: #ffd56b;
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.32);
+            color: #fed668;
             font-weight: 700;
         }
 
@@ -26778,22 +26755,23 @@ body.light-theme textarea {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            color: rgba(167, 243, 208, 0.75);
-            font-size: 0.72rem;
+            color: rgba(167, 243, 208, 0.85);
+            font-size: 0.74rem;
+            font-weight: 600;
         }
 
         .pulse-sparkle {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: #fed668;
-            box-shadow: 0 0 8px #fed668;
+            box-shadow: 0 0 10px #fed668;
             animation: pulseGlowDot 2.2s infinite ease-in-out;
         }
 
         @keyframes pulseGlowDot {
-            0%, 100% { opacity: 0.4; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.25); }
+            0%, 100% { opacity: 0.45; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.3); }
         }
 
         /* العنصر البصري الملكي: الهلال ثلاثي الأبعاد والفانوس */
@@ -26870,33 +26848,125 @@ body.light-theme textarea {
 
         @media (max-width: 768px) {
             #home .home-hero-compact {
-                padding: 20px 18px;
+                padding: 22px 20px;
+                gap: 18px;
             }
             .home-hero-visual {
-                width: 85px;
-                height: 85px;
+                width: 90px;
+                height: 90px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #home .home-hero-compact {
+                padding: 18px 16px;
+                gap: 16px;
+                position: relative;
+            }
+            .home-hero-brand {
+                padding-inline-end: 72px;
+            }
+            .home-date-pill {
+                padding: 4px 8px;
+                gap: 6px;
+            }
+            .date-chip {
+                padding: 4px 10px;
+                font-size: 0.78rem;
+                gap: 5px;
+            }
+            .home-hero-visual {
+                position: absolute;
+                top: 14px;
+                inset-inline-end: 14px;
+                width: 68px;
+                height: 68px;
+                display: flex !important;
+                z-index: 4;
             }
         }
 
         @media (max-width: 480px) {
             #home .home-hero-compact {
-                padding: 18px 14px;
+                padding: 16px 14px;
                 gap: 14px;
+                border-radius: 22px;
             }
             .home-hero-top-bar {
                 flex-direction: column;
-                gap: 10px;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .home-hero-brand {
+                padding-inline-end: 64px;
+            }
+            .home-date-wrapper {
+                width: 100%;
+            }
+            .home-date-pill {
+                padding: 3px 6px;
+                gap: 5px;
+            }
+            .date-chip {
+                padding: 3px 8px;
+                font-size: 0.74rem;
+                gap: 4px;
+            }
+            .date-chip i {
+                font-size: 0.7rem;
+            }
+            .date-chip-divider {
+                font-size: 0.65rem;
             }
             .home-hero-visual {
-                display: none;
+                top: 12px;
+                inset-inline-end: 12px;
+                width: 60px;
+                height: 60px;
+                display: flex !important;
             }
             .daily-verse-text {
                 font-size: 1.05rem;
                 line-height: 1.95;
             }
+        }
+
+        @media (max-width: 360px) {
+            #home .home-hero-compact {
+                padding: 14px 10px;
+                gap: 12px;
+                border-radius: 18px;
+            }
+            .home-hero-brand {
+                padding-inline-end: 54px;
+            }
+            .home-hero-visual {
+                top: 10px;
+                inset-inline-end: 8px;
+                width: 50px;
+                height: 50px;
+                display: flex !important;
+            }
+            .home-hero-brand .brand-name {
+                font-size: 1.3rem !important;
+            }
+            .home-hero-brand .brand-tagline {
+                font-size: 0.74rem;
+            }
+            .home-date-pill {
+                padding: 2px 4px;
+                gap: 3px;
+            }
             .date-chip {
-                padding: 3px 8px;
-                font-size: 0.75rem;
+                padding: 2px 6px;
+                font-size: 0.68rem;
+                gap: 3px;
+            }
+            .date-chip i {
+                font-size: 0.65rem;
+            }
+            .date-chip-divider {
+                font-size: 0.6rem;
             }
         }
         /* ==========================================================================
@@ -27282,63 +27352,87 @@ body.light-theme textarea {
         body.light-theme #home .home-hero-compact,
         html[data-theme="light"] #home .home-hero-compact,
         [data-theme="light"] #home .home-hero-compact {
-            background: radial-gradient(circle at 100% 0%, rgba(212, 175, 55, 0.1) 0%, transparent 45%),
-                        radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.07) 0%, transparent 45%),
-                        linear-gradient(145deg, #ffffff 0%, #fbfdfc 60%, #f2f8f5 100%) !important;
-            border: 1px solid rgba(184, 134, 11, 0.35) !important;
-            box-shadow: 0 12px 36px -6px rgba(7, 63, 53, 0.08), 0 0 18px rgba(184, 134, 11, 0.08) !important;
+            background-color: #faf8f2 !important;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M22 2 L26 18 L42 22 L26 26 L22 42 L18 26 L2 22 L18 18 Z' fill='none' stroke='%23b8860b' stroke-width='0.6' stroke-opacity='0.12'/%3E%3Ccircle cx='22' cy='22' r='4' fill='none' stroke='%23b8860b' stroke-width='0.6' stroke-opacity='0.12'/%3E%3C/svg%3E"),
+                radial-gradient(circle at 90% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 10% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                linear-gradient(150deg, #ffffff 0%, #fbf9f4 60%, #f4ede0 100%) !important;
+            border: 1.5px solid rgba(184, 134, 11, 0.35) !important;
+            box-shadow: 0 16px 40px -8px rgba(184, 134, 11, 0.12), 0 0 24px rgba(212, 175, 55, 0.08), inset 0 1px 0 #ffffff !important;
         }
 
         body.light-theme #home .home-hero-compact::before,
         html[data-theme="light"] #home .home-hero-compact::before,
         [data-theme="light"] #home .home-hero-compact::before {
-            background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.4) 25%, #d4af37 50%, rgba(184, 134, 11, 0.4) 75%, transparent) !important;
-            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4) !important;
+            background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.4) 20%, #b8860b 50%, rgba(184, 134, 11, 0.4) 80%, transparent) !important;
+            box-shadow: 0 0 10px rgba(184, 134, 11, 0.4) !important;
         }
 
         body.light-theme .hero-corner-ornament,
         html[data-theme="light"] .hero-corner-ornament,
         [data-theme="light"] .hero-corner-ornament {
             border-color: #b8860b !important;
-            opacity: 0.55 !important;
+            opacity: 0.65 !important;
+            box-shadow: 0 0 6px rgba(184, 134, 11, 0.25) !important;
+        }
+
+        body.light-theme .hero-ambient-glow.glow-gold,
+        html[data-theme="light"] .hero-ambient-glow.glow-gold,
+        [data-theme="light"] .hero-ambient-glow.glow-gold {
+            background: rgba(212, 175, 55, 0.1) !important;
+        }
+        body.light-theme .hero-ambient-glow.glow-emerald,
+        html[data-theme="light"] .hero-ambient-glow.glow-emerald,
+        [data-theme="light"] .hero-ambient-glow.glow-emerald {
+            background: rgba(16, 185, 129, 0.06) !important;
         }
 
         body.light-theme .home-hero-brand .brand-name .text-gold-gradient,
         html[data-theme="light"] .home-hero-brand .brand-name .text-gold-gradient,
         [data-theme="light"] .home-hero-brand .brand-name .text-gold-gradient {
-            background: linear-gradient(135deg, #09372e 15%, #0e6654 50%, #996800 90%) !important;
+            background: linear-gradient(135deg, #06382e 0%, #0d5c48 45%, #926402 85%, #704d02 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
-            filter: drop-shadow(0 1px 2px rgba(168, 121, 39, 0.15)) !important;
+            filter: drop-shadow(0 1px 2px rgba(184, 134, 11, 0.2)) !important;
         }
 
         body.light-theme .home-hero-brand .brand-sparkle,
         html[data-theme="light"] .home-hero-brand .brand-sparkle,
         [data-theme="light"] .home-hero-brand .brand-sparkle {
-            color: #a87927 !important;
+            color: #b8860b !important;
+            filter: drop-shadow(0 0 4px rgba(184, 134, 11, 0.4)) !important;
         }
 
         body.light-theme .home-hero-brand .brand-tagline,
         html[data-theme="light"] .home-hero-brand .brand-tagline,
         [data-theme="light"] .home-hero-brand .brand-tagline {
-            color: #446355 !important;
+            color: #2c594c !important;
             font-weight: 600 !important;
+            text-shadow: none !important;
         }
 
         body.light-theme .home-date-pill,
         html[data-theme="light"] .home-date-pill,
         [data-theme="light"] .home-date-pill {
-            background: #ffffff !important;
-            border-color: rgba(184, 134, 11, 0.3) !important;
-            box-shadow: 0 4px 14px rgba(7, 63, 53, 0.07) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-color: rgba(184, 134, 11, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(7, 63, 53, 0.08), inset 0 1px 0 #ffffff !important;
+        }
+
+        body.light-theme .home-date-pill:hover,
+        html[data-theme="light"] .home-date-pill:hover,
+        [data-theme="light"] .home-date-pill:hover {
+            border-color: rgba(184, 134, 11, 0.6) !important;
+            box-shadow: 0 6px 18px rgba(7, 63, 53, 0.12), 0 0 12px rgba(184, 134, 11, 0.2) !important;
         }
 
         body.light-theme .date-chip-hijri,
         html[data-theme="light"] .date-chip-hijri,
         [data-theme="light"] .date-chip-hijri {
-            background: #fff8eb !important;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.08) 100%) !important;
             border-color: rgba(184, 134, 11, 0.35) !important;
-            color: #996800 !important;
+            color: #8c5d00 !important;
         }
 
         body.light-theme .date-chip-hijri i,
@@ -27350,35 +27444,36 @@ body.light-theme textarea {
         body.light-theme .date-chip-divider,
         html[data-theme="light"] .date-chip-divider,
         [data-theme="light"] .date-chip-divider {
-            color: #b8860b !important;
+            color: rgba(184, 134, 11, 0.6) !important;
         }
 
         body.light-theme .date-chip-greg,
         html[data-theme="light"] .date-chip-greg,
         [data-theme="light"] .date-chip-greg {
-            color: #3b5a4e !important;
-            font-weight: 600 !important;
+            background: rgba(6, 78, 59, 0.06) !important;
+            border-color: rgba(6, 78, 59, 0.15) !important;
+            color: #1e4d3f !important;
         }
 
         body.light-theme .date-chip-greg i,
         html[data-theme="light"] .date-chip-greg i,
         [data-theme="light"] .date-chip-greg i {
-            color: #0e6654 !important;
+            color: #0d5c48 !important;
         }
 
         body.light-theme .home-daily-verse-card,
         html[data-theme="light"] .home-daily-verse-card,
         [data-theme="light"] .home-daily-verse-card {
-            background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%) !important;
+            background: rgba(255, 255, 255, 0.92) !important;
             border-color: rgba(184, 134, 11, 0.35) !important;
-            box-shadow: inset 0 1px 1px #ffffff, 0 8px 24px rgba(7, 63, 53, 0.06) !important;
+            box-shadow: inset 0 1px 1px #ffffff, 0 8px 24px rgba(7, 63, 53, 0.07) !important;
         }
 
         body.light-theme .home-daily-verse-card:hover,
         html[data-theme="light"] .home-daily-verse-card:hover,
         [data-theme="light"] .home-daily-verse-card:hover {
             border-color: rgba(184, 134, 11, 0.6) !important;
-            box-shadow: inset 0 1px 1px #ffffff, 0 10px 28px rgba(7, 63, 53, 0.1), 0 0 18px rgba(184, 134, 11, 0.15) !important;
+            box-shadow: inset 0 1px 1px #ffffff, 0 10px 28px rgba(7, 63, 53, 0.1), 0 0 16px rgba(184, 134, 11, 0.18) !important;
         }
 
         body.light-theme .daily-verse-header,
@@ -27393,35 +27488,36 @@ body.light-theme textarea {
         body.light-theme .daily-verse-badge,
         html[data-theme="light"] .daily-verse-badge,
         [data-theme="light"] .daily-verse-badge {
-            color: #996800 !important;
+            color: #8c5d00 !important;
         }
 
         body.light-theme .daily-verse-badge i,
         html[data-theme="light"] .daily-verse-badge i,
         [data-theme="light"] .daily-verse-badge i {
-            color: #a87927 !important;
+            color: #b8860b !important;
         }
 
         body.light-theme .btn-verse-action,
         html[data-theme="light"] .btn-verse-action,
         [data-theme="light"] .btn-verse-action {
-            background: #f0f7f4 !important;
-            border-color: rgba(14, 102, 84, 0.25) !important;
-            color: #073f35 !important;
+            background: #f4f8f6 !important;
+            border-color: rgba(184, 134, 11, 0.3) !important;
+            color: #1e4d3f !important;
         }
 
         body.light-theme .btn-verse-action:hover,
         html[data-theme="light"] .btn-verse-action:hover,
         [data-theme="light"] .btn-verse-action:hover {
-            background: #e1efe9 !important;
-            border-color: #a87927 !important;
-            color: #805600 !important;
+            background: #eaf3ef !important;
+            border-color: #b8860b !important;
+            color: #8c5d00 !important;
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.18) !important;
         }
 
         body.light-theme .daily-verse-text,
         html[data-theme="light"] .daily-verse-text,
         [data-theme="light"] .daily-verse-text {
-            color: #0d3b30 !important;
+            color: #0b342b !important;
             font-weight: 700 !important;
             text-shadow: none !important;
         }
@@ -27438,13 +27534,13 @@ body.light-theme textarea {
         [data-theme="light"] .daily-verse-ref-pill {
             background: #fff8eb !important;
             border-color: rgba(184, 134, 11, 0.35) !important;
-            color: #8e5e04 !important;
+            color: #8c5d00 !important;
         }
 
         body.light-theme .daily-verse-ref-pill i,
         html[data-theme="light"] .daily-verse-ref-pill i,
         [data-theme="light"] .daily-verse-ref-pill i {
-            color: #a87927 !important;
+            color: #b8860b !important;
         }
 
         body.light-theme .daily-verse-refresh-hint,
@@ -27463,24 +27559,16 @@ body.light-theme textarea {
         body.light-theme .hero-moon-glow,
         html[data-theme="light"] .hero-moon-glow,
         [data-theme="light"] .hero-moon-glow {
-            background: rgba(212, 175, 55, 0.15) !important;
+            background: rgba(212, 175, 55, 0.18) !important;
         }
 
         body.light-theme .hero-crescent-svg,
         html[data-theme="light"] .hero-crescent-svg,
         [data-theme="light"] .hero-crescent-svg {
-            filter: drop-shadow(0 4px 12px rgba(168, 121, 39, 0.3)) !important;
+            filter: drop-shadow(0 4px 14px rgba(184, 134, 11, 0.35)) !important;
         }
 
         @media (max-width: 480px) {
-            #home .home-hero-compact {
-                padding: 18px 16px;
-            }
-
-                #home .home-hero-compact .moon {
-                    display: none;
-                }
-
             #home .home-prayer-hero-card {
                 padding: 18px 16px;
             }

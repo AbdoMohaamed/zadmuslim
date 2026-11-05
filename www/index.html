@@ -2,9 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <script src="assets/js/i18n-dictionary.js?v=11"></script>
-    <script src="assets/js/i18n.js?v=14"></script>
-    <link rel="stylesheet" href="assets/css/i18n.css?v=6">
+    <script src="assets/js/i18n-dictionary.js?v=14"></script>
+    <script src="assets/js/i18n.js?v=16"></script>
+    <link rel="stylesheet" href="assets/css/i18n.css?v=8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>زاد المسلم | القرآن الكريم، مواقيت الصلاة، الأذكار والسبحة (صدقة جارية)</title>
@@ -98,17 +98,17 @@
     </script>
 
     <!-- تنسيقات الموقع -->
-    <link rel="stylesheet" href="assets/css/style.css?v=105">
+    <link rel="stylesheet" href="assets/css/style.css?v=108">
 
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
     <link rel="stylesheet" href="assets/css/user-tools.css?v=7">
 <link rel="stylesheet" href="assets/css/radio-player.css?v=6">
 <link rel="stylesheet" href="assets/css/offline-audio.css?v=1">
-<script src="assets/js/radio-navigation.js?v=3"></script>
+<script src="assets/js/radio-navigation.js?v=4"></script>
 <link rel="stylesheet" href="assets/css/brand-intro.css?v=1">
 <script defer src="assets/js/brand-intro.js?v=1"></script>
-<link rel="stylesheet" href="assets/css/ask-zad.css?v=4">
+<link rel="stylesheet" href="assets/css/ask-zad.css?v=8">
     <link rel="stylesheet" href="assets/css/reading-font.css?v=4">
     <script defer src="assets/js/reading-font.js?v=6"></script>
 </head>
@@ -672,10 +672,10 @@
     <script src="assets/js/onesignal-service.js?v=4"></script>
     <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=29"></script>
+    <script src="assets/js/app.js?v=30"></script>
     <script src="assets/js/quran.js?v=30"></script>
-    <script src="assets/js/offline-audio-catalog.js?v=1"></script>
-    <script src="assets/js/offline-audio.js?v=2"></script>
+    <script src="assets/js/offline-audio-catalog.js?v=2"></script>
+    <script src="assets/js/offline-audio.js?v=4"></script>
     <script src="assets/js/radio-player.js?v=5"></script>
     <script src="assets/js/extended-modules.js?v=45"></script>
     <script src="assets/js/smart-khatma.js?v=4"></script>
@@ -684,7 +684,7 @@
     <script src="assets/js/prayer-guide.js?v=1"></script>
     <script src="assets/js/app-developer.js?v=3"></script>
     <script src="assets/js/ask-zad-knowledge.js?v=2"></script>
-    <script src="assets/js/ask-zad.js?v=9"></script>
+    <script src="assets/js/ask-zad.js?v=10"></script>
 
     <!-- ==========================================
     نافذة التنبيهات والإشعارات الذكية (Smart Push Notifications Modal)
@@ -1159,11 +1159,10 @@
             const mobLinks = document.querySelectorAll('.mobilebar a');
 
             function updateActiveNav() {
-                const scrollPos = window.scrollY + 140;
                 let currentId = 'home';
                 for (let i = sections.length - 1; i >= 0; i--) {
                     const el = document.getElementById(sections[i].id);
-                    if (el && el.offsetTop <= scrollPos) {
+                    if (el && el.getBoundingClientRect().top <= 140) {
                         currentId = sections[i].id;
                         break;
                     }
@@ -1172,11 +1171,13 @@
                 deskLinks.forEach(a => {
                     a.classList.toggle('active', a.getAttribute('href') === activeHash);
                 });
-                mobLinks.forEach(a => {
-                    a.classList.toggle('active', a.getAttribute('href') === activeHash);
-                });
+                const daily = document.getElementById('daily');
+                const mobileHash = location.hash === '#daily' || daily?.getBoundingClientRect().top <= 140
+                    ? '#daily' : '#home';
+                mobLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === mobileHash));
             }
             window.addEventListener('scroll', updateActiveNav, { passive: true });
+            window.addEventListener('hashchange', updateActiveNav);
             updateActiveNav();
         })();
     </script>

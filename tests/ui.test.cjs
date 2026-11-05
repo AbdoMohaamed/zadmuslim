@@ -52,7 +52,7 @@ test('generated surah and group completion lists follow language changes without
  const {dom,errors}=await load('services.html',{storage:{zad_language:'en'}});
  try{
   const w=dom.window,d=w.document,select=d.getElementById('offline-audio-surah');assert.deepEqual(errors,[]);
-  assert.equal(select.options.length,114);assert.equal(select.value,'67');
+  assert.equal(select.options.length,115);assert.equal(select.value,'67');
   assert.equal(select.options[61].textContent,'62 · Al-Jumuah');assert.equal(select.options[88].textContent,'89 · Al-Fajr');
   assert.equal(select.options[102].textContent,'103 · Al-Asr');
   assert.doesNotMatch(d.querySelector('.juz-card').textContent,/[\u0600-\u06ff]/);
@@ -150,6 +150,8 @@ test('home dates follow the selected language and retain the Hijri adjustment',a
   assert.match(w.getFullFormattedDate(date),/Wednesday/);assert.match(d.getElementById('today').textContent,/November/);
   const before=w.getFullFormattedDate(date);w.localStorage.setItem('zad_hijri_offset','1');assert.notEqual(w.getFullFormattedDate(date),before);
   w.ZadI18n.set('ur');assert.match(w.getFullFormattedDate(date),/بدھ/);assert.doesNotMatch(d.getElementById('today').textContent,/November/);
+  assert.match(w.getFullFormattedDate(date),/جمادی الاولیٰ 1448 ھ/);
+  assert.doesNotMatch(w.getFullFormattedDate(date),/قبل مسیح/);
   w.ZadI18n.set('ar');assert.match(w.getFullFormattedDate(date),/الأربعاء/);assert.match(d.getElementById('today').textContent,/نوفمبر/);
  }finally{dom.window.close();}
 });

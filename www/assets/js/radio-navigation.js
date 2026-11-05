@@ -38,7 +38,7 @@ function render(href){
  if(url.pathname===original.pathname&&url.search===original.search){
   frame?.remove();frame=null;document.title=initialTitle;document.body.classList.remove('zad-radio-host');
   window.dispatchEvent(new Event('hashchange'));
-  if(url.hash){try{document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView();}catch{}}
+  if(url.hash){try{document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView({behavior:'instant'});}catch{}}
   return;
  }
  if(!frame){

@@ -4,16 +4,16 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v153";
+const CACHE_NAME = "zad-muslim-v164";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
-  "./assets/js/i18n-dictionary.js?v=11",
-  "./assets/js/i18n.js?v=14",
-  "./assets/css/i18n.css?v=6",
+  "./assets/js/i18n-dictionary.js?v=14",
+  "./assets/js/i18n.js?v=16",
+  "./assets/css/i18n.css?v=8",
   "./assets/css/quran-reading.css?v=4",
   "./assets/js/app-developer.js?v=3",
-  "./assets/js/offline-audio-catalog.js?v=1",
-  "./assets/js/offline-audio.js?v=2",
+  "./assets/js/offline-audio-catalog.js?v=2",
+  "./assets/js/offline-audio.js?v=4",
   "./assets/css/offline-audio.css?v=1",
   "./assets/fonts/Iura6YBj_oCad4k1nzGBCw.woff2",
   "./assets/fonts/Iura6YBj_oCad4k1nzSBC45I.woff2",
@@ -43,9 +43,9 @@ const ASSETS_TO_CACHE = [
   "./assets/fonts/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscSCyS4J0.woff2",
   "./assets/js/reading-font.js?v=6",
   "./assets/css/reading-font.css?v=4",
-  "./assets/js/ask-zad.js?v=9",
+  "./assets/js/ask-zad.js?v=10",
   "./assets/js/ask-zad-knowledge.js?v=3",
-  "./assets/css/ask-zad.css?v=7",
+  "./assets/css/ask-zad.css?v=8",
   "./assets/js/services-personal.js?v=5",
   "./assets/css/services-personal.css?v=10",
   "./assets/js/brand-intro.js?v=1",
@@ -55,11 +55,11 @@ const ASSETS_TO_CACHE = [
   "./assets/icon-512.png?v=2",
   "./assets/icon.svg?v=2",
   "./assets/js/radio-widget.js?v=4",
-  "./assets/js/radio-navigation.js?v=3",
+  "./assets/js/radio-navigation.js?v=4",
   "./assets/css/radio-player.css?v=6",
   "./assets/js/radio-player.js?v=5",
   "./assets/js/location-service.js?v=1",
-  "./assets/css/style.css?v=105",
+  "./assets/css/style.css?v=108",
   "./assets/js/theme-controller.js",
   "./assets/css/user-tools.css?v=7",
   "./assets/js/data.js",
@@ -74,7 +74,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/firebase-config.js",
   "./assets/js/native-adhan-service.js?v=15",
   "./assets/js/onesignal-service.js?v=4",
-  "./assets/js/app.js?v=29",
+  "./assets/js/app.js?v=30",
   "./assets/js/quran.js?v=30",
   "./assets/js/extended-modules.js?v=45",
   "./assets/js/home-prayer-display.js?v=2",

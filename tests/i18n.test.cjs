@@ -3,6 +3,23 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {JSDOM,requestInterceptor}=require('jsdom');
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
+test('notification feedback and home prayer countdown switch between English, Urdu and Arabic',async()=>{
+ const dom=await setup('ar');try{
+  const w=dom.window,d=w.document,box=d.createElement('section');
+  const labels=[
+   ['تم حفظ إعدادات التنبيهات.','Reminder settings saved.','یاد دہانیوں کی ترتیبات محفوظ ہو گئیں۔'],
+   ['تمت جدولة إشعار الأذان بنجاح بعد 60 ثانية (٠٦:٤٥ م). اقفل شاشة هاتفك للتجربة 📱','Adhan scheduled in 60 seconds (06:45 PM). Lock your phone to test it. 📱','اذان 60 سیکنڈ بعد (06:45 شام) مقرر ہے۔ آزمائش کے لیے فون مقفل کریں۔ 📱'],
+   ['موعد الأذان: ٦:٤٥ م (متبقي ٥ د)','Adhan: 6:45 PM (5 min remaining)','اذان: 6:45 شام (5 منٹ باقی)'],
+   ['سورة الحشر - آية 10','Surah Al-Hashr – Ayah 10','سورۃ الحشر – آیت 10'],
+  ];
+  for(const [source] of labels){const p=d.createElement('p');p.textContent=source;box.append(p);}
+  d.body.append(box);await tick();
+  for(const [language,column] of [['en',1],['ur',2],['ar',0]]){
+   w.ZadI18n.set(language);await tick();
+   assert.deepEqual([...box.children].map(el=>el.textContent),labels.map(row=>row[column]));
+  }
+ }finally{dom.window.close();}
+});
 test('footer dedication translates while original prayer quotations keep Arabic direction',async()=>{
  for(const page of ['index.html','services.html','settings.html','privacy.html']){
   const dom=new JSDOM(fs.readFileSync(page,'utf8'),{url:'https://zad.test/'+page,runScripts:'outside-only'});
@@ -137,7 +154,7 @@ test('saved language and storage events synchronise pages and safely handle inva
  }finally{dom.window.close();}
 });
 
-test('mixed language forms keep editable text automatic and numeric controls LTR across languages',async()=>{
+test('search follows the interface while free text stays automatic and numeric controls stay LTR',async()=>{
  const dom=await setup('en');try{
   const w=dom.window,d=w.document;
   const fields=d.createElement('section');fields.innerHTML='<input type="search"><textarea></textarea><input type="email"><input type="number"><input type="range"><input type="time"><input type="text" inputmode="numeric"><p>نص عربي غير مترجم (123)</p><div class="memorize-ayah-text">بِسْمِ اللَّهِ</div>';
@@ -145,7 +162,7 @@ test('mixed language forms keep editable text automatic and numeric controls LTR
   for(const language of ['en','ur','ar','en']){
    w.ZadI18n.set(language);await tick();
    assert.equal(d.documentElement.dir,language==='en'?'ltr':'rtl');
-   assert.equal(fields.querySelector('input[type=search]').dir,'auto');assert.equal(fields.querySelector('textarea').dir,'auto');
+   assert.equal(fields.querySelector('input[type=search]').dir,language==='en'?'ltr':'rtl');assert.equal(fields.querySelector('textarea').dir,'auto');
    for(const field of fields.querySelectorAll('input[type=email],input[type=number],input[type=range],input[type=time],input[inputmode=numeric]'))assert.equal(field.dir,'ltr');
    assert.equal(fields.querySelector('p').dir,'auto');assert.equal(fields.querySelector('.memorize-ayah-text').dir,'rtl');
    assert.equal(fields.querySelector('.memorize-ayah-text').textContent,'بِسْمِ اللَّهِ');

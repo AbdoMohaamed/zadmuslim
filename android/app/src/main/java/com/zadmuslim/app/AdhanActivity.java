@@ -112,7 +112,6 @@ public class AdhanActivity extends AppCompatActivity {
         DisplayMetrics dm = getResources().getDisplayMetrics();
         float density = dm.density;
 
-        // Container رئيسي (FrameLayout) لملء الشاشة بالكامل بالصورة كخلفية
         FrameLayout rootLayout = new FrameLayout(this);
         rootLayout.setLayoutDirection("en".equals(NativeLanguage.language(this)) ? View.LAYOUT_DIRECTION_LTR : View.LAYOUT_DIRECTION_RTL);
         rootLayout.setLayoutParams(new ViewGroup.LayoutParams(
@@ -120,31 +119,8 @@ public class AdhanActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
 
-        // 1. صورة الصلاة المخصصة كخلفية كاملة للشاشة (Full-screen background image)
-        int imgResId = getPrayerImageResId(prayerKey);
-        ImageView bgImageView = new ImageView(this);
-        boolean showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE).getBoolean("show_prayer_images", true);
         rootLayout.setBackgroundColor(0xFF03231C);
-        if (showImages) bgImageView.setImageResource(imgResId);
-        bgImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        rootLayout.addView(bgImageView, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-        ));
 
-        // 2. طبقة تظليل إسلامية فخمة ومتدرجة تبرز جمال الصورة وتمنح النصوص وضوحاً فائقاً
-        View scrimView = new View(this);
-        GradientDrawable scrim = new GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0x00000000, 0x00000000, 0x66000000}
-        );
-        scrimView.setBackground(scrim);
-        rootLayout.addView(scrimView, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-        ));
-
-        // 3. المحتوى فوق الخلفية
         LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (view, insets) -> {
@@ -208,9 +184,16 @@ public class AdhanActivity extends AppCompatActivity {
         );
         btnContainerParams.setMargins((int) (12 * density), (int) (8 * density), (int) (12 * density), (int) (40 * density));
 
-        // بناء كامل الشاشة
-        mainLayout.addView(new View(this), new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        // Fill the available space above the buttons without cropping the
+        // artwork or the text printed near its edges.
+        ImageView prayerImage = new ImageView(this);
+        boolean showImages = getSharedPreferences(AdhanNativePlugin.PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean("show_prayer_images", true);
+        if (showImages) prayerImage.setImageResource(getPrayerImageResId(prayerKey));
+        prayerImage.setScaleType(ImageView.ScaleType.FIT_XY);
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
+        mainLayout.addView(prayerImage, imageParams);
         mainLayout.addView(buttonsLayout, btnContainerParams);
 
 
