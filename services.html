@@ -2,7 +2,29 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <style>html.excerpts-route-pending body { visibility: hidden !important; }</style>
+    <style>
+        html.excerpts-route-pending body { visibility: hidden !important; }
+        #excerpts-route-loader { display: none; }
+        html.excerpts-route-pending #excerpts-route-loader {
+            visibility: visible !important;
+            display: flex; position: fixed; inset: 0; z-index: 2147483647;
+            flex-direction: column; align-items: center; justify-content: center;
+            gap: 18px; background: #F7F9F6; color: #073f35;
+            font: 600 16px/1.8 system-ui, sans-serif;
+        }
+        html[data-theme="dark"].excerpts-route-pending #excerpts-route-loader {
+            background: #081C17; color: #e5cf91;
+        }
+        .excerpts-loader-ring {
+            width: 36px; height: 36px; border: 3px solid currentColor;
+            border-inline-end-color: transparent; border-radius: 50%;
+            animation: excerpts-loader-spin .8s linear infinite;
+        }
+        @keyframes excerpts-loader-spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) {
+            .excerpts-loader-ring { animation: none; }
+        }
+    </style>
     <script>
         if (location.hash.split('?')[0] === '#islamic-media') {
             document.documentElement.classList.add('excerpts-route-pending');
@@ -76,6 +98,21 @@
     <script defer src="assets/js/reading-font.js?v=6"></script>
 </head>
 <body class="services-hub-mode">
+    <div id="excerpts-route-loader" role="status" aria-live="polite" data-i18n-skip>
+        <span class="excerpts-loader-ring" aria-hidden="true"></span>
+        <span id="excerpts-route-loader-text">جارٍ تحميل المقتطفات…</span>
+    </div>
+    <script>
+        (function () {
+            var language = document.documentElement.lang;
+            try { language = localStorage.getItem('zad_language') || language; } catch (_) {}
+            var labels = { ar: 'جارٍ تحميل المقتطفات…', en: 'Loading excerpts…', ur: 'اقتباسات لوڈ ہو رہے ہیں…' };
+            var loader = document.getElementById('excerpts-route-loader');
+            loader.lang = labels[language] ? language : 'ar';
+            loader.dir = language === 'en' ? 'ltr' : 'rtl';
+            document.getElementById('excerpts-route-loader-text').textContent = labels[language] || labels.ar;
+        })();
+    </script>
 
     <!-- شريط التنقل العلوي المتطابق -->
     <header class="top">
@@ -3735,7 +3772,7 @@
         <script src="assets/js/onesignal-service.js?v=4"></script>
         <script src="assets/js/location-service.js?v=1"></script>
     <script src="assets/js/prayer-cities.js?v=1"></script>
-    <script src="assets/js/app.js?v=30"></script>
+    <script src="assets/js/app.js?v=31"></script>
         <script src="assets/js/quran.js?v=30"></script>
         <script src="assets/js/offline-audio-catalog.js?v=2"></script>
     <script src="assets/js/offline-audio.js?v=4"></script>

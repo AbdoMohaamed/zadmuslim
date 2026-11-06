@@ -2061,8 +2061,10 @@ function checkSpecialTimesNotice() {
 }
 
 let prayerRequestVersion = 0;
+let prayerFetchController;
 async function fetchPrayerTimes(cityKey) {
     const requestVersion = ++prayerRequestVersion;
+    prayerFetchController?.abort();
     window.zadPrayerVerified = false;
     prayerTimings = null;
     window.prayerTimings = null;
@@ -2077,6 +2079,7 @@ async function fetchPrayerTimes(cityKey) {
     if(window.Capacitor?.getPlatform?.()==='android') {
         try {offlinePrayer=await window.Capacitor.Plugins.AdhanNative?.getLocalPrayerTimings?.({context:localContext});} catch {}
     }
+    if (requestVersion !== prayerRequestVersion) return;
     const scheduleSignature=JSON.stringify([cityKey,localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
     if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0') || previous.offset!==new Date().getTimezoneOffset() || previous.zone!==Intl.DateTimeFormat().resolvedOptions().timeZone) { if(!offlinePrayer?.renewed) await window.NativeAdhanService?.cancelPrayerAlarms?.(); }
     if (requestVersion !== prayerRequestVersion) return;
@@ -2148,17 +2151,30 @@ async function fetchPrayerTimes(cityKey) {
         } catch(e) {}
     }
 
-    const fallbackToLocal = () => {
-        if(offlinePrayer?.renewed && validTimings(offlinePrayer.timings)) {
+    // Native timings are calculated for today and checked against the exact
+    // location/settings context. Alarm renewal may be off while timings are valid.
+    const hasLocalTimings = validTimings(offlinePrayer?.timings);
+    const showLocalTimings = () => {
+        if (hasLocalTimings) {
             prayerTimings=offlinePrayer.timings;window.prayerTimings=prayerTimings;
             markVerified();renderPrayerTimesUI(prayerTimings);startPrayerCountdown();initFastingTracker();
-        } else useFallbackTimings();
+        }
     };
-    fetch(url, { cache: "no-store" })
+    const clockChanged = () => now.getTimezoneOffset() !== new Date().getTimezoneOffset() || userTz !== Intl.DateTimeFormat().resolvedOptions().timeZone || now.toDateString() !== new Date().toDateString();
+    const fallbackToLocal = () => {
+        if (requestVersion !== prayerRequestVersion) return;
+        if (clockChanged()) { fetchPrayerTimes(cityKey); return; }
+        if (!hasLocalTimings) useFallbackTimings();
+    };
+    showLocalTimings();
+    const controller = new AbortController();
+    prayerFetchController = controller;
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    fetch(url, { cache: "no-store", signal: controller.signal })
         .then(res => { if (!res.ok) throw new Error("Unavailable"); return res.json(); })
         .then(result => {
             if (requestVersion !== prayerRequestVersion) return;
-            if (now.getTimezoneOffset() !== new Date().getTimezoneOffset() || userTz !== Intl.DateTimeFormat().resolvedOptions().timeZone || now.toDateString() !== new Date().toDateString()) {
+            if (clockChanged()) {
                 fetchPrayerTimes(cityKey);
                 return;
             }
@@ -2187,6 +2203,10 @@ async function fetchPrayerTimes(cityKey) {
         .catch(() => {
             if (requestVersion !== prayerRequestVersion) return;
             fallbackToLocal();
+        })
+        .finally(() => {
+            clearTimeout(timeout);
+            if (prayerFetchController === controller) prayerFetchController = null;
         });
 }
 
