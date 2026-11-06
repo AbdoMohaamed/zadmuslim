@@ -103,8 +103,13 @@ jobs:
           retention-days: 1
           compression-level: 0
 
+      - name: Prepare Android Debug Files
+        if: steps.signing.outputs.ready != 'true'
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk ZadMuslim-Android.apk
+          echo "ZadMuslim-Android.apk successfully created from debug build!"
+
       - name: Publish Android Apps to GitHub Releases
-        if: steps.signing.outputs.ready == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v3.6.19"
@@ -128,15 +133,12 @@ jobs:
             - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-iOS.ipa)
             - **طريقة التثبيت:** حمّل الملف واستخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو تطبيق **Sideloadly** لتوقيع وتثبيت التطبيق بحسابك مجاناً.
           files: |
-            ZadMuslim-Android.aab
             ZadMuslim-Android.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-ios:
     name: Build iOS IPA
-    needs: build-android
-    if: ${{ !cancelled() }}
     runs-on: macos-14
     permissions:
       contents: write
@@ -213,7 +215,7 @@ jobs:
           compression-level: 0
 
       - name: Publish iOS App to GitHub Releases
-        if: needs.build-android.result == 'success' && needs.build-android.outputs.signed == 'true'
+        if: success()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v3.6.19"
