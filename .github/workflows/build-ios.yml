@@ -33,10 +33,13 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.14.3
+      - name: Provision Gradle 8.14.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/gradle
+          curl -sL -H "Accept: application/octet-stream" -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/gradle/gradle-distributions/releases/assets/269969095" -o /tmp/gradle/gradle-8.14.3-bin.zip
+          sed -i 's|distributionUrl=.*|distributionUrl=file\\:///tmp/gradle/gradle-8.14.3-bin.zip|' android/gradle/wrapper/gradle-wrapper.properties
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

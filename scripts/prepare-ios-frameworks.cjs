@@ -86,6 +86,10 @@ async function main() {
     const onesignalPkgPath = path.join(onesignalVendor, 'Package.swift');
     let onesignalPkg = fs.readFileSync(onesignalPkgPath, 'utf8');
     onesignalPkg = onesignalPkg.replace(
+        'name: "OneSignalXCFramework"',
+        'name: "OneSignal-XCFramework"'
+    );
+    onesignalPkg = onesignalPkg.replace(
         /url:\s*"https:\/\/github\.com\/OneSignal\/OneSignal-iOS-SDK\/releases\/download\/5\.7\.0\/(OneSignal[A-Za-z]+)\.xcframework\.zip",\s*checksum:\s*"[a-f0-9]+"/g,
         'path: "$1.xcframework"'
     );
@@ -124,7 +128,7 @@ async function main() {
         );
         pluginPkg = pluginPkg.replace(
             '.package(url: "https://github.com/OneSignal/OneSignal-XCFramework.git", exact: "5.7.0")',
-            '.package(name: "OneSignalXCFramework", path: "../../../ios/App/vendor/OneSignal-XCFramework")'
+            '.package(name: "OneSignal-XCFramework", path: "../../../ios/App/vendor/OneSignal-XCFramework")'
         );
         fs.writeFileSync(onesignalPluginPkg, pluginPkg, 'utf8');
         console.log('✅ Patched onesignal-cordova-plugin Package.swift with local vendor paths.');
