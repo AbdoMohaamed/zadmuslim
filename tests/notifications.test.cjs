@@ -53,6 +53,10 @@ test('iOS notification payloads localize interface text while retaining prayer i
   const h=harness({platform:'ios',settings:{adhan:true,prePrayer:true,morning:true,sleep:true}});h.context.ZadI18n=w.ZadI18n;
   await h.service.schedulePrayers();
   const pre=h.calls.local.find(n=>n.extra?.type==='pre_prayer_alert');assert.ok(pre);assert.match(pre.title,/Coming up:/);
+  assert.equal(pre.sound,'pre_fajr.caf');
+  const adhan=h.calls.local.filter(n=>n.extra?.type==='adhan_call');
+  assert.equal(adhan.length,5);
+  assert.ok(adhan.every(n=>n.sound==='adhan_refaat.caf'));
   assert.equal(pre.extra.prayerName,'صلاة الفجر');assert.equal(pre.extra.prayerKey,'fajr');
   const morning=h.calls.local.find(n=>n.extra?.type==='morning_azkar');assert.equal(morning.title,'Morning adhkar');assert.doesNotMatch(morning.body,/[\u0600-\u06ff]/);
   const sleep=h.calls.local.find(n=>n.extra?.type==='sleep_azkar');assert.equal(sleep.title,'Bedtime adhkar');assert.equal(sleep.body,'باسمك ربي وضعت جنبي وبك أرفعه');

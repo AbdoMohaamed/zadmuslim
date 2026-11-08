@@ -138,6 +138,7 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				A5A100000000000000000008 /* Prepare Prayer Notification Audio */,
 			);
 			buildRules = (
 			);
@@ -221,6 +222,44 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A5A100000000000000000008 /* Prepare Prayer Notification Audio */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = (
+				"$(SRCROOT)/App/adhan_abdulbasit.mp3",
+				"$(SRCROOT)/App/adhan_aqsa.mp3",
+				"$(SRCROOT)/App/adhan_madinah.mp3",
+				"$(SRCROOT)/App/adhan_makkah.mp3",
+				"$(SRCROOT)/App/adhan_qatami.mp3",
+				"$(SRCROOT)/App/adhan_refaat.mp3",
+				"$(SRCROOT)/App/pre_asr.mp3",
+				"$(SRCROOT)/App/pre_dhuhr.mp3",
+				"$(SRCROOT)/App/pre_fajr.mp3",
+				"$(SRCROOT)/App/pre_isha.mp3",
+				"$(SRCROOT)/App/pre_maghrib.mp3",
+			);
+			name = "Prepare Prayer Notification Audio";
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/adhan_abdulbasit.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/adhan_aqsa.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/adhan_madinah.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/adhan_makkah.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/adhan_qatami.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/adhan_refaat.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/pre_asr.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/pre_dhuhr.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/pre_fajr.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/pre_isha.caf",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/pre_maghrib.caf",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eu\nfor sound in adhan_abdulbasit adhan_aqsa adhan_madinah adhan_makkah adhan_qatami adhan_refaat pre_asr pre_dhuhr pre_fajr pre_isha pre_maghrib; do\n    /usr/bin/afconvert -f caff -d ima4 \"$SRCROOT/App/$sound.mp3\" \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/$sound.caf\"\ndone\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		504EC3001FED79650016851F /* Sources */ = {

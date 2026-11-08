@@ -72,6 +72,10 @@ const NativeAdhanService = {
         return (saved && valid.includes(saved)) ? saved : "qatami";
     },
 
+    prayerSound(stem) {
+        return stem + (window.Capacitor?.getPlatform?.() === 'ios' ? '.caf' : '.mp3');
+    },
+
     prayerImageOptions(prayerKey) {
         const enabled = this.getNotificationSettings().prayerImages !== false && localStorage.getItem('zad_show_prayer_images') !== '0';
         if (!enabled || window.Capacitor?.getPlatform?.() !== 'ios' || !['fajr','dhuhr','asr','maghrib','isha'].includes(prayerKey)) return {};
@@ -119,7 +123,9 @@ const NativeAdhanService = {
                 { id: "adhan_qatami", name: "أذان الشيخ ناصر القطامي (الافتراضي)", sound: "adhan_qatami", importance: 5 },
                 { id: "adhan_abdulbasit", name: "أذان الشيخ عبد الباسط", sound: "adhan_abdulbasit", importance: 5 },
                 { id: "adhan_refaat", name: "أذان الشيخ محمد رفعت", sound: "adhan_refaat", importance: 5 },
-                { id: "adhan_fajr", name: "أذان الفجر المخصوص", sound: "adhan_fajr", importance: 5 },
+                { id: "adhan_makkah", name: "أذان المسجد الحرام", sound: "adhan_makkah", importance: 5 },
+                { id: "adhan_madinah", name: "أذان المسجد النبوي", sound: "adhan_madinah", importance: 5 },
+                { id: "adhan_aqsa", name: "أذان المسجد الأقصى", sound: "adhan_aqsa", importance: 5 },
                 { id: "daily_adhkar", name: "أذكار الصباح والمساء وسورة الكهف", sound: null, importance: 4 },
                 { id: "hourly_salawat", name: "تذكير الصلاة على النبي ﷺ", sound: "salawat", importance: 4 },
                 { id: "hourly_salawat_voice1", name: "الصلاة على النبي ﷺ — الصوت الأول", sound: "salawat_1", importance: 4 },
@@ -376,7 +382,7 @@ const NativeAdhanService = {
                         const preAlertMoment = new Date(prayerMoment.getTime() - (preInterval * 60 * 1000));
                         if (preAlertMoment.getTime() > now.getTime() + 1000) {
                             const preNotifId = p.idBase + 1000 + (dayOffset * 2000);
-                            const preSoundName = `pre_${p.key}.mp3`;
+                            const preSoundName = this.prayerSound(`pre_${p.key}`);
                             notificationsToSchedule.push({
                                 id: preNotifId,
                                 ...this.prayerImageOptions(p.key),
@@ -403,9 +409,8 @@ const NativeAdhanService = {
                     // 2. إشعار دخول وقت الصلاة والأذان التام (Main Adhan Notification)
                     if (notifySettings.adhan !== false && prayerMoment.getTime() > now.getTime() + 1000) {
                         const notifId = p.idBase + (dayOffset * 2000);
-                        const isFajr = p.key === "fajr";
-                        const channelId = isFajr ? "adhan_fajr" : `adhan_${selectedMuazzin}`;
-                        const soundName = isFajr ? "adhan_fajr.mp3" : `adhan_${selectedMuazzin}.mp3`;
+                        const channelId = `adhan_${selectedMuazzin}`;
+                        const soundName = this.prayerSound(`adhan_${selectedMuazzin}`);
 
                         notificationsToSchedule.push({
                             id: notifId,
@@ -751,7 +756,7 @@ const NativeAdhanService = {
                     await plugins.LocalNotifications.schedule({ notifications: [{
                         id: 99999, title: 'تجربة إشعار الأذان', body: prayerName,
                         schedule: { at: new Date(Date.now() + 1000), allowWhileIdle: true },
-                        sound: 'adhan_' + muazzin + '.mp3', channelId: 'adhan_' + muazzin
+                        sound: this.prayerSound('adhan_' + muazzin), channelId: 'adhan_' + muazzin
                     }] });
                 }
                 return { success: true };
@@ -887,7 +892,7 @@ const NativeAdhanService = {
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
             try {
                 await this.registerPrayerActions();
-                const soundFile = isPreAlert ? "pre_asr.mp3" : `adhan_${muazzin}.mp3`;
+                const soundFile = this.prayerSound(isPreAlert ? 'pre_asr' : `adhan_${muazzin}`);
                 const channelId = isPreAlert ? "prayer_pre_asr" : `adhan_${muazzin}`;
                 await window.Capacitor.Plugins.LocalNotifications.schedule({
                     notifications: [{

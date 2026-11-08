@@ -62,7 +62,7 @@ public class AdhanPlayer {
             // Respect the system alarm volume; the in-app slider scales this playback.
 
             // 4. جلب ملف الصوت من res/raw عبر AssetFileDescriptor لضمان عدم حدوث أي خطأ في فتح الملف
-            int soundResId = getSoundResourceId(appContext, prayerKey, muazzin);
+            int soundResId = getSoundResourceId(muazzin);
             AssetFileDescriptor afd = null;
             try {
                 afd = appContext.getResources().openRawResourceFd(soundResId);
@@ -260,10 +260,7 @@ public class AdhanPlayer {
         return isPlaying && mediaPlayer != null && mediaPlayer.isPlaying();
     }
 
-    private static int getSoundResourceId(Context context, String prayerKey, String muazzin) {
-        if ("fajr".equalsIgnoreCase(prayerKey)) {
-            return R.raw.adhan_fajr;
-        }
+    private static int getSoundResourceId(String muazzin) {
         if (muazzin == null || muazzin.isEmpty()) muazzin = "qatami";
         switch (muazzin.toLowerCase(java.util.Locale.US)) {
             case "abdulbasit": return R.raw.adhan_abdulbasit;

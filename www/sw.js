@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v167";
+const CACHE_NAME = "zad-muslim-v169";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/i18n-dictionary.js?v=14",
@@ -57,7 +57,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/radio-widget.js?v=4",
   "./assets/js/radio-navigation.js?v=4",
   "./assets/css/radio-player.css?v=6",
-  "./assets/js/radio-player.js?v=5",
+  "./assets/js/radio-player.js?v=6",
   "./assets/js/location-service.js?v=1",
   "./assets/css/style.css?v=108",
   "./assets/js/theme-controller.js",
@@ -67,14 +67,14 @@ const ASSETS_TO_CACHE = [
   "./assets/js/asmaa-allah-data.js?v=1",
   "./assets/js/islamic-guide-data.js?v=1",
   "./assets/js/daily-message-data.js?v=2",
-  "./assets/js/radio-stations-data.js?v=5",
+  "./assets/js/radio-stations-data.js?v=6",
   "./assets/js/quiz-data.js?v=2",
   "./assets/js/islamic-stories-data.js?v=3",
   "./assets/js/media-data.js?v=2",
   "./assets/js/firebase-config.js",
-  "./assets/js/native-adhan-service.js?v=15",
+  "./assets/js/native-adhan-service.js?v=16",
   "./assets/js/onesignal-service.js?v=4",
-  "./assets/js/app.js?v=31",
+  "./assets/js/app.js?v=32",
   "./assets/js/quran.js?v=30",
   "./assets/js/extended-modules.js?v=45",
   "./assets/js/home-prayer-display.js?v=2",
@@ -421,8 +421,7 @@ function armBackgroundPrayerAlarms() {
 }
 
 function showPrayerNotification(prayer) {
-  const isFajr = prayer.key === "fajr";
-  const muazzinAudioFile = isFajr ? "fajr.mp3" : `${selectedMuazzinPreference || "qatami"}.mp3`;
+  const muazzinAudioFile = `${selectedMuazzinPreference || "qatami"}.mp3`;
   const soundUrl = `./assets/audio/adhan/${muazzinAudioFile}`;
   const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayer.key}&muazzin=${selectedMuazzinPreference || "qatami"}&t=${Date.now()}`;
   const prayerImage = `./assets/images/prayers/pre_${prayer.key}.jpg`;

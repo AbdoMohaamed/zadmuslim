@@ -4,9 +4,15 @@ on:
   push:
     branches: [ master, main ]
   workflow_dispatch:
+    inputs:
+      ios_test_only:
+        description: Build an unsigned iOS test IPA without publishing a release
+        type: boolean
+        default: false
 
 jobs:
   build-android:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.ios_test_only }}
     name: Build Android APK
     runs-on: ubuntu-latest
     outputs:
@@ -201,13 +207,19 @@ jobs:
           fi
           
           echo "Found compiled app at: $APP_PATH"
+          for sound in adhan_abdulbasit adhan_aqsa adhan_madinah adhan_makkah adhan_qatami adhan_refaat pre_asr pre_dhuhr pre_fajr pre_isha pre_maghrib; do
+            if [ ! -s "$APP_PATH/$sound.caf" ]; then
+              echo "Error: Missing notification sound $sound.caf"
+              exit 1
+            fi
+          done
           cp -r "$APP_PATH" Payload/
           zip -qr ZadMuslim-iOS.ipa Payload
           echo "ZadMuslim-iOS.ipa successfully created!"
 
       - name: Upload IPA to GitHub Artifacts (Optional)
         uses: actions/upload-artifact@v4
-        continue-on-error: true
+        continue-on-error: ${{ !inputs.ios_test_only }}
         with:
           name: ZadMuslim-iOS-IPA
           path: ZadMuslim-iOS.ipa
@@ -215,7 +227,7 @@ jobs:
           compression-level: 0
 
       - name: Publish iOS App to GitHub Releases
-        if: success()
+        if: ${{ success() && !inputs.ios_test_only }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v3.6.19"

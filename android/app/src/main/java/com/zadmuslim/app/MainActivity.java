@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
 import com.getcapacitor.BridgeActivity;
@@ -22,6 +23,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(BackupFilesPlugin.class);
         registerPlugin(RadioNativePlugin.class);
         super.onCreate(savedInstanceState);
+        WindowCompat.enableEdgeToEdge(getWindow());
 
         // Create remote push's channel independently of prayer setup or WebView execution.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -40,9 +42,9 @@ public class MainActivity extends BridgeActivity {
 
         // حماية رأس التطبيق من تداخل شريط حالة النظام (Status Bar & Display Cutout Insets)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (view, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.displayCutout());
-            view.setPadding(0, insets.top, 0, 0);
-            return windowInsets;
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return windowInsets.inset(insets.left, insets.top, insets.right, insets.bottom);
         });
 
         // التعامل الذكي مع زر الرجوع وإيماءات السحب لنظام الأندرويد (Hardware Back & Predictive Back Gesture)

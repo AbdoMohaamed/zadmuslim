@@ -30,6 +30,7 @@ public class RadioService extends Service {
  private String url="", backup="", name="راديو القرآن";
  private float volume=.8f;
  private int attempt=0, generation=0;
+ private boolean useBackup;
  private boolean focusHeld=false, interrupted=false;
  private Runnable retry, watchdog, stable;
  private final Runnable sleeper=()->{if(sleepDeadline>0 && System.currentTimeMillis()>=sleepDeadline)stopPlayback();};
@@ -72,7 +73,7 @@ public class RadioService extends Service {
   position=offline?getSharedPreferences("offline-audio",0).getLong(stationId,0)/1000.0:0;duration=0;
   lastError="";
   try{startForeground(ID,notification());}catch(Exception e){android.util.Log.e("ZadRadio","Foreground playback failed",e);lastError="تعذّر بدء خدمة الصوت في أندرويد";wanted=false;state="failed";stopSelf();return START_NOT_STICKY;}
-  wanted=true;attempt=0;interrupted=false;
+  wanted=true;attempt=0;useBackup=false;interrupted=false;
   session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE,name).putString(MediaMetadata.METADATA_KEY_ARTIST,"زاد المسلم").build());
   setSleepDeadline(sleepDeadline);connect();return START_NOT_STICKY;
  }
@@ -105,7 +106,7 @@ public class RadioService extends Service {
    MediaPlayer next=new MediaPlayer();player=next;
    next.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build());
    next.setWakeMode(this,PowerManager.PARTIAL_WAKE_LOCK);next.setVolume(volume,volume);
-   next.setDataSource(attempt%2==1&&backup!=null&&!backup.isEmpty()?backup:url);
+   next.setDataSource(useBackup&&backup!=null&&!backup.isEmpty()?backup:url);
    next.setOnPreparedListener(mp->{if(ticket!=generation||!wanted)return;try{if(offline){duration=mp.getDuration()/1000.0;if(position>0&&position<duration-1)mp.seekTo((int)(position*1000));session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE,name).putString(MediaMetadata.METADATA_KEY_ARTIST,"زاد المسلم").putLong(MediaMetadata.METADATA_KEY_DURATION,mp.getDuration()).build());}mp.start();lastError="";clearTimers();publish("playing");stable=()->{attempt=0;};handler.postDelayed(stable,30000);}catch(Exception e){android.util.Log.e("ZadRadio","Cannot start prepared stream",e);lastError="تعذّر تشغيل الصوت بعد تحميل البث";reconnect();}});
    next.setOnErrorListener((mp,what,extra)->{if(ticket==generation){android.util.Log.e("ZadRadio","MediaPlayer error "+what+" / "+extra);lastError="تعذّر تشغيل البث على مشغّل أندرويد ("+what+" / "+extra+")";reconnect();}return true;});
    next.setOnCompletionListener(mp->{if(ticket!=generation)return;if(offline){wanted=false;position=0;getSharedPreferences("offline-audio",0).edit().remove(stationId).apply();try{mp.seekTo(0);}catch(Exception ignored){}publish("ended");}else reconnect();});
@@ -119,6 +120,7 @@ public class RadioService extends Service {
   if(!wanted||interrupted||retry!=null)return;
   if(offline){wanted=false;releasePlayer();publish("failed");return;}
   releasePlayer();if(!online()){publish("offline");retry=()->{retry=null;connect();};handler.postDelayed(retry,5000);return;}
+  useBackup=!useBackup;
   long delay=Math.min(1000L<<Math.min(attempt,6),60000);attempt=Math.min(attempt+1,7);publish("retrying");retry=()->{retry=null;connect();};handler.postDelayed(retry,delay);
  }
  @Override public void onDestroy(){if(noisyReceiver!=null)unregisterReceiver(noisyReceiver);wanted=false;releasePlayer();handler.removeCallbacksAndMessages(null);if(Build.VERSION.SDK_INT>=26&&focus!=null)audioManager.abandonAudioFocusRequest(focus);else if(focusListener!=null)audioManager.abandonAudioFocus(focusListener);if(session!=null){session.setActive(false);session.release();}instance=null;stopForeground(true);super.onDestroy();}

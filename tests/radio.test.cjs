@@ -39,9 +39,18 @@ test('stalled streams time out and retry; autoplay denial requires a user gestur
  const h=setup();h.player.play();h.tick(18000);assert.equal(h.player.state,'retrying');h.player.stop();
  h.audio.reject=Object.assign(new Error('gesture'),{name:'NotAllowedError'});h.player.play();await flush();assert.equal(h.player.state,'blocked');assert.equal(h.timers.size,0);
 });
-test('Cairo and Makkah do not silently fall back to a different station',()=>{
+test('Cairo switches to its backup and returns to primary if the backup later stalls',()=>{
  const ctx={};vm.runInNewContext(fs.readFileSync('assets/js/radio-stations-data.js','utf8')+';this.stations=RADIO_STATIONS_LIST;',ctx);
- for(const id of ['cairo','makkah'])assert.equal(ctx.stations.find(s=>s.id===id).backupUrl,undefined);
+ const cairo=ctx.stations.find(s=>s.id==='cairo');
+ assert.equal(cairo.backupUrl,'https://radio.xecod.com/station/quran-cairo');
+ assert.equal(ctx.stations.find(s=>s.id==='makkah').backupUrl,undefined);
+ const h=setup();h.player.select(cairo,true);
+ h.audio.dispatchEvent(new Event('error'));h.tick(1000);
+ assert.deepEqual(h.audio.plays,[cairo.url,cairo.backupUrl]);
+ h.audio.dispatchEvent(new Event('playing'));h.audio.currentTime=1;h.audio.dispatchEvent(new Event('timeupdate'));
+ h.tick(30000);h.tick(18000);h.tick(1000);
+ assert.deepEqual(h.audio.plays,[cairo.url,cairo.backupUrl,cairo.url]);
+ assert.equal(h.player.station.id,'cairo');h.player.stop();
 });
 
 test('long outage keeps retrying at a capped interval and explicit stop cancels recovery',()=>{

@@ -28,7 +28,7 @@ class RadioPlayer {
  clear(){clearTimeout(this.retry);clearTimeout(this.watchdog);clearTimeout(this.stable);this.retry=this.watchdog=this.stable=null;}
  watch(){if(!this.watchdog)this.watchdog=setTimeout(()=>{this.watchdog=null;this.reconnect();},18000);}
  select(station,play=this.wanted){this.stop();this.station=station;this.attempt=0;if(play)this.play();else this.setState('paused');}
- play(){if(!this.station)return;this.wanted=true;this.attempt=0;this.connect();}
+ play(){if(!this.station)return;this.wanted=true;this.attempt=0;this.useBackup=false;this.connect();}
  pause(){if(!this.station?.offline){this.stop();return;}this.wanted=false;this.generation++;this.clear();this.audio.pause();this.setState('paused');}
  seek(seconds){if(this.station?.offline&&Number.isFinite(this.audio.duration))this.audio.currentTime=Math.max(0,Math.min(seconds,this.audio.duration));}
  stop(){this.wanted=false;this.generation++;this.clear();this.setState('paused');this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
@@ -41,8 +41,7 @@ class RadioPlayer {
    if(this.audio.src!==this.station.url){this.audio.src=this.station.url;this.audio.load();}
    try{await this.audio.play();}catch(error){if(generation===this.generation){this.wanted=false;this.setState(error.name==='NotAllowedError'?'blocked':'failed');}}return;
   }
-  const urls=[this.station.url,...(this.station.backupUrl?[this.station.backupUrl]:[])];
-  this.audio.src=urls[this.attempt%urls.length];this.audio.load();this.watch();
+  this.audio.src=(this.useBackup&&this.station.backupUrl)||this.station.url;this.audio.load();this.watch();
   try{await this.audio.play();}catch(error){
    if(generation!==this.generation||!this.wanted)return;
    if(error.name==='NotAllowedError'){this.wanted=false;this.clear();this.setState('blocked');}
@@ -54,6 +53,7 @@ class RadioPlayer {
   if(this.station?.offline){this.wanted=false;this.clear();this.setState('failed');return;}
   this.generation++;this.clear();
   if(!this.online()){this.setState('offline');this.audio.pause();return;}
+  this.useBackup=!this.useBackup;
   const delay=Math.min(1000*2**Math.min(this.attempt,6),60000);this.attempt=Math.min(this.attempt+1,7);
   this.setState('retrying');this.retry=setTimeout(()=>{this.retry=null;this.connect();},delay);
  }

@@ -14,7 +14,10 @@ public class RadioNativePlugin extends Plugin {
    .putExtra("id",call.getString("id", "")).putExtra("volume",call.getDouble("volume",.8).floatValue());
   try{androidx.core.content.ContextCompat.startForegroundService(getContext(),intent);call.resolve();}catch(Exception e){call.reject("Cannot start radio",e);}
  }
- private boolean allowed(String value){try{android.net.Uri u=android.net.Uri.parse(value);return "https".equals(u.getScheme()) && java.util.Arrays.asList("qurango.net","backup.qurango.net","stream.radiojar.com").contains(u.getHost());}catch(Exception e){return false;}}
+ private boolean allowed(String value){
+  if("https://radio.xecod.com/station/quran-cairo".equals(value))return true;
+  try{android.net.Uri u=android.net.Uri.parse(value);return "https".equals(u.getScheme()) && java.util.Arrays.asList("qurango.net","backup.qurango.net","stream.radiojar.com").contains(u.getHost());}catch(Exception e){return false;}
+ }
  @PluginMethod public void stop(PluginCall call){new android.os.Handler(android.os.Looper.getMainLooper()).post(()->{RadioService.stopPlayback();getContext().stopService(new Intent(getContext(),RadioService.class));call.resolve();});}
  @PluginMethod public void setVolume(PluginCall call){RadioService.setVolume(call.getDouble("volume",.8).floatValue());call.resolve();}
  @PluginMethod public void setSleepTimer(PluginCall call){RadioService.setSleepDeadline(call.getDouble("at",0.0).longValue());call.resolve();}

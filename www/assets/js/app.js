@@ -3991,9 +3991,9 @@ function playAdhanAudio(prayerKey, specificMuazzinId, prayerName) {
     const audioEl = document.getElementById("audio-adhan");
     if (!audioEl) return;
 
-    const isFajr = prayerKey === "fajr";
+
     const muazzin = specificMuazzinId ? (MUAZZIN_LIST.find(m => m.id === specificMuazzinId) || getSelectedMuazzin()) : getSelectedMuazzin();
-    const sourceFile = isFajr ? "assets/audio/adhan/fajr.mp3" : muazzin.file;
+    const sourceFile = muazzin.file;
 
     // تحديث مسار الصوت إذا اختلف
     if (!audioEl.src.endsWith(sourceFile)) {

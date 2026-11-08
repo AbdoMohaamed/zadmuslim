@@ -119,7 +119,7 @@ public class AdhanNativePlugin: CAPPlugin, CAPBridgedPlugin {
                             preContent.title = "⏳ اقتربت \(prayerNames[i])"
                             let intervalWord = preAlertInterval == 1 ? "دقيقة واحدة" : "\(preAlertInterval) دقائق"
                             preContent.body = "بقي \(intervalWord) على دخول وقت \(prayerNames[i]). تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿"
-                            let preSoundName = "pre_\(key).mp3"
+                            let preSoundName = "pre_\(key).caf"
                             preContent.sound = UNNotificationSound(named: UNNotificationSoundName(preSoundName))
                             preContent.userInfo = ["type": "pre_prayer", "prayerKey": key]
 
@@ -137,7 +137,7 @@ public class AdhanNativePlugin: CAPPlugin, CAPBridgedPlugin {
                         let adhanContent = UNMutableNotificationContent()
                         adhanContent.title = "🕌 حَانَ الآنَ مَوْعِدُ \(prayerNames[i])"
                         adhanContent.body = "الله أكبر، الله أكبر.. حان الآن موعد \(prayerNames[i]) حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕋"
-                        let soundFile = key == "fajr" ? "adhan_fajr.mp3" : "adhan_\(muazzin).mp3"
+                        let soundFile = "adhan_\(muazzin).caf"
                         adhanContent.sound = UNNotificationSound(named: UNNotificationSoundName(soundFile))
                         adhanContent.userInfo = ["type": "adhan_call", "prayerKey": key, "muazzin": muazzin]
 
@@ -167,7 +167,7 @@ public class AdhanNativePlugin: CAPPlugin, CAPBridgedPlugin {
         let content = UNMutableNotificationContent()
         content.title = "🕌 تجربة إشعار الأذان • \(prayerName)"
         content.body = "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋"
-        let soundFile = prayerKey == "fajr" ? "adhan_fajr.mp3" : "adhan_\(muazzin).mp3"
+        let soundFile = "adhan_\(muazzin).caf"
         content.sound = UNNotificationSound(named: UNNotificationSoundName(soundFile))
         content.userInfo = ["type": "adhan_call", "prayerKey": prayerKey, "muazzin": muazzin]
         content.badge = 1
@@ -199,12 +199,12 @@ public class AdhanNativePlugin: CAPPlugin, CAPBridgedPlugin {
         if isPreAlert {
             content.title = "⏳ اقتربت \(prayerName) (اختبار التشخيص)"
             content.body = "بقي دقيقة واحدة على دخول وقت \(prayerName). تَهَيّأْ للوضوء والصلاة 🌿"
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("pre_\(prayerKey).mp3"))
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("pre_\(prayerKey).caf"))
             content.userInfo = ["type": "diagnostic_pre_alert", "prayerKey": prayerKey]
         } else {
             content.title = "🕌 حان الآن موعد \(prayerName) (اختبار التشخيص)"
             content.body = "الله أكبر، الله أكبر.. حي على الصلاة، حي على الفلاح 🕋"
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("adhan_\(muazzin).mp3"))
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("adhan_\(muazzin).caf"))
             content.userInfo = ["type": "diagnostic_adhan", "prayerKey": prayerKey, "muazzin": muazzin]
         }
         content.badge = 1

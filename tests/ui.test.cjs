@@ -734,6 +734,26 @@ test('selected muazzin persists and reaches native scheduler without resetting t
  assert.deepEqual(errors,[]);w.close();
 });
 
+test('Fajr and the other prayers use the same selected muezzin on the web',async()=>{
+ const {dom}=await load('services.html');
+ const w=dom.window;
+ try{
+  const audio=w.document.getElementById('audio-adhan');
+  audio.load=()=>{};
+  audio.play=()=>Promise.resolve();
+  const prayers=['fajr','dhuhr','asr','maghrib','isha'];
+  for(const [selection,expected] of [[null,'qatami'],['madinah','madinah']]){
+   if(selection)w.localStorage.setItem('zad_selected_muazzin',selection);
+   else w.localStorage.removeItem('zad_selected_muazzin');
+   for(const prayer of prayers){
+    w.playAdhanAudio(prayer);
+    assert.ok(audio.src.endsWith('/adhan/'+expected+'.mp3'),prayer);
+   }
+  }
+  await Promise.resolve();
+ }finally{w.close();}
+});
+
 
 test('prayer image preview initializes after markup, switches every prayer and closes safely',async()=>{
  const {dom,errors}=await load('settings.html');

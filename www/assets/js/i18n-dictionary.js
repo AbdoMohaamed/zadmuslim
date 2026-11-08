@@ -2170,7 +2170,7 @@
 الدعاء للميت لا دعاء الميت:|Pray to Allah for the deceased:|مرحوم کے لیے اللہ سے دعا کریں:
 فالميت فقير إلى رحمة ربه ودعائكم له.|The deceased needs Allah’s mercy and your prayers.|مرحوم کو اپنے رب کی رحمت اور آپ کی دعاؤں کی ضرورت ہے۔
 جدي عبدالمعبود ✦|My grandfather Abdul-Maboud ✦|میرے دادا عبدالمعبود ✦
-ملاحظة: لصلاة الفجر يتم تشغيل أذان الفجر المخصوص بعبارة "الصلاة خير من النوم" تلقائياً.|The Fajr Adhan automatically includes “Prayer is better than sleep.”|فجر کی اذان میں «نماز نیند سے بہتر ہے» کے الفاظ خود بخود شامل ہوتے ہیں۔
+يُستخدم صوت المؤذن المختار لجميع الصلوات، بما فيها الفجر.|The selected muezzin is used for all prayers, including Fajr.|منتخب مؤذن کی آواز فجر سمیت تمام نمازوں کے لیے استعمال ہوتی ہے۔
 كأي تطبيق رسمي من متجر أبل يعمل بدون إنترنت بخطوتين بسيطتين:|Add the app to your iPhone in two steps:|دو آسان مرحلوں میں ایپ آئی فون پر شامل کریں:
 يفتح التطبيق بضغطة زر، ويعمل بكفاءة 100% بدون اتصال بالإنترنت!|Open it with one tap. Offline features are available without an internet connection.|ایک بار دبانے سے ایپ کھل جاتی ہے۔ آف لائن سہولتیں انٹرنیٹ کے بغیر دستیاب ہیں۔
 بشارة نبوية شريفة:|Glad tidings from the Prophet ﷺ:|نبی ﷺ کی خوش خبری:

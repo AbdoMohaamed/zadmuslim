@@ -61,25 +61,6 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
             return;
         }
 
-        // 2. إعادة جدولة المنبهات عند إعادة تشغيل الهاتف أو تحديث التطبيق أو تغيير الوقت والمنطقة الزمنية
-        if (AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED.equals(action) ||
-            Intent.ACTION_BOOT_COMPLETED.equals(action) ||
-            "android.intent.action.QUICKBOOT_POWERON".equals(action) ||
-            "com.htc.intent.action.QUICKBOOT_POWERON".equals(action) ||
-            Intent.ACTION_MY_PACKAGE_REPLACED.equals(action) ||
-            Intent.ACTION_TIME_CHANGED.equals(action) ||
-            "android.intent.action.TIME_SET".equals(action) ||
-            Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
-            Log.d(TAG, "System event (" + action + ") - Rescheduling prayer alarms");
-            BackgroundReminderReceiver.restore(context);
-            AdhanNativePlugin.rescheduleAlarmsFromPrefs(context);
-            PrayerWidgetProvider.updateAllWidgets(context);
-
-            cancelLegacyBroadcastCheck(context);
-            if (pendingResult != null) pendingResult.finish();
-            return;
-        }
-
         if (ACTION_CHECK_CLOUD_BROADCASTS.equals(action)) {
 
             cancelLegacyBroadcastCheck(context);
