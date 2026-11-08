@@ -124,11 +124,11 @@ async function main() {
         let pluginPkg = fs.readFileSync(onesignalPluginPkg, 'utf8');
         pluginPkg = pluginPkg.replace(
             '.package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "7.6.9")',
-            '.package(name: "capacitor-swift-pm", path: "../../../ios/App/vendor/capacitor-swift-pm")'
+            '.package(name: "capacitor-swift-pm", path: "../../ios/App/vendor/capacitor-swift-pm")'
         );
         pluginPkg = pluginPkg.replace(
             '.package(url: "https://github.com/OneSignal/OneSignal-XCFramework.git", exact: "5.7.0")',
-            '.package(name: "OneSignal-XCFramework", path: "../../../ios/App/vendor/OneSignal-XCFramework")'
+            '.package(name: "OneSignal-XCFramework", path: "../../ios/App/vendor/OneSignal-XCFramework")'
         );
         fs.writeFileSync(onesignalPluginPkg, pluginPkg, 'utf8');
         console.log('✅ Patched onesignal-cordova-plugin Package.swift with local vendor paths.');
