@@ -35,6 +35,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.14.3
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -167,26 +169,17 @@ jobs:
       - name: Build Web Assets & Sync Mobile
         run: npm run build:mobile
 
+      - name: Prepare Local iOS Frameworks (Bypass GitHub Releases CDN 504)
+        run: node scripts/prepare-ios-frameworks.cjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Patch Swift Types for Capacitor Local Notifications
         run: node scripts/patch-swift.js
 
       - name: Configure Xcode Project for Unsigned CI Build
         run: |
           sed -i '' 's/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g' ios/App/App.xcodeproj/project.pbxproj || true
-
-      - name: Resolve Swift Package Dependencies with Retry
-        run: |
-          for i in 1 2 3; do
-            echo "Attempt $i to resolve Swift packages..."
-            xcodebuild -resolvePackageDependencies -project ios/App/App.xcodeproj -scheme App && break || {
-              if [ $i -eq 3 ]; then
-                echo "Failed to resolve packages after 3 attempts."
-                exit 1
-              fi
-              echo "Retrying package resolution in 10 seconds..."
-              sleep 10
-            }
-          done
 
       - name: Create iOS Archive (xcodebuild archive)
         run: |
