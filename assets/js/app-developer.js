@@ -2,7 +2,20 @@
 (function(root,factory){
     const api=factory();
     if(typeof module==='object'&&module.exports)module.exports=api;
-    else root.ZadAppDeveloper=api;
+    else {
+        root.ZadAppDeveloper=api;
+        const container=root.document.querySelector('[data-developer-contacts]');
+        if(container){
+            for(const contact of api.contacts()){
+                const link=root.document.createElement('a');
+                link.href=contact.href;
+                link.textContent=contact.label;
+                link.target=root.Capacitor?.isNativePlatform?.() ? '_self' : '_blank';
+                link.rel='noopener noreferrer';
+                container.appendChild(link);
+            }
+        }
+    }
 })(typeof window==='undefined'?globalThis:window,function(){
     'use strict';
     const profile={
@@ -26,6 +39,7 @@
             try{const url=new URL(value[key]);if(url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&hosts.includes(url.hostname))links.push({label,href:url.href});}catch{}
         }
         return {
+            contacts(){return links.map(link=>({...link}));},
             isContact(href){try{return links.some(link=>link.href===new URL(href).href);}catch{return false;}},
             answer(query,language='ar'){
                 if(!name||!isQuestion(query))return null;

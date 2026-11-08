@@ -493,6 +493,7 @@
 دعاء تفريج الكرب|Dua in distress|پریشانی کی دعا
 حساب زكاة المال والذهب|Zakat on savings & gold|مال اور سونے کی زکوٰۃ
 صفة الوضوء ونواقضه|Wudu & what invalidates it|وضو کا طریقہ اور نواقض
+تواصل مع المطور|Contact the developer|ڈویلپر سے رابطہ کریں
 واتساب|WhatsApp|واٹس ایپ
 فيسبوك|Facebook|فیس بک
 مشاري العفاسي|Mishary Alafasy|مشاری العفاسی
