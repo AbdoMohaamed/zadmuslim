@@ -19,7 +19,7 @@ test('chat displays the approved contacts as safe external buttons without calli
  try{
   for(const file of ['app-developer','ask-zad-knowledge','ask-zad'])w.eval(fs.readFileSync('assets/js/'+file+'.js','utf8'));
   w.fetch=()=>{throw Error('developer answers must be local');};
-  w.AskZad.init();w.AskZad.send('مين عامل التطبيق؟');
+  w.AskZad.init();w.AskZad.send('مين عبدو');
   await new Promise(resolve=>setTimeout(resolve,600));
   const links=[...w.document.querySelectorAll('.ask-zad-action-btn')];
   assert.equal(links.length,2);

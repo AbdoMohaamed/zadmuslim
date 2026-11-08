@@ -98,8 +98,8 @@ const RADIO_STATIONS_LIST = [
         id: "cairo",
         name: "إذاعة القرآن الكريم من القاهرة",
         desc: "بث إذاعة القرآن الكريم من القاهرة — إعادة اتصال بنفس المحطة عند الانقطاع",
-        url: "https://stream.radiojar.com/8s5u5tpdtwzuv",
-        backupUrl: "https://radio.xecod.com/station/quran-cairo",
+        url: "https://radio.xecod.com/station/quran-cairo",
+        backupUrl: "https://stream.radiojar.com/8s5u5tpdtwzuv",
         icon: "fa-solid fa-tower-broadcast",
         badge: "القاهرة"
     },

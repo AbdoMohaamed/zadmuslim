@@ -159,7 +159,7 @@
   if(element.matches('.fa-arrow-left,.fa-arrow-right,.fa-chevron-left,.fa-chevron-right,.fa-angle-left,.fa-angle-right,.fa-angles-left,.fa-angles-right')){
    element.classList.toggle('i18n-direction-icon',!element.closest('[data-direction-fixed],#golden-mushaf-viewport,.compass-container,.qibla-compass,.media-player-controls'));
   }
-  if(element.matches('input[type="search"],input[inputmode="search"]'))element.dir=language==='en'?'ltr':'rtl';
+  if(element.matches('#ask-zad-input,input[type="search"],input[inputmode="search"]'))element.dir=language==='en'?'ltr':'rtl';
   else if(element.matches('textarea,input:not([type]),input[type="text"]')&&!element.hasAttribute('dir'))element.dir='auto';
   if(element.matches('input[type="email"],input[type="url"],input[type="tel"],input[type="number"],input[type="date"],input[type="time"],input[type="range"],input[inputmode="numeric"],input[inputmode="decimal"]'))element.dir='ltr';
   if(element.matches('.ask-zad-msg-bubble>div:first-child'))element.dir='auto';

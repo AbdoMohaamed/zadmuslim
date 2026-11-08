@@ -157,12 +157,14 @@ test('saved language and storage events synchronise pages and safely handle inva
 test('search follows the interface while free text stays automatic and numeric controls stay LTR',async()=>{
  const dom=await setup('en');try{
   const w=dom.window,d=w.document;
-  const fields=d.createElement('section');fields.innerHTML='<input type="search"><textarea></textarea><input type="email"><input type="number"><input type="range"><input type="time"><input type="text" inputmode="numeric"><p>نص عربي غير مترجم (123)</p><div class="memorize-ayah-text">بِسْمِ اللَّهِ</div>';
+  const fields=d.createElement('section');fields.innerHTML='<input type="search"><input type="text" id="ask-zad-input" value="Test 123"><textarea></textarea><input type="email"><input type="number"><input type="range"><input type="time"><input type="text" inputmode="numeric"><p>نص عربي غير مترجم (123)</p><div class="memorize-ayah-text">بِسْمِ اللَّهِ</div>';
   d.body.append(fields);await tick();
   for(const language of ['en','ur','ar','en']){
    w.ZadI18n.set(language);await tick();
    assert.equal(d.documentElement.dir,language==='en'?'ltr':'rtl');
    assert.equal(fields.querySelector('input[type=search]').dir,language==='en'?'ltr':'rtl');assert.equal(fields.querySelector('textarea').dir,'auto');
+   assert.equal(fields.querySelector('#ask-zad-input').dir,language==='en'?'ltr':'rtl');
+   assert.equal(fields.querySelector('#ask-zad-input').value,'Test 123');
    for(const field of fields.querySelectorAll('input[type=email],input[type=number],input[type=range],input[type=time],input[inputmode=numeric]'))assert.equal(field.dir,'ltr');
    assert.equal(fields.querySelector('p').dir,'auto');assert.equal(fields.querySelector('.memorize-ayah-text').dir,'rtl');
    assert.equal(fields.querySelector('.memorize-ayah-text').textContent,'بِسْمِ اللَّهِ');

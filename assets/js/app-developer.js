@@ -27,6 +27,7 @@
     const normalize=text=>String(text||'').normalize('NFC').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[إأآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[^\u0600-\u06FFa-z0-9\s]/gi,' ').replace(/\s+/g,' ').trim().toLowerCase();
     function isQuestion(text){
         const q=normalize(text);
+        if (/^(?:مين|من|من هو|من يكون) (?:عبدو(?: محمد)?|عبد المعبود محمد|عبدالمعبود محمد)$/.test(q)) return true;
         if (/(who (made|built|created|developed|owns)|(?:app|application|zad).*(developer|creator)|contact.*developer|developer.*contact|(?:ایپ|اپلیکیشن).*(?:بنای|بنائ|مالک|ڈویلپر)|(?:کس نے).*(?:بنایا|بنائی))/.test(q)) return true;
         const app=/(تطبيق|برنامج|موقع|ابلكيشن|ابليكشن|ابليكيشن|زاد المسلم)/.test(q);
         const creator=/(^|\s)(مين|من)(\s|$)/.test(q)||/(اسم|صاحب|مطور|مبرمج|مصمم|تطوير|برمجه|تواصل|اتواصل|واتساب|واتس|فيسبوك|فيس|تويتر|حساب)/.test(q);

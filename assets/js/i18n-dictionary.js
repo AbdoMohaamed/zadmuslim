@@ -494,6 +494,9 @@
 حساب زكاة المال والذهب|Zakat on savings & gold|مال اور سونے کی زکوٰۃ
 صفة الوضوء ونواقضه|Wudu & what invalidates it|وضو کا طریقہ اور نواقض
 تواصل مع المطور|Contact the developer|ڈویلپر سے رابطہ کریں
+تنقل بطاقات الأدعية|Supplication card navigation|دعاؤں کے کارڈز کی نیویگیشن
+تنقل مقتطفات الفيديو|Video clip navigation|ویڈیو کلپس کی نیویگیشن
+تنقل قصص الأنبياء والسير|Prophet stories and biographies navigation|انبیاء کے قصوں اور سیرت کی نیویگیشن
 واتساب|WhatsApp|واٹس ایپ
 فيسبوك|Facebook|فیس بک
 مشاري العفاسي|Mishary Alafasy|مشاری العفاسی

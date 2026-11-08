@@ -85,7 +85,7 @@ jobs:
         if: steps.signing.outputs.ready != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ZadMuslim-Android-v3.6.20-debug
+          name: ZadMuslim-Android-v3.6.21-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 1
           compression-level: 0
@@ -126,13 +126,13 @@ jobs:
       - name: Publish Android Apps to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v3.6.20"
-          name: "زاد المسلم v3.6.20 (Android & iOS)"
+          tag_name: "v3.6.21"
+          name: "زاد المسلم v3.6.21 (Android & iOS)"
           draft: false
           prerelease: false
           make_latest: true
           body: |
-            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.20)
+            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.21)
             تطبيق إسلامي شامل وصدقة جارية.
 
             ---
@@ -244,13 +244,13 @@ jobs:
         if: ${{ success() && !inputs.ios_test_only }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v3.6.20"
-          name: "زاد المسلم v3.6.20 (Android & iOS)"
+          tag_name: "v3.6.21"
+          name: "زاد المسلم v3.6.21 (Android & iOS)"
           draft: false
           prerelease: false
           make_latest: true
           body: |
-            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.20)
+            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.21)
             تطبيق إسلامي شامل وصدقة جارية.
 
             ---
