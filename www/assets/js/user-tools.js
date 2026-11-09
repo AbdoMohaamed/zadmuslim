@@ -494,7 +494,9 @@
 
         // 1. Hero
         const heroEl = document.querySelector('section.hero');
-        if (heroEl) heroEl.style.display = isVisible('hero') ? '' : 'none';
+        if (heroEl) heroEl.style.setProperty('display', isVisible('hero') ? 'flex' : 'none', 'important');
+        const verseSection = document.querySelector('.home-verse-section');
+        if (verseSection) verseSection.style.setProperty('display', isVisible('hero') ? 'flex' : 'none', 'important');
 
         // 2. Smart Reminder
         const reminderEl = $('smart-reminder-banner');

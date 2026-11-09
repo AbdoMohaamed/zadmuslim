@@ -39,7 +39,7 @@
         }
     </script>
 
-    <script src="assets/js/i18n-dictionary.js?v=15"></script>
+    <script src="assets/js/i18n-dictionary.js?v=17"></script>
     <script src="assets/js/i18n.js?v=20"></script>
     <link rel="stylesheet" href="assets/css/i18n.css?v=8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -135,7 +135,7 @@
     </script>
 
     <!-- تنسيقات الموقع -->
-    <link rel="stylesheet" href="assets/css/style.css?v=108">
+    <link rel="stylesheet" href="assets/css/style.css?v=110">
 
     <!-- نظام المظهر الموحد لمنع الوميض ومزامنة المظهر -->
     <script src="assets/js/theme-controller.js"></script>
@@ -218,46 +218,86 @@
          تصميم عصري متجاوب للآيفون والأندرويد والكمبيوتر
          ========================================== -->
     <main class="shell container" id="home">
-                                <section class="hero home-hero-compact">
-            <!-- أركان الزخرفة الإسلامية الملكية المذهبة -->
-            <div class="hero-corner-ornament corner-tr" aria-hidden="true"></div>
-            <div class="hero-corner-ornament corner-tl" aria-hidden="true"></div>
-            <div class="hero-corner-ornament corner-br" aria-hidden="true"></div>
-            <div class="hero-corner-ornament corner-bl" aria-hidden="true"></div>
-            <!-- هالات الضوء الروحانية المحيطة -->
-            <div class="hero-ambient-glow glow-gold" aria-hidden="true"></div>
-            <div class="hero-ambient-glow glow-emerald" aria-hidden="true"></div>
-
-            <div class="home-hero-content">
-                <!-- الشريط العلوي: زاد المسلم + بطاقة التاريخ الملكية --> 
-                <div class="home-hero-top-bar">
+        <section class="hero home-hero-compact">
+            <!-- البطاقة العلوية: التحية الملكية والتاريخ والقمر المضيء -->
+            <div class="home-hero-card home-hero-greeting-card">
+                <div class="greeting-card-main">
                     <div class="home-hero-brand">
                         <h1 class="brand-name">
                             <span class="text-gold-gradient">
                                 السلام عليكم
                             </span>
-                            <span class="brand-sparkle" aria-hidden="true">✦</span>
                         </h1>
                         <p class="brand-tagline">نُورٌ لِقَلْبِكَ وَضِيَاءٌ لِيَوْمِك</p>
                     </div>
 
-                    <!-- وسام التاريخ الملكي المزدوج (هجري وميلادي) -->
-                    <div class="home-date-wrapper" id="today"></div>
+                    <!-- العنصر البصري الملكي: الهلال الذهبي والنجمة المضيئة -->
+                    <div class="home-hero-visual" aria-hidden="true">
+                        <div class="hero-moon-glow"></div>
+                        <svg class="hero-crescent-svg" viewBox="0 0 100 100" fill="none">
+                            <defs>
+                                <linearGradient id="goldCrescentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fff9e6" />
+                                    <stop offset="25%" stop-color="#fed668" />
+                                    <stop offset="70%" stop-color="#dfa72b" />
+                                    <stop offset="100%" stop-color="#996c14" />
+                                </linearGradient>
+                                <filter id="crescentFilterGlow" x="-30%" y="-30%" width="160%" height="160%">
+                                    <feGaussianBlur stdDeviation="3.2" result="blur" />
+                                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                </filter>
+                            </defs>
+                            <path class="crescent-body" d="M52 14 C30 14 14 31 14 53 C14 74 31 90 53 90 C68 90 80 82 87 70 C83.5 71.5 79.5 72.5 75.5 72.5 C56 72.5 40 56.5 40 37 C40 25 46 14.5 56 8 C54.5 8 53.2 8 52 14 Z" fill="url(#goldCrescentGrad)" filter="url(#crescentFilterGlow)" />
+                            <path class="star-nested" d="M72 40 L74.2 45.8 L80 46.4 L75.8 50.2 L77 56 L72 52.8 L67 56 L68.2 50.2 L64 46.4 L69.8 45.8 Z" fill="url(#goldCrescentGrad)" filter="url(#crescentFilterGlow)" />
+                        </svg>
+                    </div>
                 </div>
 
-                <!-- بطاقة آية اليوم (التحفة المصحفية المركزية الفاخرة) -->
-                <div class="home-daily-verse-card" id="home-daily-verse-card">
-                    <div class="daily-verse-header">
-                        <div class="daily-verse-badge">
-                            <i class="fa-solid fa-book-quran text-gold"></i>
-                            <span>آيَـةُ الـيَـوْمِ</span>
-                        </div>
-                        <div class="daily-verse-actions">
-                            <button type="button" class="btn-verse-action" id="btn-copy-daily-verse" title="نسخ الآية الكريمة" aria-label="نسخ الآية الكريمة">
-                                <i class="fa-regular fa-copy"></i>
-                                <span>نسخ</span>
-                            </button>
-                        </div>
+                <!-- وسام التاريخ الملكي المزدوج (هجري وميلادي) -->
+                <div class="greeting-card-date">
+                    <div class="home-date-wrapper" id="today"></div>
+                </div>
+            </div>
+
+            <!-- عنصر moon للتوافق البرمجي -->
+            <div class="moon" style="display:none;" aria-hidden="true">☾</div>
+        </section>
+
+        <script src="assets/js/home-prayer-display.js?v=2" defer></script>
+
+        <section class="home-hero-compact home-verse-section">
+            <!-- البطاقة السفلية: آية اليوم المصحفية مع البرواز الإسلامي الفاخر -->
+            <div class="home-hero-card home-daily-verse-card" id="home-daily-verse-card">
+                <!-- أركان الزخرفة الإسلامية الملكية المذهبة -->
+                <div class="hero-corner-ornament corner-tr" aria-hidden="true"></div>
+                <div class="hero-corner-ornament corner-tl" aria-hidden="true"></div>
+                <div class="hero-corner-ornament corner-br" aria-hidden="true"></div>
+                <div class="hero-corner-ornament corner-bl" aria-hidden="true"></div>
+                <!-- هالات الضوء الروحانية المحيطة -->
+                <div class="hero-ambient-glow glow-gold" aria-hidden="true"></div>
+                <div class="hero-ambient-glow glow-emerald" aria-hidden="true"></div>
+
+                <div class="daily-verse-header">
+                    <div class="daily-verse-badge">
+                        <i class="fa-regular fa-bookmark text-gold"></i>
+                        <span>آيَـةُ الـيَـوْمِ</span>
+                    </div>
+                    <div class="daily-verse-actions">
+                        <button type="button" class="btn-verse-action" id="btn-copy-daily-verse" title="نسخ الآية الكريمة" aria-label="نسخ الآية الكريمة">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>نسخ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- البرواز المصحفي المحكم مع النجمة الإسلامية العلوية والسفلية -->
+                <div class="daily-verse-frame">
+                    <div class="verse-frame-star star-top" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+                            <rect x="5" y="5" width="10" height="10" fill="currentColor" />
+                            <rect x="5" y="5" width="10" height="10" transform="rotate(45 10 10)" fill="currentColor" />
+                            <circle cx="10" cy="10" r="1.5" class="star-core-dot" />
+                        </svg>
                     </div>
 
                     <div class="daily-verse-body" lang="ar" dir="rtl" translate="no">
@@ -266,65 +306,29 @@
                         <span class="quran-bracket quran-bracket-end" aria-hidden="true">﴾</span>
                     </div>
 
-                    <div class="daily-verse-footer">
-                        <div class="daily-verse-ref-pill">
-                            <i class="fa-solid fa-feather text-gold"></i>
-                            <span id="daily-verse-ref"></span>
-                        </div>
-                        <div class="daily-verse-refresh-hint">
-                            <span class="pulse-sparkle" aria-hidden="true"></span>
-                            <span>تتجدد تلقائياً كل يوم</span>
-                        </div>
+                    <div class="verse-frame-star star-bottom" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor">
+                            <rect x="5" y="5" width="10" height="10" fill="currentColor" />
+                            <rect x="5" y="5" width="10" height="10" transform="rotate(45 10 10)" fill="currentColor" />
+                            <circle cx="10" cy="10" r="1.5" class="star-core-dot" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="daily-verse-footer">
+                    <div class="daily-verse-ref-pill">
+                        <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" class="ref-star-svg" aria-hidden="true">
+                            <rect x="5" y="5" width="10" height="10" fill="currentColor" />
+                            <rect x="5" y="5" width="10" height="10" transform="rotate(45 10 10)" fill="currentColor" />
+                        </svg>
+                        <span id="daily-verse-ref"></span>
+                    </div>
+                    <div class="daily-verse-refresh-hint">
+                        <span>تتجدد تلقائياً كل يوم</span>
                     </div>
                 </div>
             </div>
 
-            <!-- العنصر البصري الملكي: الهلال ثلاثي الأبعاد مع الفانوس المتدلي والنجوم -->
-            <div class="home-hero-visual" aria-hidden="true">
-                <div class="hero-moon-glow"></div>
-                <svg class="hero-crescent-svg" viewBox="0 0 130 130" fill="none">
-                    <defs>
-                        <linearGradient id="goldCrescentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#fff9e6"/>
-                            <stop offset="25%" stop-color="#fed668"/>
-                            <stop offset="65%" stop-color="#dfa72b"/>
-                            <stop offset="100%" stop-color="#8a6108"/>
-                        </linearGradient>
-                        <radialGradient id="lanternFlameGrad" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#ffffff"/>
-                            <stop offset="35%" stop-color="#ffe680"/>
-                            <stop offset="70%" stop-color="#ff9900"/>
-                            <stop offset="100%" stop-color="transparent"/>
-                        </radialGradient>
-                        <filter id="crescentFilterGlow" x="-30%" y="-30%" width="160%" height="160%">
-                            <feGaussianBlur stdDeviation="3.5" result="blur"/>
-                            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-                        </filter>
-                    </defs>
-                    <path class="crescent-body" d="M68 14 C38.5 14 15 37.5 15 67 C15 96.5 38.5 120 68 120 C87.2 120 103.8 109.8 112.8 94.5 C108.7 96.3 104.2 97.4 99.5 97.4 C74.3 97.4 54 77.1 54 52 C54 36.3 62.1 22.4 74.3 14.5 C72.2 14.2 70.1 14 68 14 Z" fill="url(#goldCrescentGrad)" filter="url(#crescentFilterGlow)"/>
-                    <path d="M58 40 Q50 62 65 85" stroke="rgba(255, 248, 220, 0.45)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-                    <circle cx="58" cy="52" r="1.5" fill="#fff9db"/>
-                    <circle cx="61" cy="70" r="1.5" fill="#fff9db"/>
-                    <line x1="94" y1="36" x2="94" y2="60" stroke="#dfa72b" stroke-width="1.2" stroke-dasharray="2 1.5"/>
-                    <g class="hanging-lantern">
-                        <polygon points="94,60 88,66 100,66" fill="#ffd56b"/>
-                        <circle cx="94" cy="59" r="1.5" fill="#ffeaa7"/>
-                        <rect x="89" y="66" width="10" height="13" rx="1.5" fill="rgba(255, 245, 204, 0.92)"/>
-                        <line x1="94" y1="66" x2="94" y2="79" stroke="#dfa72b" stroke-width="0.75" opacity="0.6"/>
-                        <circle class="lantern-flame" cx="94" cy="72" r="3.2" fill="url(#lanternFlameGrad)"/>
-                        <polygon points="88,79 100,79 94,84" fill="#dfa72b"/>
-                        <circle cx="94" cy="85.5" r="1.2" fill="#ffd56b"/>
-                    </g>
-                    <g class="hero-stars">
-                        <path class="star star-1" d="M110 38 L111.5 42.5 L116 44 L111.5 45.5 L110 50 L108.5 45.5 L104 44 L108.5 42.5 Z" fill="#fff5cc"/>
-                        <circle class="star star-2" cx="36" cy="38" r="1.8" fill="#ffd56b"/>
-                        <circle class="star star-3" cx="118" cy="72" r="1.4" fill="#fff5cc"/>
-                        <circle class="star star-4" cx="44" cy="98" r="1.2" fill="#fed668"/>
-                    </g>
-                </svg>
-            </div>
-            <!-- عنصر moon للتوافق البرمجي -->
-            <div class="moon" style="display:none;" aria-hidden="true">☾</div>
         </section>
         <!-- البطاقة الأولى: بطاقة الصلاة القادمة الكبرى (Hero Next Prayer Card) -->
         <div class="prayer panel home-next-prayer home-prayer-hero-card" id="home-next-prayer">
@@ -340,37 +344,36 @@
             <div class="home-prayer-progress-track" aria-hidden="true">
                 <div class="home-prayer-progress-fill" id="home-prayer-progress-bar" style="width: 0%;"></div>
             </div>
+            <!-- البطاقة الثانية: شريط مواقيت الصلوات الخمس اليومية (Today's 5 Prayers Strip) -->
+            <div class="home-prayers-strip-card" id="home-prayers-strip">
+                <div class="home-strip-item" id="home-strip-fajr">
+                    <span class="home-strip-name">الفجر</span>
+                    <span class="home-strip-time" id="home-time-fajr">--:--</span>
+                </div>
+                <div class="home-strip-item is-active" id="home-strip-dhuhr">
+                    <span class="home-strip-name">الظهر</span>
+                    <span class="home-strip-time" id="home-time-dhuhr">--:--</span>
+                </div>
+                <div class="home-strip-item" id="home-strip-asr">
+                    <span class="home-strip-name">العصر</span>
+                    <span class="home-strip-time" id="home-time-asr">--:--</span>
+                </div>
+                <div class="home-strip-item" id="home-strip-maghrib">
+                    <span class="home-strip-name">المغرب</span>
+                    <span class="home-strip-time" id="home-time-maghrib">--:--</span>
+                </div>
+                <div class="home-strip-item" id="home-strip-isha">
+                    <span class="home-strip-name">العشاء</span>
+                    <span class="home-strip-time" id="home-time-isha">--:--</span>
+                </div>
+            </div>
+
             <a class="home-prayer-action-btn" href="services.html#prayer-times">
                 <span>عرض التفاصيل</span>
                 <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
             </a>
         </div>
 
-        <!-- البطاقة الثانية: شريط مواقيت الصلوات الخمس اليومية (Today's 5 Prayers Strip) -->
-        <div class="home-prayers-strip-card" id="home-prayers-strip">
-            <div class="home-strip-item" id="home-strip-fajr">
-                <span class="home-strip-name">الفجر</span>
-                <span class="home-strip-time" id="home-time-fajr">--:--</span>
-            </div>
-            <div class="home-strip-item is-active" id="home-strip-dhuhr">
-                <span class="home-strip-name">الظهر</span>
-                <span class="home-strip-time" id="home-time-dhuhr">--:--</span>
-            </div>
-            <div class="home-strip-item" id="home-strip-asr">
-                <span class="home-strip-name">العصر</span>
-                <span class="home-strip-time" id="home-time-asr">--:--</span>
-            </div>
-            <div class="home-strip-item" id="home-strip-maghrib">
-                <span class="home-strip-name">المغرب</span>
-                <span class="home-strip-time" id="home-time-maghrib">--:--</span>
-            </div>
-            <div class="home-strip-item" id="home-strip-isha">
-                <span class="home-strip-name">العشاء</span>
-                <span class="home-strip-time" id="home-time-isha">--:--</span>
-            </div>
-        </div>
-
-        <script src="assets/js/home-prayer-display.js?v=2"></script>
 
         <!-- البطاقة الثالثة: بنر السنن والتذكير الذكي بالسياق الزمني (Smart Contextual Sunnah / Reminder Banner) -->
         <div class="smart-reminder-banner home-sunnah-reminder-card container" id="smart-reminder-banner" style="display: none;">
@@ -443,12 +446,12 @@
         </div>
 
         <!--<div class="section-head" id="daily">
-            <div>
-                <h2>🌿 يومي مع الله</h2>
-                <p>خطوات صغيرة، وأثر كبير في يومك</p>
-            </div>
-            <span class="subtle" id="today"></span>
-        </div>-->
+        <div>
+            <h2>🌿 يومي مع الله</h2>
+            <p>خطوات صغيرة، وأثر كبير في يومك</p>
+        </div>
+        <span class="subtle" id="today"></span>
+    </div>-->
 
         <section class="dashboard" id="daily">
             <article class="panel" id="daily-journey-panel">
@@ -598,36 +601,35 @@
         </article>
 
         <!-- القسم 5: بطاقة الصدقة الجارية والتحدي المميزة -->
-        <section class="bottom" id="sadaqa" style="grid-template-columns: 1fr;">
+        <section class="bottom" id="sadaqa" aria-labelledby="home-sadaqa-title">
             <article class="panel sadaqa">
                 <div class="sadaqa-top-row">
-                    <span class="sadaqa-badge"><i class="fa-solid fa-heart-pulse"></i> أثرٌ طيب لا ينقطع</span>
-                    <span class="sadaqa-subtle-tag"><i class="fa-solid fa-seedling"></i> صدقة جارية</span>
+                    <span class="sadaqa-badge"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> أثرٌ طيب لا ينقطع</span>
                 </div>
 
                 <div class="sadaqa-header">
                     <div class="sadaqa-icon-aura" aria-hidden="true">
-                        <i class="fa-solid fa-hand-holding-heart"></i>
+                        <i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i>
                     </div>
                     <div class="sadaqa-header-text">
-                        <h2>صدقة جارية لمن تحب 🤍</h2>
-                        <p>اجعل لمن تحب نصيباً مستمراً من تلاوة القرآن والدعاء الصالح يصله أثره وبركته بإذن الله.</p>
+                        <h2 id="home-sadaqa-title">صدقة جارية لمن تحب 🤍</h2>
+                        <p>جهّز دعاءً باسم من تحب، وشاركه مع رابط زاد المسلم.</p>
                     </div>
                 </div>
 
-                <div class="sadaqa-hadith-card">
+                <div class="sadaqa-hadith-card" lang="ar" dir="rtl" translate="no">
                     <p class="sadaqa-hadith-text">«إِذَا مَاتَ الإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ: إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ، أَوْ عِلْمٍ يُنْتَفَعُ بِهِ، أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ»</p>
-                    <span class="sadaqa-hadith-ref"><i class="fa-solid fa-book-bookmark"></i> رواه مسلم</span>
+                    <span class="sadaqa-hadith-ref"><i class="fa-solid fa-book-bookmark" aria-hidden="true"></i> رواه مسلم</span>
                 </div>
                 <div class="sadaqa-actions">
-                    <button class="btn solid sadaqa-cta-btn btn-open-custom-share" onclick="showModal('sadaqa')">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>أنشئ صفحة صدقة جارية بالاسم الآن</span>
+                    <button type="button" class="btn solid sadaqa-cta-btn" aria-haspopup="dialog" onclick="showModal('sadaqa')">
+                        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                        <span>جهّز دعاءً ورابط مشاركة</span>
                         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                     </button>
                     <a href="services.html#islamic-guide" class="sadaqa-secondary-link">
-                        <i class="fa-solid fa-book-open-reader"></i>
-                        <span>دليل ما ينفع المتوفى والأدعية المأثورة ←</span>
+                        <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
+                        <span>دليل ما ينفع المتوفى والأدعية المأثورة</span>
                     </a>
                 </div>
             </article>
@@ -716,7 +718,7 @@
     <script src="assets/js/asmaa-allah-data.js?v=1"></script>
     <script src="assets/js/islamic-guide-data.js?v=1"></script>
     <script src="assets/js/daily-message-data.js?v=2"></script>
-    <script src="assets/js/radio-stations-data.js?v=7"></script>
+    <script src="assets/js/radio-stations-data.js?v=8"></script>
     <script src="assets/js/quiz-data.js?v=2"></script>
     <script src="assets/js/islamic-stories-data.js?v=3"></script>
     <script src="assets/js/media-data.js?v=2"></script>
@@ -1076,8 +1078,8 @@
 
     <!-- النافذة المنبثقة التفاعلية (Modal) من النموذج المرجعي -->
     <div class="modal-bg" id="overlay" onclick="if(event.target===this)closeModal()">
-        <div class="modal">
-            <button class="close" onclick="closeModal()">×</button>
+        <div class="modal" role="dialog" aria-modal="true" aria-label="تفاصيل" tabindex="-1">
+            <button type="button" class="close" aria-label="إغلاق" onclick="closeModal()">×</button>
             <div id="modalContent"></div>
         </div>
     </div>
@@ -1135,8 +1137,9 @@
             prayer: '<h2>🕌 مواقيت الصلاة</h2><p>مواقيت الصلاة الدقيقة حسب مدينتك، مع تحديد القبلة وتنبيهات الأذان.</p><div style="text-align:center;margin-top:16px"><a href="services.html#prayer-times" class="btn solid" onclick="closeModal()">الانتقال لمواقيت الصلاة والقبلة ←</a></div>',
             soon: '<h2>متاح الآن ✨</h2><p>هذا القسم متاح وتفاعلي بالكامل داخل زاد المسلم، يمكنك استكشافه وتصفحه مباشرة في الأسفل.</p>',
             challenge: '<h2>🌟 تحدي 7 أيام</h2><p>كل يوم: أذكار الصباح والمساء، ورد قرآني، ودعاء. ابدأ الآن واجعل الذكر عادة يومية ثابتة.</p><div style="text-align:center;margin-top:16px"><button class="btn solid" onclick="closeModal(); document.getElementById(\'btn-open-7days-challenge\')?.click();">فتح تفاصيل التحدي الإيماني 🌿</button></div>',
-            sadaqa: '<h2>🤍 صدقة جارية لمن تحب</h2><p>اكتب اسم المتوفى لإنشاء بطاقة دعاء ورابط إهداء ثواب يصله بره بإذن الله.</p><label style="display:block;margin-top:10px;font-weight:700">اسم المتوفى أو المهدى له</label><input id="deceased" maxlength="70" placeholder="مثال: الوالد رحمه الله أو فلان بن فلان"><button class="btn solid" onclick="makeCard()">تجهيز بطاقة الدعاء والرابط ✨</button><div id="cardResult"></div>'
+            sadaqa: '<h2>🤍 صدقة جارية لمن تحب</h2><p>اكتب اسم المتوفى لتجهيز الدعاء ورابط المشاركة.</p><label for="deceased" style="display:block;margin-top:10px;font-weight:700">اسم المتوفى أو المهدى له</label><input id="deceased" required maxlength="70" placeholder="مثال: الوالد رحمه الله أو فلان بن فلان"><button class="btn solid" onclick="makeCard()">تجهيز بطاقة الدعاء والرابط ✨</button><div id="cardResult" aria-live="polite"></div>'
         };
+        let homeModalTrigger = null;
         function showModal(k) {
             if (k === 'challenge') {
                 (window.zadNavigate || location.assign.bind(location))('services.html#seven-day-challenge');
@@ -1145,16 +1148,22 @@
             const mc = document.getElementById('modalContent');
             if (mc) mc.innerHTML = content[k] || '';
             const ov = document.getElementById('overlay');
-            if (ov) ov.classList.add('show');
+            if (ov) {
+                homeModalTrigger = document.activeElement;
+                ov.classList.add('show');
+                const first = ov.querySelector('#deceased') || ov.querySelector('.close');
+                if (first) first.focus();
+            }
         }
         function closeModal() {
             const ov = document.getElementById('overlay');
             if (ov) ov.classList.remove('show');
+            if (homeModalTrigger && homeModalTrigger.isConnected) homeModalTrigger.focus();
         }
         function makeCard() {
             const el = document.getElementById('deceased');
-            const name = el ? el.value.trim() : '';
-            if (!name) return;
+            const name = el ? el.value.trim().slice(0, 70) : '';
+            if (!name) { if (el) { el.value = ''; el.reportValidity(); el.focus(); } return; }
             const box = document.getElementById('cardResult');
             if (!box) return;
             box.replaceChildren();
@@ -1165,7 +1174,15 @@
             div.style.borderRadius = '12px';
             div.style.border = '1px solid rgba(212, 175, 55, 0.35)';
             div.style.background = 'rgba(212, 175, 55, 0.08)';
-            div.innerHTML = '<strong style="color:var(--gold-400);display:block;margin-bottom:6px;">🌿 دعاء مبارك مهدی:</strong>اللهم اغفر لـ ' + name + ' وارحمه، وعافه واعف عنه، وأكرم نزله ووسّع مدخله، واجعل قبره روضة من رياض الجنة، واجعل ما يُتلى ويُذكر صدقة جارية ونوراً في صحيفته.';
+            const title = document.createElement('strong');
+            title.textContent = 'دعاء لمن تحب';
+            title.style.display = 'block';
+            const prayer = document.createElement('p');
+            prayer.lang = 'ar';
+            prayer.dir = 'rtl';
+            prayer.setAttribute('translate', 'no');
+            prayer.textContent = 'اللهم اغفر لـ ' + name + ' وارحمه، وعافه واعف عنه، وأكرم نزله ووسّع مدخله، واجعل قبره روضة من رياض الجنة.';
+            div.append(title, prayer);
             
             const btnGroup = document.createElement('div');
             btnGroup.style.display = 'flex';
@@ -1178,13 +1195,33 @@
             btn.style.flex = '1';
             btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> مشاركة الدعاء والرابط';
             btn.onclick = async () => {
-                const targetUrl = window.location.origin + window.location.pathname + '?name=' + encodeURIComponent(name);
-                let text = 'صدقة جارية ودعاء لـ ' + name + ':\n' + div.textContent.replace('🌿 دعاء مبارك مهدی:', '') + '\n\nرابط الزاد المهدى:\n' + targetUrl;
-                if (navigator.share) {
-                    try { await navigator.share({ title: 'صدقة جارية لـ ' + name, text }); } catch (e) { }
-                } else {
-                    await navigator.clipboard.writeText(text);
-                    btn.innerHTML = 'تم نسخ الدعاء والرابط ✓';
+                const publicUrl = typeof window.getPublicAppUrl === 'function' ? window.getPublicAppUrl() : 'https://zadmuslim-zeta.vercel.app/';
+                const targetUrl = new URL(publicUrl);
+                targetUrl.searchParams.set('name', name);
+                const text = prayer.textContent + '\n\n' + targetUrl.href;
+                try {
+                    if (navigator.share) {
+                        await navigator.share({ title: 'دعاء لـ ' + name, text });
+                    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                        btn.textContent = 'تم نسخ الدعاء والرابط ✓';
+                    } else {
+                        throw new Error('Clipboard unavailable');
+                    }
+                } catch (error) {
+                    if (error.name === 'AbortError') return;
+                    let fallback = box.querySelector('.sadaqa-share-fallback');
+                    if (!fallback) {
+                        fallback = document.createElement('textarea');
+                        fallback.className = 'sadaqa-share-fallback';
+                        fallback.readOnly = true;
+                        fallback.setAttribute('aria-label', 'الدعاء والرابط للنسخ اليدوي');
+                        box.appendChild(fallback);
+                    }
+                    fallback.value = text;
+                    fallback.focus();
+                    fallback.select();
+                    btn.textContent = 'تعذّرت المشاركة؛ انسخ النص الظاهر';
                 }
             };
 
@@ -1197,7 +1234,16 @@
             btnGroup.append(btn, linkServices);
             box.append(div, btnGroup);
         }
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        document.addEventListener('keydown', e => {
+            const overlay = document.getElementById('overlay');
+            if (!overlay || !overlay.classList.contains('show')) return;
+            if (e.key === 'Escape') closeModal();
+            if (e.key !== 'Tab') return;
+            const items = Array.from(overlay.querySelectorAll('button, a[href], input, textarea, select, [tabindex="0"]')).filter(el => !el.disabled && !el.hidden);
+            const first = items[0], last = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        });
 
 
 
@@ -1236,6 +1282,6 @@
         })();
     </script>
 
-    <script src="assets/js/user-tools.js?v=13"></script>
+    <script src="assets/js/user-tools.js?v=14"></script>
 </body>
 </html>

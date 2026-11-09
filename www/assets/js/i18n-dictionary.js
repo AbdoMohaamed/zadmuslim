@@ -2,6 +2,12 @@
 (function(root){
  'use strict';
  const rows=`
+جهّز دعاءً باسم من تحب، وشاركه مع رابط زاد المسلم.|Prepare a dua for a loved one and share it with a link to Zad Al Muslim.|اپنے پیارے کے نام کی دعا تیار کریں اور زاد المسلم کے لنک کے ساتھ شیئر کریں۔
+جهّز دعاءً ورابط مشاركة|Prepare a dua & sharing link|دعا اور شیئرنگ لنک تیار کریں
+دليل ما ينفع المتوفى والأدعية المأثورة|Guide to duas & deeds for the deceased|مرحوم کے لیے دعاؤں اور اعمال کی رہنمائی
+
+بث صوتي لأذكار الصباح|Live stream of morning adhkar|صبح کے اذکار کی براہِ راست نشریات
+بث صوتي لأذكار المساء|Live stream of evening adhkar|شام کے اذکار کی براہِ راست نشریات
 زاد المسلم|Zad Al Muslim|زاد المسلم
 الرئيسية|Home|ہوم
 يومي مع الله|My daily worship|میری روزانہ عبادت

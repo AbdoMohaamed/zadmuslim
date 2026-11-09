@@ -98,8 +98,8 @@ const RADIO_STATIONS_LIST = [
         id: "cairo",
         name: "إذاعة القرآن الكريم من القاهرة",
         desc: "بث إذاعة القرآن الكريم من القاهرة — إعادة اتصال بنفس المحطة عند الانقطاع",
-        url: "https://radio.xecod.com/station/quran-cairo",
-        backupUrl: "https://stream.radiojar.com/8s5u5tpdtwzuv",
+        url: "https://stream.radiojar.com/8s5u5tpdtwzuv",
+        backupUrl: "https://radio.xecod.com/station/quran-cairo",
         icon: "fa-solid fa-tower-broadcast",
         badge: "القاهرة"
     },
@@ -128,6 +128,24 @@ const RADIO_STATIONS_LIST = [
         backupUrl: "https://backup.qurango.net/radio/tarateel",
         icon: "fa-solid fa-bed",
         badge: "سكينة ونوم"
+    },
+    {
+        id: "azkar",
+        name: "أذكار الصباح",
+        desc: "بث صوتي لأذكار الصباح",
+        url: "https://qurango.net/radio/athkar_sabah",
+        backupUrl: "https://backup.qurango.net/radio/athkar_sabah",
+        icon: "fa-solid fa-hands-praying",
+        badge: "أذكار"
+    },
+    {
+        id: "azkar-evening",
+        name: "أذكار المساء",
+        desc: "بث صوتي لأذكار المساء",
+        url: "https://qurango.net/radio/athkar_masa",
+        backupUrl: "https://backup.qurango.net/radio/athkar_masa",
+        icon: "fa-solid fa-hands-praying",
+        badge: "أذكار"
     }
 ];
 

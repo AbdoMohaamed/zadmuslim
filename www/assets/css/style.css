@@ -37,6 +37,8 @@ body.light-theme {
     --bg-surface: #FFFFFF;
     --bg-card-hover: #F0F5F1;
     --card-bg: #FFFFFF;
+    --card: #FFFFFF;
+    --card-2: #F0F5F1;
     --bg-dark: #F7F9F6;
     --text-color: #193B34;
     --border-glow: rgba(14, 102, 84, 0.25);
@@ -5905,6 +5907,20 @@ html[data-theme="light"] .nav-links a.active {
     padding: 0.5rem 0.6rem;
     font-size: 0.82rem;
     white-space: nowrap;
+  }
+
+  .prayer-action-buttons .btn-select-muazzin {
+    white-space: normal;
+    text-align: center;
+  }
+
+  .btn-select-muazzin #selected-muazzin-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .btn-select-muazzin > i {
+    flex-shrink: 0;
   }
 
   .prayer-hijri-badge {
@@ -26381,80 +26397,112 @@ body.light-theme textarea {
             z-index: 100040 !important;
         }
         /* ==========================================================================
-           قسم البداية الملكي المطور (Hero Home Compact - Royal Islamic Edition)
+           قسم البداية المزدوج الملكي (Hero Home Compact - Two-Card Royal Islamic Edition)
            ========================================================================== */
         #home .home-hero-compact {
             min-height: 0;
-            padding: 28px 32px;
-            margin-top: 16px;
-            border-radius: 28px;
-            background-color: #041f18;
-            background-image:
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M22 2 L26 18 L42 22 L26 26 L22 42 L18 26 L2 22 L18 18 Z' fill='none' stroke='%23d4af37' stroke-width='0.75' stroke-opacity='0.12'/%3E%3Ccircle cx='22' cy='22' r='4' fill='none' stroke='%23d4af37' stroke-width='0.75' stroke-opacity='0.12'/%3E%3C/svg%3E"),
-                radial-gradient(circle at 90% 0%, rgba(212, 175, 55, 0.18) 0%, transparent 50%),
-                radial-gradient(circle at 10% 100%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
-                linear-gradient(150deg, #072f25 0%, #041f18 55%, #02140f 100%) !important;
-            border: 1.5px solid rgba(212, 175, 55, 0.38) !important;
-            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+            padding: 0 !important;
+            margin-top: 14px;
+            width: 100% !important;
+            max-width: 100% !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+            gap: 16px;
             position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: stretch;
-            justify-content: space-between;
-            gap: 24px;
+            box-sizing: border-box !important;
         }
 
+        #home .home-hero-compact::after,
         #home .home-hero-compact::before {
+            display: none !important;
+        }
+
+        /* بطاقة الهيرو الملكية الموحدة بعرض متناسق تماماً مع الشاشة */
+.home-hero-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background: linear-gradient(160deg,var(--card-2),var(--card) 60%);
+    background-image: radial-gradient(circle at 90% 0%, rgba(217, 180, 90, 0.18) 0%, transparent 60%), radial-gradient(circle at 10% 100%, rgba(16, 185, 129, 0.14) 0%, transparent 60%), linear-gradient(155deg, #072c23 0%, #041e17 55%, #02130e 100%) !important;
+    border: 1.5px solid rgba(217, 180, 90, 0.38) !important;
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.65), 0 0 24px rgba(217, 180, 90, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+    padding: 22px 24px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+}
+
+        .home-hero-card:hover {
+            border-color: rgba(217, 180, 90, 0.55) !important;
+            box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.75), 0 0 30px rgba(217, 180, 90, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* طبقة الزخرفة الهندسية الإسلامية المذهبة بالثماني نجمات على كل بطاقة */
+        .home-hero-card::after {
             content: "" !important;
             position: absolute;
-            top: 0;
-            inset-inline: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4) 20%, #fed668 50%, rgba(212, 175, 55, 0.4) 80%, transparent);
-            box-shadow: 0 0 12px rgba(254, 214, 104, 0.8);
-            z-index: 2;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23d9b45a' stroke-width='1'%3E%3Crect x='14' y='14' width='28' height='28'/%3E%3Crect x='14' y='14' width='28' height='28' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 56px 56px;
+            background-repeat: repeat;
+            opacity: 0.18;
+            -webkit-mask-image: linear-gradient(160deg, #000, transparent 85%);
+            mask-image: linear-gradient(160deg, #000, transparent 85%);
+            transition: opacity 0.3s ease;
         }
 
-        /* أركان الزخرفة الإسلامية الملكية المذهبة */
+        /* أركان الزخرفة الذهبية الملكية لكل بطاقة */
         .hero-corner-ornament {
             position: absolute;
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             pointer-events: none;
             z-index: 2;
             opacity: 0.75;
+            transition: opacity 0.25s ease;
         }
         .hero-corner-ornament.corner-tr {
-            top: 8px;
-            right: 8px;
+            top: 7px;
+            right: 7px;
             border-top: 2px solid #fed668;
             border-right: 2px solid #fed668;
-            border-top-right-radius: 9px;
-            box-shadow: 1px -1px 8px rgba(254, 214, 104, 0.3);
+            border-top-right-radius: 8px;
+            box-shadow: 1px -1px 8px rgba(254, 214, 104, 0.25);
         }
         .hero-corner-ornament.corner-tl {
-            top: 8px;
-            left: 8px;
+            top: 7px;
+            left: 7px;
             border-top: 2px solid #fed668;
             border-left: 2px solid #fed668;
-            border-top-left-radius: 9px;
-            box-shadow: -1px -1px 8px rgba(254, 214, 104, 0.3);
+            border-top-left-radius: 8px;
+            box-shadow: -1px -1px 8px rgba(254, 214, 104, 0.25);
         }
         .hero-corner-ornament.corner-br {
-            bottom: 8px;
-            right: 8px;
+            bottom: 7px;
+            right: 7px;
             border-bottom: 2px solid #fed668;
             border-right: 2px solid #fed668;
-            border-bottom-right-radius: 9px;
-            box-shadow: 1px 1px 8px rgba(254, 214, 104, 0.3);
+            border-bottom-right-radius: 8px;
+            box-shadow: 1px 1px 8px rgba(254, 214, 104, 0.25);
         }
         .hero-corner-ornament.corner-bl {
-            bottom: 8px;
-            left: 8px;
+            bottom: 7px;
+            left: 7px;
             border-bottom: 2px solid #fed668;
             border-left: 2px solid #fed668;
-            border-bottom-left-radius: 9px;
-            box-shadow: -1px 1px 8px rgba(254, 214, 104, 0.3);
+            border-bottom-left-radius: 8px;
+            box-shadow: -1px 1px 8px rgba(254, 214, 104, 0.25);
+        }
+
+        .home-hero-card:hover .hero-corner-ornament {
+            opacity: 1;
         }
 
         /* هالات الضوء الروحانية المحيطية */
@@ -26466,70 +26514,132 @@ body.light-theme textarea {
             z-index: 1;
         }
         .hero-ambient-glow.glow-gold {
-            top: -40px;
-            left: -40px;
-            width: 200px;
-            height: 200px;
-            background: rgba(212, 175, 55, 0.14);
+            top: -30px;
+            left: -30px;
+            width: 180px;
+            height: 180px;
+            background: rgba(212, 175, 55, 0.12);
         }
         .hero-ambient-glow.glow-emerald {
-            bottom: -50px;
-            right: -50px;
-            width: 220px;
-            height: 220px;
-            background: rgba(16, 185, 129, 0.12);
+            bottom: -30px;
+            right: -30px;
+            width: 180px;
+            height: 180px;
+            background: rgba(16, 185, 129, 0.1);
         }
 
-        /* محتوى الهيرو */
-        #home .home-hero-compact .home-hero-content {
-            position: relative;
-            z-index: 3;
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
+        /* Reference hero: quiet emerald, double gold frame and inset corners. */
+        #home .home-hero-compact { gap: 8px; text-align: start; }
+        .home-hero-compact .home-hero-card {
+            padding: 26px 26px 24px;
+            border-radius: 32px;
+            background-image: radial-gradient(ellipse at 88% 8%, rgba(191,161,65,.12), transparent 42%), linear-gradient(155deg,#102d21,#0c251b) !important;
+            border: 1px solid rgba(181,150,58,.42) !important;
+            box-shadow: inset 0 0 0 4px #0a2018, inset 0 0 0 5px rgba(181,150,58,.45), 0 12px 26px rgba(0,0,0,.16) !important;
+        }
+        .home-hero-compact .home-hero-card::after { opacity: .075; }
+        .home-hero-compact .hero-ambient-glow { opacity: .25; }
+        .home-hero-compact .hero-corner-ornament {
+            width: 26px; height: 26px; border-color: #c7a447;
+            border-width: 1.5px; box-shadow: none; opacity: .95;
+        }
+        .home-hero-compact .corner-tr { top: 15px; right: 15px; border-top-right-radius: 13px; }
+        .home-hero-compact .corner-tl { top: 15px; left: 15px; border-top-left-radius: 13px; }
+        .home-hero-compact .corner-br { bottom: 15px; right: 15px; border-bottom-right-radius: 13px; }
+        .home-hero-compact .corner-bl { bottom: 15px; left: 15px; border-bottom-left-radius: 13px; }
+        .home-hero-compact .greeting-card-main { margin-bottom: 20px; gap: 12px; }
+        .home-hero-compact .home-hero-brand { gap: 9px; }
+        .home-hero-compact .brand-name { font-size: clamp(1.35rem,4.8vw,1.5rem) !important; }
+        .home-hero-compact .brand-tagline { color: #a2b8a7; font-size: .95rem; letter-spacing: 0; text-shadow: none; }
+        .home-hero-compact .text-gold-gradient {
+            background: linear-gradient(110deg,#f2df95,#d5b759) !important;
+            -webkit-background-clip: text !important; filter: none;
+        }
+        .home-hero-compact .home-hero-visual { width: 66px; height: 66px; }
+        .home-hero-compact .hero-crescent-svg { animation: none; filter: none; }
+        .home-hero-compact .crescent-body, .home-hero-compact .star-nested { filter: none; }
+        .home-hero-compact .star-nested { transform: translate(12px,23px); }
+        .home-hero-compact .hero-moon-glow { animation: none; opacity: .4; }
+        .home-hero-compact .home-date-pill {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%;
+        }
+        .home-hero-compact .date-chip {
+            flex: 1 1 auto; min-height: 39px; padding: 7px 12px; font-size: .8rem;
+            color: #eee1b1 !important; background: rgba(4,25,17,.48) !important; box-shadow: none;
+        }
+        .home-hero-compact .date-hijri-text, .home-hero-compact .date-greg-text { white-space: normal; overflow: visible; }
+        .home-hero-compact .home-daily-verse-card { padding-top: 24px; padding-bottom: 22px; }
+        .home-hero-compact .daily-verse-header { margin-bottom: 16px; }
+        .home-hero-compact .daily-verse-badge { color: #ead58a; font-size: .9rem; letter-spacing: 0; }
+        .home-hero-compact .daily-verse-badge i { color: #c9a94c; font-size: .85rem; }
+        .home-hero-compact .btn-verse-action {
+            min-height: 40px; padding: 8px 14px; border-radius: 15px;
+            color: #e6e7d8; border-color: rgba(181,150,58,.35); background: rgba(4,25,17,.5);
+        }
+        .home-hero-compact .daily-verse-frame {
+            min-height: 192px; padding: 22px 20px; margin: 0 0 14px;
+            border-color: rgba(181,150,58,.38); background: rgba(3,20,13,.24); border-radius: 19px;
+        }
+        .home-hero-compact .daily-verse-frame::before {
+            content: ''; position: absolute; inset: 5px;
+            border: 1px solid rgba(181,150,58,.32); border-radius: 14px; pointer-events: none;
+        }
+        .home-hero-compact .verse-frame-star { background: #0d281d; color: #cfad50; padding: 0 5px; }
+        .home-hero-compact .daily-verse-body { display: block; padding: 0; }
+        .home-hero-compact .daily-verse-text {
+            display: inline; color: #f1df9a; font-size: clamp(1.7rem,6.4vw,2.35rem);
+            font-weight: 600; line-height: 1.85; text-shadow: none; overflow-wrap: break-word;
+        }
+        .home-hero-compact .quran-bracket { display: inline; color: #c3a348; font-size: 1.8rem; filter: none; vertical-align: baseline; }
+        .home-hero-compact .daily-verse-footer { justify-content: flex-start; gap: 12px; }
+        .home-hero-compact .daily-verse-ref-pill {
+            min-height: 42px; padding: 9px 14px; box-sizing: border-box;
+            background: linear-gradient(110deg,#f3de94,#b38c2f) !important;
+            box-shadow: 0 3px 12px rgba(212,169,70,.12); letter-spacing: 0;
+        }
+        .home-hero-compact .daily-verse-refresh-hint { color: #9cb09e; font-size: .76rem; }
+        @media (max-width: 380px) {
+            .home-hero-compact .home-hero-card { padding-inline: 20px; }
+            .home-hero-compact .home-hero-visual { width: 54px; height: 54px; }
+            .home-hero-compact .brand-tagline { font-size: .82rem; }
+            .home-hero-compact .daily-verse-frame { padding-inline: 14px; }
+            .home-hero-compact .daily-verse-footer { gap: 8px; }
         }
 
-        /* الشريط العلوي */
-        .home-hero-top-bar {
+        /* تفاصيل البطاقة العلوية (Greeting Card) */
+        .greeting-card-main {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            flex-wrap: wrap;
+            position: relative;
+            z-index: 3;
+            margin-bottom: 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .home-hero-brand {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 4px;
+            min-width: 0;
+            flex: 1;
         }
 
         .home-hero-brand .brand-name {
-            font-size: clamp(1.45rem, 3.8vw, 1.85rem) !important;
+            font-size: clamp(1.35rem, 3.8vw, 1.85rem) !important;
             font-weight: 800 !important;
             margin: 0 !important;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             line-height: 1.25 !important;
         }
 
-        .home-hero-brand .brand-sparkle {
-            font-size: 0.85rem;
-            color: #fed668;
-            opacity: 0.9;
-            filter: drop-shadow(0 0 6px #fed668);
-            animation: pulseGlowDot 2.8s infinite ease-in-out;
-        }
-
         .home-hero-brand .brand-tagline {
-            font-size: 0.85rem;
-            color: #a7f3d0;
+            font-size: clamp(0.78rem, 2.4vw, 0.88rem);
+            color: #9cd5c4;
             margin: 0;
-            font-weight: 600;
-            letter-spacing: 0.4px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
 
@@ -26563,127 +26673,227 @@ body.light-theme textarea {
             letter-spacing: normal;
         }
 
-        /* وسام التاريخ الملكي المزدوج */
+        .greeting-card-date {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* تصميم الهلال والنجوم داخل البطاقة العلوية */
+        .home-hero-visual {
+            position: relative;
+            width: clamp(58px, 15vw, 76px);
+            height: clamp(58px, 15vw, 76px);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+
+        .hero-moon-glow {
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(254, 214, 104, 0.32) 0%, rgba(217, 180, 90, 0.1) 60%, transparent 80%);
+            filter: blur(14px);
+            animation: haloPulse 3.8s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .hero-crescent-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 4px 14px rgba(251, 191, 36, 0.45));
+            animation: moonFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes moonFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(-1deg); }
+        }
+
+        @keyframes haloPulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.95); }
+            50% { opacity: 0.85; transform: scale(1.1); }
+        }
+
+        /* رقائق التاريخ الملكية المتناسقة مع كامل العرض (Date Chips) */
         .home-date-wrapper {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .home-date-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 10px;
-            background: rgba(3, 24, 18, 0.92);
-            border: 1.5px solid rgba(212, 175, 55, 0.35);
-            border-radius: 9999px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            flex-wrap: nowrap !important;
-            white-space: nowrap !important;
-            max-width: 100%;
-            transition: all 0.25s ease;
+.home-date-pill {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+        .date-chip-divider {
+            display: none !important;
         }
 
-        .home-date-pill:hover {
-            border-color: rgba(212, 175, 55, 0.6);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(212, 175, 55, 0.15);
+.date-chip {
+    flex: 1 1 calc(50% - 10px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    gap: 8px;
+    padding: 7px 13px;
+    border-radius: 9999px;
+    font-size: clamp(0.72rem, 2.3vw, 0.82rem);
+    font-weight: 600;
+    text-align: center;
+    background: rgba(3, 24, 18, 0.78) !important;
+    border: 1px solid rgba(217, 180, 90, 0.32) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-sizing: border-box;
+    transition: border-color 0.22s ease, transform 0.22s ease;
+}
+
+        .date-chip:hover {
+            border-color: rgba(217, 180, 90, 0.6) !important;
+            transform: translateY(-1px);
         }
 
-        .date-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 9999px;
-            font-size: 0.82rem;
-            font-weight: 700;
+        .date-hijri-text,
+        .date-greg-text {
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .date-chip-hijri {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.26) 0%, rgba(212, 175, 55, 0.1) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.36);
-            color: #fed668;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            color: #fcf4d4 !important;
         }
 
-        .date-chip-divider {
-            color: rgba(212, 175, 55, 0.65);
-            font-size: 0.7rem;
-            user-select: none;
+        .date-chip-hijri i {
+            color: #fed668 !important;
+            font-size: 0.85rem;
+            flex-shrink: 0;
         }
 
         .date-chip-greg {
-            color: #d1fae5;
-            font-size: 0.8rem;
-            font-weight: 600;
+            color: #d1fae5 !important;
         }
 
-        /* بطاقة آية اليوم المصحفية الملكية */
+        .date-chip-greg i {
+            color: #e5b958 !important;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        /* تفاصيل بطاقة آية اليوم (Daily Verse Card) */
         .home-daily-verse-card {
-            background: linear-gradient(165deg, rgba(8, 44, 34, 0.88) 0%, rgba(4, 26, 20, 0.94) 100%);
-            border: 1.5px solid rgba(212, 175, 55, 0.36);
-            border-radius: 20px;
-            padding: 18px 22px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 24px rgba(16, 185, 129, 0.08);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .home-daily-verse-card:hover {
-            border-color: rgba(212, 175, 55, 0.6);
-            box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 24px rgba(212, 175, 55, 0.2);
-            transform: translateY(-2px);
+            gap: 0;
+            padding: 22px 24px;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         .daily-verse-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 11px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            gap: 12px;
+            position: relative;
+            z-index: 3;
+            margin-bottom: 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .daily-verse-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.84rem;
-            font-weight: 800;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            font-weight: 700;
             color: #fed668;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.3px;
+        }
+
+        .daily-verse-badge i {
+            font-size: 1rem;
+            color: #fed668;
         }
 
         .btn-verse-action {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
+            gap: 7px;
+            padding: 6px 14px;
             border-radius: 10px;
-            background: rgba(3, 20, 15, 0.85);
-            border: 1px solid rgba(212, 175, 55, 0.32);
+            background: rgba(3, 20, 15, 0.7);
+            border: 1px solid rgba(217, 180, 90, 0.42);
             color: #fed668;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.22s ease;
         }
 
         .btn-verse-action:hover {
-            background: rgba(212, 175, 55, 0.18);
+            background: rgba(217, 180, 90, 0.2);
             border-color: #fed668;
             color: #ffffff;
-            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.25);
+            box-shadow: 0 3px 12px rgba(217, 180, 90, 0.25);
             transform: translateY(-1px);
+        }
+
+        /* البرواز المصحفي المحكم المحاط بالنجمتين الإسلاميتين بعرض متطابق تماماً */
+.daily-verse-frame {
+    position: relative;
+    z-index: 3;
+    border: 1px solid rgba(217, 180, 90, 0.35);
+    border-radius: 18px;
+    padding: 24px 20px;
+    margin: 4px 0 18px;
+    background: rgba(0, 0, 0, .16);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+        .verse-frame-star {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #041f18;
+            padding: 0 8px;
+            color: #fed668;
+            z-index: 4;
+            line-height: 1;
+        }
+
+        .verse-frame-star.star-top {
+            top: -9px;
+        }
+
+        .verse-frame-star.star-bottom {
+            bottom: -9px;
+        }
+
+        .verse-frame-star .star-core-dot {
+            fill: #041f18;
         }
 
         .daily-verse-body {
@@ -26692,9 +26902,11 @@ body.light-theme textarea {
             unicode-bidi: isolate;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 6px 0;
+            gap: 12px;
+            padding: 4px 0;
             text-align: center;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .quran-bracket {
@@ -26710,261 +26922,107 @@ body.light-theme textarea {
         }
 
         .home-daily-verse-card:hover .quran-bracket-start {
-            transform: translateX(2px);
+            transform: translateX(3px);
         }
         .home-daily-verse-card:hover .quran-bracket-end {
-            transform: translateX(-2px);
+            transform: translateX(-3px);
         }
 
         .daily-verse-text {
             font-family: var(--font-quran, 'Scheherazade New', 'Amiri', serif);
-            font-size: clamp(1.15rem, 3.2vw, 1.42rem);
+            font-size: clamp(1.15rem, 3.4vw, 1.55rem);
             font-weight: 600;
-            line-height: 2.25;
-            color: #f7fee7;
+            line-height: 2.3;
+            color: #fffef7;
             margin: 0;
             padding: 0;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
             max-width: 620px;
+            width: 100%;
         }
 
+        /* ذيل بطاقة آية اليوم (Solid Gold Ref Pill & Refresh Hint) */
         .daily-verse-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 11px;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-            font-size: 0.78rem;
+            gap: 12px;
+            position: relative;
+            z-index: 3;
+            flex-wrap: wrap;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .daily-verse-ref-pill {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 3px 12px;
+            gap: 8px;
+            padding: 6px 18px;
             border-radius: 9999px;
-            background: rgba(212, 175, 55, 0.12);
-            border: 1px solid rgba(212, 175, 55, 0.32);
-            color: #fed668;
-            font-weight: 700;
+            background: linear-gradient(135deg, #f5d77f 0%, #d4a946 100%) !important;
+            color: #081a13 !important;
+            font-weight: 800;
+            font-size: clamp(0.75rem, 2.3vw, 0.82rem);
+            box-shadow: 0 4px 14px rgba(212, 169, 70, 0.35);
+            letter-spacing: 0.2px;
+        }
+
+        .daily-verse-ref-pill .ref-star-svg {
+            color: #081a13;
+            fill: #081a13;
+            flex-shrink: 0;
+        }
+
+        .daily-verse-ref-pill #daily-verse-ref {
+            color: #081a13 !important;
+            font-weight: 800;
         }
 
         .daily-verse-refresh-hint {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            color: rgba(167, 243, 208, 0.85);
-            font-size: 0.74rem;
-            font-weight: 600;
+            color: #93b4a5;
+            font-size: clamp(0.72rem, 2.2vw, 0.78rem);
+            font-weight: 500;
         }
-
-        .pulse-sparkle {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #fed668;
-            box-shadow: 0 0 10px #fed668;
-            animation: pulseGlowDot 2.2s infinite ease-in-out;
-        }
-
-        @keyframes pulseGlowDot {
-            0%, 100% { opacity: 0.45; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.3); }
-        }
-
-        /* العنصر البصري الملكي: الهلال ثلاثي الأبعاد والفانوس */
-        .home-hero-visual {
-            position: relative;
-            width: 105px;
-            height: 105px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            align-self: center;
-            z-index: 3;
-        }
-
-        .hero-moon-glow {
-            position: absolute;
-            width: 85px;
-            height: 85px;
-            border-radius: 50%;
-            background: rgba(254, 214, 104, 0.22);
-            filter: blur(20px);
-            animation: haloPulse 3.8s infinite ease-in-out;
-            pointer-events: none;
-        }
-
-        .hero-crescent-svg {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 6px 18px rgba(251, 191, 36, 0.45));
-            animation: moonFloat 5s ease-in-out infinite;
-        }
-
-        .hanging-lantern {
-            transform-origin: 94px 36px;
-            animation: lanternSway 4.2s ease-in-out infinite;
-        }
-
-        .lantern-flame {
-            transform-origin: 94px 72px;
-            animation: flameFlicker 1.8s ease-in-out infinite;
-        }
-
-        @keyframes moonFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-7px) rotate(-1.5deg); }
-        }
-
-        @keyframes haloPulse {
-            0%, 100% { opacity: 0.4; transform: scale(0.95); }
-            50% { opacity: 0.85; transform: scale(1.1); }
-        }
-
-        @keyframes lanternSway {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(3deg); }
-            75% { transform: rotate(-3deg); }
-        }
-
-        @keyframes flameFlicker {
-            0%, 100% { opacity: 0.95; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(0.92); }
-        }
-
-        @keyframes starTwinkle {
-            0%, 100% { opacity: 0.3; transform: scale(0.85); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        .star-1 { animation: starTwinkle 2.5s ease-in-out infinite; }
-        .star-2 { animation: starTwinkle 3.2s ease-in-out infinite 0.8s; }
-        .star-3 { animation: starTwinkle 2.1s ease-in-out infinite 1.4s; }
-        .star-4 { animation: starTwinkle 2.8s ease-in-out infinite 0.4s; }
 
         @media (max-width: 768px) {
-            #home .home-hero-compact {
-                padding: 22px 20px;
-                gap: 18px;
-            }
-            .home-hero-visual {
-                width: 90px;
-                height: 90px;
-            }
-        }
-
-        @media (max-width: 640px) {
-            #home .home-hero-compact {
+            .home-hero-card {
                 padding: 18px 16px;
-                gap: 16px;
-                position: relative;
+                border-radius: 20px;
             }
-            .home-hero-brand {
-                padding-inline-end: 72px;
-            }
-            .home-date-pill {
-                padding: 4px 8px;
-                gap: 6px;
-            }
-            .date-chip {
-                padding: 4px 10px;
-                font-size: 0.78rem;
-                gap: 5px;
-            }
-            .home-hero-visual {
-                position: absolute;
-                top: 14px;
-                inset-inline-end: 14px;
-                width: 68px;
-                height: 68px;
-                display: flex !important;
-                z-index: 4;
+            .daily-verse-frame {
+                padding: 20px 14px;
             }
         }
 
         @media (max-width: 480px) {
-            #home .home-hero-compact {
+            .home-hero-card {
                 padding: 16px 14px;
-                gap: 14px;
-                border-radius: 22px;
+                border-radius: 18px;
             }
-            .home-hero-top-bar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            .home-hero-brand {
-                padding-inline-end: 64px;
-            }
-            .home-date-wrapper {
-                width: 100%;
-            }
-            .home-date-pill {
-                padding: 3px 6px;
-                gap: 5px;
+            .daily-verse-frame {
+                padding: 16px 10px;
             }
             .date-chip {
-                padding: 3px 8px;
-                font-size: 0.74rem;
-                gap: 4px;
+                flex: 1 1 100%;
+                padding: 10px 14px;
             }
-            .date-chip i {
-                font-size: 0.7rem;
-            }
-            .date-chip-divider {
-                font-size: 0.65rem;
-            }
-            .home-hero-visual {
-                top: 12px;
-                inset-inline-end: 12px;
-                width: 60px;
-                height: 60px;
-                display: flex !important;
-            }
-            .daily-verse-text {
-                font-size: 1.05rem;
-                line-height: 1.95;
+            .daily-verse-footer {
+                justify-content: center;
+                gap: 10px;
             }
         }
 
         @media (max-width: 360px) {
-            #home .home-hero-compact {
+            .home-hero-card {
                 padding: 14px 10px;
-                gap: 12px;
-                border-radius: 18px;
-            }
-            .home-hero-brand {
-                padding-inline-end: 54px;
-            }
-            .home-hero-visual {
-                top: 10px;
-                inset-inline-end: 8px;
-                width: 50px;
-                height: 50px;
-                display: flex !important;
-            }
-            .home-hero-brand .brand-name {
-                font-size: 1.3rem !important;
-            }
-            .home-hero-brand .brand-tagline {
-                font-size: 0.74rem;
-            }
-            .home-date-pill {
-                padding: 2px 4px;
-                gap: 3px;
+                border-radius: 16px;
             }
             .date-chip {
-                padding: 2px 6px;
-                font-size: 0.68rem;
-                gap: 3px;
-            }
-            .date-chip i {
-                font-size: 0.65rem;
-            }
-            .date-chip-divider {
-                font-size: 0.6rem;
+                padding: 5px 8px;
             }
         }
         /* ==========================================================================
@@ -27347,24 +27405,23 @@ body.light-theme textarea {
         /* ==========================================================================
            مظهر قسم الهيرو الملكي في الوضع النهاري (Light Theme Hero Section)
            ========================================================================== */
-        body.light-theme #home .home-hero-compact,
-        html[data-theme="light"] #home .home-hero-compact,
-        [data-theme="light"] #home .home-hero-compact {
-            background-color: #faf8f2 !important;
+        body.light-theme .home-hero-card,
+        html[data-theme="light"] .home-hero-card,
+        [data-theme="light"] .home-hero-card {
+            background-color: #fcfaf5 !important;
             background-image:
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M22 2 L26 18 L42 22 L26 26 L22 42 L18 26 L2 22 L18 18 Z' fill='none' stroke='%23b8860b' stroke-width='0.6' stroke-opacity='0.12'/%3E%3Ccircle cx='22' cy='22' r='4' fill='none' stroke='%23b8860b' stroke-width='0.6' stroke-opacity='0.12'/%3E%3C/svg%3E"),
-                radial-gradient(circle at 90% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 10% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-                linear-gradient(150deg, #ffffff 0%, #fbf9f4 60%, #f4ede0 100%) !important;
-            border: 1.5px solid rgba(184, 134, 11, 0.35) !important;
-            box-shadow: 0 16px 40px -8px rgba(184, 134, 11, 0.12), 0 0 24px rgba(212, 175, 55, 0.08), inset 0 1px 0 #ffffff !important;
+                radial-gradient(circle at 90% 0%, rgba(217, 180, 90, 0.14) 0%, transparent 60%),
+                radial-gradient(circle at 10% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+                linear-gradient(155deg, #ffffff 0%, #fbf9f4 60%, #f4eee2 100%) !important;
+            border-color: rgba(184, 134, 11, 0.38) !important;
+            box-shadow: 0 12px 30px -6px rgba(184, 134, 11, 0.12), inset 0 1px 0 #ffffff !important;
         }
 
-        body.light-theme #home .home-hero-compact::before,
-        html[data-theme="light"] #home .home-hero-compact::before,
-        [data-theme="light"] #home .home-hero-compact::before {
-            background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.4) 20%, #b8860b 50%, rgba(184, 134, 11, 0.4) 80%, transparent) !important;
-            box-shadow: 0 0 10px rgba(184, 134, 11, 0.4) !important;
+        body.light-theme .home-hero-card::after,
+        html[data-theme="light"] .home-hero-card::after,
+        [data-theme="light"] .home-hero-card::after {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23b8860b' stroke-width='1'%3E%3Crect x='14' y='14' width='28' height='28'/%3E%3Crect x='14' y='14' width='28' height='28' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.12;
         }
 
         body.light-theme .hero-corner-ornament,
@@ -27373,17 +27430,6 @@ body.light-theme textarea {
             border-color: #b8860b !important;
             opacity: 0.65 !important;
             box-shadow: 0 0 6px rgba(184, 134, 11, 0.25) !important;
-        }
-
-        body.light-theme .hero-ambient-glow.glow-gold,
-        html[data-theme="light"] .hero-ambient-glow.glow-gold,
-        [data-theme="light"] .hero-ambient-glow.glow-gold {
-            background: rgba(212, 175, 55, 0.1) !important;
-        }
-        body.light-theme .hero-ambient-glow.glow-emerald,
-        html[data-theme="light"] .hero-ambient-glow.glow-emerald,
-        [data-theme="light"] .hero-ambient-glow.glow-emerald {
-            background: rgba(16, 185, 129, 0.06) !important;
         }
 
         body.light-theme .home-hero-brand .brand-name .text-gold-gradient,
@@ -27395,98 +27441,26 @@ body.light-theme textarea {
             filter: drop-shadow(0 1px 2px rgba(184, 134, 11, 0.2)) !important;
         }
 
-        body.light-theme .home-hero-brand .brand-sparkle,
-        html[data-theme="light"] .home-hero-brand .brand-sparkle,
-        [data-theme="light"] .home-hero-brand .brand-sparkle {
-            color: #b8860b !important;
-            filter: drop-shadow(0 0 4px rgba(184, 134, 11, 0.4)) !important;
-        }
-
         body.light-theme .home-hero-brand .brand-tagline,
         html[data-theme="light"] .home-hero-brand .brand-tagline,
         [data-theme="light"] .home-hero-brand .brand-tagline {
-            color: #2c594c !important;
-            font-weight: 600 !important;
+            color: #27624c !important;
             text-shadow: none !important;
         }
 
-        body.light-theme .home-date-pill,
-        html[data-theme="light"] .home-date-pill,
-        [data-theme="light"] .home-date-pill {
-            background: rgba(255, 255, 255, 0.95) !important;
+        body.light-theme .date-chip,
+        html[data-theme="light"] .date-chip,
+        [data-theme="light"] .date-chip {
+            background: rgba(255, 255, 255, 0.88) !important;
             border-color: rgba(184, 134, 11, 0.35) !important;
-            box-shadow: 0 4px 14px rgba(7, 63, 53, 0.08), inset 0 1px 0 #ffffff !important;
-        }
-
-        body.light-theme .home-date-pill:hover,
-        html[data-theme="light"] .home-date-pill:hover,
-        [data-theme="light"] .home-date-pill:hover {
-            border-color: rgba(184, 134, 11, 0.6) !important;
-            box-shadow: 0 6px 18px rgba(7, 63, 53, 0.12), 0 0 12px rgba(184, 134, 11, 0.2) !important;
-        }
-
-        body.light-theme .date-chip-hijri,
-        html[data-theme="light"] .date-chip-hijri,
-        [data-theme="light"] .date-chip-hijri {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.08) 100%) !important;
-            border-color: rgba(184, 134, 11, 0.35) !important;
-            color: #8c5d00 !important;
-        }
-
-        body.light-theme .date-chip-hijri i,
-        html[data-theme="light"] .date-chip-hijri i,
-        [data-theme="light"] .date-chip-hijri i {
-            color: #b8860b !important;
-        }
-
-        body.light-theme .date-chip-divider,
-        html[data-theme="light"] .date-chip-divider,
-        [data-theme="light"] .date-chip-divider {
-            color: rgba(184, 134, 11, 0.6) !important;
-        }
-
-        body.light-theme .date-chip-greg,
-        html[data-theme="light"] .date-chip-greg,
-        [data-theme="light"] .date-chip-greg {
-            background: rgba(6, 78, 59, 0.06) !important;
-            border-color: rgba(6, 78, 59, 0.15) !important;
-            color: #1e4d3f !important;
-        }
-
-        body.light-theme .date-chip-greg i,
-        html[data-theme="light"] .date-chip-greg i,
-        [data-theme="light"] .date-chip-greg i {
-            color: #0d5c48 !important;
-        }
-
-        body.light-theme .home-daily-verse-card,
-        html[data-theme="light"] .home-daily-verse-card,
-        [data-theme="light"] .home-daily-verse-card {
-            background: rgba(255, 255, 255, 0.92) !important;
-            border-color: rgba(184, 134, 11, 0.35) !important;
-            box-shadow: inset 0 1px 1px #ffffff, 0 8px 24px rgba(7, 63, 53, 0.07) !important;
-        }
-
-        body.light-theme .home-daily-verse-card:hover,
-        html[data-theme="light"] .home-daily-verse-card:hover,
-        [data-theme="light"] .home-daily-verse-card:hover {
-            border-color: rgba(184, 134, 11, 0.6) !important;
-            box-shadow: inset 0 1px 1px #ffffff, 0 10px 28px rgba(7, 63, 53, 0.1), 0 0 16px rgba(184, 134, 11, 0.18) !important;
-        }
-
-        body.light-theme .daily-verse-header,
-        html[data-theme="light"] .daily-verse-header,
-        [data-theme="light"] .daily-verse-header,
-        body.light-theme .daily-verse-footer,
-        html[data-theme="light"] .daily-verse-footer,
-        [data-theme="light"] .daily-verse-footer {
-            border-color: rgba(184, 134, 11, 0.18) !important;
+            color: #17382b !important;
+            box-shadow: 0 2px 8px rgba(184, 134, 11, 0.1) !important;
         }
 
         body.light-theme .daily-verse-badge,
         html[data-theme="light"] .daily-verse-badge,
         [data-theme="light"] .daily-verse-badge {
-            color: #8c5d00 !important;
+            color: #8c630a !important;
         }
 
         body.light-theme .daily-verse-badge i,
@@ -27498,25 +27472,42 @@ body.light-theme textarea {
         body.light-theme .btn-verse-action,
         html[data-theme="light"] .btn-verse-action,
         [data-theme="light"] .btn-verse-action {
-            background: #f4f8f6 !important;
-            border-color: rgba(184, 134, 11, 0.3) !important;
-            color: #1e4d3f !important;
+            background: rgba(255, 255, 255, 0.92) !important;
+            border-color: rgba(184, 134, 11, 0.4) !important;
+            color: #8c630a !important;
         }
 
         body.light-theme .btn-verse-action:hover,
         html[data-theme="light"] .btn-verse-action:hover,
         [data-theme="light"] .btn-verse-action:hover {
-            background: #eaf3ef !important;
+            background: #fbf5e6 !important;
             border-color: #b8860b !important;
-            color: #8c5d00 !important;
-            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.18) !important;
+        }
+
+        body.light-theme .daily-verse-frame,
+        html[data-theme="light"] .daily-verse-frame,
+        [data-theme="light"] .daily-verse-frame {
+            background: rgba(255, 255, 255, 0.7) !important;
+            border-color: rgba(184, 134, 11, 0.32) !important;
+        }
+
+        body.light-theme .verse-frame-star,
+        html[data-theme="light"] .verse-frame-star,
+        [data-theme="light"] .verse-frame-star {
+            background: #fcfaf5 !important;
+            color: #b8860b !important;
+        }
+
+        body.light-theme .verse-frame-star .star-core-dot,
+        html[data-theme="light"] .verse-frame-star .star-core-dot,
+        [data-theme="light"] .verse-frame-star .star-core-dot {
+            fill: #fcfaf5 !important;
         }
 
         body.light-theme .daily-verse-text,
         html[data-theme="light"] .daily-verse-text,
         [data-theme="light"] .daily-verse-text {
-            color: #0b342b !important;
-            font-weight: 700 !important;
+            color: #162f25 !important;
             text-shadow: none !important;
         }
 
@@ -27527,45 +27518,11 @@ body.light-theme textarea {
             filter: drop-shadow(0 0 4px rgba(184, 134, 11, 0.25)) !important;
         }
 
-        body.light-theme .daily-verse-ref-pill,
-        html[data-theme="light"] .daily-verse-ref-pill,
-        [data-theme="light"] .daily-verse-ref-pill {
-            background: #fff8eb !important;
-            border-color: rgba(184, 134, 11, 0.35) !important;
-            color: #8c5d00 !important;
-        }
-
-        body.light-theme .daily-verse-ref-pill i,
-        html[data-theme="light"] .daily-verse-ref-pill i,
-        [data-theme="light"] .daily-verse-ref-pill i {
-            color: #b8860b !important;
-        }
-
         body.light-theme .daily-verse-refresh-hint,
         html[data-theme="light"] .daily-verse-refresh-hint,
         [data-theme="light"] .daily-verse-refresh-hint {
-            color: #4b665b !important;
+            color: #55796b !important;
         }
-
-        body.light-theme .pulse-sparkle,
-        html[data-theme="light"] .pulse-sparkle,
-        [data-theme="light"] .pulse-sparkle {
-            background: #b8860b !important;
-            box-shadow: 0 0 8px #b8860b !important;
-        }
-
-        body.light-theme .hero-moon-glow,
-        html[data-theme="light"] .hero-moon-glow,
-        [data-theme="light"] .hero-moon-glow {
-            background: rgba(212, 175, 55, 0.18) !important;
-        }
-
-        body.light-theme .hero-crescent-svg,
-        html[data-theme="light"] .hero-crescent-svg,
-        [data-theme="light"] .hero-crescent-svg {
-            filter: drop-shadow(0 4px 14px rgba(184, 134, 11, 0.35)) !important;
-        }
-
         @media (max-width: 480px) {
             #home .home-prayer-hero-card {
                 padding: 18px 16px;
@@ -28138,3 +28095,361 @@ body.light-theme textarea {
                     background: #F7E7C4 !important;
                     color: #8C621B !important;
                 }
+
+
+/* Next prayer follows the compact hero's emerald and gold treatment. */
+#home #home-next-prayer {
+    --prayer-card-bg: #0d281d;
+    --prayer-card-text: #f1df9a;
+    --prayer-card-muted: #a2b8a7;
+    --prayer-card-inset: #0a2018;
+    --prayer-card-chip: rgba(4, 25, 17, .48);
+    padding: 26px;
+    margin-top: 12px;
+    gap: 0;
+    isolation: isolate;
+    border-radius: 32px;
+    background: radial-gradient(ellipse at 88% 8%, rgba(191,161,65,.12), transparent 48%), var(--prayer-card-bg) !important;
+    border: 1px solid rgba(181,150,58,.42) !important;
+    box-shadow: inset 0 0 0 4px var(--prayer-card-inset), inset 0 0 0 5px rgba(181,150,58,.45), 0 12px 26px rgba(0,0,0,.16) !important;
+    text-align: start;
+}
+#home #home-next-prayer::before {
+    inset: 15px;
+    width: auto;
+    height: auto;
+    border: 1px solid rgba(199,164,71,.65);
+    border-radius: 17px;
+    background: none;
+    pointer-events: none;
+    z-index: -1;
+}
+#home #home-next-prayer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%23d9b45a'%3E%3Crect x='14' y='14' width='28' height='28'/%3E%3Crect x='14' y='14' width='28' height='28' transform='rotate(45 28 28)'/%3E%3C/g%3E%3C/svg%3E");
+    opacity: .055;
+    pointer-events: none;
+    z-index: -1;
+}
+#home-next-prayer .home-prayer-header {
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+#home-next-prayer .home-prayer-badge { color: var(--prayer-card-muted); font-size: .88rem; }
+#home-next-prayer .home-prayer-countdown {
+    padding: 7px 12px;
+    border: 1px solid rgba(181,150,58,.32);
+    border-radius: 999px;
+    background: var(--prayer-card-chip);
+    color: var(--prayer-card-text);
+    font-size: .82rem;
+    font-variant-numeric: tabular-nums;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+#home-next-prayer .home-prayer-main-row { gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+#home #home-next-prayer strong.home-prayer-name {
+    color: var(--prayer-card-text);
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    line-height: 1.5;
+}
+#home-next-prayer .home-prayer-exact-time {
+    color: var(--prayer-card-text);
+    font-size: clamp(1.5rem, 6vw, 2.1rem);
+    line-height: 1.4;
+    white-space: nowrap;
+    unicode-bidi: isolate;
+}
+#home-next-prayer .home-prayer-progress-track { height: 5px; margin-bottom: 20px; background: rgba(181,150,58,.16); }
+#home-next-prayer .home-prayer-progress-fill { background: linear-gradient(90deg,#b38c2f,#f3de94); }
+#home-next-prayer .home-prayer-action-btn {
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 11px 18px;
+    font-size: .9rem;
+    background: linear-gradient(110deg,#f3de94,#b38c2f);
+    box-shadow: 0 3px 12px rgba(212,169,70,.12);
+}
+#home-next-prayer .home-prayer-action-btn:hover { filter: brightness(1.08); box-shadow: 0 5px 16px rgba(212,169,70,.2); }
+#home-next-prayer .home-prayer-action-btn:focus-visible { outline: 2px solid var(--prayer-card-text); outline-offset: 4px; }
+html[dir="ltr"] #home-next-prayer .home-prayer-action-btn i { rotate: 180deg; }
+html[data-theme="light"] #home #home-next-prayer,
+body.light-theme #home #home-next-prayer {
+    --prayer-card-bg: #fffaf0;
+    --prayer-card-text: #71531a;
+    --prayer-card-muted: #667365;
+    --prayer-card-inset: #fffaf0;
+    --prayer-card-chip: rgba(181,150,58,.07);
+}
+@media (max-width: 380px) {
+    #home #home-next-prayer { padding: 24px 20px; }
+    #home-next-prayer .home-prayer-header { margin-bottom: 16px; }
+    #home-next-prayer .home-prayer-countdown { font-size: .76rem; padding: 6px 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #home-next-prayer .home-prayer-progress-fill,
+    #home-next-prayer .home-prayer-action-btn,
+    #home-next-prayer .home-prayer-action-btn i { transition: none; }
+}
+
+
+/* Home hierarchy: compact welcome, practical prayer card, then the featured verse. */
+#home .home-hero-greeting-card {
+    padding: 10px 4px 12px;
+    border: 0 !important;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+#home .home-hero-greeting-card::after { display: none; }
+#home .home-hero-greeting-card .greeting-card-main { margin-bottom: 10px; }
+#home .home-hero-greeting-card .home-hero-brand { gap: 3px; }
+#home .home-hero-greeting-card .brand-name { font-size: 1.3rem !important; }
+#home .home-hero-greeting-card .brand-tagline { font-size: .8rem; }
+#home .home-hero-greeting-card .home-hero-visual { width: 44px; height: 44px; }
+#home .home-hero-greeting-card .hero-moon-glow { display: none; }
+#home .home-hero-greeting-card .home-date-pill { gap: 4px 14px; }
+#home .home-hero-greeting-card .date-chip {
+    flex: 0 1 auto;
+    min-height: 24px;
+    padding: 0;
+    border: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none;
+    font-size: .74rem;
+    justify-content: flex-start;
+}
+#home #home-next-prayer {
+    margin-top: 4px;
+    padding: 20px;
+    border-radius: 22px;
+    border-color: rgba(181,150,58,.24) !important;
+    background: var(--prayer-card-bg) !important;
+    box-shadow: 0 5px 16px rgba(0,0,0,.08) !important;
+}
+#home #home-next-prayer::before, #home #home-next-prayer::after { display: none; }
+#home-next-prayer .home-prayer-header { margin-bottom: 10px; }
+#home-next-prayer .home-prayer-main-row { margin-bottom: 14px; }
+#home-next-prayer .home-prayer-progress-track { margin-bottom: 14px; height: 4px; }
+#home #home-next-prayer #home-prayers-strip {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 10px 0 0;
+    border: 0 !important;
+    border-top: 1px solid rgba(181,150,58,.18) !important;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    gap: 3px;
+    grid-template-columns: repeat(5,minmax(0,1fr));
+}
+#home-prayers-strip .home-strip-item { min-width: 0; padding: 8px 2px; border-radius: 10px; }
+#home-prayers-strip .home-strip-name { font-size: .78rem; }
+#home-prayers-strip .home-strip-time { font-size: .74rem; white-space: nowrap; }
+#home-prayers-strip .home-strip-item.is-active { box-shadow: none; }
+#home #home-next-prayer .home-prayer-action-btn {
+    width: auto;
+    align-self: flex-end;
+    min-height: 44px;
+    margin-top: 4px;
+    padding: 8px 2px;
+    border-radius: 6px;
+    color: var(--prayer-card-text) !important;
+    background: transparent;
+    box-shadow: none;
+    font-size: .8rem;
+    font-weight: 600;
+}
+#home #home-next-prayer .home-prayer-action-btn:hover { text-decoration: underline !important; transform: none; filter: none; }
+#home-services-section { margin: 14px 0 18px; display: flex; flex-direction: column; }
+#home-services-section .quick-access-grid { order: 0; margin: 0; gap: 8px; padding-bottom:8px;}
+#home-services-section .home-quick-card { padding: 12px 6px; min-height: 0; border-radius: 16px; box-shadow: none; }
+#home-services-section .home-quick-icon-box { width: 38px; height: 38px; margin-bottom: 6px; font-size: 1.2rem; }
+#home-services-section .home-quick-title { font-size: .8rem; }
+#home-services-section .home-services-more-wrap { order: 1; margin: 8px 0 0; }
+#home-services-section .home-more-services-btn {
+    min-height: 44px; padding: 8px 14px; font-size: .82rem;
+    border: 0; box-shadow: none; background: transparent;
+}
+#home-services-section #services { order: 2; margin: 0; }
+#home-services-section #services > .container { margin: 0 !important; }
+#home-services-section #services a {
+    padding: 6px 10px !important;
+    min-height: 32px;
+    font-size: .72rem !important;
+    font-weight: 400 !important;
+    background: transparent !important;
+    border-color: transparent !important;
+}
+#home .home-verse-section { margin-top: 0; margin-bottom: 18px; }
+#home .home-verse-section .daily-verse-frame { min-height: 0; padding: 20px 18px; }
+#home .home-verse-section .daily-verse-text { font-size: clamp(1.65rem,5.8vw,2.15rem); line-height: 1.9; }
+@media (max-width: 380px) {
+    #home #home-next-prayer { padding: 16px 12px; }
+    #home-prayers-strip .home-strip-time { font-size: .67rem; }
+    #home-services-section .quick-access-grid { gap: 5px; }
+    #home-services-section .home-quick-title { font-size: .72rem; }
+}
+
+
+/* A quiet, readable charity card with one clear action. */
+#home #sadaqa { grid-template-columns: minmax(0,1fr); margin-top: 18px; }
+#home .panel.sadaqa {
+    --sadaqa-surface: #0d281d;
+    --sadaqa-ink: #edf1e7;
+    --sadaqa-muted: #afc0b1;
+    --sadaqa-accent: #e5ce86;
+    --sadaqa-quote: rgba(3,20,13,.26);
+    min-width: 0;
+    padding: clamp(18px,4vw,28px);
+    gap: 18px;
+    border-radius: 24px;
+    border: 1px solid rgba(181,150,58,.25) !important;
+    background: var(--sadaqa-surface) !important;
+    box-shadow: 0 5px 18px rgba(0,0,0,.08) !important;
+    backdrop-filter: none;
+    text-align: start;
+    transform: none;
+}
+#home .panel.sadaqa::before { display: none; }
+#sadaqa .sadaqa-top-row { margin: 0; }
+#sadaqa .sadaqa-badge {
+    padding: 0; border: 0; background: transparent;
+    color: var(--sadaqa-muted); font-size: .76rem; font-weight: 500;
+}
+#sadaqa .sadaqa-header { align-items: flex-start; gap: 12px; margin: 0; }
+#sadaqa .sadaqa-header-text { min-width: 0; }
+#sadaqa .sadaqa-icon-aura {
+    width: 42px; height: 42px; border-radius: 13px;
+    background: rgba(181,150,58,.1); border: 1px solid rgba(181,150,58,.22);
+    color: var(--sadaqa-accent); box-shadow: none; font-size: 1.15rem;
+}
+#sadaqa .sadaqa-header-text h2 { font-size: clamp(1.08rem,4vw,1.35rem); line-height: 1.6; color: var(--sadaqa-ink); }
+#sadaqa .sadaqa-header-text p { margin-top: 6px; font-size: .86rem; line-height: 1.9; color: var(--sadaqa-muted); }
+#sadaqa .sadaqa-hadith-card {
+    margin: 0; padding: 16px 18px; border: 0;
+    border-inline-start: 2px solid rgba(181,150,58,.65);
+    border-radius: 12px; background: var(--sadaqa-quote);
+}
+#sadaqa .sadaqa-hadith-text { font-size: clamp(.96rem,3.5vw,1.08rem); line-height: 2; color: var(--sadaqa-ink); }
+#sadaqa .sadaqa-hadith-ref { color: var(--sadaqa-accent); margin-top: 8px; font-weight: 500; }
+#sadaqa .sadaqa-actions { margin: 0; gap: 8px; }
+#sadaqa .sadaqa-cta-btn {
+    min-height: 48px; padding: 12px 16px; width: 100%; box-sizing: border-box;
+    border-radius: 14px; border: 0; background: linear-gradient(110deg,#f3de94,#b38c2f);
+    color: #152317; box-shadow: none; font-size: .9rem; line-height: 1.6;
+    white-space: normal; transform: none;
+}
+#sadaqa .sadaqa-cta-btn span { min-width: 0; }
+#sadaqa .sadaqa-cta-btn i { flex-shrink: 0; }
+#sadaqa .sadaqa-secondary-link {
+    min-height: 44px; box-sizing: border-box; line-height: 1.8;
+    color: var(--sadaqa-muted); text-align: center; font-weight: 500;
+}
+#sadaqa .sadaqa-secondary-link:hover { color: var(--sadaqa-accent); text-decoration: underline; }
+#sadaqa .sadaqa-actions :focus-visible { outline: 2px solid var(--sadaqa-accent); outline-offset: 4px; }
+html[dir="ltr"] #sadaqa .fa-arrow-left { transform: rotate(180deg); }
+html[data-theme="light"] #home .panel.sadaqa, body.light-theme #home .panel.sadaqa {
+    --sadaqa-surface: #fffaf0; --sadaqa-ink: #203c2d; --sadaqa-muted: #596b5c;
+    --sadaqa-accent: #795b20; --sadaqa-quote: rgba(181,150,58,.07);
+}
+#modalContent #deceased, #modalContent .sadaqa-share-fallback {
+    display: block; width: 100%; box-sizing: border-box; margin: 10px 0 16px;
+    padding: 12px; border: 1px solid var(--border-color,#315346); border-radius: 10px;
+    background: var(--card,#0d281d); color: var(--text-primary,#edf1e7); font: inherit;
+}
+#modalContent .sadaqa-share-fallback { min-height: 150px; resize: vertical; }
+#cardResult { overflow-wrap: anywhere; }
+#cardResult .notice p { line-height: 2; }
+@media (max-width: 380px) {
+    #sadaqa .sadaqa-header { gap: 9px; }
+    #sadaqa .sadaqa-icon-aura { width: 34px; height: 34px; font-size: 1rem; }
+    #sadaqa .sadaqa-hadith-card { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #home .panel.sadaqa, #sadaqa .sadaqa-actions a, #sadaqa .sadaqa-actions button { transition: none; }
+}
+
+
+/* Shared home surfaces: match the prayer and charity cards. */
+#home {
+    --home-surface: #0d281d;
+    --home-surface-inset: #0a2118;
+    --home-surface-hover: #153526;
+    --home-surface-border: rgba(181,150,58,.25);
+    --home-surface-ink: #edf1e7;
+    --home-surface-muted: #afc0b1;
+    --home-surface-accent: #e5ce86;
+    --home-surface-tint: rgba(181,150,58,.1);
+}
+html[data-theme="light"] #home, body.light-theme #home {
+    --home-surface: #fffaf0;
+    --home-surface-inset: #f6f0e3;
+    --home-surface-hover: #f3ead6;
+    --home-surface-border: rgba(181,150,58,.25);
+    --home-surface-ink: #203c2d;
+    --home-surface-muted: #596b5c;
+    --home-surface-accent: #795b20;
+    --home-surface-tint: rgba(181,150,58,.1);
+}
+#home #daily-featured-media-card,
+#home #daily-journey-panel,
+#home #home-services-section .home-quick-card {
+    background: var(--home-surface) !important;
+    border-color: var(--home-surface-border) !important;
+    color: var(--home-surface-ink) !important;
+    box-shadow: 0 5px 18px rgba(0,0,0,.08) !important;
+}
+#home #daily-journey-panel::before { background: none; }
+#home #home-services-section { background: transparent; }
+#home #home-services-section .home-quick-card:hover {
+    background: var(--home-surface-hover) !important;
+    border-color: var(--home-surface-accent) !important;
+}
+#home #home-services-section .home-quick-icon-box,
+#home #daily-journey-panel .journey-heading-icon,
+#home #daily-journey-panel .wird-task-icon-badge {
+    background: var(--home-surface-tint) !important;
+    color: var(--home-surface-accent) !important;
+    border-color: var(--home-surface-border) !important;
+    box-shadow: none;
+}
+#home #home-services-section .home-quick-title,
+#home #daily-featured-media-card .daily-clip-title,
+#home #daily-journey-panel .journey-heading-text h3,
+#home #daily-journey-panel .wird-task-text {
+    color: var(--home-surface-ink) !important;
+}
+#home #daily-featured-media-card .daily-clip-desc,
+#home #daily-featured-media-card .daily-clip-speaker,
+#home #daily-journey-panel .journey-heading-text p,
+#home #daily-journey-panel .journey-footer-meta {
+    color: var(--home-surface-muted) !important;
+}
+#home #daily-journey-panel .home-wird-card { background: transparent !important; }
+#home #daily-journey-panel .wird-header-bar,
+#home #daily-journey-panel .wird-task-item,
+#home #daily-journey-panel .home-wird-more,
+#home #daily-featured-media-card .btn-audio-daily-clip,
+#home #daily-featured-media-card .btn-bookmark-daily-clip {
+    background: var(--home-surface-inset) !important;
+    border-color: var(--home-surface-border) !important;
+    color: var(--home-surface-ink) !important;
+}
+#home #daily-journey-panel .wird-task-item:hover,
+#home #daily-journey-panel .home-wird-more summary:hover {
+    background: var(--home-surface-hover) !important;
+}
+#home #daily-journey-panel .wird-task-item.is-completed,
+#home #daily-featured-media-card .btn-bookmark-daily-clip.saved {
+    background: var(--home-surface-tint) !important;
+    border-color: var(--home-surface-accent) !important;
+    color: var(--home-surface-accent) !important;
+}
+#home #daily-journey-panel .journey-heading,
+#home #daily-journey-panel .journey-footer { border-color: var(--home-surface-border) !important; }
