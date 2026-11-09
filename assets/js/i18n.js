@@ -201,29 +201,55 @@
  }
  function positionDropdown(sw,menu){
   if(menu.hidden)return;
+  menu.classList.remove('open-upward','align-start','align-end');
+  menu.style.removeProperty('--zad-drop-shift-x');
+  menu.style.left='';
+  menu.style.right='';
   menu.style.transform='';
-  menu.classList.remove('open-upward');
   const swRect=sw.getBoundingClientRect();
-  const menuRect=menu.getBoundingClientRect();
-  if(!menuRect.width&&!menuRect.height)return;
   const viewportWidth=doc.documentElement.clientWidth||root.innerWidth||360;
   const viewportHeight=doc.documentElement.clientHeight||root.innerHeight||640;
-  const padding=8;
+  const padding=10;
+
+  // Natural anchoring based on where the switch sits on screen:
+  // If the switch center is in the left half, anchor to the left (opens toward center).
+  // Otherwise anchor to the right (opens toward center).
+  const swCenter=swRect.left+(swRect.width/2);
+  const isLeftHalf=swCenter<(viewportWidth/2);
+  if(isLeftHalf){
+   menu.style.left='0px';
+   menu.style.right='auto';
+   menu.classList.add('align-start');
+  }else{
+   menu.style.left='auto';
+   menu.style.right='0px';
+   menu.classList.add('align-end');
+  }
+
+  const menuRect=menu.getBoundingClientRect();
+  if(!menuRect.width&&!menuRect.height)return;
+
   let shiftX=0;
   if(menuRect.left<padding){
-   shiftX=padding-menuRect.left;
+   shiftX=Math.round(padding-menuRect.left);
   }else if(menuRect.right>viewportWidth-padding){
-   shiftX=(viewportWidth-padding)-menuRect.right;
+   shiftX=Math.round((viewportWidth-padding)-menuRect.right);
   }
   if(shiftX!==0){
-   menu.style.transform='translateX('+shiftX+'px)';
+   menu.style.setProperty('--zad-drop-shift-x',shiftX+'px');
+   menu.style.transform='translate3d('+shiftX+'px,0,0)';
   }
   if(menuRect.bottom>viewportHeight-padding&&swRect.top>menuRect.height+padding){
    menu.classList.add('open-upward');
   }
  }
  function closeAllDropdowns(){
-  doc.querySelectorAll('.zad-language-dropdown').forEach(m=>{m.hidden=true;m.parentElement?.classList.remove('is-open');});
+  doc.querySelectorAll('.zad-language-dropdown').forEach(m=>{
+   m.hidden=true;
+   m.parentElement?.classList.remove('is-open');
+   m.style.removeProperty('--zad-drop-shift-x');
+   m.style.transform='';
+  });
  }
  function setupLanguageDropdowns(){
   doc.querySelectorAll('.zad-language-switch').forEach(sw=>{
@@ -317,6 +343,7 @@
   });
   if(root.addEventListener){
    root.addEventListener('resize',closeAllDropdowns,{passive:true});
+   root.addEventListener('orientationchange',closeAllDropdowns,{passive:true});
   }
   doc.addEventListener('keydown',e=>{
    if(e.key==='Escape'){
