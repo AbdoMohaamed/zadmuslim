@@ -166,15 +166,33 @@ function initAsmaaAllah() {
     function normalizeArabic(text) {
         if (!text) return "";
         return text
-            .replace(/([^\u0621-\u063A\u0641-\u064A\u0660-\u0669a-zA-Z0-9])/g, "")
+            .replace(/[^\p{L}\p{N}]/gu, "")
             .replace(/[أإآ]/g, "ا")
             .replace(/ى/g, "ي")
             .replace(/ة/g, "ه")
             .toLowerCase();
     }
 
-    function getDuaFormula(item) {
+    function getDuaFormula(item, language = 'ar') {
         const cat = item.category || "";
+        if (language === 'en' || language === 'ur') {
+            const name = window.ZadI18n.t(item.name, language);
+            const phrases = {
+                رحمة: ['O Lord of Majesty and Honor, have mercy on me with Your vast mercy, care for my affairs with kindness and conceal my faults.', 'اے جلال اور عزت والے، اپنی وسیع رحمت سے مجھ پر رحم فرما، میرے معاملات نرمی سے سنبھال اور میری پردہ پوشی فرما۔'],
+                رزق: ['O You of vast bounty, open the doors of lawful provision for me and my family, and bless what You give us.', 'اے وسیع فضل والے، میرے اور میرے گھر والوں کے لیے حلال رزق کے دروازے کھول اور اپنی عطا میں برکت دے۔'],
+                مغفرة: ['O Pardoner and All-Forgiving, forgive all my sins, small and great, first and last, and accept my repentance. You are the Accepter of Repentance, the Most Merciful.', 'اے معاف فرمانے والے، اے بہت بخشنے والے، میرے سب گناہ، چھوٹے اور بڑے، پہلے اور پچھلے، معاف فرما اور میری توبہ قبول کر۔ تو ہی توبہ قبول کرنے والا، بہت رحم فرمانے والا ہے۔'],
+                قدرة: ['O Strong and Almighty, take care of my needs, protect me from harm and make difficult matters easy for me.', 'اے قوت والے، اے زبردست، میری کفایت فرما، مجھے ہر برائی سے بچا اور میرے لیے ہر مشکل آسان کر۔'],
+                علم: ['O All-Hearing and All-Seeing, teach me what benefits me, benefit me through what You teach me and increase me in light and insight.', 'اے سب سننے والے، اے سب دیکھنے والے، مجھے نفع بخش علم سکھا، سکھائے ہوئے علم سے مجھے فائدہ دے اور میرا نور اور بصیرت بڑھا۔'],
+                حكمة: ['O Just and All-Wise, guide my heart, set my speech right and grant me contentment with Your decree.', 'اے انصاف کرنے والے، اے کامل حکمت والے، میرے دل کو ہدایت دے، میری بات درست فرما اور مجھے اپنی تقدیر پر راضی کر۔']
+            };
+            const phrase = phrases[cat];
+            if (language === 'en') return phrase
+                ? `O Allah, ${name}, ${phrase[0]}`
+                : `O Allah, by Your name ${name} and all Your beautiful names, bless my life and work, and grant me the highest place in Paradise.`;
+            return phrase
+                ? `اے اللہ، اے ${name}، ${phrase[1]}`
+                : `اے اللہ، تیرے نام ${name} اور تیرے تمام خوبصورت ناموں کے وسیلے سے دعا ہے کہ میری زندگی اور کام میں برکت دے اور مجھے فردوس اعلیٰ عطا فرما۔`;
+        }
         if (cat === "رحمة") return `يا ${item.name} يا ذا الجلال والإكرام، ارحمني برحمتك الواسعة وتولَّ أمري بلطفك وسترك.`;
         if (cat === "رزق") return `يا ${item.name} يا واسع الفضل، افتح لي ولأهلي أبواب رزقك الحلال وبارك لنا فيما أعطيتنا.`;
         if (cat === "مغفرة") return `يا ${item.name} يا عفوّ يا غفار، اغفر لي ذنبي كله دقه وجله وأوله وآخره وتب عليّ إنك أنت التواب الرحيم.`;
@@ -193,23 +211,17 @@ function initAsmaaAllah() {
             if (!matchCat) return false;
             if (!cleanQuery) return true;
 
-            const nameClean = normalizeArabic(item.name);
-            const meaningClean = normalizeArabic(item.meaning);
-            const virtueClean = normalizeArabic(item.virtue);
-            const catClean = normalizeArabic(item.category);
-
-            return nameClean.includes(cleanQuery) || 
-                   meaningClean.includes(cleanQuery) || 
-                   virtueClean.includes(cleanQuery) || 
-                   catClean.includes(cleanQuery);
+            return [item.name,item.meaning,item.virtue,item.category].some(value =>
+                normalizeArabic(value).includes(cleanQuery) ||
+                normalizeArabic(window.ZadI18n?.t(value)).includes(cleanQuery));
         });
 
         // تحديث رسالة الحالة
         if (searchStatus) {
             if (cleanQuery) {
-                searchStatus.innerHTML = `تم العثور على <strong>${filtered.length}</strong> اسم مطابق لـ "${searchQuery}"`;
+                searchStatus.textContent = `تم العثور على ${filtered.length} اسم مطابق لـ "${searchQuery}"`;
             } else if (activeCat !== "all") {
-                searchStatus.innerHTML = `عرض أسماء <strong>${activeCat}</strong> (${filtered.length} اسماً)`;
+                searchStatus.textContent = `عرض أسماء ${activeCat} (${filtered.length} اسماً)`;
             } else {
                 searchStatus.innerHTML = `عرض جميع الأسماء (99 اسماً) • اضغط على أي اسم لعرض معناه وثمرته وصيغة الدعاء به`;
             }
@@ -247,7 +259,7 @@ function initAsmaaAllah() {
 
     function openAsmaaDetail(item) {
         currentSelectedName = item;
-        const duaFormula = getDuaFormula(item);
+        const duaFormula = getDuaFormula(item, window.ZadI18n?.language);
 
         if (modalNum) modalNum.textContent = item.id;
         if (modalName) modalName.textContent = item.name;
@@ -270,6 +282,13 @@ function initAsmaaAllah() {
             document.body.style.overflow = "";
         }
     };
+
+    window.addEventListener('zad:language-change', () => {
+        if (currentSelectedName && modalDua) {
+            modalDua.textContent = getDuaFormula(currentSelectedName, window.ZadI18n.language);
+        }
+        if (searchQuery) renderAsmaa();
+    });
 
     if (closeBtn && modal) {
         closeBtn.addEventListener("click", closeModal);
@@ -1470,6 +1489,8 @@ function listenToCloudBroadcastNotifications() {
  */
 async function triggerNativeNotification(title, body, url = "./") {
     try {
+        title = window.ZadI18n?.t(title || "زاد المسلم 🌿") ?? title;
+        body = window.ZadI18n?.t(body || "") ?? body;
         const showBrowserNotification = options => {
             const notification = new Notification(title, options);
             if (url === 'services.html#spiritual-garden') notification.onclick = () => {

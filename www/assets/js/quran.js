@@ -307,6 +307,35 @@ function isDualPageMode() {
     return window.innerWidth >= 992;
 }
 
+const mushafPageLoads = new WeakMap();
+
+function setMushafPageImage(image, page) {
+    if (!image) return;
+    const source = `assets/quran-pages/${String(page).padStart(3, "0")}.svg`;
+    const changed = image.getAttribute('src') !== source;
+    if (changed) image.src = source;
+    mushafPageLoads.get(image)?.();
+    if (!changed && image.complete) return;
+
+    const side = image.parentElement;
+    const stop = () => {
+        clearTimeout(timer);
+        side.classList.remove('zad-page-loading');
+        side.removeAttribute('aria-busy');
+        image.removeEventListener('load', stop);
+        image.removeEventListener('error', stop);
+        mushafPageLoads.delete(image);
+    };
+    const timer = setTimeout(() => {
+        if (image.complete) return stop();
+        side.classList.add('zad-page-loading');
+        side.setAttribute('aria-busy', 'true');
+    }, 150);
+    mushafPageLoads.set(image, stop);
+    image.addEventListener('load', stop);
+    image.addEventListener('error', stop);
+}
+
 function goToMushafPage(pageNumber) {
     if (pageNumber < 1) pageNumber = 1;
     if (pageNumber > TOTAL_MUSHAF_PAGES) pageNumber = TOTAL_MUSHAF_PAGES;
@@ -315,7 +344,6 @@ function goToMushafPage(pageNumber) {
     const surah = getSurahForPage(pageNumber);
     const juz = getJuzForPage(pageNumber);
     const hizb = getHizbForPage(pageNumber);
-    const padded = String(pageNumber).padStart(3, "0");
 
     // فحص وضع العرض (صفحتان متقابلتان للشاشات الكبيرة أم صفحة واحدة للهاتف)
     const dual = isDualPageMode();
@@ -327,10 +355,10 @@ function goToMushafPage(pageNumber) {
     const imgRight = document.getElementById("mushaf-real-page-img-right");
 
     if (dual && leftPage) {
-        if (imgRight) imgRight.src = `assets/quran-pages/${String(rightPage).padStart(3, "0")}.svg`;
-        if (imgLeft) imgLeft.src = `assets/quran-pages/${String(leftPage).padStart(3, "0")}.svg`;
+        setMushafPageImage(imgRight, rightPage);
+        setMushafPageImage(imgLeft, leftPage);
     } else {
-        if (imgLeft) imgLeft.src = `assets/quran-pages/${padded}.svg`;
+        setMushafPageImage(imgLeft, pageNumber);
     }
 
     // 2. تحديث نصوص الترويسة العلوية

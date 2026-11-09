@@ -45,7 +45,7 @@ test('native language bridge uses the current interface language and keeps alarm
  delete h.native.setLanguage;await h.service.syncLanguage();
 });
 
-test('iOS notification payloads localize interface text while retaining prayer identities and Arabic duas',async()=>{
+test('iOS notification payloads localize titles and duas while retaining prayer identities',async()=>{
  const dom=new JSDOM('<html><head></head><body><p></p></body></html>',{url:'https://zad.test',runScripts:'outside-only'});
  try{
   const w=dom.window;w.localStorage.setItem('zad_language','en');
@@ -57,9 +57,10 @@ test('iOS notification payloads localize interface text while retaining prayer i
   const adhan=h.calls.local.filter(n=>n.extra?.type==='adhan_call');
   assert.equal(adhan.length,5);
   assert.ok(adhan.every(n=>n.sound==='adhan_refaat.caf'));
+  assert.ok(adhan.every(n=>! /\p{Script=Arabic}/u.test(n.title+n.body)));
   assert.equal(pre.extra.prayerName,'صلاة الفجر');assert.equal(pre.extra.prayerKey,'fajr');
   const morning=h.calls.local.find(n=>n.extra?.type==='morning_azkar');assert.equal(morning.title,'Morning adhkar');assert.doesNotMatch(morning.body,/[\u0600-\u06ff]/);
-  const sleep=h.calls.local.find(n=>n.extra?.type==='sleep_azkar');assert.equal(sleep.title,'Bedtime adhkar');assert.equal(sleep.body,'باسمك ربي وضعت جنبي وبك أرفعه');
+  const sleep=h.calls.local.find(n=>n.extra?.type==='sleep_azkar');assert.equal(sleep.title,'Bedtime adhkar');assert.equal(sleep.body,'In Your name, my Lord, I lie down, and by You I rise.');
   w.ZadI18n.set('ur');const localized=h.service.localizedNotifications([{title:'أذكار الصباح',body:'ابدأ يومك بذكر الله',id:70000}]);assert.equal(localized[0].title,'صبح کے اذکار');assert.equal(localized[0].id,70000);
  }finally{dom.window.close();}
 });

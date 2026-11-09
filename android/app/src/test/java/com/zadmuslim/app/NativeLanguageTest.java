@@ -4,8 +4,12 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class NativeLanguageTest {
-    @Test public void reminderBodiesPreserveReligiousQuotations() {
+    @Test public void reminderBodiesTranslateKnownTextsAndKeepUnrecognizedText() {
         assertEquals("It is time for evening adhkar", NativeLanguage.reminderBodyForLanguage("en", "حان وقت أذكار المساء"));
+        String bedtime = "باسمك ربي وضعت جنبي وبك أرفعه";
+        assertEquals("In Your name, my Lord, I lie down, and by You I rise.", NativeLanguage.reminderBodyForLanguage("en", bedtime));
+        assertEquals("اے میرے رب، تیرے نام سے میں لیٹتا ہوں اور تیری مدد سے اٹھتا ہوں۔", NativeLanguage.reminderBodyForLanguage("ur", bedtime));
+        assertEquals(bedtime, NativeLanguage.reminderBodyForLanguage("ar", bedtime));
         String quote="سلام هي حتى مطلع الفجر";
         assertEquals(quote, NativeLanguage.reminderBodyForLanguage("en", quote));
         assertEquals(quote, NativeLanguage.reminderBodyForLanguage("ur", quote));

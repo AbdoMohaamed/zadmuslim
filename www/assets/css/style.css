@@ -5920,7 +5920,6 @@ html[data-theme="light"] .nav-links a.active {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(14, 25, 43, 0.7);
     border: 1px solid rgba(212, 175, 55, 0.22);
     padding: 0.65rem 1rem;
     border-radius: var(--radius-md);
@@ -5960,15 +5959,15 @@ html[data-theme="light"] .nav-links a.active {
 }
 
 .prayer-time-item {
-  background: rgba(7, 13, 24, 0.6);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 1.2rem 0.8rem;
-  text-align: center;
-  transition: var(--transition-fast);
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+    background: rgba(7, 13, 24, 0.21);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.2rem 0.8rem;
+    text-align: center;
+    transition: var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
 }
 
 .prayer-item-thumb {
@@ -6416,7 +6415,7 @@ body.show-prayer-images .prayer-item-thumb,
    بنر مواسم الصيام المستحب والعد التنازلي (Fasting Tracker)
    ========================================================================== */
 .fasting-tracker-banner {
-    background: linear-gradient(135deg, rgba(20, 108, 90, 0.99), rgba(14, 102, 84, 0.99));
+    background: linear-gradient(135deg, rgba(20, 108, 90, 0.12), rgba(14, 102, 84, 0.022));
     border: 1px solid rgba(16, 185, 129, 0.35);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(212, 175, 55, 0.2);
     border-radius: var(--radius-lg);
@@ -8264,7 +8263,6 @@ body.show-prayer-images .prayer-item-thumb,
 .asmaa-search-input:focus {
   border-color: var(--gold-400);
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.35);
-  background: rgba(18, 34, 58, 0.95);
 }
 
 .btn-clear-search {

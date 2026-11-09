@@ -4,11 +4,18 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v173";
+const CACHE_NAME = "zad-muslim-v177";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
-  "./assets/js/i18n-dictionary.js?v=14",
-  "./assets/js/i18n.js?v=17",
+  "./assets/js/service-translations.js?v=2",
+  "./assets/js/extended-modules.js?v=47",
+  "./assets/js/reading-font.js?v=7",
+  "./assets/js/i18n.js?v=20",
+  "./assets/css/i18n.css?v=10",
+  "./assets/js/app.js?v=34",
+  "./assets/css/loading-indicator.css?v=1",
+  "./assets/js/route-loading.js?v=1",
+  "./assets/js/i18n-dictionary.js?v=15",
   "./assets/css/i18n.css?v=8",
   "./assets/css/quran-reading.css?v=4",
   "./assets/js/app-developer.js?v=5",
@@ -72,11 +79,9 @@ const ASSETS_TO_CACHE = [
   "./assets/js/islamic-stories-data.js?v=3",
   "./assets/js/media-data.js?v=2",
   "./assets/js/firebase-config.js",
-  "./assets/js/native-adhan-service.js?v=16",
+  "./assets/js/native-adhan-service.js?v=17",
   "./assets/js/onesignal-service.js?v=4",
-  "./assets/js/app.js?v=32",
-  "./assets/js/quran.js?v=30",
-  "./assets/js/extended-modules.js?v=45",
+  "./assets/js/quran.js?v=31",
   "./assets/js/home-prayer-display.js?v=2",
   "./assets/js/smart-khatma.js?v=4",
   "./assets/js/share-card-generator.js?v=1",
@@ -85,8 +90,8 @@ const ASSETS_TO_CACHE = [
   "./assets/js/prayer-guide.js?v=1",
   "./assets/js/user-tools.js?v=13",
   "./assets/js/zakat-calculator.js?v=1",
-  "./assets/js/nearby-mosques.js?v=12",
-  "./assets/js/wall-of-duas.js?v=1",
+  "./assets/js/nearby-mosques.js?v=13",
+  "./assets/js/wall-of-duas.js?v=2",
   "./",
   "./index.html",
   "./services.html",
@@ -353,11 +358,16 @@ self.addEventListener("fetch", (event) => {
 // ==========================================================================
 // إدارة تنبيهات مواقيت الصلاة والأذان في الخلفية (Background Prayer Alarms)
 // ==========================================================================
+let prayerNotificationLanguage = "ar";
+let prayerActionLabels = [];
+
 self.addEventListener("message", (event) => {
   if (!event.data) return;
 
   if (event.data.type === "SCHEDULE_PRAYERS") {
     scheduledPrayerAlarms = event.data.schedule || [];
+    prayerNotificationLanguage = event.data.language || "ar";
+    prayerActionLabels = event.data.actionLabels || [];
     if (event.data.muazzin) {
       selectedMuazzinPreference = event.data.muazzin;
     }
@@ -400,11 +410,12 @@ function armBackgroundPrayerAlarms() {
       const preTimer = setTimeout(() => {
         const preImage = showPrayerImagesPreference ? `./assets/images/prayers/pre_${prayer.key}.jpg` : null;
         showDeviceNotification(
-          `⏳ اقتربت ${prayer.name}`,
-          `بقي 5 دقائق على دخول وقت ${prayer.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
+          prayer.upcoming?.title ?? `⏳ اقتربت ${prayer.name}`,
+          prayer.upcoming?.body ?? `بقي 5 دقائق على دخول وقت ${prayer.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
           `./#prayer-times`,
           `pre_prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`,
-          preImage
+          preImage,
+          prayerNotificationLanguage
         );
       }, preAlertDelay);
       activeAlarmTimers.push(preTimer);
@@ -427,13 +438,13 @@ function showPrayerNotification(prayer) {
   const prayerImage = `./assets/images/prayers/pre_${prayer.key}.jpg`;
 
   const options = {
-    body: `الله أكبر، الله أكبر.. حان الآن موعد ${prayer.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕌`,
+    body: prayer.notification?.body ?? `الله أكبر، الله أكبر.. حان الآن موعد ${prayer.name} حسب توقيتك المحلي. حيّ على الصلاة، حيّ على الفلاح 🕌`,
     icon: "./assets/icon-192.png",
     badge: "./assets/icon-192.png",
     vibrate: [500, 200, 500, 200, 500, 200, 800, 400, 800, 400, 1200],
     tag: `prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`,
-    dir: "rtl",
-    lang: "ar",
+    dir: prayerNotificationLanguage === "en" ? "ltr" : "rtl",
+    lang: prayerNotificationLanguage,
     renotify: true,
     requireInteraction: true,
     sound: soundUrl,
@@ -444,8 +455,8 @@ function showPrayerNotification(prayer) {
       defaultActionUrl: playUrl
     },
     actions: [
-      { action: "play_adhan", title: "🔊 سماع الأذان كاملاً" },
-      { action: "open", title: "🕌 مواقيت الصلاة" }
+      { action: "play_adhan", title: prayerActionLabels[0] ?? "🔊 سماع الأذان كاملاً" },
+      { action: "open", title: prayerActionLabels[1] ?? "🕌 مواقيت الصلاة" }
     ]
   };
 
@@ -453,23 +464,23 @@ function showPrayerNotification(prayer) {
     options.image = prayerImage;
   }
 
-  self.registration.showNotification(`🕌 حان الآن موعد ${prayer.name}`, options);
+  self.registration.showNotification(prayer.notification?.title ?? `🕌 حان الآن موعد ${prayer.name}`, options);
 }
 
-function showDeviceNotification(title, body, url, tag, image = null) {
+function showDeviceNotification(title, body, url, tag, image = null, language = "ar") {
   const options = {
     body: body || "تذكير بذكر الله والصلاة على النبي ﷺ 🌿",
     icon: "./assets/icon-192.png",
     badge: "./assets/icon-192.png",
     vibrate: [200, 100, 200, 100, 400],
     tag: tag || `zad_notif_${Date.now()}`,
-    dir: "rtl",
-    lang: "ar",
+    dir: language === "en" ? "ltr" : "rtl",
+    lang: language,
     renotify: true,
     data: { url: url || "./" },
     actions: [
-      { action: "open", title: "📖 فتح التطبيق" },
-      { action: "close", title: "إغلاق" }
+      { action: "open", title: language === "ar" ? "📖 فتح التطبيق" : prayerActionLabels[2] ?? "📖 فتح التطبيق" },
+      { action: "close", title: language === "ar" ? "إغلاق" : prayerActionLabels[3] ?? "إغلاق" }
     ]
   };
   if (image) {

@@ -399,3 +399,26 @@ html[dir=ltr] .settings-section-title,html[dir=ltr] .settings-description{text-a
 input[type="search"], input[inputmode="search"] {
     text-align: start;
 }
+
+.zad-service-meaning {
+    display: block;
+    margin-block: .4em .9em;
+    color: var(--text-primary, inherit);
+    font-size: .92em;
+    font-weight: normal;
+    line-height: 1.8;
+    text-align: start;
+}
+
+[data-zad-translated-quote] {
+    display: none !important;
+}
+
+html:is([lang="en"], [lang="ur"]) .asmaa-card-name {
+    font-size: 1.2rem;
+    overflow-wrap: anywhere;
+}
+
+html:is([lang="en"], [lang="ur"]) #asmaa-detail-modal {
+    --asmaa-detail-name-size: clamp(1.4rem, 5vw, 2rem);
+}

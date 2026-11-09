@@ -191,7 +191,7 @@
      * طلب إذن وتحديد الموقع الجغرافي بعدة طبقات أمان
      */
     async function requestUserLocationAndFind(refresh = false, force = false) {
-        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><i class="fa-solid fa-spinner fa-spin text-gold"></i><span>' + (refresh ? 'جاري تحديد موقعك الجغرافي الدقيق عبر GPS...' : 'جاري استخدام الموقع المحفوظ أو تحديد موقعك عند الحاجة...') + '</span></div>');
+        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><span class="zad-loading-ring text-gold" aria-hidden="true"></span><span>' + (refresh ? 'جاري تحديد موقعك الجغرافي الدقيق عبر GPS...' : 'جاري استخدام الموقع المحفوظ أو تحديد موقعك عند الحاجة...') + '</span></div>');
         try {
             let coords;
             if (refresh) {
@@ -300,7 +300,7 @@
             return;
         }
 
-        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري البحث عن المساجد في نطاق ' + (rad / 1000) + ' كم...</span></div>');
+        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><span class="zad-loading-ring text-gold" aria-hidden="true"></span><span>جاري البحث عن المساجد في نطاق ' + (rad / 1000) + ' كم...</span></div>');
 
         try {
             const data = await fetchMosquesViaOverpass(lat, lon, rad);
@@ -690,7 +690,7 @@ out body center;`;
 
         if (navigator.onLine === false) return handleLocationError('البحث عن مدينة جديدة يحتاج الإنترنت. يمكنك عرض النتائج المحفوظة.');
 
-        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري البحث عن موقع "' + escapeHtml(cityName) + '"...</span></div>');
+        updateStatusBox('<div style="display:flex;align-items:center;gap:10px;"><span class="zad-loading-ring text-gold" aria-hidden="true"></span><span>جاري البحث عن موقع "' + escapeHtml(cityName) + '"...</span></div>');
 
         // Throttling: 1 request per second
         const now = Date.now();
@@ -766,7 +766,8 @@ out body center;`;
         }
 
         if (!leafletMapInstance) {
-            mapDiv.textContent='جاري تحميل الخريطة…';mapDiv.setAttribute('aria-busy','true');
+            mapDiv.innerHTML = '<span class="zad-loading-ring text-gold" aria-hidden="true"></span> <span>جاري تحميل الخريطة…</span>';
+            mapDiv.setAttribute('aria-busy', 'true');
             try { await loadLeafletAssets(); }
             catch { mapDiv.textContent='تعذّر تحميل الخريطة. اضغط «الخريطة» للمحاولة مجددًا، أو استخدم قائمة المساجد.';return; }
             finally { mapDiv.setAttribute('aria-busy','false'); }

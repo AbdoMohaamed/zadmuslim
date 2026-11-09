@@ -81,6 +81,13 @@
         texts.forEach((_,node)=>{if(!node.isConnected)texts.delete(node);});mount();
     }
     function refresh(){preferences=load();paint();scan();}
+    function originalText(node){
+        if(node.nodeType===3){
+            const previous=originals.get(node);
+            return previous&&node.data===previous.rendered?previous.original:node.data;
+        }
+        return Array.from(node.childNodes,originalText).join('');
+    }
     function init(){
         if(initialized)return;initialized=true;document.documentElement.removeAttribute('data-reading-size');write();scan();
         new MutationObserver(records=>{
@@ -89,6 +96,6 @@
         root.addEventListener('storage',event=>{if(event.key===KEY||event.key===null)refresh();});
         document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
     }
-    root.ZadReadingSettings={get:()=>({...preferences}),set:update,refresh,key:KEY};
+    root.ZadReadingSettings={get:()=>({...preferences}),set:update,refresh,originalText,key:KEY};
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(window);

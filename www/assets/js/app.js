@@ -1061,7 +1061,7 @@ function initAddPrayerModal() {
             pill.className = "quick-pill";
             pill.textContent = template;
             pill.onclick = () => {
-                textarea.value = template;
+                textarea.value = window.ZadI18n?.t(template) ?? template;
                 textarea.focus();
             };
             quickPillsContainer.appendChild(pill);
@@ -2260,6 +2260,21 @@ function renderPrayerTimesUI(timings) {
     }
 }
 
+function prayerNotificationText(name, upcoming = false) {
+    const translate = text => window.ZadI18n?.t(text) ?? text;
+    return upcoming ? {
+        title: translate(`⏳ اقتربت ${name}`),
+        body: translate(`بقي 5 دقائق على دخول وقت ${name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`)
+    } : {
+        title: translate(`🕌 حان الآن موعد ${name}`),
+        body: translate(`الله أكبر، الله أكبر.. حان الآن موعد ${name} حسب التوقيت المحلي. حيّ على الصلاة، حيّ على الفلاح 🌿`)
+    };
+}
+
+window.addEventListener("zad:language-change", () => {
+    if (window.zadPrayerVerified && prayerTimings) syncPrayersWithServiceWorker(prayerTimings);
+});
+
 function syncPrayersWithServiceWorker(timings) {
     if (!timings || !("serviceWorker" in navigator)) return;
     try {
@@ -2303,7 +2318,14 @@ function syncPrayersWithServiceWorker(timings) {
             if (worker) {
                 worker.postMessage({
                     type: "SCHEDULE_PRAYERS",
-                    schedule: schedule,
+                    schedule: schedule.map(prayer => ({
+                        ...prayer,
+                        notification: prayerNotificationText(prayer.name),
+                        upcoming: prayerNotificationText(prayer.name, true)
+                    })),
+                    language: window.ZadI18n?.language ?? "ar",
+                    actionLabels: ["🔊 سماع الأذان كاملاً", "🕌 مواقيت الصلاة", "📖 فتح التطبيق", "إغلاق"]
+                        .map(label => window.ZadI18n?.t(label) ?? label),
                     muazzin: (typeof getSelectedMuazzinId === "function") ? getSelectedMuazzinId() : (localStorage.getItem("zad_selected_muazzin") || "makkah")
                 });
             }
@@ -2362,8 +2384,11 @@ function startPrayerCountdown() {
                     showToast(`⏳ اقتربت ${p.name} • بقي 5 دقائق على دخول الوقت`);
                     if ("Notification" in window && Notification.permission === "granted") {
                         try {
-                            new Notification(`⏳ اقتربت ${p.name}`, {
-                                body: `بقي 5 دقائق على دخول وقت ${p.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
+                            const { title, body } = prayerNotificationText(p.name, true);
+                            new Notification(title, {
+                                body,
+                                lang: window.ZadI18n?.language ?? "ar",
+                                dir: window.ZadI18n?.language === "en" ? "ltr" : "rtl",
                                 icon: "assets/icon-192.png",
                                 tag: `pre_${p.key}_${dateStr}`
                             });
@@ -3944,8 +3969,8 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
 
     // 2. إرسال إشعار المتصفح والنظام (في وضع الويب فقط لتجنب ازدواجية الإشعارات مع منبه الهاتف)
     if (!isNative && "Notification" in window && Notification.permission === "granted") {
-        const notifTitle = `🕌 حان الآن موعد ${prayerName}`;
-        const notifBody = `الله أكبر، الله أكبر.. حان الآن موعد ${prayerName} حسب التوقيت المحلي. حيّ على الصلاة، حيّ على الفلاح 🌿`;
+        const translate = text => window.ZadI18n?.t(text) ?? text;
+        const { title: notifTitle, body: notifBody } = prayerNotificationText(prayerName);
         const currentMuazzin = getSelectedMuazzinId();
         const playUrl = `./#prayer-times?playAdhan=1&prayer=${prayerKey}&muazzin=${currentMuazzin}&t=${Date.now()}`;
         
@@ -3954,6 +3979,8 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
 
         const notifOptions = {
             body: notifBody,
+            lang: window.ZadI18n?.language ?? "ar",
+            dir: window.ZadI18n?.language === "en" ? "ltr" : "rtl",
             icon: "assets/icon-192.png",
             badge: "assets/icon-192.png",
             ...(prayerImg ? { image: prayerImg } : {}),
@@ -3963,8 +3990,8 @@ function triggerPrayerAdhanNotification(prayerName, prayerKey) {
             requireInteraction: true,
             data: { url: playUrl, prayer: prayerKey, muazzin: currentMuazzin },
             actions: [
-                { action: "play_adhan", title: "🔊 سماع الأذان كاملاً" },
-                { action: "open", title: "🕌 مواقيت الصلاة" }
+                { action: "play_adhan", title: translate("🔊 سماع الأذان كاملاً") },
+                { action: "open", title: translate("🕌 مواقيت الصلاة") }
             ]
         };
 
@@ -4360,10 +4387,14 @@ function searchAllCategorizedDuas(query) {
     Object.keys(CATEGORIZED_DUAS).forEach(k => {
         const list = CATEGORIZED_DUAS[k].duas || [];
         list.forEach(d => {
-            const textMatch = d.text.toLowerCase().includes(cleanQ);
-            const titleMatch = d.title.toLowerCase().includes(cleanQ);
-            const sourceMatch = (d.source || "").toLowerCase().includes(cleanQ);
-            if (textMatch || titleMatch || sourceMatch) {
+            const language = window.ZadI18n?.language;
+            const fields = [d.text, d.title, d.source || ""];
+            const matchesQuery = fields.some(value => {
+                const meaning = window.ZadServiceMeanings?.[value]?.[language];
+                const label = window.ZadI18n?.t(value);
+                return [value, meaning, label].some(text => text?.toLowerCase().includes(cleanQ));
+            });
+            if (matchesQuery) {
                 matches.push(d);
             }
         });

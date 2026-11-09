@@ -1,0 +1,67 @@
+.zad-loading-ring,
+.golden-page-side.zad-page-loading::after,
+#radio-panel:is([data-state="connecting"], [data-state="buffering"], [data-state="retrying"]) .radio-live-status-badge .radio-live-dot {
+    display: inline-block;
+    box-sizing: border-box;
+    flex: none;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: none;
+    animation: zad-loading-spin .8s linear infinite;
+}
+
+#zad-route-loader {
+    visibility: visible;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: #F7F9F6;
+    color: #073f35;
+    font: 600 16px/1.8 system-ui, sans-serif;
+}
+
+.zad-excerpts-pending body {
+    visibility: hidden;
+}
+
+html[data-theme="dark"] #zad-route-loader {
+    background: #081C17;
+    color: #e5cf91;
+}
+
+#zad-route-loader .zad-loading-ring,
+.golden-page-side.zad-page-loading::after {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+}
+
+.golden-page-side.zad-page-loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    pointer-events: none;
+    color: var(--text-primary, #073f35);
+}
+
+@keyframes zad-loading-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .zad-loading-ring,
+    .golden-page-side.zad-page-loading::after,
+    #radio-panel:is([data-state="connecting"], [data-state="buffering"], [data-state="retrying"]) .radio-live-status-badge .radio-live-dot {
+        animation: none;
+    }
+}

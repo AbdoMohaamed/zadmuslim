@@ -10,7 +10,7 @@ const NativeAdhanService = {
 
     localizedNotifications(notifications) {
         const translate = text => typeof text==='string' ? (window.ZadI18n?.t(text) || text) : text;
-        return notifications.map(item => ({...item, title:translate(item.title), body:['sleep_azkar','hourly_salawat'].includes(item.extra?.type) ? item.body : translate(item.body)}));
+        return notifications.map(item => ({...item, title:translate(item.title), body:translate(item.body)}));
     },
 
     async syncLanguage() {
@@ -753,21 +753,22 @@ const NativeAdhanService = {
                 if (plugins.AdhanNative) {
                     await plugins.AdhanNative.testAdhanNotification({ prayerKey, prayerName, muazzin });
                 } else {
-                    await plugins.LocalNotifications.schedule({ notifications: [{
+                    await plugins.LocalNotifications.schedule({ notifications: this.localizedNotifications([{
                         id: 99999, title: 'تجربة إشعار الأذان', body: prayerName,
                         schedule: { at: new Date(Date.now() + 1000), allowWhileIdle: true },
                         sound: this.prayerSound('adhan_' + muazzin), channelId: 'adhan_' + muazzin
-                    }] });
+                    }]) });
                 }
                 return { success: true };
             }
             if (typeof Notification === 'undefined') return { success: false, message: 'الإشعارات غير مدعومة في هذا المتصفح.' };
             const permission = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
             if (permission !== 'granted') return { success: false, message: 'إذن الإشعارات مرفوض؛ غيّره من إعدادات المتصفح.' };
-            const options = { body: prayerName, icon: 'assets/icon-192.png' };
+            const [message] = this.localizedNotifications([{title:'تجربة إشعار الأذان',body:prayerName}]);
+            const options = { body: message.body, icon: 'assets/icon-192.png' };
             const reg = await navigator.serviceWorker?.getRegistration();
-            if (reg) await reg.showNotification('تجربة إشعار الأذان', options);
-            else new Notification('تجربة إشعار الأذان', options);
+            if (reg) await reg.showNotification(message.title, options);
+            else new Notification(message.title, options);
             return { success: true };
         } catch (e) {
             return { success: false, message: 'تعذّر إرسال الإشعار التجريبي.' };
@@ -895,7 +896,7 @@ const NativeAdhanService = {
                 const soundFile = this.prayerSound(isPreAlert ? 'pre_asr' : `adhan_${muazzin}`);
                 const channelId = isPreAlert ? "prayer_pre_asr" : `adhan_${muazzin}`;
                 await window.Capacitor.Plugins.LocalNotifications.schedule({
-                    notifications: [{
+                    notifications: this.localizedNotifications([{
                         id: isPreAlert ? 99981 : 99982,
                         ...this.prayerImageOptions("asr"),
                         actionTypeId: "OPEN_PRAYER",
@@ -907,7 +908,7 @@ const NativeAdhanService = {
                         smallIcon: "res://ic_stat_icon",
                         iconColor: "#d4af37",
                         extra: { type: isPreAlert ? "pre_prayer_alert" : "adhan_call", prayerKey: "asr", muazzin: muazzin }
-                    }]
+                    }])
                 });
                 return {
                     success: true,
@@ -953,6 +954,7 @@ if (typeof window !== "undefined") {
         await NativeAdhanService.syncLanguage();
         try {
             NativeAdhanService.channelsCreated=false;
+            NativeAdhanService.prayerActionsRegistered=false;
             await NativeAdhanService.createNotificationChannels();
             await NativeAdhanService.registerPrayerActions();
             if (localStorage.getItem('smart_notify_configured')==='true') await NativeAdhanService.scheduleLocalNotifications();

@@ -391,7 +391,7 @@ public class AdhanNativePlugin extends Plugin {
             int dhikrIndex = nowCal.get(Calendar.HOUR_OF_DAY) % reminders.length;
 
             String title = NativeLanguage.text(context, "الصلاة القادمة: " + calc.prayerName + " (" + calc.prayerTime12H + ")");
-            String content = NativeLanguage.text(context, calc.countdownText) + " • " + reminders[dhikrIndex];
+            String content = NativeLanguage.text(context, calc.countdownText) + " • " + NativeLanguage.reminderBody(context, reminders[dhikrIndex]);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, STICKY_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_stat_icon)

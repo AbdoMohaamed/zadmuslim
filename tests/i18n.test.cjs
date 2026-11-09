@@ -3,6 +3,78 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {JSDOM,requestInterceptor}=require('jsdom');
 const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
+test('fasting banner text localizes across Hijri seasons and both countdown states',async()=>{
+ const dom=await setup('en');
+ try{
+  const w=dom.window,app=fs.readFileSync('assets/js/app.js','utf8');
+  w.zadPrayerVerified=true;
+  const getFastingInfo=w.eval('let prayerTimings={Fajr:"05:00",Maghrib:"18:00"};'+
+   app.slice(app.indexOf('function getFastingInfo()'),app.indexOf('function initFastingTracker()'))+
+   ';getFastingInfo');
+  const DateClass=w.Date;
+  let date,day,month;
+  w.Date=class extends DateClass{constructor(...args){super(...(args.length?args:[date]));}};
+  w.Intl.DateTimeFormat=function(){return {formatToParts:()=>[{type:'day',value:day},{type:'month',value:month}]};};
+  const countdown=app.slice(app.indexOf('function startFastingCountdown()'),app.indexOf('function formatDuration('));
+  const timerLabels=[...new Set([...countdown.matchAll(/timerLabel\.textContent = "([^"]+)"/g)].map(m=>m[1]))];
+  assert.equal(timerLabels.length,2);
+  for(const [weekday,hour,hijriDay,hijriMonth] of [[9,3,2,9],[9,12,2,9],[9,20,2,9],[9,12,13,5],[9,12,9,12],[9,12,9,1],[9,12,10,1],[9,12,2,5],[12,12,2,5]]){
+   date=new DateClass(2026,10,weekday,hour).getTime();day=hijriDay;month=hijriMonth;
+   const info=getFastingInfo();
+   assert.equal(info.isFasting,true);
+   for(const source of [info.tag,info.title,info.desc,...timerLabels]){
+    assert.doesNotMatch(w.ZadI18n.t(source,'en'),/\p{Script=Arabic}/u,source);
+    assert.notEqual(w.ZadI18n.t(source,'ur'),source);
+    assert.equal(w.ZadI18n.t(source,'ar'),source);
+   }
+  }
+ }finally{dom.window.close();}
+});
+test('Services translates bundled duas and adhkar and preserves the original text on language changes',async()=>{
+ const dom=await setup('en');
+ try{
+  const w=dom.window,d=w.document;
+  w.eval(fs.readFileSync('assets/js/service-translations.js','utf8'));
+  const rows=w.eval(fs.readFileSync('assets/js/azkar-data.js','utf8')+
+   ';[...Object.values(CATEGORIZED_DUAS).flatMap(category=>category.duas),...MORNING_AZKAR,...EVENING_AZKAR,...SLEEP_AZKAR,...POST_PRAYER_AZKAR,...ROQYA_AZKAR,...FASTING_DUAS]');
+  for(const {text} of rows){
+   const meaning=w.ZadServiceMeanings[text.replace(/\s+/g,' ').trim()];
+   assert.ok(meaning?.en&&meaning?.ur,text);
+  }
+  const quote=d.createElement('div');
+  quote.className='cat-dua-body';
+  const arabic='" '+rows[0].text+' "';
+  quote.textContent=arabic;
+  d.body.append(quote);
+  await tick();
+  assert.match(quote.nextElementSibling.textContent,/There is no god worthy of worship/);
+  assert.equal(quote.hasAttribute('data-zad-translated-quote'),true);
+  assert.doesNotMatch(quote.nextElementSibling.textContent,/\p{Script=Arabic}/u);
+  assert.equal(quote.lang,'ar');
+  assert.equal(quote.dir,'rtl');
+  w.ZadI18n.set('ur');
+  assert.equal(quote.nextElementSibling.lang,'ur');
+  assert.equal(quote.nextElementSibling.dir,'rtl');
+  w.eval(fs.readFileSync('assets/js/reading-font.js','utf8'));
+  w.ZadReadingSettings.set({size:100,font:'amiri',showMarks:false});
+  await tick();
+  assert.notEqual(quote.textContent,arabic);
+  assert.equal(quote.nextElementSibling.lang,'ur');
+  w.ZadReadingSettings.set({size:100,font:'amiri',showMarks:true});
+  quote.textContent=rows[1].text;
+  await tick();
+  assert.equal(quote.nextElementSibling.textContent,w.ZadServiceMeanings[rows[1].text].ur);
+  assert.equal(quote.hasAttribute('data-zad-translated-quote'),true);
+  quote.replaceChildren();
+  await tick();
+  assert.equal(quote.nextElementSibling,null);
+  quote.textContent=arabic;
+  w.ZadI18n.set('ar');
+  assert.equal(quote.textContent,arabic);
+  assert.equal(quote.hasAttribute('data-zad-translated-quote'),false);
+  assert.equal(d.querySelector('.zad-service-meaning'),null);
+ }finally{dom.window.close();}
+});
 test('notification feedback and home prayer countdown switch between English, Urdu and Arabic',async()=>{
  const dom=await setup('ar');try{
   const w=dom.window,d=w.document,box=d.createElement('section');

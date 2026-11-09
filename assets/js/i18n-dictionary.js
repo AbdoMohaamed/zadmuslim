@@ -2331,4 +2331,132 @@
   'لا تنسونا من صالح دعائكم':{en:'Please remember us in your duas',ur:'ہمیں اپنی دعاؤں میں یاد رکھیں'},
   'جزاكم الله خيرًا على زيارتكم وصالح دعواتكم لهما.':{en:'Thank you for visiting and remembering them in your duas.',ur:'تشریف لانے اور ان کے لیے دعا کرنے کا شکریہ۔'}
  });
+ Object.assign(dictionary,{
+  "صيام فريضة شهر رمضان": {
+    "en": "Observing the Ramadan fast",
+    "ur": "رمضان کا فرض روزہ"
+  },
+  "ليالي شهر رمضان المبارك": {
+    "en": "Blessed nights of Ramadan",
+    "ur": "رمضان کی بابرکت راتیں"
+  },
+  "أيام النفحات والبركات والقرآن، نسأل الله أن يرحم فقيدنا ويجعل صيامه وقيامه نوراً في قبره.": {
+    "en": "Days of blessings and Quran recitation. May Allah have mercy on our departed loved one and make his fasting and night prayers a light in his grave.",
+    "ur": "یہ برکتوں اور تلاوت قرآن کے دن ہیں۔ اللہ ہمارے مرحوم پر رحم فرمائے اور ان کے روزوں اور قیام کو ان کی قبر کا نور بنائے۔"
+  },
+  "صيام الأيام البيض المباركة 🌕": {
+    "en": "Fasting on the White Days 🌕",
+    "ur": "ایام بیض کے روزے 🌕"
+  },
+  "صيام ثلاثة أيام من كل شهر تعدل صيام الدهر كله كما أخبر النبي ﷺ.": {
+    "en": "The Prophet (peace be upon him) taught that fasting three days each month is like fasting throughout the year.",
+    "ur": "نبی کریم نے فرمایا کہ ہر مہینے تین روزے رکھنا پورے سال کے روزوں کی مانند ہے۔"
+  },
+  "يوم عرفة المبارك 🕋": {
+    "en": "Blessed Day of Arafah 🕋",
+    "ur": "عرفہ کا بابرکت دن 🕋"
+  },
+  "صيام يوم عرفة": {
+    "en": "Fasting on the Day of Arafah",
+    "ur": "عرفہ کے دن کا روزہ"
+  },
+  "يكفر السنة الماضية والباقية، وأعظم أيام الدعاء والرجاء.": {
+    "en": "Fasting on this day expiates sins of the previous and following years. It is a day of supplication and hope.",
+    "ur": "اس دن کا روزہ پچھلے اور اگلے سال کے گناہوں کا کفارہ ہے۔ یہ دعا اور امید کا دن ہے۔"
+  },
+  "عاشوراء المبارك 🌊": {
+    "en": "Blessed Ashura 🌊",
+    "ur": "عاشورا کا بابرکت دن 🌊"
+  },
+  "صيام يوم عاشوراء": {
+    "en": "Fasting on Ashura",
+    "ur": "عاشورا کا روزہ"
+  },
+  "صيام يوم تاسوعاء": {
+    "en": "Fasting on Tasu’a",
+    "ur": "تاسوعا کا روزہ"
+  },
+  "صيام يوم عاشوراء يكفر ذنوب سنة ماضية، نسأل الله القبول لفقيدنا ولكم.": {
+    "en": "Fasting on Ashura expiates sins of the previous year. May Allah accept the deeds of our departed loved one and yours.",
+    "ur": "عاشورا کا روزہ پچھلے سال کے گناہوں کا کفارہ ہے۔ اللہ ہمارے مرحوم اور آپ کے اعمال قبول فرمائے۔"
+  },
+  "سنة صيام يوم الاثنين 🌿": {
+    "en": "Sunnah of fasting on Monday 🌿",
+    "ur": "پیر کے روزے کی سنت 🌿"
+  },
+  "صيام يوم الاثنين المبارك": {
+    "en": "Fasting on Monday",
+    "ur": "پیر کا روزہ"
+  },
+  "سنة صيام يوم الخميس 🌿": {
+    "en": "Sunnah of fasting on Thursday 🌿",
+    "ur": "جمعرات کے روزے کی سنت 🌿"
+  },
+  "صيام يوم الخميس المبارك": {
+    "en": "Fasting on Thursday",
+    "ur": "جمعرات کا روزہ"
+  },
+  "قال ﷺ: 'تُعرض الأعمال يوم الاثنين والخميس، فأحب أن يُعرض عملي وأنا صائم'.": {
+    "en": "The Prophet (peace be upon him) said: Deeds are presented on Mondays and Thursdays, and I like my deeds to be presented while I am fasting.",
+    "ur": "نبی کریم نے فرمایا: اعمال پیر اور جمعرات کو پیش کیے جاتے ہیں اور میں پسند کرتا ہوں کہ میرا عمل روزے کی حالت میں پیش ہو۔"
+  },
+  "المتبقي على أذان المغرب والإفطار 🌅:": {
+    "en": "Time until Maghrib and iftar 🌅:",
+    "ur": "مغرب اور افطار تک باقی وقت 🌅:"
+  },
+  "المتبقي على أذان الفجر والإمساك 🌙:": {
+    "en": "Time until Fajr and the start of fasting 🌙:",
+    "ur": "فجر اور روزہ شروع ہونے تک باقی وقت 🌙:"
+  },
+  "باسمك ربي وضعت جنبي وبك أرفعه": {
+    "en": "In Your name, my Lord, I lie down, and by You I rise.",
+    "ur": "اے میرے رب، تیرے نام سے میں لیٹتا ہوں اور تیری مدد سے اٹھتا ہوں۔"
+  },
+  "اللهم صلِّ وسلِّم وبارك على نبينا محمد ﷺ": {
+    "en": "O Allah, send blessings, peace and favor upon our Prophet Muhammad.",
+    "ur": "اے اللہ، ہمارے نبی محمد پر درود، سلام اور برکت نازل فرما۔"
+  },
+  "ﷺ صلِّ على النبي": {
+    "en": "Send blessings upon the Prophet",
+    "ur": "نبی کریم پر درود بھیجیں"
+  },
+  "تذكير بسورة الكهف والصلاة على النبي ﷺ": {
+    "en": "A reminder to recite Surah Al-Kahf and send blessings upon the Prophet.",
+    "ur": "سورۃ الکہف کی تلاوت اور نبی کریم پر درود کی یاد دہانی۔"
+  },
+  "تجربة إشعار الأذان": {
+    "en": "Test adhan notification",
+    "ur": "اذان کی آزمائشی اطلاع"
+  },
+  "🔊 سماع الأذان كاملاً": {
+    "en": "🔊 Listen to the full adhan",
+    "ur": "🔊 مکمل اذان سنیں"
+  },
+  "حدّث تطبيق الهاتف لتفعيل التذكيرات المستمرة": {
+    "en": "Update the mobile app to enable recurring reminders.",
+    "ur": "بار بار آنے والی یاد دہانیاں فعال کرنے کے لیے موبائل ایپ اپ ڈیٹ کریں۔"
+  },
+  "تعذّرت جدولة تذكيرات أندرويد": {
+    "en": "Could not schedule Android reminders.",
+    "ur": "اینڈرائیڈ کی یاد دہانیاں مقرر نہیں ہو سکیں۔"
+  }
+});
+ Object.assign(dictionary,{
+  "⏳ اختبار التنبيه المسبق للصلاة": {
+    "en": "⏳ Test upcoming prayer alert",
+    "ur": "⏳ نماز سے پہلے کی آزمائشی اطلاع"
+  },
+  "🕌 اختبار الأذان في الخلفية": {
+    "en": "🕌 Test adhan in the background",
+    "ur": "🕌 پس منظر میں اذان آزمائیں"
+  },
+  "اقتربت الصلاة، تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿": {
+    "en": "Prayer time is approaching. Prepare for wudu and prayer with a humble heart. 🌿",
+    "ur": "نماز کا وقت قریب ہے۔ وضو اور نماز کی تیاری کریں اور خشوع کے ساتھ اللہ کی طرف متوجہ ہوں۔ 🌿"
+  },
+  "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح 🕋": {
+    "en": "Allah is the Greatest, Allah is the Greatest. Come to prayer, come to success. 🕋",
+    "ur": "اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے۔ نماز کی طرف آؤ، کامیابی کی طرف آؤ۔ 🕋"
+  }
+});
 })(window);

@@ -759,7 +759,7 @@
                 chip.textContent = tpl;
                 chip.onclick = () => {
                     if (textarea) {
-                        textarea.value = tpl;
+                        textarea.value = window.ZadI18n?.t(tpl) ?? tpl;
                         textarea.focus();
                         updateCharCount();
                     }

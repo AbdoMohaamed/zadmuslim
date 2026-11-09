@@ -20,10 +20,34 @@
  }
  const texts=new WeakMap(),attributes=new WeakMap();
  const sacred='.azkar-text,.azkar-virtue,.hadith-text,.hadith-explanation,.hadith-meaning,.hadith-lesson,.sadaqa-hadith-text,#wisdom-hadith-text,#wisdom-hadith-lesson,.reading-font-preview,.pg-prohibition-hadith,.pg-prohibition-explanation,.pg-card-intro,.pg-item-detail,.cat-dua-body,.cat-dua-source,.fasting-dua-text,.mood-dua-text,.mood-dua-note,.dua-text,.cemetery-dua-text,.prophetic-text,.ayah-verse-text,.memorize-ayah-text,.story-verse-box,.story-verse-preview,.ayah-sheet-text,#wisdom-ayah-text,.daily-verse-text,.quran-ayah-text,.tafsir-ayah-text';
- const originalQuotes='.golden-ayah-text,.hifz-verse-text,.pg-dua-arabic,.quick-dhikr-text,.challenge-quote-text,.prayer-main-text,.prayer-body,.verse-text,.asmaa-card-name,#modal-asmaa-name';
+ const originalQuotes='.golden-ayah-text,.hifz-verse-text,.pg-dua-arabic,.quick-dhikr-text,.challenge-quote-text,.prayer-main-text,.prayer-body,.verse-text';
  const skip='script,style,noscript,textarea,svg,canvas,[translate="no"],[data-i18n-skip],.ask-zad-msg-bubble>div:first-child,.dua-wall-text,.visitor-dua-text,.dua-author-info,.visitor-dua-name';
  // Textarea contents belong to the user; their placeholder and label are UI.
  const attributeSkip=skip.replace('textarea,','');
+ const serviceQuoteMeanings=new WeakMap();
+ const serviceQuoteMarkup='[data-service-quote],#islamic-guide em,#quick-dhikr-text,.mood-ayah-quote,.mood-dhikr-txt,.dua-hadith-pill';
+ const serviceQuotes=sacred+',.pg-dua-arabic,.quick-dhikr-text,.challenge-quote-text,.prayer-main-text,.prayer-body,.verse-text,'+serviceQuoteMarkup;
+ function renderServiceMeaning(element){
+  const dictionary=root.ZadServiceMeanings;
+  if(!dictionary||element.closest(skip))return;
+  const source=root.ZadReadingSettings?.originalText?.(element)??element.textContent;
+  const key=normalize(source).replace(/^["“«]\s*|\s*["”»]$/g,'');
+  const meaning=language==='ar'?null:(dictionary[key]||root.ZadTranslations?.[key])?.[language];
+  let translation=serviceQuoteMeanings.get(element);
+  element.toggleAttribute('data-zad-translated-quote',Boolean(meaning));
+  if(!meaning){translation?.remove();return;}
+  if(!translation){
+   translation=doc.createElement('span');
+   translation.className='zad-service-meaning';
+   translation.setAttribute('data-i18n-skip','');
+   serviceQuoteMeanings.set(element,translation);
+  }
+  translation.lang=language;
+  translation.dir=language==='en'?'ltr':'rtl';
+  const displayed=language==='en'?englishHonorifics(meaning):meaning;
+  if(translation.textContent!==displayed)translation.textContent=displayed;
+  if(element.nextElementSibling!==translation)element.after(translation);
+ }
  function surahName(name,lang){
   if(lang==='ar')return name;
   const range=name.split(/\s+-\s+/);if(range.length>1)return range.map(part=>surahName(part,lang)).join(' – ');
@@ -31,6 +55,9 @@
   return names[normalize(name)]?.[lang]||t(name,lang);
  }
  const templates=[
+  [/^أسماء (جلال|رحمة|قدرة|علم|رزق|مغفرة|حكمة)$/,category=>[`Names of ${t(category,'en').toLowerCase()}`,`${t(category,'ur')} کے نام`]],
+  [/^تم العثور على (\d+) اسم مطابق لـ "(.+)"$/, (count,query)=>[`Found ${count} matching names for "${query}"`,`"${query}" سے ملتے جلتے ${count} نام ملے`]],
+  [/^عرض أسماء (.+) \((\d+) اسماً\)$/, (category,count)=>[`Showing ${count} names of ${t(category,'en').toLowerCase()}`,`${t(category,'ur')} کے ${count} نام دکھائے جا رہے ہیں`]],
   [/^حَانَ الآنَ مَوْعِدُ (.+)$/,name=>[`It is time for ${t(name,'en')}`,`اب وقت ہے: ${t(name,'ur')}`]],
   [/^موعد الأذان: (\d{1,2}:\d{2} [صم])(?: \((متبقي .+)\))?$/, (time,left)=>[`Adhan: ${t(time,'en')}${left?' ('+t(left,'en')+')':''}`,`اذان: ${t(time,'ur')}${left?' ('+t(left,'ur')+')':''}`]],
   [/^متبقي (\d+) د$/,n=>[`${n} min remaining`,`${n} منٹ باقی`]],
@@ -50,14 +77,15 @@
   [/^(\d+) تلاوة · (.+)$/, (n,size)=>[`${n} saved recitations · ${t(size,'en')}`,`${n} محفوظ تلاوتیں · ${t(size,'ur')}`]],
   [/^(.+) · ([\d.,]+) م\.ب$/, (label,size)=>[`${t(label,'en')} · ${size} MB`,`${t(label,'ur')} · ${size} ایم بی`]],
   [/^تشغيل (.+)$/,title=>[`Play: ${t(title,'en')}`,`چلائیں: ${t(title,'ur')}`]],
-  [/^اضغط لعرض تفاصيل اسم الله \((.+)\)$/,name=>[`View details for Allah's name: ${name}`,`اللہ کے نام ${name} کی تفصیل دیکھیں`]],
+  [/^اضغط لعرض تفاصيل اسم الله \((.+)\)$/,name=>[`View details for Allah's name: ${t(name,'en')}`,`اللہ کے نام ${t(name,'ur')} کی تفصیل دیکھیں`]],
   [/^مثال: (.+)$/,example=>[`Example: ${t(example,'en')}`,`مثال: ${t(example,'ur')}`]],
   [/^([\d.,]+[MK]?) مشاهدة$/,n=>[`${n} views`,`${n} ملاحظات`]],
   [/^تمت جدولة اختبار (التنبيه المسبق|الأذان) بعد (\d+) ثانية بنجاح$/, (kind,n)=>[`${kind==='الأذان'?'Adhan':'Pre-prayer'} test scheduled in ${n} seconds`,`${kind==='الأذان'?'اذان':'نماز سے پہلے اطلاع'} کی آزمائش ${n} سیکنڈ بعد مقرر کر دی گئی`]],
-  [/^🕌 حَانَ الآنَ مَوْعِدُ (.+)$/,name=>[`🕌 It is time for ${t(name,'en')}`,`🕌 اب وقت ہے: ${t(name,'ur')}`]],
+  [/^🕌 (?:حَانَ الآنَ مَوْعِدُ|حان الآن موعد) (.+)$/,name=>[`🕌 It is time for ${t(name,'en')}`,`🕌 اب وقت ہے: ${t(name,'ur')}`]],
   [/^⏳ اقتربت (.+)$/,name=>[`⏳ Coming up: ${t(name,'en')}`,`⏳ وقت قریب ہے: ${t(name,'ur')}`]],
   [/^بقي (\d+) دقائق على دخول وقت (.+)\. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿$/, (n,name)=>[`${n} minutes until ${t(name,'en')}. Prepare for wudu and prayer 🌿`,`${t(name,'ur')} میں ${n} منٹ باقی ہیں۔ وضو اور نماز کی تیاری کریں 🌿`]],
-  [/^الله أكبر، الله أكبر\.\. حان الآن موعد (.+) حسب توقيتك المحلي\. حيّ على الصلاة، حيّ على الفلاح 🕋$/,name=>[`الله أكبر، الله أكبر.. It is time for ${t(name,'en')} in your local time. حيّ على الصلاة، حيّ على الفلاح 🕋`,`الله أكبر، الله أكبر.. آپ کے مقامی وقت کے مطابق ${t(name,'ur')} کا وقت ہو گیا۔ حيّ على الصلاة، حيّ على الفلاح 🕋`]],
+  [/^الله أكبر، الله أكبر\.\. حان الآن موعد (.+) حسب (?:توقيتك المحلي|التوقيت المحلي)\. حيّ على الصلاة، حيّ على الفلاح ([🕋🌿]+)$/u,(name,icon)=>[`Allah is the Greatest, Allah is the Greatest. It is time for ${t(name,'en')} locally. Come to prayer, come to success. ${icon}`,`اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے۔ مقامی وقت کے مطابق ${t(name,'ur')} کا وقت ہو گیا۔ نماز کی طرف آؤ، کامیابی کی طرف آؤ۔ ${icon}`]],
+  [/^اليوم (\d+) من الشهر الهجري \(الأيام البيض\)$/,(day)=>[`Hijri day ${day} (White Days)`,`ہجری مہینے کا دن ${day} (ایام بیض)`]],
   [/^حذف (.+) من تنزيلات الجهاز؟$/,name=>[`Delete ${t(name,'en')} from this device's downloads?`,`اس آلے کے ڈاؤن لوڈز سے ${t(name,'ur')} حذف کریں؟`]],
   [/^حجم التنزيل: (.+)$/,size=>[`Download size: ${t(size,'en')}`,`ڈاؤن لوڈ کا حجم: ${t(size,'ur')}`]],
   [/^جاري التنزيل: (\d+) \/ (\d+) — يمكنك إيقافه واستكماله لاحقًا\.$/, (n,total)=>[`Downloading: ${n} / ${total} — you can stop and resume later.`,`ڈاؤن لوڈ جاری: ${n} / ${total} — آپ روک کر بعد میں جاری کر سکتے ہیں۔`]],
@@ -130,10 +158,11 @@
   ,[/^منصة وتطبيق زاد المسلم • صدقة جارية لوجه الله تعالى • الإصدار ([\d.]+)$/,version=>[`Zad Al Muslim • An ongoing charity for Allah’s sake • Version ${version}`,`زاد المسلم • اللہ کے لیے صدقہ جاریہ • ورژن ${version}`]]
  ];
  const latinDigits=value=>value.replace(/[٠-٩۰-۹]/g,char=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(char)>=0?'٠١٢٣٤٥٦٧٨٩'.indexOf(char):'۰۱۲۳۴۵۶۷۸۹'.indexOf(char)));
+ const englishHonorifics=value=>value.replace(/\s*ﷺ/g,' (peace be upon him)');
  function t(text,lang=language){
   if(lang==='ar')return text;
   const source=normalize(text),key=latinDigits(source),entry=root.ZadTranslations?.[source]||root.ZadTranslations?.[key]||root.ZadTranslations?.[key.replace(/[–—]/g,'-')];
-  const digits=value=>lang==='en'?latinDigits(value).replace(/([0-9])[٫]/g,'$1.').replace(/([0-9])[٬]/g,'$1,').replace(/٪/g,'%'):value;
+  const digits=value=>lang==='en'?latinDigits(root.ZadServiceMeanings?englishHonorifics(value):value).replace(/([0-9])[٫]/g,'$1.').replace(/([0-9])[٬]/g,'$1,').replace(/٪/g,'%'):value;
   if(entry?.[lang])return digits(entry[lang]);
   const prefix=key.match(/^([·✦]\s*)(.+)$/);if(prefix){const value=t(prefix[2],lang);if(value!==prefix[2])return prefix[1]+value;}
   for(const [pattern,format] of templates){const match=key.match(pattern);if(match)return digits(format(...match.slice(1))[lang==='en'?0:1]);}
@@ -144,7 +173,10 @@
   return Array.from(node.childNodes||[],original).join('');
  }
  function renderText(node){
-  const parent=node.parentElement;if(!parent||parent.closest(skip+','+sacred+','+originalQuotes))return;
+  const parent=node.parentElement;if(!parent||parent.closest(skip))return;
+  const quote=root.ZadServiceMeanings&&parent.closest(serviceQuotes);
+  if(quote)renderServiceMeaning(quote);
+  if(parent.closest(sacred+','+originalQuotes+','+serviceQuoteMarkup))return;
   const previous=texts.get(node),source=previous&&node.data===previous.rendered?previous.original:node.data;
   const key=normalize(source);if(!key)return;
   const translated=parent.closest('#golden-surah-title')?surahName(key,language):parent.matches('option[value="naskh"]')?(language==='en'?'Naskh':language==='ur'?'نسخ':key):t(key);
@@ -166,7 +198,11 @@
   // Untranslated Arabic paragraphs and mixed-language notes retain their own text flow
   // without reversing the surrounding English card, toolbar or form.
   if(element.matches('p,h1,h2,h3,h4,h5,h6,blockquote,option,.category-desc,.category-result-count,.radio-station-name,.radio-station-desc,.radio-item-name,.radio-item-desc,.golden-player-title,.golden-index-name,.golden-index-meta,.offline-audio-status')&&!element.hasAttribute('dir'))element.dir='auto';
-  if(element.matches(sacred+','+originalQuotes)){element.lang='ar';element.dir='rtl';return;}
+  if(element.matches(sacred+','+originalQuotes+','+serviceQuoteMarkup)){
+   element.lang='ar';element.dir='rtl';
+   if(element.matches(serviceQuotes))renderServiceMeaning(element);
+   return;
+  }
   if(element.closest(attributeSkip+','+sacred+','+originalQuotes))return;
   const saved=attributes.get(element)||{};
   for(const name of ['title','aria-label','placeholder','alt']){
@@ -351,7 +387,15 @@
    }
   });
   const observer=new root.MutationObserver(records=>{
-   const changed=new Set();for(const record of records){if(record.type==='childList')record.addedNodes.forEach(node=>changed.add(node));else changed.add(record.target);}
+   const changed=new Set();for(const record of records){
+    if(record.type==='childList'){
+     record.addedNodes.forEach(node=>changed.add(node));
+     if(root.ZadServiceMeanings){
+      const quote=record.target.closest?.(serviceQuotes);
+      if(quote)changed.add(quote);
+     }
+    }else changed.add(record.target);
+   }
    // Parsing adds parents and their descendants in the same batch. Scan each
    // subtree once rather than repeatedly translating the whole growing page.
    const branches=[...changed].filter(node=>{

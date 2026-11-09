@@ -32,14 +32,22 @@ public final class NativeLanguage {
         {"ابدأ يومك بذكر الله", "Begin your day with the remembrance of Allah", "اپنے دن کا آغاز اللہ کے ذکر سے کریں"},
         {"حان وقت أذكار المساء", "It is time for evening adhkar", "شام کے اذکار کا وقت ہے"},
         {"جمعة مباركة", "Blessed Friday", "جمعہ مبارک"},
-        {"تذكير بسورة الكهف والصلاة على النبي ﷺ", "Remember Surah Al-Kahf and salawat upon the Prophet ﷺ", "سورۃ الکہف اور نبی ﷺ پر درود کی یاد دہانی"},
+        {"تذكير بسورة الكهف والصلاة على النبي ﷺ", "A reminder to recite Surah Al-Kahf and send blessings upon the Prophet.", "سورۃ الکہف کی تلاوت اور نبی کریم پر درود کی یاد دہانی۔"},
         {"تذكير بالصيام", "Fasting reminder", "روزے کی یاد دہانی"},
         {"غدًا موعد صيام الإثنين أو الخميس", "Tomorrow is a Monday or Thursday fasting day", "کل پیر یا جمعرات کے روزے کا دن ہے"},
-        {"ﷺ صلِّ على النبي", "ﷺ Send blessings upon the Prophet", "ﷺ نبی پر درود بھیجیں"},
+        {"ﷺ صلِّ على النبي", "Send blessings upon the Prophet", "نبی کریم پر درود بھیجیں"},
+        {"باسمك ربي وضعت جنبي وبك أرفعه", "In Your name, my Lord, I lie down, and by You I rise.", "اے میرے رب، تیرے نام سے میں لیٹتا ہوں اور تیری مدد سے اٹھتا ہوں۔"},
+        {"اللهم صلِّ وسلِّم وبارك على نبينا محمد ﷺ", "O Allah, send blessings, peace and favor upon our Prophet Muhammad.", "اے اللہ، ہمارے نبی محمد پر درود، سلام اور برکت نازل فرما۔"},
+        {"الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح", "Allah is the Greatest, Allah is the Greatest. Come to prayer, come to success.", "اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے۔ نماز کی طرف آؤ، کامیابی کی طرف آؤ۔"},
+        {"«أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ» 🌿", "Surely, in the remembrance of Allah hearts find peace. 🌿", "خبردار، اللہ کے ذکر سے دلوں کو اطمینان ملتا ہے۔ 🌿"},
+        {"«وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ» 🕋", "Seek help through patience and prayer. 🕋", "صبر اور نماز سے مدد چاہو۔ 🕋"},
+        {"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ 🕊️", "Glory and praise be to Allah. Glory be to Allah, the Magnificent. 🕊️", "اللہ کی پاکی اور تعریف ہے۔ اللہ عظمت والا پاک ہے۔ 🕊️"},
+        {"لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ ✨", "There is no power or strength except through Allah, the Most High, the Magnificent. ✨", "اللہ بلند و برتر، عظمت والے کی مدد کے سوا نہ کوئی طاقت ہے نہ قوت۔ ✨"},
+        {"أَسْتَغْفِرُ اللَّهِ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ 🤍", "I seek forgiveness from Allah the Magnificent and turn to Him in repentance. 🤍", "میں عظمت والے اللہ سے مغفرت مانگتا ہوں اور اسی کی طرف توبہ کرتا ہوں۔ 🤍"},
         {"الصلاة على النبي ﷺ بدون صوت", "Silent salawat reminders", "درود کی خاموش یاد دہانیاں"},
         {"الصلاة على النبي ﷺ — الصوت الأول", "Salawat — Voice 1", "درود — پہلی آواز"},
         {"الصلاة على النبي ﷺ — الصوت الثاني", "Salawat — Voice 2", "درود — دوسری آواز"},
-        {"الصلاة على النبي ﷺ", "Salawat upon the Prophet ﷺ", "نبی ﷺ پر درود"},
+        {"الصلاة على النبي ﷺ", "Blessings upon the Prophet", "نبی کریم پر درود"},
         {"تنبيهات الصلاة الصامتة أثناء المكالمات", "Silent prayer alerts during calls", "کال کے دوران نماز کی خاموش اطلاعات"},
         {"أذان الصلوات المفروضة (صوت كامل)", "Prayer adhan (full audio)", "فرض نمازوں کی اذان (مکمل آواز)"},
         {"تشغيل الأذان والتنبيه بدخول وقت الصلاة", "Adhan and prayer time alerts", "اذان اور نماز کے وقت کی اطلاع"},
@@ -102,7 +110,7 @@ public final class NativeLanguage {
     static String reminderBodyForLanguage(String language, String source) {
         if (!"en".equals(language) && !"ur".equals(language)) return source;
         for (String[] row : LABELS) if (row[0].equals(source)) return row["en".equals(language) ? 1 : 2];
-        // Dua and Quran quotations are preserved in full, including prayer names.
+        // Only translate complete, known reminders.
         return source;
     }
 

@@ -263,7 +263,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, ADHAN_ALARM_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_icon)
                 .setContentTitle(NativeLanguage.text(context, "🕌 حَانَ الآنَ مَوْعِدُ " + prayerName))
-                .setContentText("الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح")
+                .setContentText(NativeLanguage.reminderBody(context, "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح"))
                 .setContentIntent(pendingFullScreen)
                 .setFullScreenIntent(pendingFullScreen, true)
                 .setDeleteIntent(pendingStop) // عند مسح الإشعار يتم إيقاف الصوت
