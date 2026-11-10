@@ -5,7 +5,13 @@ import WidgetKit
 public class RadioNativePlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "RadioNativePlugin"
     public let jsName = "RadioNative"
-    public let pluginMethods = ["play", "stop", "getState", "setVolume", "setSleepTimer"].map { CAPPluginMethod(name: $0, returnType: CAPPluginReturnPromise) }
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "play", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stop", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getState", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setVolume", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setSleepTimer", returnType: CAPPluginReturnPromise)
+    ]
     @objc func play(_ call: CAPPluginCall) {
         let station = ["id": call.getString("id") ?? "cairo", "name": call.getString("name") ?? "راديو القرآن", "url": call.getString("url") ?? "", "backupUrl": call.getString("backupUrl") ?? ""]
         Task { @MainActor in
@@ -28,7 +34,7 @@ public class RadioNativePlugin: CAPPlugin, CAPBridgedPlugin {
 public class PrayerWidgetNativePlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "PrayerWidgetNativePlugin"
     public let jsName = "PrayerWidgetNative"
-    public let pluginMethods = [CAPPluginMethod(name: "updatePrayerWidget", returnType: CAPPluginReturnPromise)]
+    public let pluginMethods: [CAPPluginMethod] = [CAPPluginMethod(name: "updatePrayerWidget", returnType: CAPPluginReturnPromise)]
     @objc func updatePrayerWidget(_ call: CAPPluginCall) {
         guard let shared = UserDefaults(suiteName: "group.com.zadmuslim.app") else { call.reject("App Group unavailable"); return }
         shared.set(call.getString("timingsJson") ?? "{}", forKey: "last_timings_json")
