@@ -37,7 +37,12 @@ public class PrayerWidgetNativePlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "PrayerWidgetNative"
     public let pluginMethods: [CAPPluginMethod] = [CAPPluginMethod(name: "updatePrayerWidget", returnType: CAPPluginReturnPromise)]
     @objc func updatePrayerWidget(_ call: CAPPluginCall) {
-        guard let shared = UserDefaults(suiteName: "group.com.zadmuslim.app") else { call.reject("App Group unavailable"); return }
+        // A named defaults suite can exist even when re-signing removed App Groups.
+        guard FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.zadmuslim.app") != nil,
+              let shared = UserDefaults(suiteName: "group.com.zadmuslim.app") else {
+            call.reject("Widget sharing is unavailable in this app signature", "WIDGET_APP_GROUP_UNAVAILABLE")
+            return
+        }
         shared.set(call.getString("timingsJson") ?? "{}", forKey: "last_timings_json")
         shared.set(call.getString("hijriDate") ?? "", forKey: "last_hijri_date")
         shared.set(call.getString("cityName") ?? "", forKey: "widgetCity")

@@ -673,10 +673,28 @@ const NativeAdhanService = {
                     hijriDate: hDate,
                     gregorianDate: gDate
                 });
-                console.log("✅ Home Screen Widget updated successfully via AdhanNative (Hijri & Gregorian)");
+                if (!widgetVerified) return { success: false, message: 'حدّث مواقيت مدينتك في الرئيسية أولاً، ثم أعد تحديث الويدجت.' };
+                console.log("✅ Prayer widget data sent to native storage");
+                return { success: true };
             } catch(e) {
                 console.warn("Update prayer widget notice:", e);
+                return { success: false, message: e?.code === 'WIDGET_APP_GROUP_UNAVAILABLE'
+                    ? 'توقيع نسخة الآيفون لا يتيح مشاركة بيانات الويدجت. يلزم إعادة توقيع التطبيق والويدجت بصلاحية App Groups للمجموعة نفسها.'
+                    : 'تعذّر إرسال البيانات للويدجت. حاول مجددًا وتأكد من تثبيت أحدث نسخة من التطبيق.' };
             }
+        }
+        return { success: false, message: 'تحديث الويدجت غير متاح في هذه النسخة. استخدم أحدث نسخة من تطبيق الهاتف.' };
+    },
+
+    async refreshWidgetFromGuide(button) {
+        if (button) button.disabled = true;
+        try {
+            const result = await this.updateWidget();
+            window.showToast?.(result.success ? 'تم إرسال بيانات الويدجت للتحديث 🔄' : result.message);
+            if (result.success) document.getElementById('zad-widget-guide-modal')?.remove();
+            return result;
+        } finally {
+            if (button) button.disabled = false;
         }
     },
 

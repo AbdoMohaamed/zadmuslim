@@ -53,7 +53,10 @@ struct PrayerTimelineProvider: TimelineProvider {
     }
 
     private func loadEntryFromStorage(date: Date) -> PrayerWidgetEntry {
-        let defaults = UserDefaults(suiteName: appGroupId) ?? UserDefaults.standard
+        guard FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) != nil,
+              let defaults = UserDefaults(suiteName: appGroupId) else {
+            return PrayerWidgetEntry(date: date, hijriDate: "", nextPrayerName: "مشاركة البيانات غير متاحة", nextPrayerTime: "--:--", countdownText: "يلزم تصحيح توقيع التطبيق والويدجت", prayers: [], dhikr: peacefulDhikrs[0])
+        }
         let jsonStr = defaults.string(forKey: "last_timings_json") ?? ""
         let hijriDate = defaults.string(forKey: "last_hijri_date") ?? "زاد المسلم"
         let randomDhikr = peacefulDhikrs.randomElement() ?? peacefulDhikrs[0]

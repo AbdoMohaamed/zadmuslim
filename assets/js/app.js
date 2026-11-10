@@ -3913,7 +3913,7 @@ window.showWidgetInfoModal = function() {
                         <li>ابحث عن <strong>زاد المسلم</strong> واختر ويدجت الصلاة أو الراديو. ويدجتا الآيفون تتطلبان iOS 17 أو أحدث ونسخة التطبيق المثبتة.</li>
                     </ol>
                     <div class="widget-guide-actions">
-                        <button type="button" class="btn btn-gold" onclick="if(window.NativeAdhanService) window.NativeAdhanService.updatePrayerWidget(); if(typeof window.showToast==='function') window.showToast('تم تحديث بيانات الويدجت بنجاح 🔄'); document.getElementById('zad-widget-guide-modal').remove();">
+                        <button type="button" class="btn btn-gold" onclick="window.NativeAdhanService?.refreshWidgetFromGuide(this);">
                             تحديث الويدجت الآن 🔄
                         </button>
                         <button type="button" class="btn btn-outline" onclick="document.getElementById('zad-widget-guide-modal').remove();">
