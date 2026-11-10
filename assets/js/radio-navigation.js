@@ -36,6 +36,7 @@ function render(href){
  const url=target(href);if(!url)return;
  const original=new URL(initial);
  if(url.pathname===original.pathname&&url.search===original.search){
+  window.ZadRouteLoading?.hide();
   frame?.remove();frame=null;document.title=initialTitle;document.body.classList.remove('zad-radio-host');
   window.dispatchEvent(new Event('hashchange'));
   if(url.hash){try{document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView({behavior:'instant'});}catch{}}
@@ -44,6 +45,7 @@ function render(href){
  if(!frame){
   frame=document.createElement('iframe');frame.id='zad-radio-page';frame.title='صفحة التطبيق';frame.allow='autoplay; geolocation; accelerometer; gyroscope; magnetometer';
   frame.addEventListener('load',()=>{
+   window.ZadRouteLoading?.ready();
    try{
     const current=target(frame.contentWindow.location.href);
     if(current){document.title=frame.contentDocument.title;history.replaceState({...history.state,zadRadioRoute:current.href},'',current.href);}
@@ -54,6 +56,7 @@ function render(href){
    }catch{}
   });document.body.append(frame);
  }
+ window.ZadRouteLoading?.show();
  document.body.classList.add('zad-radio-host');frame.src=url.href;document.getElementById('radio-panel')?.classList.remove('open');
 }
 function navigate(href){const url=target(href);if(!url)return;if(!frame)history.replaceState({...history.state,zadRadioRoute:location.href},'',location.href);history.pushState({zadRadioRoute:url.href},'',url.href);render(url.href);}
