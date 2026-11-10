@@ -1,5 +1,6 @@
 import Capacitor
 import WidgetKit
+import UIKit
 
 @objc(RadioNativePlugin)
 public class RadioNativePlugin: CAPPlugin, CAPBridgedPlugin {
@@ -51,5 +52,41 @@ class ZadBridgeViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         bridge?.registerPluginInstance(RadioNativePlugin())
         bridge?.registerPluginInstance(PrayerWidgetNativePlugin())
+        bridge?.registerPluginInstance(ImageSharePlugin())
+    }
+}
+
+@objc(ImageSharePlugin)
+public class ImageSharePlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "ImageSharePlugin"
+    public let jsName = "ImageShare"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "share", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "save", returnType: CAPPluginReturnPromise)
+    ]
+    @objc func share(_ call: CAPPluginCall) { presentImage(call) }
+    // The system sheet offers Save Image / Save to Files without automatic publishing.
+    @objc func save(_ call: CAPPluginCall) { presentImage(call) }
+    private func presentImage(_ call: CAPPluginCall) {
+        guard let encoded = call.getString("base64"), encoded.count <= 12 * 1024 * 1024,
+              let data = Data(base64Encoded: encoded),
+              data.starts(with: [137, 80, 78, 71, 13, 10, 26, 10]),
+              let image = UIImage(data: data) else { call.reject("Invalid PNG"); return }
+        DispatchQueue.main.async { [weak self] in
+            guard let host = self?.bridge?.viewController, host.presentedViewController == nil else {
+                call.reject("Another dialog is open"); return
+            }
+            let sheet = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+            if let popover = sheet.popoverPresentationController {
+                popover.sourceView = host.view
+                popover.sourceRect = CGRect(x: host.view.bounds.midX, y: host.view.bounds.midY, width: 1, height: 1)
+                popover.permittedArrowDirections = []
+            }
+            sheet.completionWithItemsHandler = { activity, completed, _, error in
+                if let error = error { call.reject(error.localizedDescription); return }
+                call.resolve(["cancelled": !completed, "saved": completed && activity == .saveToCameraRoll])
+            }
+            host.present(sheet, animated: true)
+        }
     }
 }

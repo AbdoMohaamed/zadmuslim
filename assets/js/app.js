@@ -454,7 +454,7 @@ const DAILY_QURAN_VERSES = [
 function initDailyQuranVerse() {
     const textEl = document.getElementById("daily-verse-text");
     const refEl = document.getElementById("daily-verse-ref");
-    const copyBtn = document.getElementById("btn-copy-daily-verse");
+    const shareBtn = document.getElementById("btn-share-daily-verse");
     if (!textEl || !refEl) return;
 
     const now = new Date();
@@ -466,23 +466,11 @@ function initDailyQuranVerse() {
     textEl.textContent = "«" + todayVerse.text + "»";
     refEl.textContent = todayVerse.ref;
 
-    if (copyBtn && !copyBtn.dataset.bound) {
-        copyBtn.dataset.bound = "true";
-        copyBtn.onclick = async () => {
-            try {
-                const textToCopy = "«" + todayVerse.text + "» [" + todayVerse.ref + "] - تطبيق زاد المسلم";
-                await navigator.clipboard.writeText(textToCopy);
-                const icon = copyBtn.querySelector("i");
-                const span = copyBtn.querySelector("span");
-                if (icon) icon.className = "fa-solid fa-check text-emerald-400";
-                if (span) span.textContent = "تم النسخ";
-                setTimeout(() => {
-                    if (icon) icon.className = "fa-regular fa-copy";
-                    if (span) span.textContent = "نسخ";
-                }, 2000);
-                if (typeof showToast === "function") showToast("تم نسخ الآية الكريمة بنجاح");
-            } catch (e) {}
-        };
+    if (shareBtn) {
+        shareBtn.onclick = () => window.ShareCardGenerator?.openModal({
+            text: todayVerse.text, title: "آية اليوم", ref: todayVerse.ref,
+            theme: "royal_dark", format: "story", dailyVerse: true
+        });
     }
 }
 window.initDailyQuranVerse = initDailyQuranVerse;

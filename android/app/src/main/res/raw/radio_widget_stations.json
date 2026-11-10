@@ -1,0 +1,98 @@
+[
+  {
+    "id": "general",
+    "name": "إذاعة القرآن الكريم العامة (كبار القراء)",
+    "url": "https://qurango.net/radio/mix",
+    "backup": "https://backup.qurango.net/radio/mix"
+  },
+  {
+    "id": "ali_jaber",
+    "name": "تلاوات الشيخ علي جابر (رحمه الله)",
+    "url": "https://qurango.net/radio/ali_jaber",
+    "backup": "https://backup.qurango.net/radio/ali_jaber"
+  },
+  {
+    "id": "abdullah_almousa",
+    "name": "تلاوات الشيخ عبد الله الموسى",
+    "url": "https://qurango.net/radio/abdullah_almousa",
+    "backup": "https://backup.qurango.net/radio/abdullah_almousa"
+  },
+  {
+    "id": "minshawi",
+    "name": "تلاوات الشيخ محمد صديق المنشاوي",
+    "url": "https://qurango.net/radio/mohammed_siddiq_alminshawi",
+    "backup": "https://backup.qurango.net/radio/mohammed_siddiq_alminshawi"
+  },
+  {
+    "id": "abdulbasit",
+    "name": "تلاوات الشيخ عبد الباسط عبد الصمد",
+    "url": "https://qurango.net/radio/abdulbasit_abdulsamad_mojawwad",
+    "backup": "https://backup.qurango.net/radio/abdulbasit_abdulsamad_mojawwad"
+  },
+  {
+    "id": "alafasy",
+    "name": "تلاوات الشيخ مشاري بن راشد العفاسي",
+    "url": "https://qurango.net/radio/mishary_alafasi",
+    "backup": "https://backup.qurango.net/radio/mishary_alafasi"
+  },
+  {
+    "id": "khalid_aljileel",
+    "name": "تلاوات الشيخ خالد الجليل",
+    "url": "https://qurango.net/radio/khalid_aljileel",
+    "backup": "https://backup.qurango.net/radio/khalid_aljileel"
+  },
+  {
+    "id": "maher",
+    "name": "تلاوات الشيخ ماهر المعيقلي",
+    "url": "https://qurango.net/radio/maher",
+    "backup": "https://backup.qurango.net/radio/maher"
+  },
+  {
+    "id": "yasser",
+    "name": "تلاوات الشيخ ياسر الدوسري",
+    "url": "https://qurango.net/radio/yasser_aldosari",
+    "backup": "https://backup.qurango.net/radio/yasser_aldosari"
+  },
+  {
+    "id": "bader_alturki",
+    "name": "تلاوات الشيخ بدر التركي",
+    "url": "https://backup.qurango.net/radio/bader",
+    "backup": "https://qurango.net/radio/bader"
+  },
+  {
+    "id": "cairo",
+    "name": "إذاعة القرآن الكريم من القاهرة",
+    "url": "https://stream.radiojar.com/8s5u5tpdtwzuv",
+    "backup": "https://radio.xecod.com/station/quran-cairo"
+  },
+  {
+    "id": "makkah",
+    "name": "إذاعة القرآن الكريم من مكة المكرمة",
+    "url": "https://stream.radiojar.com/0tpy1h0kxtzuv",
+    "backup": ""
+  },
+  {
+    "id": "roqya",
+    "name": "إذاعة الرقية الشرعية للشفاء والتحصين",
+    "url": "https://qurango.net/radio/roqiah",
+    "backup": "https://backup.qurango.net/radio/roqiah"
+  },
+  {
+    "id": "sleep_calm",
+    "name": "تلاوات هادئة للسكينة والنوم والاسترخاء",
+    "url": "https://qurango.net/radio/tarateel",
+    "backup": "https://backup.qurango.net/radio/tarateel"
+  },
+  {
+    "id": "azkar",
+    "name": "أذكار الصباح",
+    "url": "https://qurango.net/radio/athkar_sabah",
+    "backup": "https://backup.qurango.net/radio/athkar_sabah"
+  },
+  {
+    "id": "azkar-evening",
+    "name": "أذكار المساء",
+    "url": "https://qurango.net/radio/athkar_masa",
+    "backup": "https://backup.qurango.net/radio/athkar_masa"
+  }
+]

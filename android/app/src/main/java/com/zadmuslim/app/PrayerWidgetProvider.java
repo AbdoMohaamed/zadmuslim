@@ -130,7 +130,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
             int dhikrIndex = nowCal.get(Calendar.HOUR_OF_DAY) % SPIRITUAL_REMINDERS.length;
             views.setTextViewText(R.id.widget_txt_dhikr, SPIRITUAL_REMINDERS[dhikrIndex]);
 
-            if (timingsJson != null && !timingsJson.isEmpty()) {
+            if (hasCompleteTimings(timingsJson)) {
                 JSONObject json = new JSONObject(timingsJson);
 
                 String fajrTime = formatPrayerTime12H(getPrayerTimeRaw(json, "Fajr", "fajr", "05:00"));
@@ -155,20 +155,32 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
                 resetPrayerColumnBackgrounds(views);
                 highlightActivePrayerColumn(views, calc.prayerKey);
             } else {
-                views.setTextViewText(R.id.widget_txt_next_prayer_name, NativeLanguage.text(context, "افتح التطبيق لتحديث المواقيت"));
+                views.setTextViewText(R.id.widget_txt_next_prayer_name, NativeLanguage.text(context, "افتح التطبيق لضبط المدينة"));
                 views.setTextViewText(R.id.widget_txt_next_prayer_time, "--:--");
-                views.setTextViewText(R.id.widget_txt_countdown, NativeLanguage.text(context, "انقر هنا 🕌"));
+                views.setTextViewText(R.id.widget_txt_countdown, NativeLanguage.text(context, "اضغط للإعداد"));
                 resetPrayerColumnBackgrounds(views);
             }
 
             // Light design needs dark type even after the shared active-prayer styling.
             if (layout == R.layout.prayer_widget_center) {
+                for (int id : new int[]{R.id.col_fajr,R.id.col_dhuhr,R.id.col_asr,R.id.col_maghrib,R.id.col_isha}) views.setInt(id, "setBackgroundResource", R.drawable.widget_surface_center);
                 for (int id : new int[]{R.id.widget_label_fajr,R.id.widget_label_dhuhr,R.id.widget_label_asr,R.id.widget_label_maghrib,R.id.widget_label_isha,R.id.widget_time_fajr,R.id.widget_time_dhuhr,R.id.widget_time_asr,R.id.widget_time_maghrib,R.id.widget_time_isha}) views.setTextColor(id, 0xFF493B29);
             }
             appWidgetManager.updateAppWidget(widgetId, views);
         } catch (Exception e) {
             Log.e(TAG, "Failed to render prayer widget: ", e);
         }
+    }
+
+    private static boolean hasCompleteTimings(String value) {
+        try {
+            JSONObject json = new JSONObject(value);
+            for (String key : new String[]{"Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"}) {
+                String raw = getPrayerTimeRaw(json, key, key.toLowerCase(Locale.US), "");
+                if (!raw.matches("(?:[01]?\\d|2[0-3]):[0-5]\\d(?:\\s.*)?")) return false;
+            }
+            return true;
+        } catch (Exception ignored) { return false; }
     }
 
     private static String getPrayerTimeRaw(JSONObject json, String keyCap, String keyLower, String def) {
@@ -179,7 +191,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
 
     private static void resetPrayerColumnBackgrounds(RemoteViews views) {
         int normalBg = R.drawable.widget_prayer_col_normal;
-        int normalLabelColor = 0xFF8FAEA1;
+        int normalLabelColor = 0xFFC0D2C7;
         int normalTimeColor = 0xFFFFFFFF;
 
         views.setInt(R.id.col_fajr, "setBackgroundResource", normalBg);

@@ -21,6 +21,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(AdhanNativePlugin.class);
         registerPlugin(BackupFilesPlugin.class);
+        registerPlugin(ImageSharePlugin.class);
         registerPlugin(RadioNativePlugin.class);
         super.onCreate(savedInstanceState);
         WindowCompat.enableEdgeToEdge(getWindow());

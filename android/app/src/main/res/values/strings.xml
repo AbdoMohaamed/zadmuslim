@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">زاد المسلم</string>
     <string name="title_activity_main">زاد المسلم</string>
@@ -6,4 +6,4 @@
     <string name="custom_url_scheme">com.abdomohamed.zadmuslim</string>
     <string name="widget_name">مواقيت الصلاة - زاد المسلم</string>
     <string name="widget_description">مواقيت الصلاة، العد التنازلي، والورد اليومي على شاشتك الرئيسية</string>
-</resources>
+<string name="widget_description_layout">آية وذكر مع الصلاة القادمة والوقت المتبقي</string><string name="widget_description_split">الصلاة القادمة في بطاقة صغيرة وواضحة</string><string name="widget_description_wide">الصلاة القادمة والوقت المتبقي في شريط مختصر</string><string name="widget_description_arch">مواقيت اليوم مع إبراز الصلاة القادمة</string><string name="widget_description_center">مواقيت اليوم بتصميم عاجي فاتح</string><string name="widget_description_radio">اختيار الشيخ أو المحطة والتحكم في البث</string></resources>

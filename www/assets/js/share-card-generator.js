@@ -77,34 +77,42 @@
         },
 
         openModal(params) {
+            this.closeModal();
+            this.returnFocus = document.activeElement;
             currentCardState = {
                 text: params.text || currentCardState.text,
                 title: params.title || "آية مباركة",
                 ref: params.ref || "زاد المسلم",
                 subtitle: params.subtitle || "",
-                theme: params.theme || currentCardState.theme || "royal_dark"
+                theme: THEMES[params.theme] ? params.theme : "royal_dark",
+                format: params.format === "square" ? "square" : "story",
+                dailyVerse: !!params.dailyVerse
             };
 
             let modal = document.getElementById("zad-share-card-modal");
             if (modal) modal.remove();
 
             const modalHtml = `
-                <div class="modal-overlay active" id="zad-share-card-modal" onclick="if(event.target===this)this.remove();" style="z-index: 100000;">
-                    <div class="modal-card modal-box share-card-modal-box">
+                <div class="modal-overlay active" id="zad-share-card-modal" onclick="if(event.target===this)ShareCardGenerator.closeModal();" style="z-index: 100000;">
+                    <div class="modal-card modal-box share-card-modal-box" role="dialog" aria-modal="true" aria-labelledby="share-card-heading">
                         <div class="modal-head">
                             <div class="modal-head-title">
                                 <i class="fa-solid fa-camera-retro text-gold"></i>
-                                <span>بطاقة ستوري • شارك الأجر واكسب الثواب 🌿</span>
+                                <span id="share-card-heading">مشاركة البطاقة كصورة</span>
                             </div>
-                            <button type="button" class="btn-close-modal" aria-label="إغلاق" onclick="document.getElementById('zad-share-card-modal').remove();">&times;</button>
+                            <button type="button" class="btn-close-modal" aria-label="إغلاق" onclick="ShareCardGenerator.closeModal();">&times;</button>
                         </div>
                         <div class="modal-body-content share-modal-layout">
                             <div class="share-card-preview-area">
                                 <div class="canvas-aspect-wrapper">
-                                    <canvas id="zad-story-canvas" width="1080" height="1920"></canvas>
+                                    <canvas id="zad-story-canvas" width="1080" height="1920" role="img" aria-label="معاينة صورة المشاركة"></canvas>
                                 </div>
                             </div>
                             <div class="share-card-controls">
+                                <div class="share-format-options" role="group" aria-label="مقاس الصورة">
+                                    <button type="button" class="theme-pill-btn" data-format="story" onclick="ShareCardGenerator.switchFormat('story')">حالة / ستوري · 9:16</button>
+                                    <button type="button" class="theme-pill-btn" data-format="square" onclick="ShareCardGenerator.switchFormat('square')">منشور مربع · 1:1</button>
+                                </div>
                                 <label class="control-label">اختر مظهر وألوان البطاقة:</label>
                                 <div class="theme-selection-row">
                                     <button type="button" class="theme-pill-btn ${currentCardState.theme === 'royal_dark' ? 'active' : ''}" onclick="ShareCardGenerator.switchTheme('royal_dark', this)">
@@ -120,16 +128,17 @@
 
                                 <div class="share-primary-actions">
                                     <button type="button" class="btn btn-share-story" onclick="ShareCardGenerator.shareDirectlyToStory();">
-                                        <i class="fa-brands fa-whatsapp"></i> <span>نشر في ستوري / واتساب 📲</span>
+                                        <i class="fa-solid fa-share-nodes"></i> <span>مشاركة الصورة</span>
                                     </button>
                                     <button type="button" class="btn btn-solid btn-download-story" onclick="ShareCardGenerator.downloadCardImage();">
-                                        <i class="fa-solid fa-download"></i> <span>حفظ بجودة HD</span>
+                                        <i class="fa-solid fa-download"></i> <span>حفظ الصورة</span>
                                     </button>
-                                    <button type="button" class="btn btn-outline btn-copy-story-text" onclick="ShareCardGenerator.copyCardText();">
+                                    <button type="button" class="btn btn-outline btn-copy-story-text" ${currentCardState.dailyVerse ? 'hidden' : ''} onclick="ShareCardGenerator.copyCardText();">
                                         <i class="fa-solid fa-copy"></i> <span>نسخ النص</span>
                                     </button>
                                 </div>
-                                <p class="share-hint-txt">💡 كل شخص يقرأ الآية أو يحمل التطبيق بسببك، لك مثل أجره إن شاء الله.</p>
+                                <p class="share-hint-txt">اختر التطبيق من قائمة المشاركة وأكمل النشر بنفسك، أو احفظ الصورة لاستخدامها لاحقًا.</p>
+                                <p id="share-card-status" role="status" aria-live="polite"></p>
                             </div>
                         </div>
                     </div>
@@ -138,10 +147,34 @@
 
             document.body.insertAdjacentHTML("beforeend", modalHtml);
 
-            // تأخير بسيط لضمان تجهيز عناصر الـ DOM والخطوط
-            setTimeout(() => {
-                this.renderCanvas();
-            }, 50);
+            const dialog = document.getElementById('zad-share-card-modal');
+            dialog.querySelector('.btn-close-modal').focus();
+            dialog.onkeydown = e => {
+                if (e.key === 'Escape') { e.preventDefault(); this.closeModal(); }
+                if (e.key === 'Tab') {
+                    const buttons = [...dialog.querySelectorAll('button:not([hidden]):not(:disabled)')];
+                    const first = buttons[0], last = buttons[buttons.length - 1];
+                    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+                }
+            };
+            this.switchFormat(currentCardState.format);
+        },
+
+        closeModal() {
+            this.renderVersion = (this.renderVersion || 0) + 1;
+            this.prepared = null;
+            document.getElementById('zad-share-card-modal')?.remove();
+            this.returnFocus?.focus();
+        },
+        status(text) { const el = document.getElementById('share-card-status'); if (el) el.textContent = text; },
+        switchFormat(format) {
+            currentCardState.format = format === 'square' ? 'square' : 'story';
+            document.querySelectorAll('#zad-share-card-modal [data-format]').forEach(button => {
+                const selected = button.dataset.format === currentCardState.format;
+                button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected));
+            });
+            this.renderCanvas();
         },
 
         switchTheme(themeId, btn) {
@@ -151,10 +184,22 @@
             this.renderCanvas();
         },
 
-        renderCanvas() {
+        async renderCanvas() {
             const canvas = document.getElementById("zad-story-canvas");
             if (!canvas) return;
+            const version = this.renderVersion = (this.renderVersion || 0) + 1;
+            this.prepared = null;
+            const buttons = document.querySelectorAll('#zad-share-card-modal .btn-share-story, #zad-share-card-modal .btn-download-story');
+            buttons.forEach(button => button.disabled = true);
+            this.status('جارٍ تجهيز الصورة…');
+            try {
+            if (document.fonts) await Promise.all([document.fonts.load("bold 62px Amiri", currentCardState.text), document.fonts.load("bold 34px Cairo", currentCardState.ref)]);
+            if (version !== this.renderVersion || !canvas.isConnected) return;
+            canvas.height = currentCardState.format === 'square' ? 1080 : 1920;
+            canvas.parentElement.style.aspectRatio = `1080 / ${canvas.height}`;
             const ctx = canvas.getContext("2d");
+            if (!ctx) throw new Error('Canvas unavailable');
+            ctx.direction = 'rtl';
             const w = canvas.width;
             const h = canvas.height;
 
@@ -182,6 +227,13 @@
 
             // 6. المرجع والتذييل السفلي
             this.drawFooter(ctx, w, h, t);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            if (version !== this.renderVersion || !canvas.isConnected) return;
+            if (!blob) throw new Error('Image export failed');
+            this.prepared = { file: new File([blob], `zadmuslim-${currentCardState.format}.png`, {type:'image/png'}), base64: canvas.toDataURL('image/png').split(',')[1] };
+            buttons.forEach(button => button.disabled = false);
+            this.status('الصورة جاهزة للمشاركة أو الحفظ');
+            } catch (error) { if (version === this.renderVersion) this.status('تعذّر تجهيز الصورة. جرّب اختيار المقاس مرة أخرى.'); }
         },
 
         drawIslamicBackgroundGeometry(ctx, w, h, t) {
@@ -270,70 +322,51 @@
             ctx.fillStyle = t.badgeText;
 
             const categoryText = `✦ ${currentCardState.title} ✦`;
-            ctx.fillText(categoryText, w / 2, 220);
+            ctx.fillText(categoryText, w / 2, h === 1080 ? 145 : 220);
 
             // 2. البسملة الشريفة بخط قرآني جميل
             ctx.font = "normal 52px 'Amiri', 'Traditional Arabic', serif";
             ctx.fillStyle = t.accentGold;
-            ctx.fillText("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", w / 2, 330);
+            ctx.fillText("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", w / 2, h === 1080 ? 220 : 330);
 
             // فاصل مذهب تحت البسملة
             ctx.strokeStyle = t.borderColor;
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo((w / 2) - 150, 400);
-            ctx.lineTo((w / 2) + 150, 400);
+            ctx.moveTo((w / 2) - 150, h === 1080 ? 275 : 400);
+            ctx.lineTo((w / 2) + 150, h === 1080 ? 275 : 400);
             ctx.stroke();
 
             // حلية في منتصف الفاصل
             ctx.fillStyle = t.accentGold;
             ctx.beginPath();
-            ctx.arc(w / 2, 400, 7, 0, Math.PI * 2);
+            ctx.arc(w / 2, h === 1080 ? 275 : 400, 7, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.restore();
         },
 
-        drawMainText(ctx, w, h, t) {
-            ctx.save();
-            ctx.textAlign = "center";
-            ctx.direction = "rtl";
-
-            const rawText = currentCardState.text.trim();
-            const maxWidth = w - 240;
-
-            // تحديد حجم الخط بناء على طول النص
-            let fontSize = 54;
-            if (rawText.length > 200) fontSize = 42;
-            else if (rawText.length > 120) fontSize = 48;
-            else if (rawText.length < 50) fontSize = 62;
-
-            ctx.font = `bold ${fontSize}px 'Amiri', 'Traditional Arabic', 'Cairo', serif`;
-            ctx.fillStyle = t.primaryText;
-
-            const lineHeight = fontSize * 1.8;
-            const lines = this.wrapText(ctx, rawText, maxWidth);
-
-            const totalHeight = lines.length * lineHeight;
-            let startY = (h / 2) - (totalHeight / 2) + 20;
-
-            lines.forEach((line) => {
-                ctx.fillText(line, w / 2, startY);
-                startY += lineHeight;
-            });
-
-            // لو فيه شرح أو تدبر
-            if (currentCardState.subtitle) {
-                ctx.font = "34px 'Cairo', Tahoma, sans-serif";
-                ctx.fillStyle = t.secondaryText;
-                const subLines = this.wrapText(ctx, `« ${currentCardState.subtitle} »`, maxWidth - 80);
-                startY += 40;
-                subLines.forEach(sLine => {
-                    ctx.fillText(sLine, w / 2, startY);
-                    startY += 54;
-                });
+        fitText(ctx, text, width, height, maxSize = 72) {
+            for (let size = maxSize; size >= 12; size--) {
+                ctx.font = `bold ${size}px 'Amiri', 'Traditional Arabic', serif`;
+                const lines = this.wrapText(ctx, text, width);
+                if (lines.length * size * 1.85 <= height && lines.every(line => ctx.measureText(line).width <= width)) return {lines, size, lineHeight: size * 1.85};
             }
-
+            throw new Error('Text exceeds image bounds');
+        },
+        drawMainText(ctx, w, h, t) {
+            ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.direction = 'rtl';
+            const top = h === 1080 ? 315 : 460, bottom = h === 1080 ? h - 285 : h - 410;
+            const subtitleHeight = currentCardState.subtitle ? Math.min(180, (bottom-top)*.3) : 0;
+            const fitted = this.fitText(ctx, currentCardState.text.trim(), w-260, bottom-top-subtitleHeight);
+            ctx.fillStyle = t.primaryText;
+            let y = top + (bottom-top-subtitleHeight-fitted.lines.length*fitted.lineHeight)/2 + fitted.lineHeight/2;
+            fitted.lines.forEach(line => { ctx.fillText(line, w/2, y); y += fitted.lineHeight; });
+            if (currentCardState.subtitle) {
+                const sub = this.fitText(ctx, currentCardState.subtitle, w-280, subtitleHeight, 30);
+                ctx.fillStyle = t.secondaryText; y = bottom-subtitleHeight+sub.lineHeight/2;
+                sub.lines.forEach(line => { ctx.fillText(line,w/2,y); y+=sub.lineHeight; });
+            }
             ctx.restore();
         },
 
@@ -345,31 +378,31 @@
             if (currentCardState.ref) {
                 ctx.font = "bold 34px 'Cairo', Tahoma, sans-serif";
                 ctx.fillStyle = t.accentGold;
-                ctx.fillText(`— ${currentCardState.ref} —`, w / 2, h - 340);
+                ctx.fillText(`— ${currentCardState.ref} —`, w / 2, h - (h === 1080 ? 235 : 340), w - 240);
             }
 
             // فاصل سفلي
             ctx.strokeStyle = t.subtleBorder;
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo((w / 2) - 200, h - 280);
-            ctx.lineTo((w / 2) + 200, h - 280);
+            ctx.moveTo((w / 2) - 200, h - (h === 1080 ? 195 : 280));
+            ctx.lineTo((w / 2) + 200, h - (h === 1080 ? 195 : 280));
             ctx.stroke();
 
             // 2. توقيع زاد المسلم
-            ctx.font = "bold 44px 'Cairo', Tahoma, sans-serif";
+            ctx.font = "bold 32px 'Cairo', Tahoma, sans-serif";
             ctx.fillStyle = t.primaryText;
-            ctx.fillText("زاد المسلم 🌿", w / 2, h - 210);
+            ctx.fillText("زاد المسلم", w / 2, h - (h === 1080 ? 150 : 210));
 
-            ctx.font = "28px 'Cairo', Tahoma, sans-serif";
+            ctx.font = "24px 'Cairo', Tahoma, sans-serif";
             ctx.fillStyle = t.secondaryText;
-            ctx.fillText("زادٌ لقلبك، ونورٌ ليومك • صدقة جارية", w / 2, h - 150);
+            ctx.fillText("زادٌ لقلبك، ونورٌ ليومك • صدقة جارية", w / 2, h - (h === 1080 ? 110 : 150), w - 240);
 
             ctx.restore();
         },
 
         wrapText(ctx, text, maxWidth) {
-            const words = text.split(" ");
+            const words = text.trim().split(/\s+/);
             const lines = [];
             let currentLine = words[0];
 
@@ -388,81 +421,35 @@
         },
 
         async shareDirectlyToStory() {
-            const canvas = document.getElementById("zad-story-canvas");
-            if (!canvas) return;
-
-            // منح وسام سفير الخير
-            if (window.SmartKhatmaService && typeof window.SmartKhatmaService.awardBadge === "function") {
-                window.SmartKhatmaService.awardBadge("badge_share_hero");
-            }
-
-            canvas.toBlob(async (blob) => {
-                if (!blob) return;
-
-                const file = new File([blob], "zadmuslim-story.png", { type: "image/png" });
-                const shareText = `${currentCardState.text}\n\n${currentCardState.ref ? '— ' + currentCardState.ref : ''}\n\nتطبيق زاد المسلم 🌿: https://zadmuslim-zeta.vercel.app/`;
-
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            title: "زاد المسلم",
-                            text: shareText,
-                            files: [file]
-                        });
-                        if (typeof window.showToast === "function") {
-                            window.showToast("تم فتح شاشة المشاركة بنجاح! تقبل الله منك 🤍");
-                        }
-                    } catch (err) {
-                        if (err.name !== "AbortError") {
-                            this.fallbackDownloadAndCopy(blob, shareText);
-                        }
-                    }
-                } else {
-                    this.fallbackDownloadAndCopy(blob, shareText);
-                }
-            }, "image/png");
+            const image = this.prepared;
+            if (!image || this.sharing) return;
+            this.sharing = true;
+            try {
+                const native = window.Capacitor?.isPluginAvailable?.('ImageShare') ? window.Capacitor.Plugins.ImageShare : null;
+                if (native) await native.share({base64:image.base64});
+                else if (navigator.share && navigator.canShare?.({files:[image.file]})) {
+                    // The file is ready before this click, preserving Safari's user activation.
+                    await navigator.share({files:[image.file], title:'زاد المسلم'});
+                } else { this.status('المشاركة المباشرة غير متاحة هنا؛ استخدم حفظ الصورة ثم شاركها من جهازك.'); return; }
+            } catch (error) {
+                if (error.name !== 'AbortError') this.status('تعذّرت المشاركة. يمكنك حفظ الصورة ومشاركتها من جهازك.');
+            } finally { this.sharing = false; }
         },
-
-        fallbackDownloadAndCopy(blob, shareText) {
-            // تحميل الصورة
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "zadmuslim-story.png";
-            a.click();
-            URL.revokeObjectURL(url);
-
-            // نسخ النص للحافظة
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(shareText);
-            }
-
-            if (typeof window.showToast === "function") {
-                window.showToast("تم حفظ بطاقة الستوري بنجاح ونسخ النص لنشرها في الواتساب وإنستغرام 🌿");
-            }
-        },
-
-        downloadCardImage() {
-            const canvas = document.getElementById("zad-story-canvas");
-            if (!canvas) return;
-
-            canvas.toBlob((blob) => {
-                if (!blob) return;
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `zadmuslim-${Date.now()}.png`;
-                a.click();
-                URL.revokeObjectURL(url);
-
-                if (window.SmartKhatmaService) {
-                    window.SmartKhatmaService.awardBadge("badge_share_hero");
+        async downloadCardImage() {
+            const image = this.prepared;
+            if (!image) return;
+            try {
+                const native = window.Capacitor?.isPluginAvailable?.('ImageShare') ? window.Capacitor.Plugins.ImageShare : null;
+                if (native) {
+                    const result = await native.save({base64:image.base64});
+                    if (result.saved) this.status('تم حفظ الصورة');
+                    return;
                 }
-
-                if (typeof window.showToast === "function") {
-                    window.showToast("تم تنزيل بطاقة الستوري بدقة فائقة HD 📥");
-                }
-            }, "image/png");
+                const url = URL.createObjectURL(image.file), link = document.createElement('a');
+                link.href = url; link.download = image.file.name; document.body.append(link); link.click(); link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
+                this.status('تم طلب تنزيل الصورة. إذا ظهرت في صفحة جديدة، اضغط مطولًا عليها للحفظ.');
+            } catch (error) { if (error.name !== 'AbortError') this.status('تعذّر حفظ الصورة. حاول مرة أخرى.'); }
         },
 
         copyCardText() {

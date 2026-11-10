@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
  android:id="@+id/radio_widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
- android:orientation="vertical" android:gravity="center_vertical" android:padding="16dp" android:background="@drawable/widget_background_standard">
- <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="راديو القرآن" android:textColor="#E5CE86" android:textSize="12sp"/>
- <TextView android:id="@+id/radio_widget_station" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="إذاعة القرآن الكريم من القاهرة" android:textColor="#EDF1E7" android:textStyle="bold" android:textSize="16sp" android:maxLines="2" android:ellipsize="end"/>
- <TextView android:id="@+id/radio_widget_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="اضغط للتشغيل" android:textColor="#AFC0B1" android:textSize="12sp" android:layout_marginTop="4dp"/>
- <Button android:id="@+id/radio_widget_toggle" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:text="تشغيل" android:textColor="#10271B" android:backgroundTint="#E5CE86"/>
+ android:layoutDirection="rtl" android:orientation="vertical" android:gravity="center_vertical" android:padding="12dp" android:background="@drawable/widget_background_standard">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+  <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:paddingEnd="8dp">
+   <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="راديو القرآن" android:textColor="#E5CE86" android:textSize="12sp"/>
+   <TextView android:id="@+id/radio_widget_station" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="إذاعة القرآن الكريم من القاهرة" android:textColor="#EDF1E7" android:textStyle="bold" android:textSize="16sp" android:maxLines="2" android:ellipsize="end"/>
+   <TextView android:id="@+id/radio_widget_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="متوقف" android:textColor="#C0D2C7" android:textSize="12sp" android:layout_marginTop="4dp"/>
+  </LinearLayout>
+  <TextView android:id="@+id/radio_widget_toggle" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="▶" android:textSize="22sp" android:contentDescription="تشغيل الراديو" android:textColor="#10271B" android:background="@drawable/widget_radio_play"/>
+ </LinearLayout>
+ <TextView android:id="@+id/radio_widget_choose" android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical" android:text="اختيار المحطة أو الشيخ  ›" android:textColor="#E5CE86" android:textSize="13sp"/>
 </LinearLayout>

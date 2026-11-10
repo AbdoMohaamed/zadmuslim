@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v183";
+const CACHE_NAME = "zad-muslim-v185";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/service-translations.js?v=2",
@@ -12,7 +12,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/reading-font.js?v=7",
   "./assets/js/i18n.js?v=20",
   "./assets/css/i18n.css?v=10",
-  "./assets/js/app.js?v=35",
+  "./assets/js/app.js?v=36",
   "./assets/css/loading-indicator.css?v=1",
   "./assets/js/route-loading.js?v=2",
   "./assets/js/i18n-dictionary.js?v=17",
@@ -66,7 +66,7 @@ const ASSETS_TO_CACHE = [
   "./assets/css/radio-player.css?v=6",
   "./assets/js/radio-player.js?v=7",
   "./assets/js/location-service.js?v=1",
-  "./assets/css/style.css?v=110",
+  "./assets/css/style.css?v=112",
   "./assets/js/theme-controller.js",
   "./assets/css/user-tools.css?v=7",
   "./assets/js/data.js",
@@ -84,7 +84,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/quran.js?v=31",
   "./assets/js/home-prayer-display.js?v=2",
   "./assets/js/smart-khatma.js?v=4",
-  "./assets/js/share-card-generator.js?v=1",
+  "./assets/js/share-card-generator.js?v=2",
   "./assets/js/mood-compass.js?v=1",
   "./assets/js/smart-tasbih.js?v=1",
   "./assets/js/prayer-guide.js?v=1",

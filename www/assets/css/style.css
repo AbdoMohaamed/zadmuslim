@@ -21425,7 +21425,17 @@ body.light-theme textarea {
 
         .share-card-modal-box {
             max-width: 780px !important;
+            max-height: calc(100dvh - 24px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
         }
+        #zad-share-card-modal { padding: 12px; box-sizing: border-box; }
+        #zad-share-card-modal [hidden] { display: none !important; }
+        #zad-share-card-modal button:disabled { opacity: .5; cursor: wait; }
+        #zad-share-card-modal button:focus-visible { outline: 2px solid #b38c2f; outline-offset: 3px; }
+        #zad-share-card-modal .share-format-options { display: flex; flex-wrap: wrap; gap: 8px; }
+        #zad-share-card-modal .share-format-options button { min-height: 44px; flex: 1; }
+        #share-card-status { font-size: .85rem; line-height: 1.6; margin: 0; }
 
         .share-modal-layout {
             display: grid;
@@ -27114,40 +27124,13 @@ body.light-theme textarea {
             transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .home-prayer-action-btn {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: #e6bd70;
-            color: #061d17 !important;
-            font-size: 1rem;
-            font-weight: 800;
-            padding: 13px 20px;
-            border-radius: 9999px;
-            text-decoration: none !important;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(230, 189, 112, 0.25);
-            transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-        }
 
-            .home-prayer-action-btn:hover,
-            .home-prayer-action-btn:focus-visible {
-                background: #f0c97e;
-                transform: translateY(-1px);
-                box-shadow: 0 6px 20px rgba(230, 189, 112, 0.35);
-            }
 
-            .home-prayer-action-btn i {
-                font-size: 0.85rem;
-                transition: transform 0.2s ease;
-            }
 
-            .home-prayer-action-btn:hover i {
-                transform: translateX(-3px);
-            }
+
+
+
+
         /* 2. شريط الصلوات الخمس لليوم (Card 2: Today's 5 Prayers Strip) */
         .home-prayers-strip-card {
             margin-top: 14px;
@@ -27337,11 +27320,7 @@ body.light-theme textarea {
             background: #b8860b !important;
         }
 
-        body.light-theme .home-prayer-action-btn,
-        html[data-theme="light"] .home-prayer-action-btn {
-            background: #b8860b !important;
-            color: #ffffff !important;
-        }
+
 
         body.light-theme .home-strip-name,
         html[data-theme="light"] .home-strip-name {
@@ -28166,17 +28145,10 @@ body.light-theme textarea {
 }
 #home-next-prayer .home-prayer-progress-track { height: 5px; margin-bottom: 20px; background: rgba(181,150,58,.16); }
 #home-next-prayer .home-prayer-progress-fill { background: linear-gradient(90deg,#b38c2f,#f3de94); }
-#home-next-prayer .home-prayer-action-btn {
-    box-sizing: border-box;
-    min-height: 44px;
-    padding: 11px 18px;
-    font-size: .9rem;
-    background: linear-gradient(110deg,#f3de94,#b38c2f);
-    box-shadow: 0 3px 12px rgba(212,169,70,.12);
-}
-#home-next-prayer .home-prayer-action-btn:hover { filter: brightness(1.08); box-shadow: 0 5px 16px rgba(212,169,70,.2); }
-#home-next-prayer .home-prayer-action-btn:focus-visible { outline: 2px solid var(--prayer-card-text); outline-offset: 4px; }
-html[dir="ltr"] #home-next-prayer .home-prayer-action-btn i { rotate: 180deg; }
+
+
+
+
 html[data-theme="light"] #home #home-next-prayer,
 body.light-theme #home #home-next-prayer {
     --prayer-card-bg: #fffaf0;
@@ -28252,20 +28224,71 @@ body.light-theme #home #home-next-prayer {
 #home-prayers-strip .home-strip-name { font-size: .78rem; }
 #home-prayers-strip .home-strip-time { font-size: .74rem; white-space: nowrap; }
 #home-prayers-strip .home-strip-item.is-active { box-shadow: none; }
+/* Compact details link: logical alignment and inherited card theme. */
 #home #home-next-prayer .home-prayer-action-btn {
-    width: auto;
+    --prayer-arrow-turn: 0deg;
+    --prayer-arrow-shift: -2px;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     align-self: flex-end;
+    gap: 8px;
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: 100%;
     min-height: 44px;
-    margin-top: 4px;
-    padding: 8px 2px;
-    border-radius: 6px;
-    color: var(--prayer-card-text) !important;
+    margin-block: 6px 0;
+    margin-inline: auto 0;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
     background: transparent;
+    color: var(--prayer-card-text) !important;
     box-shadow: none;
-    font-size: .8rem;
-    font-weight: 600;
+    font-family: inherit;
+    font-size: .85rem;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .18s ease, border-color .18s ease;
 }
-#home #home-next-prayer .home-prayer-action-btn:hover { text-decoration: underline !important; transform: none; filter: none; }
+#home #home-next-prayer .home-prayer-action-btn i {
+    flex: 0 0 auto;
+    font-size: .75em;
+    rotate: none;
+    transform: rotate(var(--prayer-arrow-turn));
+    transition: transform .18s ease;
+}
+html[dir="ltr"] #home #home-next-prayer .home-prayer-action-btn {
+    --prayer-arrow-turn: 180deg;
+    --prayer-arrow-shift: 2px;
+}
+#home #home-next-prayer .home-prayer-action-btn:is(:hover, :focus-visible) {
+    background: var(--prayer-card-chip);
+    border-color: currentColor;
+    box-shadow: none;
+    transform: none;
+    filter: none;
+    text-decoration: none;
+}
+#home #home-next-prayer .home-prayer-action-btn:focus-visible {
+    outline: 2px solid var(--prayer-card-text);
+    outline-offset: 3px;
+}
+@media (hover: hover) {
+    #home #home-next-prayer .home-prayer-action-btn:hover i {
+        transform: translateX(var(--prayer-arrow-shift)) rotate(var(--prayer-arrow-turn));
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    #home #home-next-prayer .home-prayer-action-btn,
+    #home #home-next-prayer .home-prayer-action-btn i { transition: none; }
+    #home #home-next-prayer .home-prayer-action-btn:hover i { transform: rotate(var(--prayer-arrow-turn)); }
+}
 #home-services-section { margin: 14px 0 18px; display: flex; flex-direction: column; }
 #home-services-section .quick-access-grid { order: 0; margin: 0; gap: 8px; padding-bottom:8px;}
 #home-services-section .home-quick-card { padding: 12px 6px; min-height: 0; border-radius: 16px; box-shadow: none; }

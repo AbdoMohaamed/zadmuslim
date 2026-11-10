@@ -76,5 +76,7 @@
 	<string>يحتاج تطبيق زاد المسلم لتحديد الموقع الجغرافي لحساب مواقيت الصلاة بدقة واتجاه القبلة.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>حفظ بطاقة الآية التي تختارها في مكتبة الصور.</string>
 </dict>
 </plist>
