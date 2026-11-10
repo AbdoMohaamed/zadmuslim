@@ -29,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         if window == nil {
             window = UIWindow(windowScene: windowScene)
-            window?.rootViewController = CAPBridgeViewController()
+            window?.rootViewController = ZadBridgeViewController()
             window?.makeKeyAndVisible()
         }
 

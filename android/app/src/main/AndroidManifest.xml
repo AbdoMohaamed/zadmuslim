@@ -96,7 +96,7 @@
         <receiver android:name=".PrayerWidgetIvoryProvider" android:label="النسخة العاجية الفاتحة (4×2)" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_center_info"/></receiver>
         <receiver android:name=".PrayerWidgetHorizonProvider" android:label="الشريط الأفقي الذكي (4×1)" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_wide_info"/></receiver>
         <receiver android:name=".PrayerWidgetArchProvider" android:label="المحراب الأندلسي (4×2)" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_arch_info"/></receiver>
-        <receiver android:name=".PrayerWidgetAgendaProvider" android:label="الجدارية الشاملة (4×3)" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_agenda_info"/></receiver>
+        <receiver android:name=".PrayerWidgetAgendaProvider" android:label="راديو القرآن • تشغيل وإيقاف" android:exported="true"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_agenda_info"/></receiver>
     </application>
 
     <!-- Permissions -->

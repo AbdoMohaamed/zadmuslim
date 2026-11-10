@@ -46,15 +46,9 @@ struct PrayerTimelineProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<PrayerWidgetEntry>) -> Void) {
         let currentDate = Date()
-        var entries: [PrayerWidgetEntry] = []
-        
-        // Generate current snapshot
-        let entry = loadEntryFromStorage(date: currentDate)
-        entries.append(entry)
-        
-        // Refresh every 15 minutes to keep countdown dynamic and accurate
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate) ?? currentDate.addingTimeInterval(900)
-        let timeline = Timeline(entries: entries, policy: .after(nextUpdate))
+        // Minute entries keep the countdown and next prayer correct between system reloads.
+        let entries = (0..<60).map { loadEntryFromStorage(date: currentDate.addingTimeInterval(Double($0 * 60))) }
+        let timeline = Timeline(entries: entries, policy: .after(currentDate.addingTimeInterval(1800)))
         completion(timeline)
     }
 
@@ -64,10 +58,12 @@ struct PrayerTimelineProvider: TimelineProvider {
         let hijriDate = defaults.string(forKey: "last_hijri_date") ?? "زاد المسلم"
         let randomDhikr = peacefulDhikrs.randomElement() ?? peacefulDhikrs[0]
 
-        guard !jsonStr.isEmpty,
+        guard let updated = defaults.object(forKey: "prayerUpdated") as? Date,
+              Calendar.current.isDate(updated, inSameDayAs: date),
+              !jsonStr.isEmpty,
               let data = jsonStr.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
-            return createSampleEntry(date: date, hijri: hijriDate, dhikr: randomDhikr)
+            return emptyEntry(date: date)
         }
 
         let prayerKeys = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
@@ -91,7 +87,7 @@ struct PrayerTimelineProvider: TimelineProvider {
             if let raw = json[key] as? String {
                 let clean = raw.components(separatedBy: " ").first ?? raw
                 let parts = clean.components(separatedBy: ":")
-                if parts.count >= 2, let h = Int(parts[0]), let m = Int(parts[1]) {
+                if parts.count >= 2, let h = Int(parts[0]), let m = Int(parts[1]), (0...23).contains(h), (0...59).contains(m) {
                     parsedTimes[key] = (h, m, clean)
                     let pMins = h * 60 + m
                     let diff = pMins - nowMinutes
@@ -103,15 +99,10 @@ struct PrayerTimelineProvider: TimelineProvider {
             }
         }
 
-        // If all prayers passed today, next is Fajr tomorrow
-        if diffMinutes == Int.max {
-            nextKey = "Fajr"
-            if let fajr = parsedTimes["Fajr"] {
-                diffMinutes = (24 * 60 - nowMinutes) + (fajr.hour * 60 + fajr.minute)
-            } else {
-                diffMinutes = 240
-            }
-        }
+        guard parsedTimes.count == 5 else { return emptyEntry(date: date) }
+
+        // Tomorrow needs its own verified timetable, not a copy of today.
+        if diffMinutes == Int.max { return emptyEntry(date: date) }
 
         let hoursLeft = diffMinutes / 60
         let minsLeft = diffMinutes % 60
@@ -150,6 +141,10 @@ struct PrayerTimelineProvider: TimelineProvider {
             prayers: items,
             dhikr: randomDhikr
         )
+    }
+
+    private func emptyEntry(date: Date) -> PrayerWidgetEntry {
+        PrayerWidgetEntry(date: date, hijriDate: "", nextPrayerName: "حدّث مواقيت مدينتك", nextPrayerTime: "--:--", countdownText: "افتح التطبيق لتحديث المواقيت", prayers: [], dhikr: peacefulDhikrs[0])
     }
 
     private func formatTo12HourArabic(hour: Int, minute: Int) -> String {
@@ -409,13 +404,13 @@ struct PrayerWidgetEntryView : View {
 }
 
 // MARK: - Main Widget Declaration
-@main
 struct PrayerWidget: Widget {
     let kind: String = "PrayerWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: PrayerTimelineProvider()) { entry in
             PrayerWidgetEntryView(entry: entry)
+                .containerBackground(Color(red: 0.05, green: 0.16, blue: 0.11), for: .widget)
         }
         .configurationDisplayName("زاد المسلم - مواقيت الصلاة")
         .description("عرض الصلاة القادمة والوقت المتبقي ومواقيت الصلوات الخمس مع أذكار متجددة.")

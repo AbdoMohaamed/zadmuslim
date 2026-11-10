@@ -5,7 +5,7 @@ class RadioPlayer {
  constructor(audio, notify=()=>{}) {
   this.audio=audio;this.notify=notify;this.wanted=false;this.generation=0;this.attempt=0;this.state='paused';
   this.online=()=>navigator.onLine!==false;
-  audio.addEventListener('playing',()=>{if(!this.wanted){audio.pause();return;}this.clear();this.setState('playing');this.watch();this.stable=setTimeout(()=>{this.attempt=0;},30000);});
+  audio.addEventListener('playing',()=>{if(!this.wanted){audio.pause();return;}this.clear();this.recoverSameSource=true;this.setState('playing');this.watch();this.stable=setTimeout(()=>{this.attempt=0;},30000);});
   for(const event of ['waiting','stalled'])audio.addEventListener(event,()=>{if(this.wanted&&!this.retry){this.setState('buffering');this.watch();}});
   audio.addEventListener('error',()=>this.reconnect());
   audio.addEventListener('ended',()=>{if(this.station?.offline){this.wanted=false;this.clear();audio.currentTime=0;this.setState('ended');}else this.reconnect();});
@@ -14,7 +14,7 @@ class RadioPlayer {
    if(this.state==='playing'||this.state==='buffering'){this.watch();return;}
    this.generation++;this.clear();this.setState('offline');audio.pause();
   }});
-  global.addEventListener('online',()=>{if(this.wanted&&this.state!=='playing'){this.attempt=0;this.connect();}});
+  global.addEventListener('online',()=>{if(this.wanted&&this.state==='offline'){this.attempt=0;this.connect();}});
   audio.addEventListener('timeupdate',()=>{
    const position=audio.currentTime;
    if(this.wanted&&!this.retry&&!audio.paused&&Number.isFinite(position)&&position>this.lastPosition){
@@ -26,9 +26,22 @@ class RadioPlayer {
  }
  setState(state){this.state=state;this.notify({state,station:this.station,wanted:this.wanted,attempt:this.attempt});}
  clear(){clearTimeout(this.retry);clearTimeout(this.watchdog);clearTimeout(this.stable);this.retry=this.watchdog=this.stable=null;}
- watch(){if(!this.watchdog)this.watchdog=setTimeout(()=>{this.watchdog=null;this.reconnect();},18000);}
+ watch(){
+  if(this.watchdog||!this.wanted)return;
+  const position=this.audio.currentTime;
+  this.watchdog=setTimeout(()=>{
+   this.watchdog=null;
+   if(!this.wanted||this.retry)return;
+   // Safari can delay timeupdate events while audio continues in the background.
+   if(!this.audio.paused&&Number.isFinite(this.audio.currentTime)&&this.audio.currentTime>position){
+    this.lastPosition=this.audio.currentTime;this.setState('playing');this.watch();return;
+   }
+   this.reconnect();
+  },18000);
+ }
+
  select(station,play=this.wanted){this.stop();this.station=station;this.attempt=0;if(play)this.play();else this.setState('paused');}
- play(){if(!this.station)return;this.wanted=true;this.attempt=0;this.useBackup=false;this.connect();}
+ play(){if(!this.station)return;this.wanted=true;this.attempt=0;this.useBackup=false;this.recoverSameSource=false;this.connect();}
  pause(){if(!this.station?.offline){this.stop();return;}this.wanted=false;this.generation++;this.clear();this.audio.pause();this.setState('paused');}
  seek(seconds){if(this.station?.offline&&Number.isFinite(this.audio.duration))this.audio.currentTime=Math.max(0,Math.min(seconds,this.audio.duration));}
  stop(){this.wanted=false;this.generation++;this.clear();this.setState('paused');this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
@@ -53,7 +66,7 @@ class RadioPlayer {
   if(this.station?.offline){this.wanted=false;this.clear();this.setState('failed');return;}
   this.generation++;this.clear();
   if(!this.online()){this.setState('offline');this.audio.pause();return;}
-  this.useBackup=!this.useBackup;
+  if(this.recoverSameSource)this.recoverSameSource=false;else this.useBackup=!this.useBackup;
   const delay=Math.min(1000*2**Math.min(this.attempt,6),60000);this.attempt=Math.min(this.attempt+1,7);
   this.setState('retrying');this.retry=setTimeout(()=>{this.retry=null;this.connect();},delay);
  }
@@ -94,6 +107,24 @@ class NativeRadioPlayer {
  setVolume(volume){if(this.fallback){this.audio.volume=volume;return;}this.command(()=>this.plugin.setVolume({volume}));}
  setSleepTimer(at){this.deadline=at;if(this.fallback)return;this.command(()=>this.plugin.setSleepTimer({at}));}
 }
+// iOS streams use AVPlayer; downloaded recordings stay in the existing web library.
+class IOSRadioPlayer extends NativeRadioPlayer {
+ select(station,play=this.wanted){
+  const revision=this.recordingRevision=(this.recordingRevision||0)+1;this.switching=false;
+  if(this.fallback){this.fallback.stop();this.fallback=null;}
+  if(!station.offline){super.select(station,play);return;}
+  this.station=station;this.wanted=play;this.switching=true;
+  this.command(async()=>{
+   await this.plugin.stop();
+   if(revision!==this.recordingRevision)return;
+   this.fallback=new RadioPlayer(this.audio,result=>{this.wanted=result.wanted;this.state=result.state;this.station=result.station;this.notify(result);});
+   this.fallback.select(station,this.wanted);
+  }).finally(()=>{if(revision===this.recordingRevision)this.switching=false;});
+ }
+ stop(){this.recordingRevision=(this.recordingRevision||0)+1;this.switching=false;super.stop();}
+}
+global.ZadIOSRadioPlayer=IOSRadioPlayer;
+
 global.ZadNativeRadioPlayer=NativeRadioPlayer;
 global.ZadRadioPlayer=RadioPlayer;
 })(window);

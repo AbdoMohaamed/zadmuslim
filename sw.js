@@ -4,15 +4,15 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v180";
+const CACHE_NAME = "zad-muslim-v182";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/service-translations.js?v=2",
-  "./assets/js/extended-modules.js?v=47",
+  "./assets/js/extended-modules.js?v=48",
   "./assets/js/reading-font.js?v=7",
   "./assets/js/i18n.js?v=20",
   "./assets/css/i18n.css?v=10",
-  "./assets/js/app.js?v=34",
+  "./assets/js/app.js?v=35",
   "./assets/css/loading-indicator.css?v=1",
   "./assets/js/route-loading.js?v=1",
   "./assets/js/i18n-dictionary.js?v=17",
@@ -64,7 +64,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/radio-widget.js?v=4",
   "./assets/js/radio-navigation.js?v=4",
   "./assets/css/radio-player.css?v=6",
-  "./assets/js/radio-player.js?v=6",
+  "./assets/js/radio-player.js?v=7",
   "./assets/js/location-service.js?v=1",
   "./assets/css/style.css?v=110",
   "./assets/js/theme-controller.js",
@@ -79,7 +79,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/islamic-stories-data.js?v=3",
   "./assets/js/media-data.js?v=2",
   "./assets/js/firebase-config.js",
-  "./assets/js/native-adhan-service.js?v=17",
+  "./assets/js/native-adhan-service.js?v=18",
   "./assets/js/onesignal-service.js?v=4",
   "./assets/js/quran.js?v=31",
   "./assets/js/home-prayer-display.js?v=2",

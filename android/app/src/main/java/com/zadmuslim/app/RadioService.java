@@ -66,10 +66,20 @@ public class RadioService extends Service {
   if(intent==null||"STOP".equals(intent.getAction())){stopPlayback();return START_NOT_STICKY;}
   if("PAUSE".equals(intent.getAction())){pausePlayback();return START_NOT_STICKY;}
   if("RESUME".equals(intent.getAction())){resumePlayback();return START_NOT_STICKY;}
+  if("WIDGET_TOGGLE".equals(intent.getAction())){
+   // A widget PendingIntent starts a foreground service even when the app is closed.
+   startForeground(ID,notification());
+   if(wanted&&!offline){stopPlayback();return START_NOT_STICKY;}
+   android.content.SharedPreferences prefs=getSharedPreferences("radio-widget",0);
+   intent.putExtra("id",prefs.getString("id","cairo")).putExtra("name",prefs.getString("name","إذاعة القرآن الكريم من القاهرة"))
+    .putExtra("url",prefs.getString("url","https://stream.radiojar.com/8s5u5tpdtwzuv"))
+    .putExtra("backup",prefs.getString("backup","https://radio.xecod.com/station/quran-cairo"));
+  }
   releasePlayer();
   offline=intent.getBooleanExtra("offline",false);
   downloaded=intent.getBooleanExtra("saved",offline);
   name=intent.getStringExtra("name");url=intent.getStringExtra("url");backup=intent.getStringExtra("backup");stationId=intent.getStringExtra("id");volume=intent.getFloatExtra("volume",.8f);
+  if(!offline)getSharedPreferences("radio-widget",0).edit().putString("id",stationId).putString("name",name).putString("url",url).putString("backup",backup).apply();
   position=offline?getSharedPreferences("offline-audio",0).getLong(stationId,0)/1000.0:0;duration=0;
   lastError="";
   try{startForeground(ID,notification());}catch(Exception e){android.util.Log.e("ZadRadio","Foreground playback failed",e);lastError="تعذّر بدء خدمة الصوت في أندرويد";wanted=false;state="failed";stopSelf();return START_NOT_STICKY;}
@@ -77,7 +87,7 @@ public class RadioService extends Service {
   session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE,name).putString(MediaMetadata.METADATA_KEY_ARTIST,"زاد المسلم").build());
   setSleepDeadline(sleepDeadline);connect();return START_NOT_STICKY;
  }
- private void publish(String value){state=value;int playback="playing".equals(value)?PlaybackState.STATE_PLAYING:PlaybackState.STATE_PAUSED;
+ private void publish(String value){state=value;PrayerWidgetAgendaProvider.updateAll(this);int playback="playing".equals(value)?PlaybackState.STATE_PLAYING:PlaybackState.STATE_PAUSED;
   session.setPlaybackState(new PlaybackState.Builder().setActions(PlaybackState.ACTION_PAUSE|PlaybackState.ACTION_STOP|(offline?PlaybackState.ACTION_PLAY|PlaybackState.ACTION_SEEK_TO:0)).setState(playback,offline?(long)(position*1000):PlaybackState.PLAYBACK_POSITION_UNKNOWN,"playing".equals(value)?1:0).build());
   if(wanted||offline)((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(ID,notification());
  }
@@ -123,6 +133,6 @@ public class RadioService extends Service {
   useBackup=!useBackup;
   long delay=Math.min(1000L<<Math.min(attempt,6),60000);attempt=Math.min(attempt+1,7);publish("retrying");retry=()->{retry=null;connect();};handler.postDelayed(retry,delay);
  }
- @Override public void onDestroy(){if(noisyReceiver!=null)unregisterReceiver(noisyReceiver);wanted=false;releasePlayer();handler.removeCallbacksAndMessages(null);if(Build.VERSION.SDK_INT>=26&&focus!=null)audioManager.abandonAudioFocusRequest(focus);else if(focusListener!=null)audioManager.abandonAudioFocus(focusListener);if(session!=null){session.setActive(false);session.release();}instance=null;stopForeground(true);super.onDestroy();}
+ @Override public void onDestroy(){wanted=false;state="paused";PrayerWidgetAgendaProvider.updateAll(this);if(noisyReceiver!=null)unregisterReceiver(noisyReceiver);wanted=false;releasePlayer();handler.removeCallbacksAndMessages(null);if(Build.VERSION.SDK_INT>=26&&focus!=null)audioManager.abandonAudioFocusRequest(focus);else if(focusListener!=null)audioManager.abandonAudioFocus(focusListener);if(session!=null){session.setActive(false);session.release();}instance=null;stopForeground(true);super.onDestroy();}
  @Override public IBinder onBind(Intent intent){return null;}
 }

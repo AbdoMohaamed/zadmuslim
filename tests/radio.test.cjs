@@ -39,7 +39,7 @@ test('stalled streams time out and retry; autoplay denial requires a user gestur
  const h=setup();h.player.play();h.tick(18000);assert.equal(h.player.state,'retrying');h.player.stop();
  h.audio.reject=Object.assign(new Error('gesture'),{name:'NotAllowedError'});h.player.play();await flush();assert.equal(h.player.state,'blocked');assert.equal(h.timers.size,0);
 });
-test('Cairo switches to its backup and returns to primary if the backup later stalls',()=>{
+test('Cairo retries a working backup before returning to primary after repeated failure',()=>{
  const ctx={};vm.runInNewContext(fs.readFileSync('assets/js/radio-stations-data.js','utf8')+';this.stations=RADIO_STATIONS_LIST;',ctx);
  const cairo=ctx.stations.find(s=>s.id==='cairo');
  assert.equal(cairo.url,'https://stream.radiojar.com/8s5u5tpdtwzuv');
@@ -50,7 +50,9 @@ test('Cairo switches to its backup and returns to primary if the backup later st
  assert.deepEqual(h.audio.plays,[cairo.url,cairo.backupUrl]);
  h.audio.dispatchEvent(new Event('playing'));h.audio.currentTime=1;h.audio.dispatchEvent(new Event('timeupdate'));
  h.tick(30000);h.tick(18000);h.tick(1000);
- assert.deepEqual(h.audio.plays,[cairo.url,cairo.backupUrl,cairo.url]);
+ assert.deepEqual(h.audio.plays,[cairo.url,cairo.backupUrl,cairo.backupUrl]);
+ h.audio.dispatchEvent(new Event('error'));h.tick(2000);
+ assert.equal(h.audio.plays.at(-1),cairo.url);
  assert.equal(h.player.station.id,'cairo');h.player.stop();
 });
 
@@ -83,3 +85,28 @@ test('native Quran playback restores the reader and surah after page navigation'
 test('alternative playback waits for native stop and retains the same station',async()=>{let finish;const h=nativeSetup(()=>new Promise(r=>finish=r));assert.equal(h.p.survivesNavigation,true);const switched=h.p.useWebPlayer();assert.equal(h.p.survivesNavigation,false);await flush();assert.equal(h.audio.plays.length,0);finish();await switched;assert.equal(h.p.survivesNavigation,false);assert.deepEqual(h.audio.plays,['https://stream.test/cairo']);assert.equal(h.p.wanted,true);h.p.stop();assert.equal(h.p.wanted,false);});
 test('a failed native stop cannot start a second player',async()=>{const h=nativeSetup(async()=>{throw Error('stop failed');});await h.p.useWebPlayer();assert.equal(h.audio.plays.length,0);assert.equal(h.changes.at(-1).state,'failed');});
 test('stopping during a pending switch prevents delayed playback',async()=>{let finish;const h=nativeSetup(()=>new Promise(r=>finish=r));const switched=h.p.useWebPlayer();await flush();h.p.stop();finish();await switched;assert.equal(h.audio.plays.length,0);});
+
+test('delayed Safari timeupdate events do not reload audio that is still advancing',()=>{
+ const h=setup();h.audio.currentTime=0;h.audio.paused=false;h.player.play();h.audio.dispatchEvent(new Event('playing'));
+ h.audio.currentTime=20;h.tick(18000);
+ assert.equal(h.audio.plays.length,1);assert.equal(h.player.state,'playing');
+ h.audio.currentTime=40;h.tick(18000);assert.equal(h.audio.plays.length,1);
+ h.tick(18000);assert.equal(h.player.state,'retrying');h.player.stop();
+});
+test('online during temporary buffering leaves the existing audio connection intact',()=>{
+ const h=setup();h.player.play();h.audio.dispatchEvent(new Event('playing'));h.audio.dispatchEvent(new Event('waiting'));
+ h.window.dispatchEvent(new Event('online'));assert.equal(h.audio.plays.length,1);h.player.stop();
+});
+
+test('iOS recordings stop native audio first and switching back clears the web player',async()=>{
+ const h=nativeSetup(async()=>{});const p=new h.window.ZadIOSRadioPlayer(h.audio,()=>{},[]);
+ p.select({id:'offline-test',url:'blob:saved-audio',offline:true},true);await p.chain;await flush();
+ assert.ok(p.fallback);assert.equal(h.audio.plays.at(-1),'blob:saved-audio');
+ p.select({id:'cairo',url:'https://stream.test/cairo'},true);await p.chain;
+ assert.equal(p.fallback,null);assert.equal(p.switching,false);assert.equal(p.station.id,'cairo');
+});
+test('stopping an iOS recording during native shutdown prevents delayed playback',async()=>{
+ let finish;const h=nativeSetup(()=>new Promise(r=>finish=r));const p=new h.window.ZadIOSRadioPlayer(h.audio,()=>{},[]);
+ p.select({id:'offline-test',url:'blob:saved-audio',offline:true},true);await flush();p.stop();finish();await flush();
+ assert.equal(h.audio.plays.length,0);assert.equal(p.wanted,false);
+});

@@ -621,7 +621,8 @@ const NativeAdhanService = {
      * تحديث ويدجت الشاشة الرئيسية (Home Screen Widget) بمواقيت الصلاة والتاريخ الهجري والميلادي
      */
     async updateWidget(timings, hijriDate, gregorianDate) {
-        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdhanNative) {
+        const plugin = window.Capacitor?.getPlatform?.() === 'ios' ? window.Capacitor?.Plugins?.PrayerWidgetNative : window.Capacitor?.Plugins?.AdhanNative;
+        if (plugin) {
             try {
                 let hDate = hijriDate || "";
                 let gDate = gregorianDate || "";
@@ -656,7 +657,16 @@ const NativeAdhanService = {
                     try { return JSON.parse(localStorage.getItem("last_active_prayer_timings") || "null"); } catch(e) { return null; }
                 })();
 
-                await window.Capacitor.Plugins.AdhanNative.updatePrayerWidget({
+                let widgetVerified = false;
+                try {
+                    const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
+                    widgetVerified = !!window.zadPrayerVerified && verified?.date === new Date().toLocaleDateString('en-CA') &&
+                        verified?.city === localStorage.getItem('selected_prayer_city') &&
+                        verified?.offset === new Date().getTimezoneOffset() && verified?.zone === Intl.DateTimeFormat().resolvedOptions().timeZone &&
+                        verified?.method === (localStorage.getItem('zad_prayer_method') || '') && verified?.school === (localStorage.getItem('zad_prayer_school') || '0');
+                } catch {}
+                await plugin.updatePrayerWidget({
+                    dataVerified: widgetVerified,
                     cityName: this.widgetCityName(),
                     timings: finalTimings,
                     timingsJson: JSON.stringify(finalTimings || {}),

@@ -5,6 +5,15 @@
 	};
 	objectVersion = 60;
 	objects = {
+/* Begin PBXTargetDependency section */
+A7D000000000000000000019 = {isa = PBXTargetDependency; target = A7D00000000000000000001E; targetProxy = A7D000000000000000000018; };
+/* End PBXTargetDependency section */
+/* Begin PBXContainerItemProxy section */
+A7D000000000000000000018 = {isa = PBXContainerItemProxy; containerPortal = 504EC2FC1FED79650016851F; proxyType = 1; remoteGlobalIDString = A7D00000000000000000001E; remoteInfo = ZadWidgets; };
+/* End PBXContainerItemProxy section */
+/* Begin PBXCopyFilesBuildPhase section */
+A7D000000000000000000014 = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (A7D00000000000000000000F, ); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXBuildFile section */
 		A5A100000000000000000006 /* salawat_2.wav in Resources */ = {isa = PBXBuildFile; fileRef = A5A100000000000000000005 /* salawat_2.wav */; };
@@ -33,6 +42,12 @@
 		95PR000A2DB07C7200EA8C01 /* pre_isha.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */; };
 		95PR000C2DB07C7200EA8C01 /* pre_prayer.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */; };
 		95SW00022DB07C7200EA8C01 /* salawat.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95SW00012DB07C7200EA8C01 /* salawat.mp3 */; };
+A7D00000000000000000000A = {isa = PBXBuildFile; fileRef = A7D000000000000000000001; };
+A7D00000000000000000000B = {isa = PBXBuildFile; fileRef = A7D000000000000000000002; };
+A7D00000000000000000000C = {isa = PBXBuildFile; fileRef = A7D000000000000000000001; };
+A7D00000000000000000000D = {isa = PBXBuildFile; fileRef = A7D000000000000000000003; };
+A7D00000000000000000000E = {isa = PBXBuildFile; fileRef = A7D000000000000000000004; };
+A7D00000000000000000000F = {isa = PBXBuildFile; fileRef = A7D000000000000000000005; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +79,11 @@
 		95PR00092DB07C7200EA8C01 /* pre_isha.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_isha.mp3; sourceTree = "<group>"; };
 		95PR000B2DB07C7200EA8C01 /* pre_prayer.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pre_prayer.mp3; sourceTree = "<group>"; };
 		95SW00012DB07C7200EA8C01 /* salawat.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = salawat.mp3; sourceTree = "<group>"; };
+A7D000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/RadioPlayback.swift; sourceTree = SOURCE_ROOT; };
+A7D000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/RadioNativePlugin.swift; sourceTree = SOURCE_ROOT; };
+A7D000000000000000000003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerWidget/PrayerWidget.swift; sourceTree = SOURCE_ROOT; };
+A7D000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerWidget/RadioWidget.swift; sourceTree = SOURCE_ROOT; };
+A7D000000000000000000005 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = ZadWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,13 +95,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+A7D000000000000000000016 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
-				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
+				A7D000000000000000000001,
+A7D000000000000000000002,
+A7D000000000000000000003,
+A7D000000000000000000004,
+                958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
 			);
@@ -91,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+                A7D000000000000000000005,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -138,11 +164,13 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+                A7D000000000000000000014,
 				A5A100000000000000000008 /* Prepare Prayer Notification Audio */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+                A7D000000000000000000019,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -152,6 +180,7 @@
 			productReference = 504EC3041FED79650016851F /* App.app */;
 			productType = "com.apple.product-type.application";
 		};
+A7D00000000000000000001E = {isa = PBXNativeTarget; buildConfigurationList = A7D00000000000000000001F; buildPhases = (A7D000000000000000000015, A7D000000000000000000016, A7D000000000000000000017, ); buildRules = (); dependencies = (); name = ZadWidgets; productName = ZadWidgets; productReference = A7D000000000000000000005; productType = "com.apple.product-type.app-extension"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -165,7 +194,7 @@
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1100;
 						ProvisioningStyle = Automatic;
-						SystemCapabilities = { com.apple.Push = { enabled = 1; }; };
+						SystemCapabilities = { com.apple.Push = { enabled = 1; }; com.apple.ApplicationGroups.iOS = { enabled = 1; }; };
 					};
 				};
 			};
@@ -185,6 +214,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+                A7D00000000000000000001E,
 				504EC3031FED79650016851F /* App */,
 			);
 		};
@@ -221,6 +251,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+A7D000000000000000000017 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -265,12 +296,13 @@
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
-			files = (
+			files = (A7D00000000000000000000A, A7D00000000000000000000B,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+A7D000000000000000000015 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A7D00000000000000000000C, A7D00000000000000000000D, A7D00000000000000000000E, ); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -448,6 +480,8 @@
 			};
 			name = Release;
 		};
+A7D000000000000000000020 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 21; MARKETING_VERSION = 3.6.21; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+A7D000000000000000000021 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 21; MARKETING_VERSION = 3.6.21; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -469,6 +503,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+A7D00000000000000000001F = {isa = XCConfigurationList; buildConfigurations = (A7D000000000000000000020, A7D000000000000000000021, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */

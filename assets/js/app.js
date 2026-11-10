@@ -3918,11 +3918,11 @@ window.showWidgetInfoModal = function() {
                     <button type="button" class="btn-close-modal" aria-label="إغلاق" onclick="document.getElementById('zad-widget-guide-modal').remove();">&times;</button>
                 </div>
                 <div class="modal-body-content">
-                    <p class="widget-guide-lead">يمكنك وضع مواقيت الصلاة، العد التنازلي، والذكر اليومي مباشرة على شاشة هاتفك الرئيسية كـ <strong>ودجت (Widget)</strong> دون الحاجة لفتح التطبيق!</p>
+                    <p class="widget-guide-lead">أضف مواقيت الصلاة أو راديو القرآن لشاشة هاتفك الرئيسية. ويدجت الراديو يشغّل آخر محطة استمعت إليها ويوقفها مباشرة.</p>
                     <ol class="widget-guide-steps">
                         <li>اخرج للشاشة الرئيسية لهاتفك واضغط مطولاً على أي مساحة فارغة.</li>
-                        <li>اختر <strong>التطبيقات المصغرة (Widgets)</strong>.</li>
-                        <li>ابحث عن <strong>زاد المسلم</strong> ثم اسحب الويدجت وضعه في شاشتك المفضلة.</li>
+                        <li>في أندرويد اختر <strong>التطبيقات المصغرة (Widgets)</strong>، وفي الآيفون اختر <strong>تعديل ثم إضافة ويدجت</strong>.</li>
+                        <li>ابحث عن <strong>زاد المسلم</strong> واختر ويدجت الصلاة أو الراديو. ويدجتا الآيفون تتطلبان iOS 17 أو أحدث ونسخة التطبيق المثبتة.</li>
                     </ol>
                     <div class="widget-guide-actions">
                         <button type="button" class="btn btn-gold" onclick="if(window.NativeAdhanService) window.NativeAdhanService.updatePrayerWidget(); if(typeof window.showToast==='function') window.showToast('تم تحديث بيانات الويدجت بنجاح 🔄'); document.getElementById('zad-widget-guide-modal').remove();">

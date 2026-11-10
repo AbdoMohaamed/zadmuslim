@@ -2804,9 +2804,10 @@ function initLiveRadioWidgetWithSleepTimer() {
  if(statusBadge){statusBadge.setAttribute('role','status');statusBadge.setAttribute('aria-live','polite');}
  const labels={paused:'متوقف',playing:'مباشر',connecting:'جاري الاتصال',buffering:'جاري التحميل',retrying:'إعادة الاتصال',offline:'الإنترنت غير متاح',failed:'البث غير متاح — أعد المحاولة',blocked:'اضغط تشغيل',interrupted:'متوقف مؤقتًا'};
  let sleepDeadline=0, sleepInterval, previousVolume=.8;
- const nativeRadio=window.Capacitor?.getPlatform?.()==='android' && window.Capacitor?.isPluginAvailable?.('RadioNative');
+ const iosRadio=window.Capacitor?.getPlatform?.()==='ios' && window.Capacitor?.isPluginAvailable?.('RadioNative');
+ const nativeRadio=(window.Capacitor?.getPlatform?.()==='android'||iosRadio) && window.Capacitor?.isPluginAvailable?.('RadioNative');
  let alternative;
- if(nativeRadio){
+ if(nativeRadio&&!iosRadio){
   alternative=document.createElement('button');alternative.type='button';alternative.className='btn outline';alternative.hidden=true;
   alternative.textContent='تجربة مشغّل بديل';
   alternative.onclick=()=>{alternative.disabled=true;Promise.resolve(player.useWebPlayer()).finally(()=>{alternative.disabled=false;});};
@@ -2816,7 +2817,7 @@ function initLiveRadioWidgetWithSleepTimer() {
  let favorites;
  try{favorites=JSON.parse(read('zadmuslim_radio_favorites','[]'));if(!Array.isArray(favorites))favorites=[];}catch{favorites=[];}
 
- const Player=nativeRadio?window.ZadNativeRadioPlayer:window.ZadRadioPlayer;
+ const Player=iosRadio?window.ZadIOSRadioPlayer:(nativeRadio?window.ZadNativeRadioPlayer:window.ZadRadioPlayer);
  const player=new Player(audio,({state,station,wanted,error,fallback})=>{
   panel.dataset.state=state;
   if($('radio-play-label'))$('radio-play-label').textContent=wanted?'إيقاف':'تشغيل';
@@ -2992,7 +2993,7 @@ function initLiveRadioWidgetWithSleepTimer() {
    panel.querySelectorAll('.radio-tab-content').forEach(content=>{const active=content.id==='radio-tab-'+button.dataset.tab;content.classList.toggle('active',active);content.style.display=active?'flex':'none';});
   };
  });
- window.ZadOfflineAudio?.mount({player,audio,stations,setStation,start,native:nativeRadio});
+ window.ZadOfflineAudio?.mount({player,audio,stations,setStation,start,native:nativeRadio&&!iosRadio});
 
  // مؤقت النوم (Sleep Timer)
  const timerSelect=$('radio-sleep-timer-select'), countdown=$('radio-timer-countdown');

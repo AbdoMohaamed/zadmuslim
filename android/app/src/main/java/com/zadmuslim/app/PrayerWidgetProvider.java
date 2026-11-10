@@ -67,7 +67,7 @@ public class PrayerWidgetProvider extends AppWidgetProvider {
     public static void updateAllWidgets(Context context) {
         try {
             AppWidgetManager manager = AppWidgetManager.getInstance(context);
-            for (Class<?> provider : new Class<?>[]{PrayerWidgetProvider.class, PrayerWidgetNightProvider.class, PrayerWidgetIvoryProvider.class, PrayerWidgetHorizonProvider.class, PrayerWidgetArchProvider.class, PrayerWidgetAgendaProvider.class}) {
+            for (Class<?> provider : new Class<?>[]{PrayerWidgetProvider.class, PrayerWidgetNightProvider.class, PrayerWidgetIvoryProvider.class, PrayerWidgetHorizonProvider.class, PrayerWidgetArchProvider.class}) {
             ComponentName widgetComponent = new ComponentName(context, provider);
             int[] widgetIds = manager.getAppWidgetIds(widgetComponent);
             if (widgetIds != null && widgetIds.length > 0) {
