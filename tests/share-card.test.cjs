@@ -16,6 +16,29 @@ function setup() {
     return {dom,w,g:w.ShareCardGenerator,ctx,draws};
 }
 const ready = () => new Promise(resolve=>setImmediate(resolve));
+test('an open daily verse card updates its controls and exported labels when the language changes',async()=>{
+    const {dom,w,g,draws}=setup();
+    try {
+        for (const file of ['i18n-dictionary','i18n']) w.eval(fs.readFileSync('assets/js/'+file+'.js','utf8'));
+        const verse='إِنَّ مَعَ الْعُسْرِ يُسْرًا';
+        g.openModal({text:verse,title:'آية اليوم',ref:'سورة الشرح: ٦',dailyVerse:true});
+        await ready();
+        for (const [lang,title,format,dir] of [
+            ['en','Verse of the day','Square post · 1:1','ltr'],
+            ['ur','آج کی آیت','مربع پوسٹ · 1:1','rtl'],
+            ['ar','آية اليوم','منشور مربع · 1:1','rtl']
+        ]) {
+            draws.length=0;
+            w.ZadI18n.set(lang);
+            await ready();
+            assert.equal(w.document.documentElement.dir,dir);
+            assert.equal(w.document.querySelector('[data-format="square"]').textContent,format);
+            assert.ok(draws.some(draw=>draw.text==='✦ '+title+' ✦'));
+            assert.ok(draws.some(draw=>draw.text===verse));
+            assert.ok(g.prepared.file instanceof w.File);
+        }
+    } finally {dom.window.close();}
+});
 test('daily card offers both image formats, hides copy, and closes with focus restored',async()=>{
     const {dom,w,g}=setup();
     try {

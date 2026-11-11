@@ -422,8 +422,8 @@
         },
         {
             id: 'daily_journey',
-            name: 'رحلتك الإيمانية اليوم (مواقيت الصلاة والمهام)',
-            desc: 'بطاقة موعد الصلاة القادمة، عداد إنجاز اليوم، ومتابعة الأذكار والورد القرآني',
+            name: 'الصلاة القادمة',
+            desc: 'تختلف المواقيت حسب مدينتك',
             icon: 'fa-calendar-check'
         },
         {
@@ -508,28 +508,8 @@
             }
         }
 
-        // 3. Daily Journey & 4. Smart Dhikr
-        const journeyPanel = $('daily-journey-panel');
-        const dhikrPanel = null;
-        const dailyHead = $('daily');
-        const dashboardSec = document.querySelector('section.dashboard');
-        const journeyVis = isVisible('daily_journey');
-        const dhikrVis = false;
-
-        if (journeyPanel) journeyPanel.style.display = journeyVis ? '' : 'none';
         const nextPrayerPanel = $('home-next-prayer');
-        if (nextPrayerPanel) nextPrayerPanel.style.display = journeyVis ? '' : 'none';
-        if (dhikrPanel) dhikrPanel.style.display = dhikrVis ? '' : 'none';
-
-        if (dailyHead) dailyHead.style.display = (!journeyVis && !dhikrVis) ? 'none' : '';
-        if (dashboardSec) {
-            if (!journeyVis && !dhikrVis) {
-                dashboardSec.style.display = 'none';
-            } else {
-                dashboardSec.style.display = '';
-                dashboardSec.style.gridTemplateColumns = (journeyVis && !dhikrVis) || (!journeyVis && dhikrVis) ? '1fr' : '';
-            }
-        }
+        if (nextPrayerPanel) nextPrayerPanel.style.display = isVisible('daily_journey') ? '' : 'none';
 
         // 5. Smart Khatma
         const khatmaSlot = $('smart-khatma-dashboard-slot');
@@ -970,6 +950,8 @@
             if (!zadCity.value) zadCity.selectedIndex = 0;
             zadCity.addEventListener('change', () => {
                 store.setItem('selected_prayer_city', zadCity.value);
+                if (zadCity.value !== 'gps') store.removeItem('zad_travel_updates');
+                root.ZadLocation?.syncTravel?.().catch(console.warn);
                 store.setItem('user_manually_selected_city', 'true');
                 if (cities) cities.value = zadCity.value;
                 if (typeof root.fetchPrayerTimes === 'function') root.fetchPrayerTimes(zadCity.value);
@@ -982,6 +964,7 @@
             zadMethod.value = store.getItem('zad_prayer_method') || '';
             zadMethod.addEventListener('change', () => {
                 store.setItem('zad_prayer_method', zadMethod.value);
+                root.ZadLocation?.syncTravel?.().catch(console.warn);
                 if (zadCity && typeof root.fetchPrayerTimes === 'function') root.fetchPrayerTimes(zadCity.value);
                 status('تم حفظ وتطبيق طريقة الحساب فوراً ✨');
             });
@@ -992,6 +975,7 @@
             zadSchool.value = store.getItem('zad_prayer_school') || '0';
             zadSchool.addEventListener('change', () => {
                 store.setItem('zad_prayer_school', zadSchool.value);
+                root.ZadLocation?.syncTravel?.().catch(console.warn);
                 if (zadCity && typeof root.fetchPrayerTimes === 'function') root.fetchPrayerTimes(zadCity.value);
                 status('تم حفظ وتطبيق المذهب فوراً ✨');
             });
@@ -1053,6 +1037,7 @@
                 }
                 if (zadMethod) store.setItem('zad_prayer_method', zadMethod.value);
                 if (zadSchool) store.setItem('zad_prayer_school', zadSchool.value);
+                root.ZadLocation?.syncTravel?.().catch(console.warn);
                 if (zadFont) store.setItem('zad_font_size', zadFont.value);
                 if (zadHijri) store.setItem('zad_hijri_offset', zadHijri.value);
                 store.setItem('zad_setup_done', '1');
@@ -1080,6 +1065,8 @@
             resetSettingsBtn.onclick = () => {
                 if (!confirm('هل تريد استعادة الإعدادات الافتراضية للتطبيق؟ (لن يتم حذف علامات قراءة المصحف أو أذكارك المحفوظة)')) return;
                 store.removeItem('selected_prayer_city');
+                store.removeItem('zad_travel_updates');
+                root.ZadLocation?.syncTravel?.().catch(console.warn);
                 store.removeItem('user_manually_selected_city');
                 store.removeItem('zad_prayer_method');
                 store.removeItem('zad_prayer_school');
@@ -1102,7 +1089,7 @@
                     const backup = makeBackup(store);
                     validateBackup(backup);
                     const fileName = `zad-backup-${new Date().toISOString().slice(0,10)}.json`;
-                    if (root.Capacitor?.isNativePlatform?.() && root.Capacitor.getPlatform?.() === 'android') {
+                    if (root.Capacitor?.isNativePlatform?.() && ['android', 'ios'].includes(root.Capacitor.getPlatform?.())) {
                         const plugin = root.Capacitor.Plugins?.BackupFiles;
                         if (!plugin?.saveBackup) throw Error('حدّث التطبيق لحفظ ملف النسخة على الهاتف.');
                         exportBtn.disabled = true;
@@ -1115,7 +1102,10 @@
                     }
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob), link = document.createElement('a');
-                    link.href = url; link.download = `zad-backup-${new Date().toISOString().slice(0,10)}.json`; link.click();
+                    link.href = url; link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
                     setTimeout(() => URL.revokeObjectURL(url), 30000); status('تم تجهيز النسخة الاحتياطية للتحميل بنجاح ✨', 'zad-backup-status');
                 } catch (error) { status('تعذّر تجهيز النسخة الاحتياطية: ' + error.message, 'zad-backup-status'); }
                 finally { exportBtn.disabled = false; }
@@ -1233,19 +1223,19 @@
     function revealHomeDestination() {
         if (!document.getElementById('home')) return;
         const id = location.hash.slice(1).split('?')[0];
+        if (id === 'daily' || id === 'daily-wird') {
+            (window.zadNavigate || location.replace.bind(location))('services.html#daily-wird');
+            return;
+        }
         if (id === 'smart-dhikr-panel') {
             (window.zadNavigate || location.replace.bind(location))('services.html#smart-dhikr-panel');
             return;
         }
-        if (!['home','daily','services','sadaqa','smart-dhikr-panel','daily-wird'].includes(id)) return;
+        if (!['home','services','sadaqa'].includes(id)) return;
         const target = document.getElementById(id);
         if (!target) return;
         for (let el=target; el && el!==document.body; el=el.parentElement) {
             if (el.style.display === 'none') el.style.removeProperty('display');
-        }
-        if (id==='daily') {
-            document.querySelector('.dashboard')?.style.removeProperty('display');
-            document.getElementById('daily-journey-panel')?.style.removeProperty('display');
         }
         target.scrollIntoView({block:'start'});
     }

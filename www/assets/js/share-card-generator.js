@@ -7,6 +7,7 @@
 
 (function(window, document) {
     "use strict";
+    const label = text => window.ZadI18n?.t(text) ?? text;
 
     const THEMES = {
         "royal_dark": {
@@ -57,6 +58,9 @@
 
     const ShareCardGenerator = {
         init() {
+            window.addEventListener('zad:language-change', () => {
+                if (document.getElementById('zad-share-card-modal')) this.renderCanvas();
+            });
             // الاستماع لأي أزرار مشاركة تحمل الصنف .btn-share-as-card
             document.addEventListener("click", (e) => {
                 const btn = e.target.closest(".btn-share-as-card");
@@ -105,7 +109,7 @@
                         <div class="modal-body-content share-modal-layout">
                             <div class="share-card-preview-area">
                                 <div class="canvas-aspect-wrapper">
-                                    <canvas id="zad-story-canvas" width="1080" height="1920" role="img" aria-label="معاينة صورة المشاركة"></canvas>
+                                    <canvas id="zad-story-canvas" width="1080" height="1920" role="img"></canvas>
                                 </div>
                             </div>
                             <div class="share-card-controls">
@@ -187,6 +191,7 @@
         async renderCanvas() {
             const canvas = document.getElementById("zad-story-canvas");
             if (!canvas) return;
+            canvas.setAttribute('aria-label', label('معاينة صورة المشاركة'));
             const version = this.renderVersion = (this.renderVersion || 0) + 1;
             this.prepared = null;
             const buttons = document.querySelectorAll('#zad-share-card-modal .btn-share-story, #zad-share-card-modal .btn-download-story');
@@ -199,7 +204,7 @@
             canvas.parentElement.style.aspectRatio = `1080 / ${canvas.height}`;
             const ctx = canvas.getContext("2d");
             if (!ctx) throw new Error('Canvas unavailable');
-            ctx.direction = 'rtl';
+            ctx.direction = document.documentElement.dir || 'rtl';
             const w = canvas.width;
             const h = canvas.height;
 
@@ -321,11 +326,12 @@
             ctx.font = "bold 32px 'Cairo', 'Amiri', Tahoma, sans-serif";
             ctx.fillStyle = t.badgeText;
 
-            const categoryText = `✦ ${currentCardState.title} ✦`;
+            const categoryText = `✦ ${label(currentCardState.title)} ✦`;
             ctx.fillText(categoryText, w / 2, h === 1080 ? 145 : 220);
 
             // 2. البسملة الشريفة بخط قرآني جميل
             ctx.font = "normal 52px 'Amiri', 'Traditional Arabic', serif";
+            ctx.direction = 'rtl';
             ctx.fillStyle = t.accentGold;
             ctx.fillText("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", w / 2, h === 1080 ? 220 : 330);
 
@@ -363,7 +369,9 @@
             let y = top + (bottom-top-subtitleHeight-fitted.lines.length*fitted.lineHeight)/2 + fitted.lineHeight/2;
             fitted.lines.forEach(line => { ctx.fillText(line, w/2, y); y += fitted.lineHeight; });
             if (currentCardState.subtitle) {
-                const sub = this.fitText(ctx, currentCardState.subtitle, w-280, subtitleHeight, 30);
+                const subtitle = label(currentCardState.subtitle);
+                ctx.direction = /\p{Script=Arabic}/u.test(subtitle) ? 'rtl' : 'ltr';
+                const sub = this.fitText(ctx, subtitle, w-280, subtitleHeight, 30);
                 ctx.fillStyle = t.secondaryText; y = bottom-subtitleHeight+sub.lineHeight/2;
                 sub.lines.forEach(line => { ctx.fillText(line,w/2,y); y+=sub.lineHeight; });
             }
@@ -378,7 +386,7 @@
             if (currentCardState.ref) {
                 ctx.font = "bold 34px 'Cairo', Tahoma, sans-serif";
                 ctx.fillStyle = t.accentGold;
-                ctx.fillText(`— ${currentCardState.ref} —`, w / 2, h - (h === 1080 ? 235 : 340), w - 240);
+                ctx.fillText(`— ${label(currentCardState.ref)} —`, w / 2, h - (h === 1080 ? 235 : 340), w - 240);
             }
 
             // فاصل سفلي
@@ -392,11 +400,11 @@
             // 2. توقيع زاد المسلم
             ctx.font = "bold 32px 'Cairo', Tahoma, sans-serif";
             ctx.fillStyle = t.primaryText;
-            ctx.fillText("زاد المسلم", w / 2, h - (h === 1080 ? 150 : 210));
+            ctx.fillText(label("زاد المسلم"), w / 2, h - (h === 1080 ? 150 : 210));
 
             ctx.font = "24px 'Cairo', Tahoma, sans-serif";
             ctx.fillStyle = t.secondaryText;
-            ctx.fillText("زادٌ لقلبك، ونورٌ ليومك • صدقة جارية", w / 2, h - (h === 1080 ? 110 : 150), w - 240);
+            ctx.fillText(label("زادٌ لقلبك، ونورٌ ليومك • صدقة جارية"), w / 2, h - (h === 1080 ? 110 : 150), w - 240);
 
             ctx.restore();
         },
@@ -429,7 +437,7 @@
                 if (native) await native.share({base64:image.base64});
                 else if (navigator.share && navigator.canShare?.({files:[image.file]})) {
                     // The file is ready before this click, preserving Safari's user activation.
-                    await navigator.share({files:[image.file], title:'زاد المسلم'});
+                    await navigator.share({files:[image.file], title:label('زاد المسلم')});
                 } else { this.status('المشاركة المباشرة غير متاحة هنا؛ استخدم حفظ الصورة ثم شاركها من جهازك.'); return; }
             } catch (error) {
                 if (error.name !== 'AbortError') this.status('تعذّرت المشاركة. يمكنك حفظ الصورة ومشاركتها من جهازك.');
@@ -453,7 +461,7 @@
         },
 
         copyCardText() {
-            const textToCopy = `${currentCardState.text}\n${currentCardState.ref ? '— ' + currentCardState.ref : ''}\n\nزاد المسلم 🌿: https://zadmuslim-zeta.vercel.app/`;
+            const textToCopy = `${currentCardState.text}\n${currentCardState.ref ? '— ' + label(currentCardState.ref) : ''}\n\n${label('زاد المسلم')} 🌿: https://zadmuslim-zeta.vercel.app/`;
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     if (typeof window.showToast === "function") {

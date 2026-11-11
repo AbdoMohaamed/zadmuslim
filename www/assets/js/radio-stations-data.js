@@ -131,6 +131,7 @@ const RADIO_STATIONS_LIST = [
     },
     {
         id: "azkar",
+        downloadUrl: "https://download.tvquran.com/download/TvQuran.com__Athkar/TvQuran.com_athkar_03.mp3",
         name: "أذكار الصباح",
         desc: "بث صوتي لأذكار الصباح",
         url: "https://qurango.net/radio/athkar_sabah",
@@ -140,6 +141,7 @@ const RADIO_STATIONS_LIST = [
     },
     {
         id: "azkar-evening",
+        downloadUrl: "https://download.tvquran.com/download/TvQuran.com__Athkar/TvQuran.com_athkar_04.mp3",
         name: "أذكار المساء",
         desc: "بث صوتي لأذكار المساء",
         url: "https://qurango.net/radio/athkar_masa",

@@ -1998,6 +1998,8 @@ function initPrayerTimes() {
             localStorage.setItem("selected_prayer_city", city);
             if (city !== "gps") {
                 localStorage.setItem("user_manually_selected_city", "true");
+                localStorage.removeItem('zad_travel_updates');
+                window.ZadLocation?.syncTravel?.().catch(console.warn);
                 fetchPrayerTimes(city);
             } else {
                 localStorage.removeItem("user_manually_selected_city");
@@ -2016,7 +2018,8 @@ function initPrayerTimes() {
         window.prayerTimings = savedHome;
         document.dispatchEvent(new Event('zad:prayer-updated'));
     }
-    fetchPrayerTimes(savedCity);
+    // A background travel update may already have replaced the alarms for the saved coordinates.
+    if (savedCity !== 'gps' || localStorage.getItem('zad_travel_updates') !== '1') fetchPrayerTimes(savedCity);
 
 
 }
@@ -2069,7 +2072,8 @@ async function fetchPrayerTimes(cityKey) {
     }
     if (requestVersion !== prayerRequestVersion) return;
     const scheduleSignature=JSON.stringify([cityKey,localStorage.getItem('zad_prayer_method')||'',localStorage.getItem('zad_prayer_school')||'0',localStorage.getItem('gps_prayer_coords'),Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
-    if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0') || previous.offset!==new Date().getTimezoneOffset() || previous.zone!==Intl.DateTimeFormat().resolvedOptions().timeZone) { if(!offlinePrayer?.renewed) await window.NativeAdhanService?.cancelPrayerAlarms?.(); }
+    const backgroundTravel = cityKey === 'gps' && localStorage.getItem('zad_travel_updates') === '1';
+    if ((storedSchedule && storedSchedule.signature!==scheduleSignature) || !previous || previous.city!==cityKey || previous.method!==(localStorage.getItem('zad_prayer_method')||'') || previous.school!==(localStorage.getItem('zad_prayer_school')||'0') || previous.offset!==new Date().getTimezoneOffset() || previous.zone!==Intl.DateTimeFormat().resolvedOptions().timeZone) { if(!offlinePrayer?.renewed && !backgroundTravel) await window.NativeAdhanService?.cancelPrayerAlarms?.(); }
     if (requestVersion !== prayerRequestVersion) return;
     let url;
     let cacheKey;
@@ -2087,13 +2091,8 @@ async function fetchPrayerTimes(cityKey) {
                 if (Number.isFinite(Number(parsed.lat)) && Number.isFinite(Number(parsed.lng)) && Math.abs(Number(parsed.lat)) <= 90 && Math.abs(Number(parsed.lng)) <= 180) {
                     const latNum = Number(parsed.lat);
                     const lngNum = Number(parsed.lng);
-                    // تحديد طريقة الحساب الفقهية تلقائياً: أم القرى (4) للسعودية والخليج، مصر (5)، رابطة العالم الإسلامي (3)
-                    let method = 4; // الافتراضي: أم القرى
-                    if (latNum >= 21.5 && latNum <= 31.8 && lngNum >= 24.5 && lngNum <= 37) {
-                        method = 5; // جمهورية مصر العربية
-                    }
-                    cacheKey = `prayer_times_gps_${latNum.toFixed(2)}_${lngNum.toFixed(2)}_${localDateStr}`;
-                    url = `https://api.aladhan.com/v1/timings?latitude=${latNum}&longitude=${lngNum}&method=${method}${tzParam}`;
+                    cacheKey = `prayer_times_gps_regional_${latNum.toFixed(2)}_${lngNum.toFixed(2)}_${localDateStr}`;
+                    url = `https://api.aladhan.com/v1/timings?latitude=${latNum}&longitude=${lngNum}${tzParam}`;
                 }
             } catch(e) {}
         }
@@ -2108,7 +2107,11 @@ async function fetchPrayerTimes(cityKey) {
     }
 
     const methodOverride = localStorage.getItem('zad_prayer_method') || '';
-    if (/^(2|3|4|5|7|8|9|10|11|12|13|14|15)$/.test(methodOverride)) url = url.replace(/method=\d+/, 'method=' + methodOverride);
+    if (/^(2|3|4|5|7|8|9|10|11|12|13|14|15)$/.test(methodOverride)) {
+        const request = new URL(url);
+        request.searchParams.set('method', methodOverride);
+        url = request.href;
+    }
     const school = localStorage.getItem('zad_prayer_school') === '1' ? '1' : '0';
     url += '&school=' + school;
     cacheKey += '_clock_v2_' + methodOverride + '_' + school + '_' + userTz + '_' + now.getTimezoneOffset();
@@ -3253,6 +3256,7 @@ function initQiblaCompass() {
   text.textContent=bearing===null?'حدّد موقعك الحالي لحساب القبلة، خصوصًا إذا كنت داخل مكة.':'زاوية القبلة محسوبة للموقع الموضّح. فعّل البوصلة ثم ضع الهاتف مسطحًا وبالوضع الطولي، بعيدًا عن المعادن.';
  }
  function removeSensor(){epoch++;clearTimeout(timer);active=false;window.removeEventListener('deviceorientation',handle,true);window.removeEventListener('deviceorientationabsolute',handle,true);reset();}
+ document.addEventListener('zad:location-updated',()=>{if(modal.classList.contains('open'))refresh();});
  function invalid(message){reset();text.textContent=message;}
  function handle(e){
   if(!active||!modal.classList.contains('open')||bearing===null)return;
@@ -3326,14 +3330,34 @@ window.copyTextToClipboard = function(text) {
 function initGPSLocation() {
     const btnGps = document.getElementById('btn-gps-location');
     let busy = false;
+    const selectedCity = () => localStorage.getItem('selected_prayer_city');
+    let lastCheck = 0;
     window.requestGPSPosition = async function(isSilent = false) {
         if (busy) return;
-        if (isSilent) return window.ZadLocation?.saved();
+        const cityBeforeRequest = selectedCity();
+        if (isSilent && (document.hidden || (cityBeforeRequest !== 'gps' && localStorage.getItem('user_manually_selected_city') === 'true'))) return;
         busy = true;
+        lastCheck = Date.now();
         const original = btnGps?.innerHTML;
-        if (btnGps) { btnGps.disabled = true; btnGps.textContent = 'جارٍ تحديد الموقع...'; }
+        if (btnGps && !isSilent) { btnGps.disabled = true; btnGps.textContent = 'جارٍ تحديد الموقع...'; }
         try {
-            const coords = await window.ZadLocation.get({ refresh: true });
+            if (isSilent) {
+                const granted = await window.ZadLocation.hasPermission();
+                if (granted === false || (granted === null && cityBeforeRequest !== 'gps')) return;
+            }
+            const coords = await window.ZadLocation.current();
+            if (selectedCity() !== cityBeforeRequest || (isSilent && document.hidden)) return;
+            const previous = window.ZadLocation.saved();
+            if (isSilent && cityBeforeRequest === 'gps' && previous) {
+                const rad = Math.PI / 180;
+                const north = (coords.lat - previous.lat) * 111320;
+                const east = ((coords.lng - previous.lng + 540) % 360 - 180) * 111320 * Math.cos(coords.lat * rad);
+                if (Math.hypot(north, east) < Math.max(50, coords.accuracy || 0)) {
+                    if (!window.zadPrayerVerified && localStorage.getItem('zad_travel_updates') === '1') await fetchPrayerTimes('gps');
+                    return previous;
+                }
+            }
+            localStorage.setItem('gps_prayer_coords', JSON.stringify(coords));
             localStorage.setItem('selected_prayer_city', 'gps');
             localStorage.setItem('user_manually_selected_city', 'true');
             const select = document.getElementById('select-prayer-city');
@@ -3342,13 +3366,53 @@ function initGPSLocation() {
                 if (!option) { option = new Option('موقعي المحفوظ (GPS)', 'gps'); select.add(option); }
                 option.style.display = 'block'; select.value = 'gps';
             }
-            showToast('تم حفظ موقعك. يجري تحديث المواقيت حسب الاتصال المتاح.');
+            document.dispatchEvent(new Event('zad:location-updated'));
+            if (!isSilent) showToast('تم حفظ موقعك. يجري تحديث المواقيت حسب الاتصال المتاح.');
             await fetchPrayerTimes('gps');
             return coords;
-        } catch (error) { showToast(window.ZadLocation.errorMessage(error)); }
-        finally { busy = false; if (btnGps) { btnGps.disabled = false; btnGps.innerHTML = original; } }
+        } catch (error) { if (!isSilent) showToast(window.ZadLocation.errorMessage(error)); }
+        finally { busy = false; if (btnGps && !isSilent) { btnGps.disabled = false; btnGps.innerHTML = original; } }
     };
     if (btnGps) btnGps.addEventListener('click', () => window.requestGPSPosition(false));
+    const travel = document.getElementById('prayer-travel-updates');
+    if (travel && window.Capacitor?.isPluginAvailable?.('PrayerTravel')) {
+        travel.hidden = false;
+        const toggle = travel.querySelector('input'), status = travel.querySelector('[role=status]');
+        const update = async (prompt = false) => {
+            toggle.checked = selectedCity() === 'gps' && localStorage.getItem('zad_travel_updates') === '1';
+            const result = await window.ZadLocation.syncTravel(prompt);
+            status.textContent = toggle.checked && !result?.authorized ? 'اسمح بالموقع دائمًا من إعدادات الهاتف لتحديث الأذان أثناء السفر.' : '';
+        };
+        toggle.onchange = async () => {
+            toggle.disabled = true;
+            try {
+                if (toggle.checked) {
+                    const fix = await window.requestGPSPosition(false);
+                    if (!fix) { toggle.checked = false; return; }
+                    localStorage.setItem('zad_travel_updates','1');
+                } else localStorage.removeItem('zad_travel_updates');
+                await update(toggle.checked);
+                if (toggle.checked && window.Capacitor.getPlatform?.() === 'ios') {
+                    await window.Capacitor.Plugins.PrayerTravel.remember({minutes:window.NativeAdhanService?.getNotificationSettings().prePrayerInterval || 5});
+                }
+            } finally { toggle.disabled = false; }
+        };
+        const sync = () => update().catch(console.warn);
+        document.getElementById('select-prayer-city')?.addEventListener('change', sync);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });
+        sync();
+    }
+    const refresh = () => window.requestGPSPosition(true);
+    window.addEventListener('storage', event => {
+        if (event.key === 'gps_prayer_coords' && selectedCity() === 'gps') {
+            document.dispatchEvent(new Event('zad:location-updated'));
+            fetchPrayerTimes('gps');
+        }
+    });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    window.addEventListener('pageshow', () => { if (Date.now()-lastCheck > 60000) refresh(); });
+    setInterval(() => { if (Date.now()-lastCheck >= 60000) refresh(); }, 60000);
+    refresh();
 }
 
 /* ==========================================================================
@@ -3498,6 +3562,8 @@ function initDailyWird() {
 
         if (progressBadge) {
             progressBadge.textContent = `${count} من ${total} مهام (${pct}%)`;
+            const directoryProgress = document.getElementById("services-wird-progress");
+            if (directoryProgress) directoryProgress.textContent = progressBadge.textContent;
             progressBadge.classList.toggle("all-done", count === total && total > 0);
         }
 

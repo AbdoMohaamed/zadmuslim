@@ -2,6 +2,81 @@
 (function(root){
  'use strict';
  const rows=`
+يُرسل موقعك الجديد إلى AlAdhan لتحديث مواقيت الصلاة أثناء السفر.|Your new location is sent to AlAdhan to update prayer times as you travel.|سفر کے دوران نماز کے اوقات اپ ڈیٹ کرنے کے لیے آپ کا نیا مقام AlAdhan کو بھیجا جاتا ہے۔
+إذا فعّلت تحديث الأذان أثناء السفر وسمحت بالموقع دائمًا، يرسل التطبيق إحداثيات موقعك الجديد إلى AlAdhan لتحديث التنبيهات حتى عندما يكون التطبيق مغلقًا. يمكنك إيقاف ذلك من مواقيت الصلاة أو من إعدادات أذونات الهاتف.|If you enable travel updates and allow location access all the time, the app sends your new coordinates to AlAdhan to update prayer alerts even when the app is closed. You can turn this off in Prayer Times or your phone’s permissions.|اگر آپ سفری اپ ڈیٹس فعال کر کے مقام تک ہمیشہ رسائی دیں تو ایپ بند ہونے پر بھی نئے مقام کے نقاط AlAdhan کو بھیجے جاتے ہیں تاکہ نماز کی اطلاعات اپ ڈیٹ ہوں۔ آپ اسے اوقاتِ نماز یا فون کی اجازتوں میں بند کر سکتے ہیں۔
+تحديث الأذان أثناء السفر والتطبيق مغلق|Update prayer alerts while traveling with the app closed|سفر کے دوران ایپ بند ہو تب بھی اذان کے اوقات اپ ڈیٹ کریں
+اسمح بالموقع دائمًا من إعدادات الهاتف لتحديث الأذان أثناء السفر.|Allow location access all the time in phone settings to update prayer alerts while traveling.|سفر کے دوران اذان کے اوقات اپ ڈیٹ کرنے کے لیے فون کی ترتیبات میں مقام تک ہمیشہ رسائی دیں۔
+تشغيل الأذكار|Play adhkar|اذکار سنیں
+تنزيل للاستماع بدون إنترنت|Download to listen offline|آف لائن سننے کے لیے ڈاؤن لوڈ کریں
+متاح بدون إنترنت|Available offline|آف لائن دستیاب ہے
+أذكار محفوظة|Saved adhkar|محفوظ اذکار
+اكتمل التشغيل|Playback finished|ریکارڈنگ مکمل ہو گئی
+تعذّر تشغيل الأذكار|Couldn’t play the adhkar|اذکار چلائے نہیں جا سکے
+تعذّر تنزيل الأذكار. أعد المحاولة.|Couldn’t download the adhkar. Try again.|اذکار ڈاؤن لوڈ نہیں ہو سکے۔ دوبارہ کوشش کریں۔
+نزّل الأذكار أولًا للاستماع بدون إنترنت|Download the adhkar first to listen offline|آف لائن سننے کے لیے پہلے اذکار ڈاؤن لوڈ کریں
+الاتجاهات|Directions|راستہ دیکھیں
+الاتجاهات ↗|Directions ↗|راستہ دیکھیں ↗
+موقعك الحالي 📍|Your location 📍|آپ کا موجودہ مقام 📍
+انقر لعرض وتكبير المسجد على الخريطة|Show this mosque on the map|یہ مسجد نقشے پر دیکھیں
+عرض وتكبير المسجد على الخريطة|Show this mosque on the map|یہ مسجد نقشے پر دیکھیں
+🤍 صدقة جارية لمن تحب|🤍 Ongoing charity for a loved one|🤍 اپنے پیارے کے لیے صدقۂ جاریہ
+اكتب اسم المتوفى لتجهيز الدعاء ورابط المشاركة.|Enter the deceased person’s name to prepare a dua and a link to share.|دعا اور شیئر کرنے کا لنک تیار کرنے کے لیے مرحوم کا نام لکھیں۔
+اسم المتوفى أو المهدى له|Name of the person you are praying for|جس کے لیے دعا کر رہے ہیں اس کا نام
+مثال: الوالد رحمه الله أو فلان بن فلان|For example, your father’s name|مثلاً اپنے والد کا نام
+تجهيز بطاقة الدعاء والرابط ✨|Create dua card and link ✨|دعا کا کارڈ اور لنک بنائیں ✨
+دعاء لمن تحب|A dua for a loved one|اپنے پیارے کے لیے دعا
+مشاركة الدعاء والرابط|Share dua and link|دعا اور لنک شیئر کریں
+تم نسخ الدعاء والرابط ✓|Dua and link copied ✓|دعا اور لنک کاپی ہو گئے ✓
+الدعاء والرابط للنسخ اليدوي|Dua and link to copy|کاپی کرنے کے لیے دعا اور لنک
+تعذّرت المشاركة؛ انسخ النص الظاهر|Couldn’t share. Copy the text shown here.|شیئر نہیں ہو سکا۔ دکھایا گیا متن کاپی کریں۔
+دليل المتوفى|Guide to praying for the deceased|مرحوم کے لیے دعا کی رہنمائی
+الموقع المحفوظ — حدّثه إذا انتقلت|Saved location — update it if you’ve moved|محفوظ مقام — جگہ بدلنے پر اسے اپ ڈیٹ کریں
+لم يتم تحديد موقع موثوق|Location not confirmed|مقام کی تصدیق نہیں ہوئی
+حدّد موقعك الحالي لحساب القبلة، خصوصًا إذا كنت داخل مكة.|Set your current location to calculate the qibla, especially if you are in Makkah.|قبلے کی سمت معلوم کرنے کے لیے اپنا موجودہ مقام منتخب کریں، خاص طور پر اگر آپ مکہ میں ہیں۔
+زاوية القبلة محسوبة للموقع الموضّح. فعّل البوصلة ثم ضع الهاتف مسطحًا وبالوضع الطولي، بعيدًا عن المعادن.|The qibla angle is for the location shown. Enable the compass and lay your phone flat in portrait orientation, away from metal.|قبلے کا زاویہ دکھائے گئے مقام کے لیے ہے۔ کمپاس فعال کریں اور فون کو دھات سے دور، پورٹریٹ موڈ میں ہموار سطح پر رکھیں۔
+الحساس لم يوفّر اتجاه الشمال. الزاوية المعروضة للموقع فقط؛ استخدم بوصلة موثوقة لتوجيهها.|The sensor couldn’t locate north. Use a reliable compass with the angle shown for your location.|سینسر شمال کا تعین نہیں کر سکا۔ اپنے مقام کے لیے دکھایا گیا زاویہ کسی قابلِ اعتماد کمپاس کے ساتھ استعمال کریں۔
+اجعل الشاشة في الوضع الطولي وضع الهاتف مسطحًا لقراءة الاتجاه.|Switch to portrait orientation and lay your phone flat to read the direction.|سمت معلوم کرنے کے لیے فون پورٹریٹ موڈ میں ہموار سطح پر رکھیں۔
+ضع الهاتف مسطحًا، والشاشة لأعلى؛ لا تعتمد على اتجاه السهم أثناء إمالته.|Lay your phone flat with the screen facing up. Tilting it affects the arrow’s accuracy.|فون ہموار سطح پر اسکرین اوپر کی طرف رکھیں۔ فون جھکا ہو تو تیر کی سمت پر بھروسا نہ کریں۔
+دقة البوصلة ضعيفة. ابتعد عن المعادن وحرّك الهاتف على شكل 8 ثم أعد وضعه مسطحًا.|Compass accuracy is low. Move away from metal, move your phone in a figure eight, then lay it flat again.|کمپاس کی درستگی کم ہے۔ دھات سے دور جائیں، فون کو 8 کی شکل میں حرکت دیں اور پھر ہموار سطح پر رکھیں۔
+توقفت قراءة الحساس. اضغط تفعيل الحساس لإعادة المحاولة.|Sensor readings stopped. Enable the sensor to try again.|سینسر کی ریڈنگ رک گئی ہے۔ دوبارہ کوشش کے لیے سینسر فعال کریں۔
+أنت قريب من اتجاه القبلة حسب قراءة الحساس. أبقِ الهاتف مسطحًا وبعيدًا عن المعادن.|The sensor shows you are close to the qibla direction. Keep your phone flat and away from metal.|سینسر کے مطابق آپ کا رخ قبلے کی سمت کے قریب ہے۔ فون ہموار سطح پر اور دھات سے دور رکھیں۔
+وجّه أعلى الهاتف نحو علامة الكعبة. قراءة الحساس تقريبية وقد تتأثر بالمجالات المغناطيسية.|Point the top of your phone toward the Kaaba marker. Magnetic fields can affect this estimate.|فون کا اوپری سرا کعبہ کے نشان کی طرف کریں۔ یہ اندازاً سمت ہے اور مقناطیسی میدان اس پر اثر ڈال سکتے ہیں۔
+في انتظار قراءة اتجاه موثوقة من الحساس…|Waiting for a reliable compass reading…|کمپاس کی قابلِ اعتماد ریڈنگ کا انتظار ہے…
+حساس البوصلة غير متاح هنا. الزاوية المعروضة للموقع فقط.|Compass sensor unavailable. The angle shown is for your location.|کمپاس سینسر دستیاب نہیں۔ دکھایا گیا زاویہ آپ کے مقام کے لیے ہے۔
+إذن حساس الاتجاه غير مسموح. اسمح به من إعدادات المتصفح ثم أعد المحاولة.|Allow orientation sensor access in your browser settings, then try again.|براؤزر کی ترتیبات میں سمت کے سینسر کی اجازت دیں اور دوبارہ کوشش کریں۔
+لم تصل قراءة موثوقة للبوصلة. فعّل الحساس أو استخدم زاوية الشمال المعروضة مع بوصلة أخرى.|No reliable compass reading yet. Enable the sensor or use the angle from north with another compass.|کمپاس کی قابلِ اعتماد ریڈنگ نہیں ملی۔ سینسر فعال کریں یا شمال سے دکھایا گیا زاویہ کسی دوسرے کمپاس کے ساتھ استعمال کریں۔
+تعذّر تفعيل حساس الاتجاه. افتح الصفحة في المتصفح أو راجع أذونات الحركة.|Couldn’t enable the orientation sensor. Open this page in your browser or check motion permissions.|سمت کا سینسر فعال نہیں ہو سکا۔ صفحہ براؤزر میں کھولیں یا حرکت کے سینسر کی اجازت دیکھیں۔
+اضغط تفعيل الحساس لاستئناف قراءة الاتجاه.|Enable the sensor to resume compass readings.|سمت کی ریڈنگ دوبارہ شروع کرنے کے لیے سینسر فعال کریں۔
+تعذّر تحديد الموقع. اسمح بالموقع أو اختر مدينتك من الإعدادات.|Couldn’t find your location. Allow location access or choose your city in settings.|مقام معلوم نہیں ہو سکا۔ مقام تک رسائی کی اجازت دیں یا ترتیبات میں اپنا شہر منتخب کریں۔
+جارٍ تحميل يومي…|Loading My Day…|میرا دن لوڈ ہو رہا ہے…
+تفاصيل|Details|تفصیلات
+مشاركة الآية كصورة|Share verse as an image|آیت بطور تصویر شیئر کریں
+آية اليوم|Verse of the day|آج کی آیت
+آية مباركة|Quranic verse|قرآنی آیت
+آية كريمة|Quranic verse|قرآنی آیت
+مشاركة البطاقة كصورة|Share card as an image|کارڈ بطور تصویر شیئر کریں
+معاينة صورة المشاركة|Share image preview|شیئر کی جانے والی تصویر کا پیش منظر
+مقاس الصورة|Image format|تصویر کا سائز
+حالة / ستوري · 9:16|Story · 9:16|اسٹوری · 9:16
+منشور مربع · 1:1|Square post · 1:1|مربع پوسٹ · 1:1
+اختر مظهر وألوان البطاقة:|Choose a card theme|کارڈ کا انداز منتخب کریں
+🌌 داكن ملكي|🌌 Royal dark|🌌 شاہی سیاہ
+📜 ورقي مذهّب|📜 Gold parchment|📜 سنہری کاغذ
+🌿 أخضر زمردي|🌿 Emerald green|🌿 زمردی سبز
+مشاركة الصورة|Share image|تصویر شیئر کریں
+حفظ الصورة|Save image|تصویر محفوظ کریں
+نسخ النص|Copy text|متن کاپی کریں
+اختر التطبيق من قائمة المشاركة وأكمل النشر بنفسك، أو احفظ الصورة لاستخدامها لاحقًا.|Choose an app to share the image, or save it for later.|تصویر شیئر کرنے کے لیے ایپ منتخب کریں یا اسے بعد کے لیے محفوظ کر لیں۔
+جارٍ تجهيز الصورة…|Preparing image…|تصویر تیار ہو رہی ہے…
+الصورة جاهزة للمشاركة أو الحفظ|Image ready to share or save|تصویر شیئر یا محفوظ کرنے کے لیے تیار ہے
+تعذّر تجهيز الصورة. جرّب اختيار المقاس مرة أخرى.|Couldn’t prepare the image. Select the format again.|تصویر تیار نہیں ہو سکی۔ سائز دوبارہ منتخب کریں۔
+المشاركة المباشرة غير متاحة هنا؛ استخدم حفظ الصورة ثم شاركها من جهازك.|Save the image, then share it from your device.|تصویر محفوظ کریں، پھر اسے اپنے آلے سے شیئر کریں۔
+تعذّرت المشاركة. يمكنك حفظ الصورة ومشاركتها من جهازك.|Couldn’t share the image. You can save it and share it from your device.|تصویر شیئر نہیں ہو سکی۔ اسے محفوظ کر کے اپنے آلے سے شیئر کریں۔
+تم حفظ الصورة|Image saved|تصویر محفوظ ہو گئی
+تم طلب تنزيل الصورة. إذا ظهرت في صفحة جديدة، اضغط مطولًا عليها للحفظ.|Download requested. If the image opens in a new tab, press and hold it to save.|ڈاؤن لوڈ کی درخواست بھیج دی گئی۔ اگر تصویر نئے صفحے پر کھلے تو محفوظ کرنے کے لیے اسے دبا کر رکھیں۔
+تعذّر حفظ الصورة. حاول مرة أخرى.|Couldn’t save the image. Try again.|تصویر محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔
+تم نسخ النص بنجاح 📋|Text copied 📋|متن کاپی ہو گیا 📋
+زادٌ لقلبك، ونورٌ ليومك • صدقة جارية|Nourishment for your heart, light for your day • Ongoing charity|دل کی غذا، دن کی روشنی • صدقۂ جاریہ
 جهّز دعاءً باسم من تحب، وشاركه مع رابط زاد المسلم.|Prepare a dua for a loved one and share it with a link to Zad Al Muslim.|اپنے پیارے کے نام کی دعا تیار کریں اور زاد المسلم کے لنک کے ساتھ شیئر کریں۔
 جهّز دعاءً ورابط مشاركة|Prepare a dua & sharing link|دعا اور شیئرنگ لنک تیار کریں
 دليل ما ينفع المتوفى والأدعية المأثورة|Guide to duas & deeds for the deceased|مرحوم کے لیے دعاؤں اور اعمال کی رہنمائی

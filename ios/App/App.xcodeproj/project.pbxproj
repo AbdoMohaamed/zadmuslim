@@ -44,6 +44,7 @@ A7D000000000000000000014 = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147
 		95SW00022DB07C7200EA8C01 /* salawat.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 95SW00012DB07C7200EA8C01 /* salawat.mp3 */; };
 A7D00000000000000000000A = {isa = PBXBuildFile; fileRef = A7D000000000000000000001; };
 A7D00000000000000000000B = {isa = PBXBuildFile; fileRef = A7D000000000000000000002; };
+A7D00000000000000000001B = {isa = PBXBuildFile; fileRef = A7D000000000000000000012; };
 A7D00000000000000000000C = {isa = PBXBuildFile; fileRef = A7D000000000000000000001; };
 A7D00000000000000000000D = {isa = PBXBuildFile; fileRef = A7D000000000000000000003; };
 A7D00000000000000000000E = {isa = PBXBuildFile; fileRef = A7D000000000000000000004; };
@@ -81,6 +82,7 @@ A7D00000000000000000000F = {isa = PBXBuildFile; fileRef = A7D0000000000000000000
 		95SW00012DB07C7200EA8C01 /* salawat.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = salawat.mp3; sourceTree = "<group>"; };
 A7D000000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/RadioPlayback.swift; sourceTree = SOURCE_ROOT; };
 A7D000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/RadioNativePlugin.swift; sourceTree = SOURCE_ROOT; };
+A7D000000000000000000012 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/PrayerTravel.swift; sourceTree = SOURCE_ROOT; };
 A7D000000000000000000003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerWidget/PrayerWidget.swift; sourceTree = SOURCE_ROOT; };
 A7D000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerWidget/RadioWidget.swift; sourceTree = SOURCE_ROOT; };
 A7D000000000000000000005 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = ZadWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -104,6 +106,7 @@ A7D000000000000000000016 = {isa = PBXFrameworksBuildPhase; buildActionMask = 214
 			children = (
 				A7D000000000000000000001,
 A7D000000000000000000002,
+A7D000000000000000000012,
 A7D000000000000000000003,
 A7D000000000000000000004,
                 958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
@@ -296,7 +299,7 @@ A7D000000000000000000017 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
-			files = (A7D00000000000000000000A, A7D00000000000000000000B,
+			files = (A7D00000000000000000000A, A7D00000000000000000000B, A7D00000000000000000001B,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 			);
@@ -441,14 +444,14 @@ A7D000000000000000000015 = {isa = PBXSourcesBuildPhase; buildActionMask = 214748
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.6.21;
+				MARKETING_VERSION = 3.6.22;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -464,14 +467,14 @@ A7D000000000000000000015 = {isa = PBXSourcesBuildPhase; buildActionMask = 214748
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.6.21;
+				MARKETING_VERSION = 3.6.22;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -480,8 +483,8 @@ A7D000000000000000000015 = {isa = PBXSourcesBuildPhase; buildActionMask = 214748
 			};
 			name = Release;
 		};
-A7D000000000000000000020 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 21; MARKETING_VERSION = 3.6.21; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
-A7D000000000000000000021 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 21; MARKETING_VERSION = 3.6.21; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+A7D000000000000000000020 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 22; MARKETING_VERSION = 3.6.22; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+A7D000000000000000000021 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 22; MARKETING_VERSION = 3.6.22; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */

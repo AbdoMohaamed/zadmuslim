@@ -20,6 +20,7 @@ public class AdhanScheduleRestoreReceiver extends BroadcastReceiver {
         }
 
         BackgroundReminderReceiver.restore(context);
+        PrayerTravelPlugin.restore(context);
         AdhanNativePlugin.rescheduleAlarmsFromPrefs(context);
         PrayerWidgetProvider.updateAllWidgets(context);
         AdhanAlarmReceiver.cancelLegacyBroadcastCheck(context);

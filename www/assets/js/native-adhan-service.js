@@ -85,7 +85,10 @@ const NativeAdhanService = {
     async registerPrayerActions() {
         const plugin = window.Capacitor?.Plugins?.LocalNotifications;
         if (window.Capacitor?.getPlatform?.() !== 'ios' || this.prayerActionsRegistered || !plugin?.registerActionTypes) return;
-        await plugin.registerActionTypes({types:[{id:'OPEN_PRAYER',actions:[{id:'dismiss_adhan',title:window.ZadI18n?.t('إغلاق التنبيه') || 'إغلاق التنبيه',foreground:false}]}]});
+        await plugin.registerActionTypes({types:[
+            {id:'OPEN_PRAYER',actions:[{id:'dismiss_adhan',title:window.ZadI18n?.t('إغلاق التنبيه') || 'إغلاق التنبيه',foreground:false}]},
+            {id:'ADHKAR_RADIO',actions:[{id:'play_adhkar',title:window.ZadI18n?.t('تشغيل الأذكار') || 'تشغيل الأذكار',foreground:true}]}
+        ]});
         this.prayerActionsRegistered = true;
     },
 
@@ -169,6 +172,12 @@ const NativeAdhanService = {
             LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
                 console.log("🕌 Native Notification Action performed:", action);
                 const notif = action.notification;
+                if (action.actionId === 'play_adhkar') {
+                    const stationId = {morning_azkar:'azkar',evening_azkar:'azkar-evening'}[notif?.extra?.type];
+                    const station = window.RADIO_STATIONS_LIST?.find(item => item.id === stationId);
+                    if (station) this.playAdhkarReminder(station).catch(() => window.showToast?.('تعذّر تشغيل الأذكار'));
+                    return;
+                }
                 if (action.actionId === "dismiss_adhan") {
                     LocalNotifications.removeDeliveredNotifications({notifications:[{id:notif.id}]}).catch(e=>console.warn("Dismiss notification failed",e));
                     return;
@@ -219,6 +228,7 @@ const NativeAdhanService = {
             const pending = await plugins?.LocalNotifications?.getPending();
             const prayers = pending?.notifications?.filter(n => n.id < 70000 || n.id === 89990) || [];
             if (prayers.length) await plugins.LocalNotifications.cancel({ notifications: prayers });
+            if (window.Capacitor?.getPlatform?.() === 'ios' && window.Capacitor.isPluginAvailable?.('PrayerTravel')) await plugins.PrayerTravel.remember({minutes:5});
         } catch {}
     },
     async futurePrayerDays(now) {
@@ -252,11 +262,24 @@ const NativeAdhanService = {
         return window.zadPrayerApiSource === source ? days : [];
     },
 
+    async playAdhkarReminder(station) {
+        const radio = window.Capacitor.Plugins.RadioNative;
+        if (navigator.onLine === false) {
+            const {items} = await radio.listDownloads();
+            if (!items.some(item => item.id === station.id)) {
+                window.showToast?.('نزّل الأذكار أولًا للاستماع بدون إنترنت');
+                return;
+            }
+        }
+        await radio.play({...station, name:window.ZadI18n?.t(station.name) || station.name});
+    },
+
     async recurringReminders(settings) {
         const list = [];
         const daily = (id, type, title, body, time, weekday) => {
             const [hour, minute] = time.split(':').map(Number);
-            list.push({id, title, body, channelId:'daily_adhkar', smallIcon:'res://ic_stat_icon', extra:{type}, schedule:{on:{hour,minute,...(weekday ? {weekday}: {})},allowWhileIdle:true}});
+            const action = type === 'morning_azkar' || type === 'evening_azkar' ? {actionTypeId:'ADHKAR_RADIO'} : {};
+            list.push({id, title, body, ...action, channelId:'daily_adhkar', smallIcon:'res://ic_stat_icon', extra:{type}, schedule:{on:{hour,minute,...(weekday ? {weekday}: {})},allowWhileIdle:true}});
         };
         if (settings.morning !== false) daily(70000,'morning_azkar','أذكار الصباح','ابدأ يومك بذكر الله',settings.morningTime);
         if (settings.evening !== false) daily(71000,'evening_azkar','أذكار المساء','حان وقت أذكار المساء',settings.eveningTime);
@@ -523,6 +546,9 @@ const NativeAdhanService = {
             if (notificationsForLocal.length > 0) {
                 // جدولة الإشعارات الكاملة في نظام التشغيل (يدعم نظام iOS وأندرويد)
                 await LocalNotifications.schedule({ notifications: this.localizedNotifications(notificationsForLocal) });
+                if (window.Capacitor?.getPlatform?.() === 'ios' && window.Capacitor.isPluginAvailable?.('PrayerTravel')) {
+                    await window.Capacitor.Plugins.PrayerTravel.remember({minutes:preInterval});
+                }
                 console.log(`✅ Native Adhan Service: Scheduled ${notificationsForLocal.length} notifications via LocalNotifications directly into OS.`);
             }
             if (isAndroid && !hasNativePlugin && (notifySettings.adhan !== false || notifySettings.prePrayer !== false)) {

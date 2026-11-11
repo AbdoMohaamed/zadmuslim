@@ -277,6 +277,31 @@ test('iOS dismiss action removes the delivered alert without cancelling future p
  listener({actionId:'dismiss_adhan',notification:{id:123}});
  assert.equal(removed.notifications[0].id,123);assert.equal(h.calls.cancel.length,0);
 });
+test('only morning and evening reminders expose the matching radio action',async()=>{
+ const h=harness({platform:'ios'});
+ const reminders=await h.service.recurringReminders({...h.service.getNotificationSettings(),morning:true,evening:true,morningTime:'07:00',eveningTime:'18:00'});
+ assert.deepEqual(Array.from(reminders.filter(item=>item.actionTypeId==='ADHKAR_RADIO'),item=>item.extra.type),['morning_azkar','evening_azkar']);
+});
+test('iOS adhkar notification buttons select the matching station online and after download',async()=>{
+ const h=harness({platform:'ios'}), played=[], messages=[];
+ vm.runInNewContext(fs.readFileSync('assets/js/radio-stations-data.js','utf8'),h.context);
+ let listener;
+ h.local.addListener=(name,fn)=>{if(name==='localNotificationActionPerformed')listener=fn;};
+ h.context.Capacitor.Plugins.RadioNative={play:async station=>played.push(station.id),listDownloads:async()=>({items:[{id:'azkar-evening'}]})};
+ h.context.showToast=text=>messages.push(text);
+ h.service.setupListeners();
+ const act=async(type,actionId='play_adhkar')=>{
+  listener({actionId,notification:{extra:{type}}});await new Promise(resolve=>setImmediate(resolve));
+ };
+ await act('morning_azkar','tap');
+ await act('sleep_azkar');
+ await act('morning_azkar');
+ h.context.navigator.onLine=false;
+ await act('morning_azkar');
+ await act('evening_azkar');
+ assert.deepEqual(played,['azkar','azkar-evening']);
+ assert.deepEqual(messages,['نزّل الأذكار أولًا للاستماع بدون إنترنت']);
+});
 test('prayer image references in page and service worker point at actual jpg resources',()=>{
  for(const file of ['assets/js/app.js','sw.js'])assert.doesNotMatch(fs.readFileSync(file,'utf8'),/prayers\/pre_[^\n]*\.jpeg/);
  for(const prayer of ['fajr','dhuhr','asr','maghrib','isha'])assert.ok(fs.readFileSync('assets/images/prayers/pre_'+prayer+'.jpg').equals(fs.readFileSync('android/app/src/main/res/drawable/pre_'+prayer+'.jpg')));

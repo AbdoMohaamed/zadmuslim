@@ -9,6 +9,12 @@ import AppIntents
 @MainActor
 final class ZadRadioPlayback {
     static let shared = ZadRadioPlayback()
+    static func adhkarFile(_ id: String) -> URL? {
+        guard ["azkar", "azkar-evening"].contains(id) else { return nil }
+        return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("Adhkar").appendingPathComponent(id + ".mp3")
+    }
+    private(set) var savedAdhkar: URL?
     static let group = "group.com.zadmuslim.app"
     private let defaults = UserDefaults(suiteName: "group.com.zadmuslim.app")!
     private var player: AVPlayer?
@@ -64,6 +70,9 @@ final class ZadRadioPlayback {
             }
             station = selected; defaults.set(selected, forKey: "radioStation")
         }
+        savedAdhkar = Self.adhkarFile(station["id"] ?? "").flatMap {
+            FileManager.default.fileExists(atPath: $0.path) ? $0 : nil
+        }
         try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
         try AVAudioSession.sharedInstance().setActive(true)
         wanted = true; error = ""; retryCount = 0; backup = false
@@ -72,7 +81,7 @@ final class ZadRadioPlayback {
     private func connect() {
         timeout?.cancel(); generation += 1
         observation = nil; itemObservation = nil; clearItemEvents(); player?.pause()
-        guard wanted, let url = URL(string: (backup ? station["backupUrl"] : nil) ?? station["url"] ?? "") else { stop(); return }
+        guard wanted, let url = savedAdhkar ?? URL(string: (backup ? station["backupUrl"] : nil) ?? station["url"] ?? "") else { stop(); return }
         let item = AVPlayerItem(url: url)
         item.preferredForwardBufferDuration = 8
         let audio = AVPlayer(playerItem: item)
@@ -95,7 +104,11 @@ final class ZadRadioPlayback {
         }
         for event in [AVPlayerItem.didPlayToEndTimeNotification, AVPlayerItem.failedToPlayToEndTimeNotification] {
             itemEvents.append(NotificationCenter.default.addObserver(forName: event, object: item, queue: .main) { _ in
-                Task { @MainActor in self.retry(ticket) }
+                Task { @MainActor in
+                    guard ticket == self.generation else { return }
+                    if url.isFileURL && event == AVPlayerItem.didPlayToEndTimeNotification { self.stop() }
+                    else { self.retry(ticket) }
+                }
             })
         }
         audio.play(); armTimeout(ticket)
@@ -114,6 +127,7 @@ final class ZadRadioPlayback {
     }
     private func retry(_ ticket: Int) {
         guard ticket == generation, wanted else { return }
+        if savedAdhkar != nil { error = "تعذّر تشغيل التسجيل المحفوظ"; stop(failed: true); return }
         generation += 1; timeout?.cancel()
         if retryCount > 0 { backup.toggle() }
         retryCount += 1
@@ -148,7 +162,7 @@ final class ZadRadioPlayback {
         defaults.set(wanted, forKey: "radioWanted")
         defaults.set(value, forKey: "radioState")
         defaults.set(Date().timeIntervalSince1970, forKey: "radioUpdated")
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = [MPMediaItemPropertyTitle: station["name"] ?? "راديو القرآن", MPNowPlayingInfoPropertyIsLiveStream: true, MPNowPlayingInfoPropertyPlaybackRate: value == "playing" ? 1.0 : 0.0]
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = [MPMediaItemPropertyTitle: station["name"] ?? "راديو القرآن", MPNowPlayingInfoPropertyIsLiveStream: savedAdhkar == nil, MPNowPlayingInfoPropertyPlaybackRate: value == "playing" ? 1.0 : 0.0]
         if changed { WidgetCenter.shared.reloadTimelines(ofKind: "RadioWidget") }
     }
 }

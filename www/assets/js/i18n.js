@@ -55,6 +55,11 @@
   return names[normalize(name)]?.[lang]||t(name,lang);
  }
  const templates=[
+  [/^(المسافة: )?(\d+(?:\.\d+)?) (متر|كم)$/, (prefix,n,unit)=>[
+   `${prefix?'Distance: ':''}${n} ${unit==='متر'?'m':'km'}`,
+   `${prefix?'فاصلہ: ':''}${n} ${unit==='متر'?'میٹر':'کلومیٹر'}`
+  ]],
+  [/^دعاء لـ (.+)$/,name=>[`A dua for ${name}`,`${name} کے لیے دعا`]],
   [/^أسماء (جلال|رحمة|قدرة|علم|رزق|مغفرة|حكمة)$/,category=>[`Names of ${t(category,'en').toLowerCase()}`,`${t(category,'ur')} کے نام`]],
   [/^تم العثور على (\d+) اسم مطابق لـ "(.+)"$/, (count,query)=>[`Found ${count} matching names for "${query}"`,`"${query}" سے ملتے جلتے ${count} نام ملے`]],
   [/^عرض أسماء (.+) \((\d+) اسماً\)$/, (category,count)=>[`Showing ${count} names of ${t(category,'en').toLowerCase()}`,`${t(category,'ur')} کے ${count} نام دکھائے جا رہے ہیں`]],

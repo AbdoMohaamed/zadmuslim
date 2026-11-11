@@ -73,7 +73,9 @@
 		<string>remote-notification</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>يحتاج تطبيق زاد المسلم لتحديد الموقع الجغرافي لحساب مواقيت الصلاة بدقة واتجاه القبلة.</string>
+	<string>يستخدم زاد المسلم موقعك لتحديث مواقيت الصلاة واتجاه القبلة أثناء الاستخدام.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>أثناء السفر يستخدم زاد المسلم تغيّر موقعك لتحديث تنبيهات الصلاة حتى عند إغلاق التطبيق.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSPhotoLibraryAddUsageDescription</key>

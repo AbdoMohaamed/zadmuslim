@@ -17,6 +17,28 @@ function setup({saved,offline=false,denied=false,native=false}={}) {
     w.initNearbyMosques();
     return {w,dom,calls};
 }
+test('travel updates a GPS selection once for a new location and preserves a manually selected city',async()=>{
+ const h=setup({saved:{lat:24.7136,lng:46.6753},native:true});
+ try{
+  const w=h.w,updated=[];
+  w.localStorage.setItem('selected_prayer_city','gps');
+  w.fetchPrayerTimes=async key=>updated.push(key);
+  w.Capacitor.Plugins.Geolocation.getCurrentPosition=async()=>({coords:{latitude:21.4225,longitude:39.8262,accuracy:20}});
+  const app=fs.readFileSync('assets/js/app.js','utf8');
+  const start=app.indexOf('function initGPSLocation()');
+  w.eval(app.slice(start,app.indexOf('/* ===',start))+';initGPSLocation()');
+  Object.defineProperty(w.document,'hidden',{value:false,configurable:true});
+  await new Promise(resolve=>setImmediate(resolve));
+  await w.requestGPSPosition(true);
+  assert.equal(w.ZadLocation.saved().lat,21.4225);
+  assert.deepEqual(updated,['gps']);
+  w.localStorage.setItem('selected_prayer_city','Riyadh');
+  w.localStorage.setItem('user_manually_selected_city','true');
+  await w.requestGPSPosition(true);
+  assert.equal(w.localStorage.getItem('selected_prayer_city'),'Riyadh');
+  assert.deepEqual(updated,['gps']);
+ }finally{h.dom.window.close();}
+});
 test('location service is idle until requested, reuses saved zero coordinates and merges concurrent requests',async()=>{
     const h=setup({saved:{lat:0,lng:0}});
     try{

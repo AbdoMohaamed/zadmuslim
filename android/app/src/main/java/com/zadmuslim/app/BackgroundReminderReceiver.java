@@ -98,6 +98,18 @@ public class BackgroundReminderReceiver extends BroadcastReceiver {
                         builder.setSound(android.net.Uri.parse("android.resource://"+c.getPackageName()+"/raw/"+sound));
                 }
                 if(launch!=null) builder.setContentIntent(PendingIntent.getActivity(c,rule.getInt("id"),launch,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
+                int reminderId=rule.getInt("id");
+                if(reminderId==70000 || reminderId==71000){
+                    boolean morning=reminderId==70000;
+                    String stream="/radio/"+(morning?"athkar_sabah":"athkar_masa");
+                    Intent play=new Intent(c,RadioService.class).setAction("PLAY")
+                        .putExtra("id",morning?"azkar":"azkar-evening")
+                        .putExtra("name",NativeLanguage.text(c,rule.getString("title")))
+                        .putExtra("url","https://qurango.net"+stream).putExtra("backup","https://backup.qurango.net"+stream);
+                    int flags=PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE;
+                    PendingIntent action=Build.VERSION.SDK_INT>=26?PendingIntent.getForegroundService(c,reminderId,play,flags):PendingIntent.getService(c,reminderId,play,flags);
+                    builder.addAction(android.R.drawable.ic_media_play,NativeLanguage.choose(c,"تشغيل الأذكار","Play adhkar","اذکار سنیں"),action);
+                }
                 ((NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE)).notify(rule.getInt("id"),builder.build());
             }
         } catch(Exception e) { android.util.Log.e("ZadReminders","Reminder delivery failed",e); }

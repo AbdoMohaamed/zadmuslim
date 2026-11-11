@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -59,6 +58,7 @@ public class AdhanActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
+        setVolumeControlStream(android.media.AudioManager.STREAM_ALARM);
         if (CallAudioGuard.isBusy(this)) { finish(); return; }
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
@@ -220,21 +220,6 @@ public class AdhanActivity extends AppCompatActivity {
         finish();
     }
 
-    /**
-     * اعتراض أزرار الهاتف المادية (Volume Up/Down) لإيقاف الأذان فوراً
-     */
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            int keyCode = event.getKeyCode();
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
-                keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                stopAdhanAndFinish();
-                return true;
-            }
-        }
-        return super.dispatchKeyEvent(event);
-    }
 
     @Override
     protected void onDestroy() {

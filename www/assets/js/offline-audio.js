@@ -8,7 +8,7 @@ function validAudio(url){try{const u=new URL(url);return u.protocol==='https:'&&
 class Library {
  constructor(plugin){this.plugin=plugin;this.busy=false;}
  async list(){
-  if(this.plugin)return (await this.plugin.listDownloads()).items||[];
+  if(this.plugin)return ((await this.plugin.listDownloads()).items||[]).filter(item=>item.id!=='azkar'&&item.id!=='azkar-evening');
   if(!root.caches)throw Error('حفظ التلاوات غير مدعوم في هذا المتصفح.');
   const cache=await caches.open(CACHE),items=[];
   for(const request of await cache.keys()){

@@ -2806,6 +2806,9 @@ function initLiveRadioWidgetWithSleepTimer() {
  let sleepDeadline=0, sleepInterval, previousVolume=.8;
  const iosRadio=window.Capacitor?.getPlatform?.()==='ios' && window.Capacitor?.isPluginAvailable?.('RadioNative');
  const nativeRadio=(window.Capacitor?.getPlatform?.()==='android'||iosRadio) && window.Capacitor?.isPluginAvailable?.('RadioNative');
+ const adhkarRadio=nativeRadio ? window.Capacitor.Plugins.RadioNative : null;
+ const savedAdhkar=new Set();
+ let downloadingAdhkar=null, downloadPercent=null;
  let alternative;
  if(nativeRadio&&!iosRadio){
   alternative=document.createElement('button');alternative.type='button';alternative.className='btn outline';alternative.hidden=true;
@@ -2818,13 +2821,13 @@ function initLiveRadioWidgetWithSleepTimer() {
  try{favorites=JSON.parse(read('zadmuslim_radio_favorites','[]'));if(!Array.isArray(favorites))favorites=[];}catch{favorites=[];}
 
  const Player=iosRadio?window.ZadIOSRadioPlayer:(nativeRadio?window.ZadNativeRadioPlayer:window.ZadRadioPlayer);
- const player=new Player(audio,({state,station,wanted,error,fallback})=>{
+ const player=new Player(audio,({state,station,wanted,error,fallback,savedAdhkar:playingSavedAdhkar})=>{
   panel.dataset.state=state;
   if($('radio-play-label'))$('radio-play-label').textContent=wanted?'إيقاف':'تشغيل';
-  const label=error||(station?.offline&&state==='failed'?'تعذّر تشغيل التلاوة؛ أعد تنزيلها':state==='playing'?(station?.offline?(station.saved===false?'تلاوة':'تلاوة محفوظة'):'مباشر'):(state==='ended'?'اكتملت التلاوة':labels[state]||state));
+  const label=error||(playingSavedAdhkar&&state==='playing'?'أذكار محفوظة':station?.offline&&state==='failed'?'تعذّر تشغيل التلاوة؛ أعد تنزيلها':state==='playing'?(station?.offline?(station.saved===false?'تلاوة':'تلاوة محفوظة'):'مباشر'):(state==='ended'?'اكتمل التشغيل':labels[state]||state));
   document.dispatchEvent(new CustomEvent('zad:radio-state',{detail:{state,station,wanted}}));
   if(statusText)statusText.textContent=label+(fallback?' — مشغّل بديل':'');
-  if(alternative)alternative.hidden=!!station?.offline||!!fallback||!['failed','retrying','blocked'].includes(state);
+  if(alternative)alternative.hidden=!!station?.offline||savedAdhkar.has(station?.id)||!!fallback||!['failed','retrying','blocked'].includes(state);
   if(icon)icon.className=wanted?'fa-solid fa-pause':'fa-solid fa-play';
   if(play){play.title=wanted?'إيقاف':'تشغيل';play.setAttribute('aria-label',play.title);play.setAttribute('aria-pressed',String(wanted));}
   for(const element of [panel,fab,$('btn-toggle-radio-nav')])element?.classList.toggle('is-playing',state==='playing');
@@ -2910,6 +2913,30 @@ function initLiveRadioWidgetWithSleepTimer() {
    <button type="button" class="radio-item-fav-btn" title="${isFav?'إزالة من المفضلة':'إضافة للمفضلة'}" aria-label="المفضلة">
     <i class="${isFav?'fa-solid fa-star text-gold':'fa-regular fa-star'}"></i>
    </button>`;
+   if(station.downloadUrl && adhkarRadio){
+    const button=document.createElement('button');
+    button.type='button';button.className='btn outline';
+    button.disabled=savedAdhkar.has(station.id)||downloadingAdhkar!==null;
+    const label=savedAdhkar.has(station.id)?'متاح بدون إنترنت':downloadingAdhkar===station.id?'جارٍ التنزيل':'تنزيل للاستماع بدون إنترنت';
+    button.textContent=(window.ZadI18n?.t(label)||label)+(downloadingAdhkar===station.id&&downloadPercent!==null?' '+downloadPercent+'%':'');
+    button.onclick=async event=>{
+     event.stopPropagation();
+     if(downloadingAdhkar!==null)return;
+     downloadingAdhkar=station.id;downloadPercent=null;renderStationsList();
+     const timer=setInterval(async()=>{
+      try{
+       const {total,received}=await adhkarRadio.downloadProgress();
+       if(downloadingAdhkar===station.id&&total>0){downloadPercent=Math.min(99,Math.floor(100*received/total));renderStationsList();}
+      }catch{}
+     },700);
+     try{
+      await adhkarRadio.downloadAudio({id:station.id,url:station.downloadUrl,name:station.name,desc:'مشاري العفاسي'});
+      savedAdhkar.add(station.id);
+     }catch{window.showToast?.('تعذّر تنزيل الأذكار. أعد المحاولة.');}
+     finally{clearInterval(timer);downloadingAdhkar=null;downloadPercent=null;renderStationsList();}
+    };
+    item.append(button);
+   }
    item.onclick=e=>{
     if(e.target.closest('.radio-item-fav-btn')){
      e.stopPropagation();
@@ -2923,6 +2950,10 @@ function initLiveRadioWidgetWithSleepTimer() {
  };
 
  if(favOnlyCheckbox)favOnlyCheckbox.onchange=()=>renderStationsList();
+ if(adhkarRadio)adhkarRadio.listDownloads().then(({items})=>{
+  for(const item of items||[])if(stations.some(s=>s.downloadUrl&&s.id===item.id))savedAdhkar.add(item.id);
+  renderStationsList();
+ }).catch(()=>{});
  if($('btn-radio-favorite'))$('btn-radio-favorite').onclick=()=>{
   if(player.station?.id)toggleFavorite(player.station.id);
  };

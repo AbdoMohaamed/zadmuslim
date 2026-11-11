@@ -10,6 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure Audio Session for reliable Adhan and audio playback
+        PrayerTravel.shared.restore()
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .duckOthers])
             try AVAudioSession.sharedInstance().setActive(true)

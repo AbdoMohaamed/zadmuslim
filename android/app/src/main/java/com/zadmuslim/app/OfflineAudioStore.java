@@ -14,8 +14,11 @@ final class OfflineAudioStore {
  private static final AtomicBoolean busy=new AtomicBoolean(false), cancelled=new AtomicBoolean(false);
  private static volatile long received=0,total=0;
  private static volatile HttpURLConnection connection;
- static boolean validId(String id){return id!=null&&id.matches("offline-[0-9]{1,4}-[0-9]{1,3}");}
+ static boolean adhkar(String id){return "azkar".equals(id)||"azkar-evening".equals(id);}
+ static boolean validId(String id){return adhkar(id)||id!=null&&id.matches("offline-[0-9]{1,4}-[0-9]{1,3}");}
+ static String adhkarUrl(String id){return "https://download.tvquran.com/download/TvQuran.com__Athkar/TvQuran.com_athkar_"+("azkar".equals(id)?"03":"04")+".mp3";}
  static boolean allowed(String value){
+  if(adhkarUrl("azkar").equals(value)||adhkarUrl("azkar-evening").equals(value))return true;
   try{URI uri=new URI(value);return "https".equals(uri.getScheme())&&uri.getUserInfo()==null&&uri.getPort()==-1&&uri.getQuery()==null&&uri.getFragment()==null&&"cdn.mp3quran.net".equals(uri.getHost())&&uri.getPath().matches("/audio/(mishary-alafasy/r1|abdulrahman-sudais/r1|mahmoud-husary/r2|muhammad-minshawi/r3|khalid-jalil/r1|yasser-dosari/r1|maher-muaiqly/r1|ali-jaber/r1)/[0-9]{3}\\.mp3");}catch(Exception e){return false;}
  }
  static File directory(Context context){File dir=new File(context.getFilesDir(),"offline-audio");dir.mkdirs();return dir;}
@@ -46,7 +49,7 @@ final class OfflineAudioStore {
  static JSObject download(Context context,JSObject item)throws Exception {
   File temp=null,metaTemp=null;boolean published=false;String id=item.getString("id");
   try{
-   File target=file(context,id);String url=item.getString("url");if(!allowed(url))throw new IOException("Unsupported audio source");
+   File target=file(context,id);String url=item.getString("url");if(!allowed(url)||adhkar(id)&&!adhkarUrl(id).equals(url))throw new IOException("Unsupported audio source");
    if(target.isFile())return metadata(context,id);
    temp=new File(directory(context),id+".part");metaTemp=new File(directory(context),id+".json.part");
    if(cancelled.get())throw new IOException("Cancelled");

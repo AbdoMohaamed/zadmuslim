@@ -297,8 +297,8 @@
                     <div class="service-card-top">
                         <div class="service-icon-box">📋</div>
                         <div class="service-info">
-                            <h3>الورد اليومي والمهام</h3>
-                            <p>تابع عباداتك اليومية.</p>
+                            <h3>رحلتك الإيمانية اليوم</h3>
+                            <p id="services-wird-progress">تابع عباداتك اليومية.</p>
                         </div>
                     </div>
                     <span class="service-action-link">متابعة الورد ←</span>
@@ -958,6 +958,11 @@
                             </select>
                         </div>
 
+                        <div id="prayer-travel-updates" hidden>
+                            <label><input type="checkbox"> تحديث الأذان أثناء السفر والتطبيق مغلق</label>
+                            <p>يُرسل موقعك الجديد إلى AlAdhan لتحديث مواقيت الصلاة أثناء السفر.</p>
+                            <p role="status" aria-live="polite"></p>
+                        </div>
                         <div class="prayer-action-buttons">
                             <button type="button" class="btn btn-outline btn-sm btn-gps-location" id="btn-gps-location" title="تحديد مواقيت الصلاة بدقة لموقعك الحالي حول العالم">
                                 <i class="fa-solid fa-location-crosshairs text-gold"></i>
@@ -2891,7 +2896,7 @@
                     </div>
 
                     <div class="compass-container">
-                        <div class="compass-dial" id="compass-dial">
+                        <div class="compass-dial" id="compass-dial" dir="ltr">
                             <div class="compass-cardinal compass-north">شمال (N)</div>
                             <div class="compass-cardinal compass-east">شرق (E)</div>
                             <div class="compass-cardinal compass-south">جنوب (S)</div>
@@ -3563,7 +3568,7 @@
 <!-- شريط التنقل السفلي للهواتف المتطابق -->
         <nav class="mobilebar">
             <a href="index.html#home"><i class="fa-solid fa-house text-gold"></i>الرئيسية</a>
-            <a href="index.html#daily"><i class="fa-solid fa-leaf text-gold"></i>يومي</a>
+            <a href="services.html#daily-wird"><i class="fa-solid fa-leaf text-gold"></i>يومي</a>
             <a href="#islamic-media"><i class="fa-solid fa-circle-play text-gold"></i>مقتطفات</a>
             <a href="services.html" class="active"><i class="fa-solid fa-layer-group text-gold"></i>الخدمات</a>
         </nav>
@@ -3603,7 +3608,7 @@
                 '#mood-compass-section':'حزن قلق خوف طمأنينة سكينة',
                 '#categorized-duas':'دعاء ادعية أدعية',
                 '#islamic-media':'فيديو فيديوهات مقتطفات بودكاست موعظة مواعظ استماع',
-                '#daily-wird':'ورد مهام يومي متابعة'
+                '#daily-wird':'الورد اليومي والمهام ورد مهام يومي متابعة'
             };
             function clearServicesSearch() { document.getElementById('servicesSearch').value='';filterServices();document.getElementById('servicesSearch').focus(); }
             function setMoreCategories(open) {
@@ -3949,7 +3954,7 @@
                 'mood-compass-section': 'بوصلة القلوب',
                 'azkar': 'أذكار اليوم وحصن المسلم 🤲',
                 'spiritual-garden': 'حديقة الحسنات وشجرة الذكر التفاعلية 🌱',
-                'daily-wird': 'الورد اليومي ومهام المسلم 🌿',
+                'daily-wird': 'رحلتك الإيمانية اليوم',
                 'seasons': 'مواسم الخيرات والأيام الفاضلة 🌙',
                 'categorized-duas': 'الأدعية النبوية والقرآنية المصنفة 🤲',
                 'asmaa-allah': 'أسماء الله الحسنى ومعانيها ✨',

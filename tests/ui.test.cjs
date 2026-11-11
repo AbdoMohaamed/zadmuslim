@@ -410,7 +410,7 @@ test('home section toggles in settings persist and control visibility on index.h
         assert.deepEqual(home.errors,[]);
         assert.equal(hd.getElementById('smart-dhikr-panel'),null);
         assert.equal(hd.getElementById('daily-featured-media-card').style.display,'none');
-        assert.notEqual(hd.getElementById('daily-journey-panel').style.display,'none');
+        assert.equal(hd.getElementById('daily-journey-panel'),null);
     }finally{home.dom.window.close();}
 });
 
@@ -695,8 +695,14 @@ test('all timed home reminder actions navigate to current service routes',async(
  for(const [day,hour,expected]of cases){const stamp=new NativeDate(2026,9,day,hour).getTime();w.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[stamp]));}};w.initSmartTimelyReminders();w.document.getElementById('btn-reminder-act').click();assert.equal(destination.split('#')[1],expected);}
  assert.deepEqual(errors,[]);w.close();
 });
-test('a direct home shortcut reveals a hidden section without altering preferences',async()=>{
- const config=JSON.stringify({smart_dhikr:false,daily_journey:false});const {dom,errors}=await load('index.html',{url:'http://localhost:4173/index.html#daily-wird',storage:{zad_home_sections:config}});const w=dom.window,d=w.document;await new Promise(r=>setTimeout(r,30));assert.notEqual(d.getElementById('daily-journey-panel').style.display,'none');assert.notEqual(d.querySelector('.dashboard').style.display,'none');assert.equal(w.localStorage.getItem('zad_home_sections'),config);assert.deepEqual(errors,[]);w.close();
+test('legacy home journey links open the service',async()=>{
+ const {dom}=await load('index.html');const w=dom.window;let destination;
+ w.zadNavigate=url=>destination=url;
+ for(const hash of ['#daily','#daily-wird']){
+  w.history.replaceState(null,'',hash);w.dispatchEvent(new w.Event('hashchange'));
+  assert.equal(destination,'services.html#daily-wird');destination=null;
+ }
+ w.close();
 });
 
 test('secondary categories collapse initially, stay searchable and reopen for a restored selection',async()=>{
@@ -843,11 +849,11 @@ test('backup import cancellation and corrupted files preserve existing progress 
  }finally{h.dom.window.close();}
 });
 
-test('Android backup export waits for actual file saving, handles cancellation and failure honestly',async()=>{
+for (const platform of ['ios', 'android']) test(`${platform} backup export waits for actual file saving, handles cancellation and failure honestly`,async()=>{
  const h=await load('settings.html');
  try{
  const w=h.dom.window,d=w.document;let finish,received;
- w.Capacitor={isNativePlatform:()=>true,getPlatform:()=> 'android',Plugins:{BackupFiles:{saveBackup:args=>{received=args;return new Promise(resolve=>finish=resolve);}}}};
+ w.Capacitor={isNativePlatform:()=>true,getPlatform:()=>platform,Plugins:{BackupFiles:{saveBackup:args=>{received=args;return new Promise(resolve=>finish=resolve);}}}};
  const button=d.getElementById('zad-export-backup');const promise=button.onclick();
  assert.equal(button.disabled,true);assert.match(d.getElementById('zad-backup-status').textContent,/اختر مكان/);
  backupTools.validateBackup(JSON.parse(received.content));assert.match(received.fileName,/^zad-backup-.*\.json$/);

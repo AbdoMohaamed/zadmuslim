@@ -252,7 +252,7 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                     .toBundle() : null
         );
 
-        // نية إيقاف الأذان عند النقر على زر الإيقاف أو مسح الإشعار
+        // زر الإيقاف الصريح وحده يوقف الصوت من الإشعار.
         Intent stopIntent = new Intent(context, AdhanAlarmReceiver.class);
         stopIntent.setAction(ACTION_STOP_ADHAN);
         PendingIntent pendingStop = PendingIntent.getBroadcast(
@@ -266,7 +266,6 @@ public class AdhanAlarmReceiver extends BroadcastReceiver {
                 .setContentText(NativeLanguage.reminderBody(context, "الله أكبر، الله أكبر.. حيّ على الصلاة، حيّ على الفلاح"))
                 .setContentIntent(pendingFullScreen)
                 .setFullScreenIntent(pendingFullScreen, true)
-                .setDeleteIntent(pendingStop) // عند مسح الإشعار يتم إيقاف الصوت
                 .addAction(R.drawable.ic_stat_icon, NativeLanguage.text(context, "إيقاف الأذان ⏹"), pendingStop)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)

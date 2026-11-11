@@ -15,6 +15,7 @@ public class RadioService extends Service {
  public static volatile long sleepDeadline=0;
  public static volatile double position=0,duration=0;
  private boolean offline=false,downloaded=false;
+ static boolean playingSavedAdhkar(){return instance!=null && instance.downloaded && OfflineAudioStore.adhkar(stationId);}
  public static void pausePlayback(){RadioService s=instance;if(s!=null)s.handler.post(()->{if(!s.offline){stopPlayback();return;}wanted=false;s.clearTimers();if(s.player!=null){try{s.player.pause();s.savePosition();}catch(Exception ignored){}}s.publish("paused");});}
  public static void seek(double seconds){RadioService s=instance;if(s!=null)s.handler.post(()->{if(s.offline&&s.player!=null&&Double.isFinite(seconds)){try{s.player.seekTo((int)(Math.max(0,Math.min(seconds,duration))*1000));position=Math.max(0,Math.min(seconds,duration));s.savePosition();s.publish(state);}catch(Exception ignored){}}});}
  private void savePosition(){if(offline&&player!=null){try{position=player.getCurrentPosition()/1000.0;duration=player.getDuration()/1000.0;getSharedPreferences("offline-audio",0).edit().putLong(stationId,(long)(position*1000)).apply();}catch(Exception ignored){}}}
@@ -57,6 +58,7 @@ public class RadioService extends Service {
   PendingIntent stop=PendingIntent.getService(this,ID,new Intent(this,RadioService.class).setAction(offline?(wanted?"PAUSE":"RESUME"):"STOP"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   String text="playing".equals(state)?(offline?(downloaded?"تلاوة محفوظة · بدون إنترنت":"تلاوة القرآن · عبر الإنترنت"):"يعمل الآن"):"paused".equals(state)?"متوقف مؤقتًا":"interrupted".equals(state)?"متوقف مؤقتًا للمكالمة أو الأذان":offline?"جاري فتح التلاوة":"جاري الاتصال بالبث";
   Notification.Builder builder=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);
+  if(playingSavedAdhkar() && "playing".equals(state)) text=NativeLanguage.choose(this,"أذكار محفوظة","Saved adhkar","محفوظ اذکار");
   return builder.setSmallIcon(R.drawable.ic_stat_icon).setContentTitle(name).setContentText(NativeLanguage.text(this, text)).setContentIntent(content)
     .setOngoing(wanted).setVisibility(Notification.VISIBILITY_PUBLIC).setOnlyAlertOnce(true)
     .addAction(new Notification.Action.Builder(offline&&!wanted?android.R.drawable.ic_media_play:android.R.drawable.ic_media_pause,NativeLanguage.text(this, offline?(wanted?"إيقاف مؤقت":"استكمال"):"إيقاف"),stop).build())
@@ -79,11 +81,22 @@ public class RadioService extends Service {
   offline=intent.getBooleanExtra("offline",false);
   downloaded=intent.getBooleanExtra("saved",offline);
   name=intent.getStringExtra("name");url=intent.getStringExtra("url");backup=intent.getStringExtra("backup");stationId=intent.getStringExtra("id");volume=intent.getFloatExtra("volume",.8f);
+  if(OfflineAudioStore.adhkar(stationId)){
+   try{
+    OfflineAudioStore.metadata(this,stationId);
+    url=OfflineAudioStore.file(this,stationId).getAbsolutePath();
+    offline=true;downloaded=true;backup="";
+   }catch(Exception missing){ /* Use the station stream until a complete recording is available. */ }
+  }
   if(!offline)getSharedPreferences("radio-widget",0).edit().putString("id",stationId).putString("name",name).putString("url",url).putString("backup",backup).apply();
   position=offline?getSharedPreferences("offline-audio",0).getLong(stationId,0)/1000.0:0;duration=0;
   lastError="";
   try{startForeground(ID,notification());}catch(Exception e){android.util.Log.e("ZadRadio","Foreground playback failed",e);lastError="تعذّر بدء خدمة الصوت في أندرويد";wanted=false;state="failed";stopSelf();return START_NOT_STICKY;}
   wanted=true;attempt=0;useBackup=false;interrupted=false;
+  if(OfflineAudioStore.adhkar(stationId)&&!downloaded&&!online()){
+   lastError=NativeLanguage.choose(this,"نزّل الأذكار أولًا للاستماع بدون إنترنت","Download the adhkar first to listen offline","آف لائن سننے کے لیے پہلے اذکار ڈاؤن لوڈ کریں");
+   wanted=false;publish("failed");android.widget.Toast.makeText(this,lastError,android.widget.Toast.LENGTH_LONG).show();stopSelf();return START_NOT_STICKY;
+  }
   session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE,name).putString(MediaMetadata.METADATA_KEY_ARTIST,"زاد المسلم").build());
   setSleepDeadline(sleepDeadline);connect();return START_NOT_STICKY;
  }
