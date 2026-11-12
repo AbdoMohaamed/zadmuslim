@@ -7,17 +7,6 @@
  * 6. نظام التنبيهات والإشعارات الذكية (Smart Notifications)
  */
 
-function getSafePublicUrl(subpath = "") {
-    if (typeof window.getPublicAppUrl === "function") {
-        return window.getPublicAppUrl(subpath);
-    }
-    const base = "https://zadmuslim-zeta.vercel.app/";
-    if (!subpath) return base;
-    if (subpath.startsWith("#") || subpath.startsWith("?")) {
-        return base.replace(/\/+$/, "") + subpath;
-    }
-    return base.replace(/\/+$/, "") + "/" + subpath.replace(/^\/+/, "");
-}
 
 document.addEventListener("DOMContentLoaded", () => {
     initThemeToggle();
@@ -85,7 +74,7 @@ function initCustomShareLink() {
         if (btn) {
             btn.addEventListener("click", () => {
                 if (modal) modal.classList.add("open");
-                updateGeneratedUrl();
+                if (urlOutput) urlOutput.value = window.ZAD_APP_SHARE_URL;
             });
         }
     });
@@ -100,26 +89,10 @@ function initCustomShareLink() {
         });
     }
 
-    function updateGeneratedUrl() {
-        if (!urlOutput) return;
-        const nameVal = nameInput ? nameInput.value.trim() : "";
-        const relVal = relSelect ? relSelect.value : "فقيدنا الغالي";
-        const baseUrl = (window.getPublicAppUrl ? window.getPublicAppUrl() : "https://zadmuslim-zeta.vercel.app/").replace(/\/+$/, "");
-
-        if (nameVal) {
-            const fullUrl = `${baseUrl}?name=${encodeURIComponent(nameVal)}&rel=${encodeURIComponent(relVal)}`;
-            urlOutput.value = fullUrl;
-        } else {
-            urlOutput.value = baseUrl + "/";
-        }
-    }
-
-    if (nameInput) nameInput.addEventListener("input", updateGeneratedUrl);
-    if (relSelect) relSelect.addEventListener("change", updateGeneratedUrl);
-
     if (copyBtn && urlOutput) {
         copyBtn.addEventListener("click", () => {
-            copyTextToClipboard(urlOutput.value);
+            const name = nameInput?.value.trim();
+            copyTextToClipboard(name ? "🤲 صدقة جارية لروح " + (relSelect?.value || "") + " (" + name + ")\n" + window.ZAD_APP_SHARE_URL : window.ZAD_APP_SHARE_URL);
             showToast("تم نسخ رابط الصدقة المخصص بنجاح 📋");
         });
     }
@@ -329,7 +302,7 @@ function initAsmaaAllah() {
                                `📖 *المعنى:* ${currentSelectedName.meaning}\n\n` +
                                `💡 *الثمرة الإيمانية:* ${currentSelectedName.virtue}\n\n` +
                                `🤲 *الدعاء والتعبد بهذا الاسم:*\n${dua}\n\n` +
-                                `🌿 موقع زاد المسلم: ${getSafePublicUrl()}`;
+                                `🌿 موقع زاد المسلم: ${window.ZAD_APP_SHARE_URL}`;
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     showToast(`تم نسخ اسم (${currentSelectedName.name}) ومعناه ودعاؤه بنجاح 📋`);
@@ -349,7 +322,7 @@ function initAsmaaAllah() {
                         `💡 *الثمرة الإيمانية:* ${currentSelectedName.virtue}\n\n` +
                         `🤲 *الدعاء به:*\n${dua}\n\n` +
                         `🌸 _من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)_\n` +
-                        `📲 تصفح أسماء الله الحسنى كاملة:\n${getSafePublicUrl('#asmaa-allah')}`;
+                        `📲 تصفح أسماء الله الحسنى كاملة:\n${window.ZAD_APP_SHARE_URL}`;
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, "_blank");
         });
@@ -2086,7 +2059,7 @@ async function shareEnhancedDuaCard() {
                     await navigator.share({
                         files: [file],
                         title: "زاد المسلم • بطاقة واستوري إسلامي",
-                        text: "نسألكم الدعاء لفقيدنا الغالي وجميع موتى المسلمين 🤲"
+                        text: "نسألكم الدعاء لفقيدنا الغالي وجميع موتى المسلمين 🤲\n" + window.ZAD_APP_SHARE_URL
                     });
                     return;
                 } catch(e) {}
@@ -2101,7 +2074,7 @@ async function shareEnhancedDuaCard() {
 function fallbackShareWhatsApp() {
     const recipientInput = document.getElementById("dua-card-recipient-input");
     const nameVal = (recipientInput && recipientInput.value.trim()) || "فقيدنا الغالي";
-    const msg = `🌿 *بطاقة واستوري لروح (${nameVal})*\n\nاللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة.\n\n📲 صمم بطاقة لفقيدك واكسب الأجر: https://zadmuslim-zeta.vercel.app/`;
+    const msg = `🌿 *بطاقة واستوري لروح (${nameVal})*\n\nاللهم اغفر له وارحمه وعافه واعف عنه واجعل قبره روضة من رياض الجنة.\n\n📲 صمم بطاقة لفقيدك واكسب الأجر: ${window.ZAD_APP_SHARE_URL}`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
     window.open(waUrl, "_blank");
     showToast("جاري فتح واتساب للمشاركة 📲");
@@ -2248,7 +2221,7 @@ function initEnhancedCategorizedDuas() {
             if (copyBtn) {
                 copyBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: https://zadmuslim-zeta.vercel.app/`;
+                    const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: ${window.ZAD_APP_SHARE_URL}`;
                     copyTextToClipboard(textToCopy);
                     showToast("تم نسخ الدعاء بنجاح 📋");
                 });
@@ -2259,7 +2232,7 @@ function initEnhancedCategorizedDuas() {
             if (shareBtn) {
                 shareBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 الرابط: https://zadmuslim-zeta.vercel.app/`;
+                    const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 الرابط: ${window.ZAD_APP_SHARE_URL}`;
                     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                     window.open(url, "_blank");
                 });
@@ -2408,7 +2381,7 @@ function initDailySpiritualMessage() {
                `💡 *الخاطرة والتدبر:*\n${todayMsg.reflection}\n\n` +
                `🤲 *دعاء اليوم:*\n${todayMsg.dua}\n\n` +
                `🌸 _من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)_\n` +
-               `📲 تصفح المزيد وتدبر القرآن كاملاً:\n${getSafePublicUrl()}`;
+               `📲 تصفح المزيد وتدبر القرآن كاملاً:\n${window.ZAD_APP_SHARE_URL}`;
     };
 
     if (copyBtn) {
@@ -2575,7 +2548,7 @@ function initIslamicStories() {
             const verse = activeStory.keyVerse || activeStory.verse || '';
             const text = `📜 *${title}*\n\n${verse}\n\n💡 *أهم العبر والدروس:*\n` +
                          (activeStory.lessons ? activeStory.lessons.map(l => `• ${l}`).join('\n') : '') +
-                          `\n\n🌿 موقع زاد المسلم: ${getSafePublicUrl()}`;
+                          `\n\n🌿 موقع زاد المسلم: ${window.ZAD_APP_SHARE_URL}`;
             navigator.clipboard.writeText(text).then(() => {
                 showToast("تم نسخ قصة وعبر اليوم بنجاح 📋");
             });
@@ -2592,7 +2565,7 @@ function initIslamicStories() {
                 `${verse}\n\n` +
                 `💡 *الدروس المستفادة:*\n` +
                 (activeStory.lessons ? activeStory.lessons.map(l => `• ${l}`).join('\n') : '') +
-                `\n\n🌿 اقرأ المزيد من القصص والسير المباركة:\n${getSafePublicUrl()}`
+                `\n\n🌿 اقرأ المزيد من القصص والسير المباركة:\n${window.ZAD_APP_SHARE_URL}`
             );
             window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
         });
@@ -2776,7 +2749,7 @@ function initIslamicQuiz() {
                 const text = encodeURIComponent(
                     `🎯 حصلت على (${score} من 5) في مسابقة المعلومات الإسلامية على موقع زاد المسلم!\n` +
                     `اختبر معلوماتك الدينية وتحدَّ أصدقاءك في القرآن والسيرة العطرة:\n` +
-                    `${getSafePublicUrl('#islamic-quiz')}`
+                    `${window.ZAD_APP_SHARE_URL}`
                 );
                 window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
             });
@@ -2914,11 +2887,17 @@ function initLiveRadioWidgetWithSleepTimer() {
     <i class="${isFav?'fa-solid fa-star text-gold':'fa-regular fa-star'}"></i>
    </button>`;
    if(station.downloadUrl && adhkarRadio){
+    const isSaved=savedAdhkar.has(station.id),isDownloading=downloadingAdhkar===station.id;
     const button=document.createElement('button');
-    button.type='button';button.className='btn outline';
-    button.disabled=savedAdhkar.has(station.id)||downloadingAdhkar!==null;
-    const label=savedAdhkar.has(station.id)?'متاح بدون إنترنت':downloadingAdhkar===station.id?'جارٍ التنزيل':'تنزيل للاستماع بدون إنترنت';
-    button.textContent=(window.ZadI18n?.t(label)||label)+(downloadingAdhkar===station.id&&downloadPercent!==null?' '+downloadPercent+'%':'');
+    button.type='button';button.className='radio-item-fav-btn radio-item-download-btn';
+    button.disabled=isSaved||downloadingAdhkar!==null;
+    const label=isSaved?'متاح بدون إنترنت':isDownloading?'جارٍ التنزيل':'تنزيل للاستماع بدون إنترنت';
+    const text=(window.ZadI18n?.t(label)||label)+(isDownloading&&downloadPercent!==null?' '+downloadPercent+'%':'');
+    button.title=text;button.setAttribute('aria-label',text);
+    const icon=document.createElement('i');
+    icon.className=isSaved?'fa-solid fa-circle-check text-gold':isDownloading?'fa-solid fa-spinner fa-spin':'fa-solid fa-download';
+    icon.setAttribute('aria-hidden','true');
+    button.append(icon);
     button.onclick=async event=>{
      event.stopPropagation();
      if(downloadingAdhkar!==null)return;
@@ -3317,7 +3296,7 @@ function initSpiritualGarden() {
             const data = getGardenData();
             const currentStage = GARDEN_STAGES.slice().reverse().find(s => data.points >= s.minPoints) || GARDEN_STAGES[0];
             
-            const msg = `🌳 *شجرة الذكر وحديقة الحسنات في تطبيق زاد المسلم*\n\n🌱 وصلت اليوم إلى: *${currentStage.title}*\n✨ رصيد بركتي: *${data.points} حسنة/نقطة*\n📿 تسبيحات: ${data.tasbeeh || 0} • 📖 صفحات قرآن: ${data.quran || 0}\n\n🌸 صدقة جارية لوجه الله تعالى\n📲 ازرع شجرتك في الجنة الآن: https://zadmuslim-zeta.vercel.app/`;
+            const msg = `🌳 *شجرة الذكر وحديقة الحسنات في تطبيق زاد المسلم*\n\n🌱 وصلت اليوم إلى: *${currentStage.title}*\n✨ رصيد بركتي: *${data.points} حسنة/نقطة*\n📿 تسبيحات: ${data.tasbeeh || 0} • 📖 صفحات قرآن: ${data.quran || 0}\n\n🌸 صدقة جارية لوجه الله تعالى\n📲 ازرع شجرتك في الجنة الآن: ${window.ZAD_APP_SHARE_URL}`;
             
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
             window.open(url, "_blank");
@@ -3759,8 +3738,13 @@ function initIslamicMediaHub() {
     const btnModalYoutube = document.getElementById("btn-modal-youtube");
     const audioWrapper = document.getElementById("media-audio-wrapper");
     const audioAvatar = document.getElementById("media-audio-avatar");
+    const audioWaveBars = audioWrapper ? audioWrapper.querySelector(".media-audio-wave-bars") : null;
+    const btnAudioPlayPause = document.getElementById("btn-audio-play-pause");
+    const audioSeekSlider = document.getElementById("audio-seek-slider");
+    const audioTimeCurrent = document.getElementById("audio-time-current");
+    const audioTimeDuration = document.getElementById("audio-time-duration");
     const speedBtns = document.querySelectorAll(".btn-audio-speed");
-    const seekBtns = document.querySelectorAll(".btn-audio-seek");
+    const seekBtns = document.querySelectorAll(".btn-audio-seek[data-seek]");
 
     // عناصر بنر استئناف المشاهدة
     const resumeBanner = document.getElementById("media-resume-banner");
@@ -3772,8 +3756,37 @@ function initIslamicMediaHub() {
 
     let currentActiveMedia = null;
     let currentPlaybackSeconds = 0;
+    let audioDurationSeconds = 0;
+    let isSeekingAudio = false;
     let progressTimer = null;
     let currentMode = "video"; // 'video' | 'audio'
+    let isAudioPaused = false;
+
+    function parseMediaDuration(text) {
+        const parts = String(text || "").trim().split(":").map(n => parseInt(n, 10));
+        if (parts.some(Number.isNaN) || !parts.length) return 0;
+        return parts.reduce((acc, val) => acc * 60 + val, 0);
+    }
+
+    function updateAudioPlayBtn() {
+        if (audioWaveBars) audioWaveBars.classList.toggle("paused", isAudioPaused);
+        if (!btnAudioPlayPause) return;
+        const label = isAudioPaused ? "تشغيل" : "إيقاف";
+        const translated = window.ZadI18n?.t(label) || label;
+        btnAudioPlayPause.innerHTML = `<i class="fa-solid ${isAudioPaused ? "fa-play" : "fa-pause"}"></i> <span>${translated}</span>`;
+        btnAudioPlayPause.setAttribute("aria-label", translated);
+    }
+
+    function updateAudioTimeline() {
+        const max = Math.max(1, Math.floor(audioDurationSeconds || 0));
+        const val = Math.max(0, Math.min(max, Math.floor(currentPlaybackSeconds || 0)));
+        if (audioSeekSlider && !isSeekingAudio) {
+            audioSeekSlider.max = String(max);
+            audioSeekSlider.value = String(val);
+        }
+        if (audioTimeCurrent) audioTimeCurrent.textContent = formatMediaSeconds(val);
+        if (audioTimeDuration) audioTimeDuration.textContent = formatMediaSeconds(audioDurationSeconds || 0);
+    }
 
     const PAGE_SIZE = 9;
     let visibleCount = PAGE_SIZE;
@@ -4094,6 +4107,10 @@ function initIslamicMediaHub() {
         }
 
         currentPlaybackSeconds = effectiveStart;
+        audioDurationSeconds = parseMediaDuration(item.duration);
+        isAudioPaused = false;
+        updateAudioPlayBtn();
+        updateAudioTimeline();
 
         if (iframe) {
             iframe.src = getYoutubeEmbedUrl(item.youtubeId, effectiveStart);
@@ -4106,7 +4123,9 @@ function initIslamicMediaHub() {
         // مؤقت تتبع وحفظ دقيقة المشاهدة تلقائياً في localStorage كل 3 ثوانٍ
         if (progressTimer) clearInterval(progressTimer);
         progressTimer = setInterval(() => {
+            if (isAudioPaused) return;
             currentPlaybackSeconds += 3;
+            updateAudioTimeline();
             if (currentActiveMedia) {
                 saveMediaProgress(currentActiveMedia.id, currentPlaybackSeconds, currentActiveMedia.duration);
             }
@@ -4143,9 +4162,8 @@ function initIslamicMediaHub() {
 
     function shareMediaItemWhatsApp(item) {
         const videoUrl = `https://www.youtube.com/watch?v=${item.youtubeId}`;
-        const siteUrl = (window.getPublicAppUrl ? window.getPublicAppUrl() : "https://zadmuslim-zeta.vercel.app/").replace(/\/+$/, "");
 
-        const text = `🎥 *${item.title}*\n🎙️ *${item.speaker}*\n⏱️ المدة: ${item.duration}\n\n📖 ${item.desc}\n\n▶️ لمشاهدة المقطع على يوتيوب:\n${videoUrl}\n\n🌸 من مكتبة المرئيات والبودكاست في زاد المسلم (صدقة جارية)\n🕌 تصفح المزيد:\n${siteUrl}#islamic-media`;
+        const text = `🎥 *${item.title}*\n🎙️ *${item.speaker}*\n⏱️ المدة: ${item.duration}\n\n📖 ${item.desc}\n\n▶️ لمشاهدة المقطع على يوتيوب:\n${videoUrl}\n\n🌸 من مكتبة المرئيات والبودكاست في زاد المسلم (صدقة جارية)\n🕌 تصفح المزيد:\n${window.ZAD_APP_SHARE_URL}`;
 
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
     }
@@ -4184,6 +4202,56 @@ function initIslamicMediaHub() {
         });
     }
 
+    if (iframe) {
+        iframe.addEventListener("load", () => {
+            if (!iframe.src) return;
+            try {
+                iframe.contentWindow.postMessage(JSON.stringify({ event: "listening" }), "*");
+            } catch (e) {}
+        });
+    }
+
+    window.addEventListener("message", (event) => {
+        if (!currentActiveMedia) return;
+        try {
+            const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+            if (!data || data.event !== "infoDelivery" || !data.info) return;
+            if (typeof data.info.duration === "number" && data.info.duration > 0) {
+                audioDurationSeconds = data.info.duration;
+            }
+            if (typeof data.info.currentTime === "number" && !isSeekingAudio) {
+                currentPlaybackSeconds = data.info.currentTime;
+            }
+            if (typeof data.info.playerState === "number") {
+                if (data.info.playerState === 1) { isAudioPaused = false; updateAudioPlayBtn(); }
+                else if (data.info.playerState === 2) { isAudioPaused = true; updateAudioPlayBtn(); }
+            }
+            updateAudioTimeline();
+        } catch (e) {}
+    });
+
+    if (btnAudioPlayPause) {
+        btnAudioPlayPause.addEventListener("click", () => {
+            isAudioPaused = !isAudioPaused;
+            sendYTCommand(isAudioPaused ? "pauseVideo" : "playVideo", []);
+            updateAudioPlayBtn();
+        });
+    }
+    if (audioSeekSlider) {
+        audioSeekSlider.addEventListener("input", () => {
+            isSeekingAudio = true;
+            const target = parseInt(audioSeekSlider.value || "0", 10);
+            if (audioTimeCurrent) audioTimeCurrent.textContent = formatMediaSeconds(target);
+        });
+        audioSeekSlider.addEventListener("change", () => {
+            const target = parseInt(audioSeekSlider.value || "0", 10);
+            currentPlaybackSeconds = target;
+            isSeekingAudio = false;
+            sendYTCommand("seekTo", [target, true]);
+            updateAudioTimeline();
+        });
+    }
+
     // أزرار سرعة الصوت
     speedBtns.forEach(btn => {
         btn.addEventListener("click", () => {
@@ -4203,6 +4271,7 @@ function initIslamicMediaHub() {
             const delta = parseInt(btn.dataset.seek || "0", 10);
             currentPlaybackSeconds = Math.max(0, currentPlaybackSeconds + delta);
             sendYTCommand("seekTo", [currentPlaybackSeconds, true]);
+            updateAudioTimeline();
             if (typeof showToast === "function") {
                 showToast(delta > 0 ? "تقديم 10 ثوانٍ ⏩" : "تأخير 10 ثوانٍ ⏪");
             }

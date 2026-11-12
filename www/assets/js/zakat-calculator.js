@@ -364,7 +364,7 @@
         const due = document.getElementById('zakat-res-due-amount')?.textContent || '0';
         const wealth = document.getElementById('zakat-res-net-wealth')?.textContent || '0';
 
-        const text = `حساب زكاة المال عبر تطبيق زاد المسلم 🕌\n• صافي المال الخاضع للزكاة: ${wealth}\n• مقدار الزكاة الواجب إخراجها: ${due} ${currData.symbol}\n(طهور وبركة ونماء لأموالكم بإذن الله)`;
+        const text = `حساب زكاة المال عبر تطبيق زاد المسلم 🕌\n• صافي المال الخاضع للزكاة: ${wealth}\n• مقدار الزكاة الواجب إخراجها: ${due} ${currData.symbol}\n(طهور وبركة ونماء لأموالكم بإذن الله)\n${window.ZAD_APP_SHARE_URL}`;
 
         if (navigator.share) {
             navigator.share({

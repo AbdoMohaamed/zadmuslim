@@ -782,7 +782,7 @@
 إنشاء رابط صدقة جارية لفقيدك|Create a charity link for a loved one|اپنے مرحوم کے لیے صدقہ جاریہ کا لنک بنائیں
 اسم المتوفى (رحمه الله):|Name of the deceased:|مرحوم کا نام:
 صلة القرابة / اللقب:|Relationship / title:|رشتہ / لقب:
-الرابط المخصص لفقيدك:|Your dedicated link:|مخصوص لنک:
+رابط تحميل التطبيق:|App download link:|ایپ ڈاؤن لوڈ کرنے کا لنک:
 مشاركة مباشرة عبر واتساب|Share via WhatsApp|واٹس ایپ کے ذریعے شیئر کریں
 `;
  const completion=`
@@ -2175,7 +2175,7 @@
 قبل السلام|Before the salam|سلام سے پہلے
 ثبّت التطبيق للوصول السريع للقرآن ومواقيت الصلاة والأذكار بدون نت|Install the app for quick access to Quran, prayer times and downloaded adhkar offline|قرآن، نماز کے اوقات اور ڈاؤن لوڈ شدہ اذکار تک فوری آف لائن رسائی کے لیے ایپ انسٹال کریں
 وسيظهر التطبيق فوراً على شاشة هاتفك مع سائر تطبيقاتك الأساسية|The app will appear on your phone's home screen|ایپ آپ کے فون کی ہوم اسکرین پر ظاہر ہوگی
-اكتب اسم فقيدك العزيز وسنقوم بإنشاء رابط مخصص يظهر فيه اسمه ودعاؤه في جميع أرجاء التطبيق لتشاركه مع أهلك وأحبابك لنيل الأجر.|Enter your loved one's name to create a personalized link with their name and dua, then share it with family and friends.|اپنے مرحوم عزیز کا نام درج کر کے ان کے نام اور دعا کے ساتھ خصوصی لنک بنائیں اور اہل خانہ اور دوستوں سے شیئر کریں۔
+اكتب اسم فقيدك لمشاركة الدعاء له مع رابط تحميل التطبيق.|Enter your loved one's name to share a prayer for them with the app download link.|اپنے مرحوم عزیز کے لیے دعا اور ایپ ڈاؤن لوڈ کرنے کا لنک شیئر کرنے کے لیے ان کا نام درج کریں۔
 متبقي أقل من دقيقة|Less than a minute remaining|ایک منٹ سے کم باقی
 تم حفظ الاختيارات، لكن تعذّر تطبيق مستوى صوت أندرويد. حدّث التطبيق وأعد المحاولة.|Preferences saved, but the Android volume could not be applied. Update the app and try again.|انتخاب محفوظ ہیں، لیکن اینڈرائیڈ پر آواز کی سطح لاگو نہیں ہوئی۔ ایپ اپ ڈیٹ کر کے دوبارہ کوشش کریں۔
 تم حفظ الاختيارات، لكن تعذّرت جدولة التنبيهات.|Preferences saved, but reminders could not be scheduled.|انتخاب محفوظ ہیں، لیکن یاد دہانیاں مقرر نہیں ہو سکیں۔

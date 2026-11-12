@@ -1,3 +1,5 @@
+window.ZAD_APP_SHARE_URL = "https://play.google.com/store/apps/details?id=com.abdomohamed.zadmuslim";
+
 /**
  * الرابط العام المعتمد للمشاركة والإهداء في الويب وتطبيق الهاتف
  */
@@ -1162,7 +1164,7 @@ function initShareButtons() {
     const whatsappBtns = document.querySelectorAll(".btn-share-whatsapp");
     const twitterBtns = document.querySelectorAll(".btn-share-twitter");
 
-    const pageUrl = window.getPublicAppUrl();
+    const pageUrl = window.ZAD_APP_SHARE_URL;
     const shareMessage = `تطبيق زاد المسلم | القرآن الكريم كاملاً، مواقيت الصلاة، الأذكار والسبحة (صدقة جارية لوجه الله تعالى):\n${pageUrl}`;
 
     copyBtns.forEach(btn => {
@@ -2814,7 +2816,7 @@ function shareDuaCardImage() {
                 navigator.share({
                     files: [file],
                     title: `صدقة جارية ودعاء لروح: ${recipientName}`,
-                    text: `دعاء لروح (${recipientName}) • شاركنا بالدعاء وختمة القرآن: ${window.getPublicAppUrl()}`
+                    text: `دعاء لروح (${recipientName}) • شاركنا بالدعاء وختمة القرآن: ${window.ZAD_APP_SHARE_URL}`
                 }).catch(() => {});
                 return;
             }
@@ -2829,7 +2831,7 @@ function fallbackWhatsAppShare() {
     const dua = getSelectedDuaText();
     const recipientInput = document.getElementById("dua-card-recipient-input");
     const recipientName = (recipientInput && recipientInput.value.trim()) || "فقيدنا الغالي";
-    const text = encodeURIComponent(`🌿 صدقة جارية ودعاء لروح (${recipientName}):\n\n"${dua}"\n\nشاركنا الأجر والدعاء وختمات القرآن والتسبيح عبر الرابط:\n${window.getPublicAppUrl()}`);
+    const text = encodeURIComponent(`🌿 صدقة جارية ودعاء لروح (${recipientName}):\n\n"${dua}"\n\nشاركنا الأجر والدعاء وختمات القرآن والتسبيح عبر الرابط:\n${window.ZAD_APP_SHARE_URL}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
 }
 
@@ -3736,7 +3738,7 @@ ${item.hadith}
 
 ━━━━━━━━━━━━━━
 🌸 *تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)*
-📲 تابع أذكارك ووردك اليومي: https://zadmuslim-zeta.vercel.app/`;
+📲 تابع أذكارك ووردك اليومي: ${window.ZAD_APP_SHARE_URL}`;
 
             if (navigator.share) {
                 navigator.share({
@@ -4526,7 +4528,7 @@ function renderDuasCardsList(duasList) {
         const copyBtn = card.querySelector(".btn-copy-cat-dua");
         if (copyBtn) {
             copyBtn.addEventListener("click", () => {
-                const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: https://zadmuslim-zeta.vercel.app/`;
+                const textToCopy = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🕊️ صدقة جارية: ${window.ZAD_APP_SHARE_URL}`;
                 copyTextToClipboard(textToCopy);
             });
         }
@@ -4535,7 +4537,7 @@ function renderDuasCardsList(duasList) {
         const shareBtn = card.querySelector(".btn-share-cat-dua");
         if (shareBtn) {
             shareBtn.addEventListener("click", () => {
-                const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 رابط التطبيق: https://zadmuslim-zeta.vercel.app/`;
+                const msg = `🤲 *${dua.title}*\n"${dua.text}"\n📍 [${dua.source}]\n\n🌸 من تطبيق زاد المسلم (صدقة جارية لوجه الله تعالى)\n📲 رابط التطبيق: ${window.ZAD_APP_SHARE_URL}`;
                 const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
                 window.open(url, "_blank");
             });

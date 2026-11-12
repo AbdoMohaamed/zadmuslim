@@ -74,8 +74,8 @@ public class RadioService extends Service {
    if(wanted&&!offline){stopPlayback();return START_NOT_STICKY;}
    android.content.SharedPreferences prefs=getSharedPreferences("radio-widget",0);
    intent.putExtra("id",prefs.getString("id","cairo")).putExtra("name",prefs.getString("name","إذاعة القرآن الكريم من القاهرة"))
-    .putExtra("url",prefs.getString("url","https://stream.radiojar.com/8s5u5tpdtwzuv"))
-    .putExtra("backup",prefs.getString("backup","https://radio.xecod.com/station/quran-cairo"));
+    .putExtra("url",prefs.getString("url","https://radio.xecod.com/station/quran-cairo"))
+    .putExtra("backup",prefs.getString("backup","https://stream.radiojar.com/8s5u5tpdtwzuv"));
   }
   releasePlayer();
   offline=intent.getBooleanExtra("offline",false);
@@ -130,21 +130,33 @@ public class RadioService extends Service {
    next.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build());
    next.setWakeMode(this,PowerManager.PARTIAL_WAKE_LOCK);next.setVolume(volume,volume);
    next.setDataSource(useBackup&&backup!=null&&!backup.isEmpty()?backup:url);
+   boolean fastFallback = attempt == 0 && !useBackup && hasAlternateStream();
+   if (fastFallback) {
+    next.setOnBufferingUpdateListener((mp, percent) -> {
+     if (ticket != generation || percent <= 0 || watchdog == null) return;
+     mp.setOnBufferingUpdateListener(null);
+     handler.removeCallbacks(watchdog);
+     watchdog = null;
+     watch(18000);
+    });
+   }
    next.setOnPreparedListener(mp->{if(ticket!=generation||!wanted)return;try{if(offline){duration=mp.getDuration()/1000.0;if(position>0&&position<duration-1)mp.seekTo((int)(position*1000));session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE,name).putString(MediaMetadata.METADATA_KEY_ARTIST,"زاد المسلم").putLong(MediaMetadata.METADATA_KEY_DURATION,mp.getDuration()).build());}mp.start();lastError="";clearTimers();publish("playing");stable=()->{attempt=0;};handler.postDelayed(stable,30000);}catch(Exception e){android.util.Log.e("ZadRadio","Cannot start prepared stream",e);lastError="تعذّر تشغيل الصوت بعد تحميل البث";reconnect();}});
    next.setOnErrorListener((mp,what,extra)->{if(ticket==generation){android.util.Log.e("ZadRadio","MediaPlayer error "+what+" / "+extra);lastError="تعذّر تشغيل البث على مشغّل أندرويد ("+what+" / "+extra+")";reconnect();}return true;});
    next.setOnCompletionListener(mp->{if(ticket!=generation)return;if(offline){wanted=false;position=0;getSharedPreferences("offline-audio",0).edit().remove(stationId).apply();try{mp.seekTo(0);}catch(Exception ignored){}publish("ended");}else reconnect();});
    next.setOnInfoListener((mp,what,extra)->{if(ticket!=generation)return false;if(what==MediaPlayer.MEDIA_INFO_BUFFERING_START){publish("buffering");watch();}else if(what==MediaPlayer.MEDIA_INFO_BUFFERING_END){if(watchdog!=null)handler.removeCallbacks(watchdog);watchdog=null;publish("playing");}return false;});
-   next.prepareAsync();watch();
+   next.prepareAsync();watch(fastFallback ? 7000 : 18000);
   }catch(Exception e){android.util.Log.e("ZadRadio","Stream connection failed",e);lastError="تعذّر الاتصال بالبث من مشغّل أندرويد";reconnect();}
  }
- private void watch(){if(watchdog==null){watchdog=()->{watchdog=null;lastError="انتهت مهلة تحميل البث";reconnect();};handler.postDelayed(watchdog,18000);}}
+ private void watch(){watch(18000);}
+ private void watch(long timeoutMs){if(watchdog==null){watchdog=()->{watchdog=null;lastError="انتهت مهلة تحميل البث";reconnect();};handler.postDelayed(watchdog,timeoutMs);}}
+ private boolean hasAlternateStream(){return !offline && backup!=null && !backup.isEmpty() && !backup.equals(url);}
  private boolean online(){android.net.ConnectivityManager cm=(android.net.ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);android.net.Network network=cm.getActiveNetwork();return network!=null;}
  private void reconnect(){
   if(!wanted||interrupted||retry!=null)return;
   if(offline){wanted=false;releasePlayer();publish("failed");return;}
   releasePlayer();if(!online()){publish("offline");retry=()->{retry=null;connect();};handler.postDelayed(retry,5000);return;}
   useBackup=!useBackup;
-  long delay=Math.min(1000L<<Math.min(attempt,6),60000);attempt=Math.min(attempt+1,7);publish("retrying");retry=()->{retry=null;connect();};handler.postDelayed(retry,delay);
+  long delay=useBackup && attempt==0 && hasAlternateStream() ? 0 : Math.min(1000L<<Math.min(attempt,6),60000);attempt=Math.min(attempt+1,7);publish("retrying");retry=()->{retry=null;connect();};handler.postDelayed(retry,delay);
  }
  @Override public void onDestroy(){wanted=false;state="paused";PrayerWidgetAgendaProvider.updateAll(this);if(noisyReceiver!=null)unregisterReceiver(noisyReceiver);wanted=false;releasePlayer();handler.removeCallbacksAndMessages(null);if(Build.VERSION.SDK_INT>=26&&focus!=null)audioManager.abandonAudioFocusRequest(focus);else if(focusListener!=null)audioManager.abandonAudioFocus(focusListener);if(session!=null){session.setActive(false);session.release();}instance=null;stopForeground(true);super.onDestroy();}
  @Override public IBinder onBind(Intent intent){return null;}

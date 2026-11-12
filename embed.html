@@ -136,9 +136,28 @@
 
             iframe.onload = function() {
                 if (spinner) spinner.style.display = 'none';
+                try {
+                    iframe.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), 'https://www.youtube.com');
+                } catch (e) {}
             };
 
             container.appendChild(iframe);
+
+            window.addEventListener('message', function(event) {
+                if (event.origin === 'https://www.youtube.com') {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage(event.data, '*');
+                    }
+                    return;
+                }
+                if (!iframe.contentWindow) return;
+                try {
+                    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                    if (data && data.event === 'command' && data.func) {
+                        iframe.contentWindow.postMessage(JSON.stringify(data), 'https://www.youtube.com');
+                    }
+                } catch (e) {}
+            });
 
             // إظهار زر الفتح المباشر كخيار احتياطي بعد ثانيتين إن رغب المستخدم
             setTimeout(function() {

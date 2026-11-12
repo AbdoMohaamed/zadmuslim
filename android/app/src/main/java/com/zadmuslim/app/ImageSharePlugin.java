@@ -34,6 +34,7 @@ public class ImageSharePlugin extends Plugin {
             Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName()+".fileprovider", file);
             Intent send = new Intent(Intent.ACTION_SEND).setType("image/png");
             send.putExtra(Intent.EXTRA_STREAM, uri);
+            send.putExtra(Intent.EXTRA_TEXT, call.getString("text", ""));
             send.setClipData(ClipData.newRawUri("زاد المسلم", uri));
             send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             getActivity().startActivity(Intent.createChooser(send, "مشاركة الصورة"));

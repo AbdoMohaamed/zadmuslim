@@ -306,7 +306,7 @@ const RADIO_STATIONS = [
         id: "cairo",
         name: "إذاعة القرآن الكريم من القاهرة",
         desc: "بث مباشر رسمي على مدار 24 ساعة",
-        url: "https://stream.radiojar.com/8s5u5tpdtwzuv"
+        url: "https://radio.xecod.com/station/quran-cairo"
     },
     {
         id: "tarateel",

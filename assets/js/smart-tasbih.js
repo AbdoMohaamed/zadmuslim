@@ -418,7 +418,7 @@
                 });
             } else {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(`${zkr.text}\n— ${zkr.virtue}\n\nزاد المسلم 🌿: https://zadmuslim-zeta.vercel.app/`);
+                    navigator.clipboard.writeText(`${zkr.text}\n— ${zkr.virtue}\n\nزاد المسلم 🌿: ${window.ZAD_APP_SHARE_URL}`);
                     if (typeof window.showToast === "function") {
                         window.showToast("تم نسخ الذكر المبارك بنجاح 📋");
                     }

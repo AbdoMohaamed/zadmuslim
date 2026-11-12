@@ -319,16 +319,6 @@
                 </div>
             </div>
 
-            <div id="prayer-travel-updates" hidden>
-                <label><input type="checkbox"> تحديث الأذان أثناء السفر والتطبيق مغلق</label>
-                <p>يُرسل موقعك الجديد إلى AlAdhan لتحديث مواقيت الصلاة أثناء السفر.</p>
-                <p role="status" aria-live="polite"></p>
-                <dialog class="travel-disclosure" aria-labelledby="travel-disclosure-title" aria-describedby="travel-disclosure-text">
-                    <h3 id="travel-disclosure-title">تحديث الأذان أثناء السفر والتطبيق مغلق</h3>
-                    <p id="travel-disclosure-text">إذا فعّلت تحديث الأذان أثناء السفر وسمحت بالموقع دائمًا، يرسل التطبيق إحداثيات موقعك الجديد إلى AlAdhan لتحديث التنبيهات حتى عندما يكون التطبيق مغلقًا. يمكنك إيقاف ذلك من مواقيت الصلاة أو من إعدادات أذونات الهاتف.</p>
-                    <form method="dialog"><button class="btn outline" value="cancel">إلغاء</button> <button class="btn solid" value="allow">متابعة</button></form>
-                </dialog>
-            </div>
             <a class="home-prayer-action-btn" href="services.html#prayer-times">
                 <span>عرض التفاصيل</span>
                 <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
@@ -867,6 +857,14 @@
                 <div class="media-audio-mode-info">
                     <span class="media-audio-badge"><i class="fa-solid fa-bolt text-gold"></i> وضع الاستماع الصوتي (توفير باقة البيانات)</span>
                 </div>
+                <div class="media-audio-controls-bar">
+                    <button type="button" class="btn-audio-seek btn-audio-play" id="btn-audio-play-pause" title="إيقاف / تشغيل" aria-label="إيقاف مؤقت">
+                        <i class="fa-solid fa-pause"></i> <span>إيقاف</span>
+                    </button>
+                    <span class="audio-time-label" id="audio-time-current">00:00</span>
+                    <input type="range" class="audio-seek-slider" id="audio-seek-slider" min="0" max="100" value="0" aria-label="شريط التقديم والتأخير">
+                    <span class="audio-time-label" id="audio-time-duration">00:00</span>
+                </div>
                 <div class="media-audio-speed-bar">
                     <span class="speed-label"><i class="fa-solid fa-gauge-high text-gold"></i> السرعة:</span>
                     <button type="button" class="btn-audio-speed active" data-speed="1">1x</button>
@@ -1036,10 +1034,7 @@
             btn.style.flex = '1';
             btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> مشاركة الدعاء والرابط';
             btn.onclick = async () => {
-                const publicUrl = typeof window.getPublicAppUrl === 'function' ? window.getPublicAppUrl() : 'https://zadmuslim-zeta.vercel.app/';
-                const targetUrl = new URL(publicUrl);
-                targetUrl.searchParams.set('name', name);
-                const text = prayer.textContent + '\n\n' + targetUrl.href;
+                const text = prayer.textContent + '\n\n' + window.ZAD_APP_SHARE_URL;
                 try {
                     if (navigator.share) {
                         const title = 'دعاء لـ ' + name;

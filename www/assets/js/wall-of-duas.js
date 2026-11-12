@@ -684,8 +684,7 @@
         const dua = state.allDuas.find(d => d.id === duaId);
         if (!dua) return;
 
-        const siteUrl = (typeof window.getPublicAppUrl === "function") ? window.getPublicAppUrl() : window.location.href.split("#")[0];
-        const shareText = `🤲 دعاء بظهر الغيب من إخوانك في زاد المسلم:\n"${dua.text}"\n(صاحب الدعاء: ${dua.author})\n\nادعُ له وأمّن على دعائه لتنال بشارة النبي ﷺ: «ولكَ بمثل» 🌿\n${siteUrl}#wall-of-duas`;
+        const shareText = `🤲 دعاء بظهر الغيب من إخوانك في زاد المسلم:\n"${dua.text}"\n(صاحب الدعاء: ${dua.author})\n\nادعُ له وأمّن على دعائه لتنال بشارة النبي ﷺ: «ولكَ بمثل» 🌿\n${window.ZAD_APP_SHARE_URL}`;
 
         if (type === "whatsapp") {
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;

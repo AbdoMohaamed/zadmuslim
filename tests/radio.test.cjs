@@ -42,8 +42,8 @@ test('stalled streams time out and retry; autoplay denial requires a user gestur
 test('Cairo retries a working backup before returning to primary after repeated failure',()=>{
  const ctx={};vm.runInNewContext(fs.readFileSync('assets/js/radio-stations-data.js','utf8')+';this.stations=RADIO_STATIONS_LIST;',ctx);
  const cairo=ctx.stations.find(s=>s.id==='cairo');
- assert.equal(cairo.url,'https://stream.radiojar.com/8s5u5tpdtwzuv');
- assert.equal(cairo.backupUrl,'https://radio.xecod.com/station/quran-cairo');
+ assert.equal(cairo.url,'https://radio.xecod.com/station/quran-cairo');
+ assert.equal(cairo.backupUrl,'https://stream.radiojar.com/8s5u5tpdtwzuv');
  assert.equal(ctx.stations.find(s=>s.id==='makkah').backupUrl,undefined);
  const h=setup();h.player.select(cairo,true);
  h.audio.dispatchEvent(new Event('error'));h.tick(1000);

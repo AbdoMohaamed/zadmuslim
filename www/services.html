@@ -3096,7 +3096,7 @@
                 <button class="modal-close-btn" id="btn-close-custom-share-modal" aria-label="إغلاق">&times;</button>
                 <h3 class="modal-title"><i class="fa-solid fa-gift text-gold"></i> إنشاء رابط صدقة جارية لفقيدك</h3>
                 <p class="modal-desc">
-                    اكتب اسم فقيدك العزيز وسنقوم بإنشاء رابط مخصص يظهر فيه اسمه ودعاؤه في جميع أرجاء التطبيق لتشاركه مع أهلك وأحبابك لنيل الأجر.
+                    اكتب اسم فقيدك لمشاركة الدعاء له مع رابط تحميل التطبيق.
                 </p>
 
                 <form id="custom-share-form">
@@ -3120,9 +3120,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">الرابط المخصص لفقيدك:</label>
+                        <label class="form-label">رابط تحميل التطبيق:</label>
                         <div class="copy-input-row" style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="generated-share-url" class="form-input" readonly value="https://zadmuslim-zeta.vercel.app/">
+                            <input type="text" id="generated-share-url" class="form-input" readonly value="https://play.google.com/store/apps/details?id=com.abdomohamed.zadmuslim">
                             <button type="button" class="btn btn-gold btn-sm" id="btn-copy-custom-url">
                                 <i class="fa-solid fa-copy"></i>
                                 <span>نسخ</span>
@@ -3512,6 +3512,14 @@
                     </div>
                     <div class="media-audio-mode-info">
                         <span class="media-audio-badge"><i class="fa-solid fa-bolt text-gold"></i> وضع الاستماع الصوتي (توفير باقة البيانات)</span>
+                    </div>
+                    <div class="media-audio-controls-bar">
+                        <button type="button" class="btn-audio-seek btn-audio-play" id="btn-audio-play-pause" title="إيقاف / تشغيل" aria-label="إيقاف مؤقت">
+                            <i class="fa-solid fa-pause"></i> <span>إيقاف</span>
+                        </button>
+                        <span class="audio-time-label" id="audio-time-current">00:00</span>
+                        <input type="range" class="audio-seek-slider" id="audio-seek-slider" min="0" max="100" value="0" aria-label="شريط التقديم والتأخير">
+                        <span class="audio-time-label" id="audio-time-duration">00:00</span>
                     </div>
                     <div class="media-audio-speed-bar">
                         <span class="speed-label"><i class="fa-solid fa-gauge-high text-gold"></i> السرعة:</span>
@@ -3936,7 +3944,7 @@
                 btn.style.marginTop = '10px';
                 btn.textContent = 'مشاركة الدعاء ↗';
                 btn.onclick = async () => {
-                    let text = div.textContent + ' — زاد المسلم';
+                    const text = div.textContent + ' — زاد المسلم\n' + window.ZAD_APP_SHARE_URL;
                     if (navigator.share) {
                         try { await navigator.share({ text }); } catch (e) { }
                     } else {

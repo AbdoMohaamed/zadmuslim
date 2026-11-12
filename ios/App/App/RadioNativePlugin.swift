@@ -182,7 +182,9 @@ public class ImageSharePlugin: CAPPlugin, CAPBridgedPlugin {
             guard let host = self?.bridge?.viewController, host.presentedViewController == nil else {
                 call.reject("Another dialog is open"); return
             }
-            let sheet = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+            var items: [Any] = [image]
+            if let text = call.getString("text"), !text.isEmpty { items.append(text) }
+            let sheet = UIActivityViewController(activityItems: items, applicationActivities: nil)
             if let popover = sheet.popoverPresentationController {
                 popover.sourceView = host.view
                 popover.sourceRect = CGRect(x: host.view.bounds.midX, y: host.view.bounds.midY, width: 1, height: 1)

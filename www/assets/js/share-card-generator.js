@@ -434,10 +434,10 @@
             this.sharing = true;
             try {
                 const native = window.Capacitor?.isPluginAvailable?.('ImageShare') ? window.Capacitor.Plugins.ImageShare : null;
-                if (native) await native.share({base64:image.base64});
+                if (native) await native.share({base64:image.base64, text:window.ZAD_APP_SHARE_URL});
                 else if (navigator.share && navigator.canShare?.({files:[image.file]})) {
                     // The file is ready before this click, preserving Safari's user activation.
-                    await navigator.share({files:[image.file], title:label('زاد المسلم')});
+                    await navigator.share({files:[image.file], title:label('زاد المسلم'), text:window.ZAD_APP_SHARE_URL});
                 } else { this.status('المشاركة المباشرة غير متاحة هنا؛ استخدم حفظ الصورة ثم شاركها من جهازك.'); return; }
             } catch (error) {
                 if (error.name !== 'AbortError') this.status('تعذّرت المشاركة. يمكنك حفظ الصورة ومشاركتها من جهازك.');
@@ -461,7 +461,7 @@
         },
 
         copyCardText() {
-            const textToCopy = `${currentCardState.text}\n${currentCardState.ref ? '— ' + label(currentCardState.ref) : ''}\n\n${label('زاد المسلم')} 🌿: https://zadmuslim-zeta.vercel.app/`;
+            const textToCopy = `${currentCardState.text}\n${currentCardState.ref ? '— ' + label(currentCardState.ref) : ''}\n\n${label('زاد المسلم')} 🌿: ${window.ZAD_APP_SHARE_URL}`;
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     if (typeof window.showToast === "function") {

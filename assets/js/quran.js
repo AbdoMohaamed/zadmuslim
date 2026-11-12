@@ -1174,7 +1174,7 @@ function setupGoldenAyahSheet() {
         btnShare.addEventListener("click", () => {
             const txt = document.getElementById("golden-ayah-text")?.textContent || "";
             const ref = document.getElementById("golden-ayah-ref")?.textContent || "";
-            const shareText = `"${txt}" [${ref}] - تطبيق زاد المسلم`;
+            const shareText = `"${txt}" [${ref}] - تطبيق زاد المسلم\n${window.ZAD_APP_SHARE_URL}`;
             if (navigator.share) {
                 navigator.share({ title: "زاد المسلم", text: shareText }).catch(() => {});
             } else {

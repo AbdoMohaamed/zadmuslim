@@ -6,6 +6,7 @@ const source = fs.readFileSync('assets/js/share-card-generator.js', 'utf8');
 function setup() {
     const dom = new JSDOM('<button id="open">Open</button>', {runScripts:'outside-only',url:'https://example.com'});
     const w = dom.window, draws = [];
+    w.ZAD_APP_SHARE_URL = 'https://play.google.com/store/apps/details?id=com.abdomohamed.zadmuslim';
     const ctx = new Proxy({font:'', measureText(text) { return {width:[...text.replace(/[\u064b-\u065f]/g,'')].length * (parseFloat(this.font.match(/\d+/)?.[0]) || 30)*.5}; },
         fillText(text,x,y) { draws.push({text,x,y}); }, createLinearGradient() {return {addColorStop(){}};}
     }, {get(target,key) {return key in target ? target[key] : ()=>{};}});
@@ -72,7 +73,7 @@ test('sharing uses a prepared PNG immediately and cancellation never downloads o
     try {
         g.openModal({text:'آية',ref:'مرجع'});await ready();let called=false;
         w.navigator.canShare=()=>true;
-        w.navigator.share=({files})=>{called=true;assert.equal(files[0],g.prepared.file);return Promise.reject(new w.DOMException('Cancelled','AbortError'));};
+        w.navigator.share=({files,text})=>{called=true;assert.equal(text,w.ZAD_APP_SHARE_URL);assert.equal(files[0],g.prepared.file);return Promise.reject(new w.DOMException('Cancelled','AbortError'));};
         w.URL.createObjectURL=()=>{throw Error('Unexpected download');};
         const result=g.shareDirectlyToStory();assert.ok(called);await result;
         assert.equal(g.sharing,false);
@@ -87,6 +88,6 @@ test('new format wins over stale font loading and native sharing receives its ma
         waits.slice(2).forEach(r=>r());await ready();assert.equal(g.prepared.base64,'PNG1080');
         waits.slice(0,2).forEach(r=>r());await ready();assert.equal(g.prepared.base64,'PNG1080');
         let payload;w.Capacitor={isPluginAvailable:()=>true,Plugins:{ImageShare:{share:async value=>{payload=value;}}}};
-        await g.shareDirectlyToStory();assert.equal(payload.base64,'PNG1080');
+        await g.shareDirectlyToStory();assert.equal(payload.base64,'PNG1080');assert.equal(payload.text,w.ZAD_APP_SHARE_URL);
     } finally {dom.window.close();}
 });
