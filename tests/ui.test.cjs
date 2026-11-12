@@ -813,13 +813,14 @@ test('mobile navigation highlights excerpts when selected and restores services 
 });
 
 
-test('real home progress exports and restores through the settings file handler on a separate device',async()=>{
- const source=await load('index.html',{storage:{zad_note_p3:'ملاحظة تجربة',zad_adhan_volume:'0.6',zad_show_prayer_images:'1',zad_home_sections:'{"daily_clip":false}'}});
+test('daily wird progress exports and restores through the settings file handler on a separate device',async()=>{
+ const source=await load('services.html',{url:'http://localhost:4173/services.html#daily-wird',storage:{zad_note_p3:'ملاحظة تجربة',zad_adhan_volume:'0.6',zad_show_prayer_images:'1',zad_home_sections:'{"daily_clip":false}'}});
  let backup;
  try{
   source.dom.window.document.querySelector('.wird-checkbox[data-task="quran"]').click();
   backup=backupTools.makeBackup(source.dom.window.localStorage);
   assert.ok(Object.keys(backup.data).some(key=>key.startsWith('daily_wird_home_import_')));
+  assert.ok(Object.entries(backup.data).some(([key,value])=>/^daily_wird_\d{4}-/.test(key) && JSON.parse(value).includes('quran')));
   backupTools.validateBackup(backup);
  }finally{source.dom.window.close();}
  const destination=await load('settings.html',{url:'http://localhost:4173/settings.html#zad-backup-section'});
