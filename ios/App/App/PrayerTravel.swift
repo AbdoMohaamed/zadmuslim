@@ -126,7 +126,7 @@ final class PrayerTravel: NSObject, CLLocationManagerDelegate {
 public class PrayerTravelPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "PrayerTravelPlugin"
     public let jsName = "PrayerTravel"
-    public let pluginMethods = [CAPPluginMethod(name:"configure",returnType:CAPPluginReturnPromise),
+    public let pluginMethods: [CAPPluginMethod] = [CAPPluginMethod(name:"configure",returnType:CAPPluginReturnPromise),
                                 CAPPluginMethod(name:"remember",returnType:CAPPluginReturnPromise)]
     @objc func configure(_ call: CAPPluginCall) {
         Task { @MainActor in

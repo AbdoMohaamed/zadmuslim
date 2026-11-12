@@ -108,7 +108,7 @@ class ZadBridgeViewController: CAPBridgeViewController {
 public class BackupFilesPlugin: CAPPlugin, CAPBridgedPlugin, UIDocumentPickerDelegate {
     public let identifier = "BackupFilesPlugin"
     public let jsName = "BackupFiles"
-    public let pluginMethods = [CAPPluginMethod(name: "saveBackup", returnType: CAPPluginReturnPromise)]
+    public let pluginMethods: [CAPPluginMethod] = [CAPPluginMethod(name: "saveBackup", returnType: CAPPluginReturnPromise)]
     private var pendingCall: CAPPluginCall?
     private var temporaryDirectory: URL?
 
