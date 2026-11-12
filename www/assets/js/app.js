@@ -3387,6 +3387,15 @@ function initGPSLocation() {
             toggle.disabled = true;
             try {
                 if (toggle.checked) {
+                    const dialog = travel.querySelector('.travel-disclosure');
+                    const accepted = typeof dialog.showModal === 'function'
+                        ? await new Promise(resolve => {
+                            dialog.returnValue = 'cancel';
+                            dialog.addEventListener('close', () => resolve(dialog.returnValue === 'allow'), {once: true});
+                            dialog.showModal();
+                        })
+                        : window.confirm(dialog.querySelector('p').textContent);
+                    if (!accepted) { toggle.checked = false; return; }
                     const fix = await window.requestGPSPosition(false);
                     if (!fix) { toggle.checked = false; return; }
                     localStorage.setItem('zad_travel_updates','1');

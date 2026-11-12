@@ -323,6 +323,11 @@
                 <label><input type="checkbox"> تحديث الأذان أثناء السفر والتطبيق مغلق</label>
                 <p>يُرسل موقعك الجديد إلى AlAdhan لتحديث مواقيت الصلاة أثناء السفر.</p>
                 <p role="status" aria-live="polite"></p>
+                <dialog class="travel-disclosure" aria-labelledby="travel-disclosure-title" aria-describedby="travel-disclosure-text">
+                    <h3 id="travel-disclosure-title">تحديث الأذان أثناء السفر والتطبيق مغلق</h3>
+                    <p id="travel-disclosure-text">إذا فعّلت تحديث الأذان أثناء السفر وسمحت بالموقع دائمًا، يرسل التطبيق إحداثيات موقعك الجديد إلى AlAdhan لتحديث التنبيهات حتى عندما يكون التطبيق مغلقًا. يمكنك إيقاف ذلك من مواقيت الصلاة أو من إعدادات أذونات الهاتف.</p>
+                    <form method="dialog"><button class="btn outline" value="cancel">إلغاء</button> <button class="btn solid" value="allow">متابعة</button></form>
+                </dialog>
             </div>
             <a class="home-prayer-action-btn" href="services.html#prayer-times">
                 <span>عرض التفاصيل</span>
@@ -797,7 +802,7 @@
 
     <!-- شريط التنقل السفلي للهواتف (Mobile Bar) من النموذج المرجعي -->
     <nav class="mobilebar">
-        <a href="#home"><i class="fa-solid fa-house text-gold"></i>الرئيسية</a>
+        <a href="#home" class="active"><i class="fa-solid fa-house text-gold"></i>الرئيسية</a>
         <a href="services.html#daily-wird"><i class="fa-solid fa-leaf text-gold"></i>يومي</a>
         <a href="services.html#islamic-media">  <i class="fa-solid fa-circle-play text-gold"></i>مقتطفات</a>
         <a href="services.html"><i class="fa-solid fa-layer-group text-gold"></i>الخدمات</a>

@@ -19,3 +19,21 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Preserve runtime annotations required by Capacitor plugins (@CapacitorPlugin, @Permission, @PluginMethod)
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+
+# Capacitor core & official plugins (Geolocation, LocalNotifications, etc.)
+-keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
+-keepclassmembers class * {
+    @com.getcapacitor.PluginMethod <methods>;
+}
+-keep class com.getcapacitor.** { *; }
+-keep class com.capacitorjs.** { *; }
+
+# Zad Muslim native plugins, receivers, and widgets
+-keep class com.zadmuslim.app.** { *; }
+
+# Cordova & OneSignal plugins
+-keep class org.apache.cordova.** { *; }
+-keep class com.onesignal.** { *; }

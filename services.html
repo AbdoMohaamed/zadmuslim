@@ -962,6 +962,11 @@
                             <label><input type="checkbox"> تحديث الأذان أثناء السفر والتطبيق مغلق</label>
                             <p>يُرسل موقعك الجديد إلى AlAdhan لتحديث مواقيت الصلاة أثناء السفر.</p>
                             <p role="status" aria-live="polite"></p>
+                            <dialog class="travel-disclosure" aria-labelledby="travel-disclosure-title" aria-describedby="travel-disclosure-text">
+                                <h3 id="travel-disclosure-title">تحديث الأذان أثناء السفر والتطبيق مغلق</h3>
+                                <p id="travel-disclosure-text">إذا فعّلت تحديث الأذان أثناء السفر وسمحت بالموقع دائمًا، يرسل التطبيق إحداثيات موقعك الجديد إلى AlAdhan لتحديث التنبيهات حتى عندما يكون التطبيق مغلقًا. يمكنك إيقاف ذلك من مواقيت الصلاة أو من إعدادات أذونات الهاتف.</p>
+                                <form method="dialog"><button class="btn outline" value="cancel">إلغاء</button> <button class="btn solid" value="allow">متابعة</button></form>
+                            </dialog>
                         </div>
                         <div class="prayer-action-buttons">
                             <button type="button" class="btn btn-outline btn-sm btn-gps-location" id="btn-gps-location" title="تحديد مواقيت الصلاة بدقة لموقعك الحالي حول العالم">
@@ -4034,14 +4039,14 @@
             function updateMobileBarActiveState(currentId) {
                 const activeId = (currentId || window.location.hash || '').replace(/^#/, '').split('?')[0];
                 const isMedia = (activeId === 'islamic-media');
-                const isSingle = document.body.classList.contains('single-service-mode');
+                const isDailyWird = (activeId === 'daily-wird');
 
                 document.querySelectorAll('.mobilebar a').forEach(link => {
                     const href = link.getAttribute('href') || '';
                     if (isMedia) {
                         link.classList.toggle('active', href === '#islamic-media' || href.endsWith('#islamic-media'));
-                    } else if (isSingle) {
-                        link.classList.toggle('active', href === 'services.html' || href === '#services');
+                    } else if (isDailyWird) {
+                        link.classList.toggle('active', href === '#daily-wird' || href.endsWith('#daily-wird'));
                     } else {
                         link.classList.toggle('active', href === 'services.html' || href === '#services');
                     }
@@ -4051,6 +4056,8 @@
                     const href = link.getAttribute('href') || '';
                     if (isMedia) {
                         link.classList.toggle('active', href === '#islamic-media' || href.endsWith('#islamic-media'));
+                    } else if (isDailyWird) {
+                        link.classList.toggle('active', href === '#daily-wird' || href.endsWith('#daily-wird'));
                     } else {
                         link.classList.remove('active');
                     }
@@ -4148,16 +4155,19 @@
             });
 
             // ربط الروابط العلوية والسفلية
-            document.querySelectorAll('header.top .links a[href^="#"], .mobilebar a[href="services.html"], .mobilebar a[href^="#"], .bottom-nav a[href="services.html"], .bottom-nav a[href^="#"]').forEach(link => {
+            document.querySelectorAll('header.top .links a[href^="#"], header.top .links a[href^="services.html#"], .mobilebar a[href="services.html"], .mobilebar a[href^="#"], .mobilebar a[href^="services.html#"], .bottom-nav a[href="services.html"], .bottom-nav a[href^="#"], .bottom-nav a[href^="services.html#"]').forEach(link => {
                 link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
+                    const href = this.getAttribute('href') || '';
                     if (href === 'services.html') {
+                        e.preventDefault();
                         if (document.body.classList.contains('single-service-mode')) {
-                            e.preventDefault();
                             closeServiceFocusView(true);
+                        } else {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
-                    } else if (href && href.startsWith('#')) {
-                        const cleanId = href.substring(1).split('?')[0];
+                    } else if (href.startsWith('#') || href.startsWith('services.html#')) {
+                        const hashPart = href.includes('#') ? href.slice(href.indexOf('#') + 1) : '';
+                        const cleanId = hashPart.split('?')[0];
                         const targetSection = document.getElementById(cleanId);
                         if (targetSection && targetSection.classList.contains('service-view-section')) {
                             e.preventDefault();
