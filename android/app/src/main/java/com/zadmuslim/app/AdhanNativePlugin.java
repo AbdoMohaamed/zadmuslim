@@ -159,7 +159,7 @@ public class AdhanNativePlugin extends Plugin {
             editor.putString("enabled_prayers_json", enabledPrayers.toString());
         }
         if (widgetCity != null && !widgetCity.trim().isEmpty()) editor.putString("widget_city", widgetCity.trim());
-            editor.apply();
+        editor.apply();
 
         PrayerRenewalReceiver.cancel(context);
         editor = prefs.edit().remove("local_calculation");

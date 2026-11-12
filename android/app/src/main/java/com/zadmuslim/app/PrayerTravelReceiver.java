@@ -8,7 +8,7 @@ public class PrayerTravelReceiver extends BroadcastReceiver {
     @Override public void onReceive(Context context,Intent intent) {
         Location fix=intent.getParcelableExtra(LocationManager.KEY_LOCATION_CHANGED);
         SharedPreferences prefs=PrayerTravelPlugin.prefs(context);
-        if(fix==null || !prefs.getBoolean("enabled",false) || !PrayerTravelPlugin.permitted(context)
+        if(fix==null || !PrayerTravelPlugin.enabled(context) || !PrayerTravelPlugin.permitted(context)
             || System.currentTimeMillis()-fix.getTime()>3600000 || fix.getAccuracy()>5000) return;
         float[] distance=new float[1];
         if(prefs.contains("lat")){

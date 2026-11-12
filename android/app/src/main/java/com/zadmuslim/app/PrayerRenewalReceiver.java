@@ -18,11 +18,11 @@ public class PrayerRenewalReceiver extends BroadcastReceiver {
     }
     public static synchronized boolean renew(Context c) {
         SharedPreferences prefs=c.getSharedPreferences(AdhanNativePlugin.PREFS_NAME,0);
-        String raw=prefs.getString("local_calculation",null);
-        if(raw==null) return false;
+        Object raw = prefs.getAll().get("local_calculation");
+        if (!(raw instanceof String)) return false;
         try {
             if(!prefs.getBoolean("adhan_enabled",false)&&!prefs.getBoolean("pre_alert_enabled",false)){cancel(c);return false;}
-            JSONObject config=new JSONObject(raw);
+            JSONObject config=new JSONObject((String) raw);
             JSONArray days=LocalPrayerCalculator.calendar(config,14);
             JSONObject clockTimes=LocalPrayerCalculator.clockTimes(config,Calendar.getInstance());
             replaceDays(c, prefs, days, clockTimes);
@@ -60,6 +60,6 @@ public class PrayerRenewalReceiver extends BroadcastReceiver {
         AdhanNativePlugin.restorePrepared(c,alarms);
     }
     @Override public void onReceive(Context context,Intent intent){
-        if(!renew(context) && PrayerTravelPlugin.prefs(context).getBoolean("enabled",false)) PrayerTravelReceiver.schedule(context);
+        if(!renew(context) && PrayerTravelPlugin.enabled(context)) PrayerTravelReceiver.schedule(context);
     }
 }

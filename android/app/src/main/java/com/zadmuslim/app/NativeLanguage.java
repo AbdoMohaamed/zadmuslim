@@ -7,7 +7,12 @@ public final class NativeLanguage {
     private NativeLanguage() {}
 
     public static String language(Context context) {
-        String language = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, 0).getString("interface_language", "ar");
+        String language;
+        try {
+            language = context.getSharedPreferences(AdhanNativePlugin.PREFS_NAME, 0).getString("interface_language", "ar");
+        } catch (ClassCastException invalidPreference) {
+            return "ar";
+        }
         return "en".equals(language) || "ur".equals(language) ? language : "ar";
     }
 

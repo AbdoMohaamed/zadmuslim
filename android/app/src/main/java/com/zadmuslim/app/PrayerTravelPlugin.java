@@ -14,6 +14,9 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name="PrayerTravel")
 public class PrayerTravelPlugin extends Plugin {
     static SharedPreferences prefs(Context c) { return c.getSharedPreferences("prayer_travel",0); }
+    static boolean enabled(Context c) {
+        return Boolean.TRUE.equals(prefs(c).getAll().get("enabled"));
+    }
     static boolean permitted(Context c) {
         return (c.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED ||
                 c.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED) &&
@@ -24,11 +27,15 @@ public class PrayerTravelPlugin extends Plugin {
         Intent delivery=new Intent(c,PrayerTravelReceiver.class).setAction("com.zadmuslim.app.TRAVEL_LOCATION");
         int flags=PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT>=31?PendingIntent.FLAG_MUTABLE:0);
         PendingIntent pending=PendingIntent.getBroadcast(c,61002,delivery,flags);
-        if(!prefs(c).getBoolean("enabled",false)||!permitted(c)){
-            manager.removeUpdates(pending);
+        if(!enabled(c)||!permitted(c)){
+            if (manager != null) {
+                try { manager.removeUpdates(pending); }
+                catch (SecurityException denied) { android.util.Log.w("PrayerTravel", "Location access revoked", denied); }
+            }
             c.getSystemService(android.app.job.JobScheduler.class).cancel(61002);
             return;
         }
+        if (manager == null) return;
         for(String provider:new String[]{LocationManager.NETWORK_PROVIDER,LocationManager.GPS_PROVIDER}){
             if(manager.getAllProviders().contains(provider)){
                 try { manager.requestLocationUpdates(provider,900000,5000,pending); }

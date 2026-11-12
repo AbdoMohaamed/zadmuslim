@@ -444,14 +444,14 @@ A7D000000000000000000015 = {isa = PBXSourcesBuildPhase; buildActionMask = 214748
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.6.22;
+				MARKETING_VERSION = 3.6.23;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -467,14 +467,14 @@ A7D000000000000000000015 = {isa = PBXSourcesBuildPhase; buildActionMask = 214748
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.6.22;
+				MARKETING_VERSION = 3.6.23;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -483,8 +483,8 @@ A7D000000000000000000015 = {isa = PBXSourcesBuildPhase; buildActionMask = 214748
 			};
 			name = Release;
 		};
-A7D000000000000000000020 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 22; MARKETING_VERSION = 3.6.22; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
-A7D000000000000000000021 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 22; MARKETING_VERSION = 3.6.22; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+A7D000000000000000000020 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 23; MARKETING_VERSION = 3.6.23; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+A7D000000000000000000021 = {isa = XCBuildConfiguration; buildSettings = { APPLICATION_EXTENSION_API_ONLY = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = WIDGET_EXTENSION; CODE_SIGN_STYLE = Automatic; CODE_SIGN_ENTITLEMENTS = PrayerWidget/Widget.entitlements; CURRENT_PROJECT_VERSION = 23; MARKETING_VERSION = 3.6.23; INFOPLIST_FILE = PrayerWidget/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", ); PRODUCT_BUNDLE_IDENTIFIER = com.zadmuslim.app.widgets; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */

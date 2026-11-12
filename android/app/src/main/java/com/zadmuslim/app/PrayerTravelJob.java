@@ -33,7 +33,7 @@ public class PrayerTravelJob extends JobService {
     }
     private void update(JobParameters job)throws Exception{
         SharedPreferences travel=PrayerTravelPlugin.prefs(this),alarms=getSharedPreferences(AdhanNativePlugin.PREFS_NAME,0);
-        if(!travel.getBoolean("enabled",false)||!travel.contains("lat")||!PrayerTravelPlugin.permitted(this)||
+        if(!PrayerTravelPlugin.enabled(this)||!travel.contains("lat")||!PrayerTravelPlugin.permitted(this)||
             !(alarms.getBoolean("adhan_enabled",false)||alarms.getBoolean("pre_alert_enabled",false)))return;
         float lat=travel.getFloat("lat",0),lon=travel.getFloat("lon",0);
         String selected=travel.getString("method",""),school=travel.getString("school","0");
@@ -53,7 +53,7 @@ public class PrayerTravelJob extends JobService {
             }
             days.put(new JSONObject().put("date",day.format(date.getTime())).put("timings",instants));
         }
-        if(active!=job||!travel.getBoolean("enabled",false)||!PrayerTravelPlugin.permitted(this)||
+        if(active!=job||!PrayerTravelPlugin.enabled(this)||!PrayerTravelPlugin.permitted(this)||
             lat!=travel.getFloat("lat",0)||lon!=travel.getFloat("lon",0)||
             !selected.equals(travel.getString("method",""))||!school.equals(travel.getString("school","0"))||
             !(alarms.getBoolean("adhan_enabled",false)||alarms.getBoolean("pre_alert_enabled",false)))return;
