@@ -1274,6 +1274,10 @@
 المساعد الذكي:|AI assistant:|ذہین معاون:
 حدود الاستخدام:|Usage limits:|استعمال کی حدود:
 ٣. استخدام الأطفال (Child Safety)|3. Child safety|3. بچوں کا تحفظ
+طلب حذف بياناتك من زاد المسلم|Request deletion of your Zad Muslim data|زاد المسلم سے اپنا ڈیٹا حذف کرنے کی درخواست
+أرسل طلبك إلى بريد الدعم أدناه بعنوان «طلب حذف بيانات زاد المسلم».|Email the support address below with the subject “Zad Muslim data deletion request”.|نیچے دیے گئے سپورٹ پتے پر «زاد المسلم ڈیٹا حذف کرنے کی درخواست» کے عنوان سے ای میل بھیجیں۔
+حدّد ما تريد حذفه من سجلات التطبيق: منشور الدعاء واسم العرض المرفق به، أو حجز جزء في الختمة واسم القارئ، أو بلاغ المشكلة وتفاصيله. اذكر ما يساعدنا على العثور على السجل، مثل تاريخ تقريبي ومقتطف من النص أو رقم الجزء.|Tell us which app record to delete: a prayer post and its display name, a group Quran reading reservation and its reader name, or a problem report and its details. Include enough to find it, such as the approximate date and a short excerpt or the part number.|بتائیں کہ کون سا ریکارڈ حذف کرنا ہے: دعائیہ پوسٹ اور اس کے ساتھ درج نام، اجتماعی ختم میں پارے کی بکنگ اور قاری کا نام، یا مسئلے کی رپورٹ اور اس کی تفصیلات۔ ریکارڈ تلاش کرنے کے لیے اندازاً تاریخ اور مختصر عبارت یا پارہ نمبر لکھیں۔
+تُحذف عدادات الاستخدام تلقائيًا خلال ٤٨ ساعة. وقد يحتفظ مقدّمو الخدمات بسجلات تشغيل بحسب سياساتهم.|Usage counters expire automatically within 48 hours. Service providers may retain operational logs according to their policies.|استعمال کے کاؤنٹر ۴۸ گھنٹوں میں خود بخود حذف ہو جاتے ہیں۔ خدمات فراہم کرنے والے اپنی پالیسیوں کے مطابق آپریشنل لاگ محفوظ رکھ سکتے ہیں۔
 ٤. حذف البيانات والتحكم الكامل|4. Deleting and controlling your data|4. ڈیٹا حذف کرنا اور اختیار
 ٥. التعديلات على سياسة الخصوصية|5. Changes to this privacy policy|5. رازداری کی پالیسی میں تبدیلیاں
 ٦. التواصل والدعم|6. Contact and support|6. رابطہ اور مدد
