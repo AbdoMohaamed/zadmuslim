@@ -567,6 +567,19 @@ const NativeAdhanService = {
         }
     },
 
+    webPrayerPreferences() {
+        const {adhan, prePrayer, prePrayerInterval} = this.getNotificationSettings();
+        return {adhan, prePrayer, prePrayerInterval, enabledPrayers:this.getEnabledPrayers() || {}};
+    },
+
+    syncWebPrayerPreferences() {
+        const workers = navigator.serviceWorker;
+        if (!workers) return;
+        const send = worker => worker?.postMessage({type:"PRAYER_PREFERENCES", preferences:this.webPrayerPreferences()});
+        if (workers.controller) send(workers.controller);
+        else workers.ready.then(reg => send(reg.active)).catch(() => {});
+    },
+
     getNotificationSettings() {
         const defaults = { morning: true, morningTime: '06:30', evening: true, eveningTime: '17:00', sleep: true, sleepTime: '22:30', friday: true, hourlySalawat: true, salawatInterval: 60, prePrayer: true, prePrayerInterval: 5, adhan: true, prayerImages: true };
         let saved;
@@ -596,7 +609,8 @@ const NativeAdhanService = {
         current[prayerKey] = !!isEnabled;
         localStorage.setItem("zad_enabled_prayers", JSON.stringify(current));
         // إعادة الجدولة إن كانت المواقيت متوفرة
-        this.schedulePrayers();
+        if (window.Capacitor?.isNativePlatform?.()) this.schedulePrayers();
+        else this.syncWebPrayerPreferences();
         return current;
     },
 
@@ -604,6 +618,10 @@ const NativeAdhanService = {
      * جدولة إشعارات الأذكار والصلاة على النبي وسنن الأسبوع فورياً في نظام التشغيل (مع تحديث الصلوات إن كانت متوفرة)
      */
     async scheduleLocalNotifications() {
+        if (!window.Capacitor?.isNativePlatform?.()) {
+            this.syncWebPrayerPreferences();
+            return;
+        }
         {
             const result = await this.schedulePrayers();
             if (result) return result;

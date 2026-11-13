@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v196";
+const CACHE_NAME = "zad-muslim-v197";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/service-translations.js?v=2",
@@ -360,11 +360,13 @@ self.addEventListener("fetch", (event) => {
 // ==========================================================================
 let prayerNotificationLanguage = "ar";
 let prayerActionLabels = [];
+let prayerPreferences = {};
 
 self.addEventListener("message", (event) => {
   if (!event.data) return;
 
   if (event.data.type === "SCHEDULE_PRAYERS") {
+    prayerPreferences = event.data.preferences || prayerPreferences;
     scheduledPrayerAlarms = event.data.schedule || [];
     prayerNotificationLanguage = event.data.language || "ar";
     prayerActionLabels = event.data.actionLabels || [];
@@ -374,6 +376,11 @@ self.addEventListener("message", (event) => {
     if (event.data.prayerImages !== undefined) {
       showPrayerImagesPreference = event.data.prayerImages === true;
     }
+    armBackgroundPrayerAlarms();
+  }
+
+  if (event.data.type === "PRAYER_PREFERENCES") {
+    prayerPreferences = event.data.preferences || {};
     armBackgroundPrayerAlarms();
   }
 
@@ -399,19 +406,19 @@ function armBackgroundPrayerAlarms() {
 
   const now = Date.now();
   scheduledPrayerAlarms.forEach(prayer => {
-    if (!prayer || prayer.key === "sunrise") return;
+    if (!prayer || prayer.key === "sunrise" || prayerPreferences.enabledPrayers?.[prayer.key] === false) return;
 
     const targetTime = Number(prayer.timestamp);
     const delay = targetTime - now;
 
-    // 1. تنبيه اقتراب موعد الصلاة قبل 5 دقائق
-    const preAlertDelay = delay - (5 * 60 * 1000);
-    if (preAlertDelay > 0 && preAlertDelay <= 86400000) {
+    const minutes = prayerPreferences.prePrayerInterval || 5;
+    const preAlertDelay = delay - minutes * 60000;
+    if (prayerPreferences.prePrayer !== false && preAlertDelay > 0) {
       const preTimer = setTimeout(() => {
         const preImage = showPrayerImagesPreference ? `./assets/images/prayers/pre_${prayer.key}.jpg` : null;
         showDeviceNotification(
           prayer.upcoming?.title ?? `⏳ اقتربت ${prayer.name}`,
-          prayer.upcoming?.body ?? `بقي 5 دقائق على دخول وقت ${prayer.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
+          prayer.upcoming?.body?.replace(/\b5\b/, String(minutes)) ?? `بقي ${minutes} دقائق على دخول وقت ${prayer.name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`,
           `./#prayer-times`,
           `pre_prayer_${prayer.key}_${new Date().toISOString().slice(0, 10)}`,
           preImage,
@@ -422,7 +429,7 @@ function armBackgroundPrayerAlarms() {
     }
 
     // 2. إشعار دخول وقت الصلاة وسماع الأذان
-    if (delay > 0 && delay <= 86400000) {
+    if (prayerPreferences.adhan !== false && delay > 0) {
       const timer = setTimeout(() => {
         showPrayerNotification(prayer);
       }, delay);

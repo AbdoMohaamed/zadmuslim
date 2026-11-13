@@ -2253,11 +2253,11 @@ function renderPrayerTimesUI(timings) {
     }
 }
 
-function prayerNotificationText(name, upcoming = false) {
+function prayerNotificationText(name, upcoming = false, minutes = 5) {
     const translate = text => window.ZadI18n?.t(text) ?? text;
     return upcoming ? {
         title: translate(`⏳ اقتربت ${name}`),
-        body: translate(`بقي 5 دقائق على دخول وقت ${name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`)
+        body: translate(`بقي ${minutes} دقائق على دخول وقت ${name}. تَهَيّأْ للوضوء والصلاة وأَقْبِلْ على الله بقلب خاشع 🌿`)
     } : {
         title: translate(`🕌 حان الآن موعد ${name}`),
         body: translate(`الله أكبر، الله أكبر.. حان الآن موعد ${name} حسب التوقيت المحلي. حيّ على الصلاة، حيّ على الفلاح 🌿`)
@@ -2268,49 +2268,30 @@ window.addEventListener("zad:language-change", () => {
     if (window.zadPrayerVerified && prayerTimings) syncPrayersWithServiceWorker(prayerTimings);
 });
 
-function syncPrayersWithServiceWorker(timings) {
-    if (!timings || !("serviceWorker" in navigator)) return;
+let webScheduleRevision = 0;
+async function syncPrayersWithServiceWorker(timings) {
+    if (window.Capacitor?.isNativePlatform?.() || !timings || !("serviceWorker" in navigator)) return;
+    const revision = ++webScheduleRevision;
     try {
         const now = new Date();
-        const prayersList = [
-            { name: "صلاة الفجر", key: "fajr", time: timings.Fajr },
-            { name: "الشروق", key: "sunrise", time: timings.Sunrise },
-            { name: "صلاة الظهر", key: "dhuhr", time: timings.Dhuhr },
-            { name: "صلاة العصر", key: "asr", time: timings.Asr },
-            { name: "صلاة المغرب", key: "maghrib", time: timings.Maghrib },
-            { name: "صلاة العشاء", key: "isha", time: timings.Isha }
-        ];
-
+        const prayers = {Fajr:"صلاة الفجر", Dhuhr:"صلاة الظهر", Asr:"صلاة العصر", Maghrib:"صلاة المغرب", Isha:"صلاة العشاء"};
         const schedule = [];
-        for (const p of prayersList) {
-            if (!p.time) continue;
-            const clean = p.time.split(" ")[0];
-            const [h, m] = clean.split(":").map(Number);
-            const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
-            
-            // إضافة اليوم والغد للتأكد من استمرار العمل عند إغلاق التطبيق
-            schedule.push({
-                name: p.name,
-                key: p.key,
-                timestamp: pDate.getTime(),
-                timeStr: p.time
-            });
-
-            const nextDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m, 0);
-            schedule.push({
-                name: p.name,
-                key: p.key,
-                timestamp: nextDayDate.getTime(),
-                timeStr: p.time
-            });
+        function appendDay(date, dayTimings) {
+            for (const [key, name] of Object.entries(prayers)) {
+                const time = dayTimings[key];
+                if (typeof time !== "string" || !/^(?:[01]\d|2[0-3]):[0-5]\d(?: |$)/.test(time)) continue;
+                const [hour, minute] = time.split(" ")[0].split(":").map(Number);
+                const timestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute).getTime();
+                schedule.push({name, key:key.toLowerCase(), timestamp, timeStr:time});
+            }
         }
-
-        localStorage.setItem("zad_cached_prayers_schedule", JSON.stringify(schedule));
-
+        appendDay(now, timings);
         const postToSW = (worker) => {
-            if (worker) {
+            if (worker && revision === webScheduleRevision && window.zadPrayerVerified && timings === window.prayerTimings) {
+                localStorage.setItem("zad_cached_prayers_schedule", JSON.stringify(schedule));
                 worker.postMessage({
                     type: "SCHEDULE_PRAYERS",
+                    preferences: window.NativeAdhanService.webPrayerPreferences(),
                     schedule: schedule.map(prayer => ({
                         ...prayer,
                         notification: prayerNotificationText(prayer.name),
@@ -2324,13 +2305,19 @@ function syncPrayersWithServiceWorker(timings) {
             }
         };
 
-        if (navigator.serviceWorker.controller) {
-            postToSW(navigator.serviceWorker.controller);
-        } else {
-            navigator.serviceWorker.ready.then(reg => {
-                postToSW(reg.active);
-            }).catch(() => {});
-        }
+        const worker = navigator.serviceWorker.controller || (await navigator.serviceWorker.ready).active;
+        postToSW(worker);
+        if (!worker || !window.zadPrayerApiSource) return;
+        const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        const date = [String(tomorrow.getDate()).padStart(2,"0"), String(tomorrow.getMonth()+1).padStart(2,"0"), tomorrow.getFullYear()].join("-");
+        const url = new URL(window.zadPrayerApiSource);
+        url.pathname += "/" + date;
+        const response = await fetch(url, {cache:"no-store", signal:AbortSignal.timeout(8000)});
+        if (!response.ok) return;
+        const result = await response.json();
+        if (result.code !== 200 || result.data?.date?.gregorian?.date !== date || !result.data.timings) return;
+        appendDay(tomorrow, result.data.timings);
+        postToSW(worker);
     } catch(e) {
         console.warn("Failed to sync prayers with Service Worker:", e);
     }
@@ -2358,9 +2345,9 @@ function startPrayerCountdown() {
             { name: "صلاة العشاء", key: "isha", time: prayerTimings.Isha }
         ];
 
-        // 1. فحص الصلوات: تنبيه قبل الأذان بـ 5 دقائق + إشعار الأذان عند دخول الوقت
+        const preferences = window.NativeAdhanService.webPrayerPreferences();
         for (const p of prayersList) {
-            if (p.key === "sunrise") continue;
+            if (p.key === "sunrise" || preferences.enabledPrayers[p.key] === false) continue;
             const [ph, pm] = p.time.split(" ")[0].split(":").map(Number);
             const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ph, pm, 0);
             const diffMs = pDate.getTime() - now.getTime();
@@ -2368,16 +2355,16 @@ function startPrayerCountdown() {
             const dateStr = `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}`;
 
             // أ) تنبيه اقتراب موعد الصلاة قبل 5 دقائق (بين 5 دقائق و 4 دقائق قبل الوقت)
-            if (diffMs > 0 && diffMs <= 5 * 60 * 1000) {
+            if (preferences.prePrayer !== false && diffMs > 0 && diffMs <= preferences.prePrayerInterval * 60000) {
                 const preKey = `pre_${p.key}_${dateStr}`;
                 if (!window._prePrayerAlertTriggered) window._prePrayerAlertTriggered = {};
                 if (!window._prePrayerAlertTriggered[preKey] && localStorage.getItem(preKey) !== "1") {
                     window._prePrayerAlertTriggered[preKey] = true;
                     localStorage.setItem(preKey, "1");
-                    showToast(`⏳ اقتربت ${p.name} • بقي 5 دقائق على دخول الوقت`);
+                    showToast(prayerNotificationText(p.name, true, Math.ceil(diffMs / 60000)).body);
                     if ("Notification" in window && Notification.permission === "granted") {
                         try {
-                            const { title, body } = prayerNotificationText(p.name, true);
+                            const { title, body } = prayerNotificationText(p.name, true, Math.ceil(diffMs / 60000));
                             new Notification(title, {
                                 body,
                                 lang: window.ZadI18n?.language ?? "ar",
@@ -2391,7 +2378,7 @@ function startPrayerCountdown() {
             }
 
             // ب) إذا دخل وقت الصلاة في اللحظة الراهنة بالضبط (أثناء متابعة العداد التنازلي)
-            if (elapsedMs >= 0 && elapsedMs <= 15 * 1000) {
+            if (preferences.adhan !== false && elapsedMs >= 0 && elapsedMs <= 15 * 1000) {
                 const todayPrayerKey = `${p.key}_${dateStr}`;
                 const lastTriggered = localStorage.getItem("zad_last_adhan_date_key");
                 if (window._lastAdhanTriggeredKey !== todayPrayerKey && lastTriggered !== todayPrayerKey) {
