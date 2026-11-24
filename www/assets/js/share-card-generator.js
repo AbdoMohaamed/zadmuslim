@@ -9,6 +9,28 @@
     "use strict";
     const label = text => window.ZadI18n?.t(text) ?? text;
 
+    let logoRequest;
+
+    function loadBrandLogo() {
+        if (!logoRequest) {
+            logoRequest = new Promise(resolve => {
+                const logo = new window.Image();
+                const finish = image => {
+                    window.clearTimeout(timeout);
+                    resolve(image);
+                };
+                const timeout = window.setTimeout(() => finish(null), 1800);
+                logo.onload = () => finish(logo);
+                logo.onerror = () => finish(null);
+                logo.src = 'assets/branding/app-logo.png';
+            }).then(logo => {
+                if (!logo) logoRequest = null;
+                return logo;
+            });
+        }
+        return logoRequest;
+    }
+
     const THEMES = {
         "royal_dark": {
             id: "royal_dark",
@@ -198,7 +220,13 @@
             buttons.forEach(button => button.disabled = true);
             this.status('جارٍ تجهيز الصورة…');
             try {
-            if (document.fonts) await Promise.all([document.fonts.load("bold 62px Amiri", currentCardState.text), document.fonts.load("bold 34px Cairo", currentCardState.ref)]);
+            const [logo] = await Promise.all([
+                loadBrandLogo(),
+                ...(document.fonts ? [
+                    document.fonts.load("bold 62px Amiri", currentCardState.text),
+                    document.fonts.load("bold 34px Cairo", currentCardState.ref)
+                ] : [])
+            ]);
             if (version !== this.renderVersion || !canvas.isConnected) return;
             canvas.height = currentCardState.format === 'square' ? 1080 : 1920;
             canvas.parentElement.style.aspectRatio = `1080 / ${canvas.height}`;
@@ -231,7 +259,7 @@
             this.drawMainText(ctx, w, h, t);
 
             // 6. المرجع والتذييل السفلي
-            this.drawFooter(ctx, w, h, t);
+            this.drawFooter(ctx, w, h, t, logo);
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
             if (version !== this.renderVersion || !canvas.isConnected) return;
             if (!blob) throw new Error('Image export failed');
@@ -327,7 +355,19 @@
             ctx.fillStyle = t.badgeText;
 
             const categoryText = `✦ ${label(currentCardState.title)} ✦`;
-            ctx.fillText(categoryText, w / 2, h === 1080 ? 145 : 220);
+            const categoryY = h === 1080 ? 145 : 220;
+            const badgeWidth = Math.min(640, ctx.measureText(categoryText).width + 48);
+            if (typeof ctx.roundRect === 'function') {
+                ctx.beginPath();
+                ctx.roundRect((w - badgeWidth) / 2, categoryY - 29, badgeWidth, 58, 29);
+                ctx.fillStyle = t.badgeBg;
+                ctx.fill();
+                ctx.strokeStyle = t.subtleBorder;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            ctx.fillStyle = t.badgeText;
+            ctx.fillText(categoryText, w / 2, categoryY, badgeWidth - 32);
 
             // 2. البسملة الشريفة بخط قرآني جميل
             ctx.font = "normal 52px 'Amiri', 'Traditional Arabic', serif";
@@ -378,7 +418,7 @@
             ctx.restore();
         },
 
-        drawFooter(ctx, w, h, t) {
+        drawFooter(ctx, w, h, t, logo) {
             ctx.save();
             ctx.textAlign = "center";
 
@@ -397,14 +437,32 @@
             ctx.lineTo((w / 2) + 200, h - (h === 1080 ? 195 : 280));
             ctx.stroke();
 
-            // 2. توقيع زاد المسلم
-            ctx.font = "bold 32px 'Cairo', Tahoma, sans-serif";
+            const name = label("زاد المسلم");
+            const tagline = label("زادٌ لقلبك، ونورٌ ليومك • صدقة جارية");
+            const centerY = h - (h === 1080 ? 130 : 180);
+            const logoSize = h === 1080 ? 78 : 92;
+            const gap = 22;
+            const rtl = ctx.direction !== 'ltr';
+
+            ctx.textBaseline = 'middle';
+            ctx.font = "24px 'Cairo', Tahoma, sans-serif";
+            const textWidth = Math.min(560, ctx.measureText(tagline).width);
+            const groupWidth = logo ? logoSize + gap + textWidth : textWidth;
+            const left = (w - groupWidth) / 2;
+            const textCenter = left + textWidth / 2 + (logo && !rtl ? logoSize + gap : 0);
+
+            if (logo) {
+                const logoX = rtl ? left + textWidth + gap : left;
+                ctx.drawImage(logo, logoX, centerY - logoSize / 2, logoSize, logoSize);
+            }
+
+            ctx.font = "bold 35px 'Cairo', Tahoma, sans-serif";
             ctx.fillStyle = t.primaryText;
-            ctx.fillText(label("زاد المسلم"), w / 2, h - (h === 1080 ? 150 : 210));
+            ctx.fillText(name, textCenter, centerY - 18);
 
             ctx.font = "24px 'Cairo', Tahoma, sans-serif";
             ctx.fillStyle = t.secondaryText;
-            ctx.fillText(label("زادٌ لقلبك، ونورٌ ليومك • صدقة جارية"), w / 2, h - (h === 1080 ? 110 : 150), w - 240);
+            ctx.fillText(tagline, textCenter, centerY + 22, 560);
 
             ctx.restore();
         },

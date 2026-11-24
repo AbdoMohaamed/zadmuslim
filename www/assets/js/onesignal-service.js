@@ -147,7 +147,7 @@ const OneSignalService = {
             if (!['index.html','services.html','settings.html','privacy.html','app.html'].includes(file)) return;
             let hash=target.hash;
             const id=hash.slice(1).split('?')[0];
-            const services=['prayer-times','prayer-guide-section','nearby-mosques-section','mood-compass-section','zakat-calculator-section','seasons','quran-khatma','wall-of-duas','prayers','spiritual-garden','categorized-duas','daily-wird','asmaa-allah','islamic-stories','islamic-quiz','islamic-guide','cemetery-guide','azkar','islamic-media'];
+            const services=['prayer-times','prayer-guide-section','nearby-mosques-section','mood-compass-section','zakat-calculator-section','seasons','quran-khatma','wall-of-duas','prayers','spiritual-garden','categorized-duas','daily-wird','asmaa-allah','islamic-stories','challenges','islamic-quiz','seven-day-challenge','islamic-guide','cemetery-guide','azkar','islamic-media'];
             if (['subpart-mushaf','khatma'].includes(id)) { file='services.html';hash='#quran-khatma?tab='+(id==='khatma'?'khatma':'mushaf'); }
             else if (services.includes(id)) file='services.html';
             else if(file==='app.html') file='index.html';

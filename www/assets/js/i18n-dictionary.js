@@ -127,7 +127,116 @@
 الأذكار والتسبيح|Adhkar & tasbeeh|اذکار اور تسبیح
 الدعاء والسكينة|Dua & peace|دعا اور سکون
 وردي ومتابعتي|My daily goals|میرے روزانہ اہداف
+سؤال اليوم|Question of the day|آج کا سوال
+جاوب الآن|Answer now|اب جواب دیں
+راجع إجابتك|Review your answer|اپنا جواب دیکھیں
+إجابة صحيحة!|Correct answer!|درست جواب!
+الإجابة الصحيحة|Correct answer|درست جواب
+تحدّى صاحبك|Challenge a friend|دوست کو چیلنج کریں
+رابط السؤال|Question link|سوال کا لنک
+سؤال شاركه معك صديق|A question shared by a friend|دوست کا بھیجا ہوا سوال
+جاوب على سؤال من زاد المسلم|Try a question from Zad Al Muslim|زاد المسلم کے ایک سوال کا جواب دیں
+تم نسخ رابط السؤال|Question link copied|سوال کا لنک کاپی ہو گیا
+في أي سورة وردت عبارة ﴿الرَّحْمَٰنُ ۝ عَلَّمَ الْقُرْآنَ﴾؟|Which surah opens by saying that the Most Merciful taught the Quran?|کس سورت کی ابتدا میں ہے کہ رحمٰن نے قرآن سکھایا؟
+ما السورة التي ورد في الحديث أنها ثلاثون آية شفعت لرجل حتى غُفر له؟|Which thirty-verse surah interceded for a man until he was forgiven, according to the hadith?|حدیث کے مطابق تیس آیات والی کس سورت نے ایک شخص کی شفاعت کی یہاں تک کہ اسے بخش دیا گیا؟
+في أي عام هجري وقعت غزوة بدر الكبرى؟|In which Hijri year did the Battle of Badr take place?|غزوۂ بدر کس ہجری سال میں ہوا؟
+في أي سورة وردت آية الكرسي؟|In which surah does Ayat al-Kursi appear?|آیت الکرسی کس سورت میں ہے؟
+في أي سورة وردت قصة أصحاب الكهف؟|Which surah tells the story of the Companions of the Cave?|اصحاب کہف کا قصہ کس سورت میں ہے؟
+في أي سورة ورد دعاء ﴿رَبِّ زِدْنِي عِلْمًا﴾؟|In which surah is the prayer “My Lord, increase me in knowledge”?|اے میرے رب، میرے علم میں اضافہ فرما۔ یہ دعا کس سورت میں ہے؟
+ما اسم السورة التي تبدأ بـ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ﴾؟|Which surah begins “Say: I seek refuge in the Lord of daybreak”?|کون سی سورت اس دعا سے شروع ہوتی ہے کہ میں صبح کے رب کی پناہ مانگتا ہوں؟
+ما اسم الوادي المقدس الذي نُودي فيه موسى عليه السلام؟|In which sacred valley was Musa called?|موسیٰ علیہ السلام کو کس مقدس وادی میں پکارا گیا؟
+من النبي الذي ابتلعه الحوت؟|Which prophet was swallowed by a fish?|کس نبی کو مچھلی نے نگل لیا؟
+من النبي الذي فسّر رؤيا الملك عن سبع بقرات؟|Which prophet interpreted the king’s dream about seven cows?|سات گایوں کے بارے میں بادشاہ کے خواب کی تعبیر کس نبی نے بتائی؟
+من النبي الذي رفع قواعد الكعبة مع إبراهيم عليه السلام؟|Which prophet raised the foundations of the Kaaba with Ibrahim?|ابراہیم علیہ السلام کے ساتھ کعبہ کی بنیادیں کس نبی نے اٹھائیں؟
+من النبي الذي صنع السفينة بأمر الله؟|Which prophet built the ark at Allah’s command?|اللہ کے حکم سے کشتی کس نبی نے بنائی؟
+من النبي الذي أُرسل إلى قوم ثمود؟|Which prophet was sent to the people of Thamud?|قوم ثمود کی طرف کون سے نبی بھیجے گئے؟
+من النبي الذي دعا ﴿أَنِّي مَسَّنِيَ الضُّرُّ وَأَنتَ أَرْحَمُ الرَّاحِمِينَ﴾؟|Which prophet prayed, “Harm has touched me, and You are the Most Merciful of those who show mercy”?|کس نبی نے دعا کی کہ مجھے تکلیف پہنچی ہے اور تو سب رحم کرنے والوں سے بڑھ کر رحم کرنے والا ہے؟
+بأي نبي بُشّر زكريا عليه السلام؟|Which prophet was Zakariyya given glad tidings of?|زکریا علیہ السلام کو کس نبی کی خوش خبری دی گئی؟
+إلى أي مسجد يتجه المسلم في صلاته؟|Which mosque do Muslims face when praying?|مسلمان نماز میں کس مسجد کی سمت رخ کرتے ہیں؟
+في أي شهر أُنزل القرآن؟|In which month was the Quran revealed?|قرآن کس مہینے میں نازل ہوا؟
+أي ليلة وصفها الله بأنها خير من ألف شهر؟|Which night did Allah describe as better than a thousand months?|اللہ نے کس رات کو ہزار مہینوں سے بہتر فرمایا؟
+أي جبلين يسعى الحاج والمعتمر بينهما؟|Between which two hills do pilgrims perform sa’i?|حج اور عمرے میں سعی کن دو پہاڑیوں کے درمیان کی جاتی ہے؟
+إلى أي مسجد أُسري بالنبي ﷺ من المسجد الحرام؟|To which mosque did the Prophet travel from Al-Masjid al-Haram on the Night Journey?|شب اسرا میں نبی کریم ﷺ مسجد حرام سے کس مسجد کی طرف لے جائے گئے؟
+ما اسم الصحابي الذي ورد اسمه صراحة في القرآن؟|Which Companion is explicitly named in the Quran?|قرآن میں کس صحابی کا نام صراحت سے آیا ہے؟
+بماذا شبّه القرآن الغِيبة في سورة الحجرات؟|What does Surah Al-Hujurat liken backbiting to?|سورۃ الحجرات میں غیبت کو کس چیز سے تشبیہ دی گئی ہے؟
+كم ركنًا ورد في حديث «بُني الإسلام على خمس»؟|How many pillars are mentioned in the hadith “Islam is built on five”?|اسلام کی بنیاد پانچ چیزوں پر ہے۔ اس حدیث میں کتنے ارکان بیان ہوئے ہیں؟
+طُوًى|Tuwa|طویٰ
+مَكّة|Makkah|مکہ
+بدر|Badr|بدر
+حُنين|Hunayn|حنین
+أيوب|Ayyub|ایوب
+إلياس|Ilyas|الیاس
+زكريا|Zakariyya|زکریا
+إسحاق|Ishaq|اسحاق
+صالح|Salih|صالح
+شعيب|Shuayb|شعیب
+لوط|Lut|لوط
+يحيى|Yahya|یحییٰ
+المسجد النبوي|The Prophet’s Mosque|مسجد نبوی
+المسجد الأقصى|Al-Aqsa Mosque|مسجد اقصیٰ
+المسجد الحرام|Al-Masjid al-Haram|مسجد حرام
+مسجد قباء|Quba Mosque|مسجد قبا
+المحرّم|Muharram|محرم
+ليلة الجمعة|The night preceding Friday|جمعے کی رات
+ليلة العيد|The night before Eid|عید کی رات
+ليلة الإسراء|The Night Journey|شب اسرا
+ليلة القدر|Laylat al-Qadr|شب قدر
+الصفا والمروة|Safa and Marwah|صفا اور مروہ
+أُحد وثور|Uhud and Thawr|احد اور ثور
+حراء وثور|Hira and Thawr|حرا اور ثور
+أُحد والمروة|Uhud and Marwah|احد اور مروہ
+مسجد القبلتين|Masjid al-Qiblatayn|مسجد قبلتین
+زيد بن حارثة|Zayd ibn Harithah|زید بن حارثہ
+بحمل صخرة|Carrying a rock|پتھر اٹھانے سے
+بإطفاء مصباح|Putting out a lamp|چراغ بجھانے سے
+بكسر إناء|Breaking a vessel|برتن توڑنے سے
+بأكل لحم الأخ ميتًا|Eating the flesh of a dead brother|اپنے مردہ بھائی کا گوشت کھانے سے
+خمسة|Five|پانچ
+أربعة|Four|چار
+ستة|Six|چھ
+سبعة|Seven|سات
+السنة النبوية|Prophetic Sunnah|سنت نبوی
+أيوب عليه السلام|Ayyub (peace be upon him)|ایوب علیہ السلام
+يونس عليه السلام|Yunus (peace be upon him)|یونس علیہ السلام
+إلياس عليه السلام|Ilyas (peace be upon him)|الیاس علیہ السلام
+زكريا عليه السلام|Zakariyya (peace be upon him)|زکریا علیہ السلام
+سليمان عليه السلام|Sulayman (peace be upon him)|سلیمان علیہ السلام
+داود عليه السلام|Dawud (peace be upon him)|داؤد علیہ السلام
+موسى عليه السلام|Musa (peace be upon him)|موسیٰ علیہ السلام
+يوسف عليه السلام|Yusuf (peace be upon him)|یوسف علیہ السلام
+إسماعيل عليه السلام|Ismail (peace be upon him)|اسماعیل علیہ السلام
+إسحاق عليه السلام|Ishaq (peace be upon him)|اسحاق علیہ السلام
+يعقوب عليه السلام|Yaqub (peace be upon him)|یعقوب علیہ السلام
+هود عليه السلام|Hud (peace be upon him)|ہود علیہ السلام
+صالح عليه السلام|Salih (peace be upon him)|صالح علیہ السلام
+نوح عليه السلام|Nuh (peace be upon him)|نوح علیہ السلام
+شعيب عليه السلام|Shuayb (peace be upon him)|شعیب علیہ السلام
+لوط عليه السلام|Lut (peace be upon him)|لوط علیہ السلام
+إبراهيم عليه السلام|Ibrahim (peace be upon him)|ابراہیم علیہ السلام
+يحيى عليه السلام|Yahya (peace be upon him)|یحییٰ علیہ السلام
+عيسى عليه السلام|Isa (peace be upon him)|عیسیٰ علیہ السلام
+التحديات|Challenges|چیلنجز
+مسابقات وتحديات|Quizzes and challenges|کوئز اور چیلنجز
+المسابقة وتحدي 7 أيام|Quiz and 7-day challenge|کوئز اور ۷ دن کا چیلنج
+٥ أسئلة في القرآن والسنة والسيرة|5 questions on the Quran, Sunnah, and Seerah|قرآن، سنت اور سیرت پر ۵ سوالات
+ابدأ الجولة|Start round|راؤنڈ شروع کریں
+خطوة بسيطة كل يوم|One simple step each day|ہر روز ایک آسان قدم
+ادخل التحدي|Open challenge|چیلنج کھولیں
+كل التحديات|All challenges|تمام چیلنجز
+أفضل نتيجة لك|Your best score|آپ کا بہترین اسکور
+اختر التحدي|Choose a challenge|چیلنج منتخب کریں
+المسابقة الإسلامية|Islamic quiz|اسلامی کوئز
+جولة من 5 أسئلة أو تحدي 7 أيام بخطوات يومية.|Play a five-question round or take on seven days of daily activities.|پانچ سوالات کی باری کھیلیں یا سات دن کی روزانہ سرگرمیوں کا چیلنج لیں۔
+اختر تحدّيك ←|Choose your challenge →|اپنا چیلنج منتخب کریں ←
+تقدّمك في التحدي|Challenge progress|چیلنج میں پیش رفت
+اقرأ القصص، وتعرّف على الأسماء الحسنى، وشاهد المواعظ.|Read stories, explore the names of Allah, and watch reminders.|قصے پڑھیں، اللہ کے ناموں کو جانیں اور نصیحتیں دیکھیں۔
 تعلّم واكتشف|Learn & explore|سیکھیں اور دریافت کریں
+الورد اليومي|Daily worship checklist|روزانہ عبادت کی فہرست
+حديقة الحسنات|Good deeds garden|نیکیوں کا باغ
+مقتطفات إيمانية|Faith clips|ایمانی کلپس
+تابع وردك اليومي وعاداتك في الذكر والقراءة.|Track your daily worship, remembrance, and reading habits.|اپنی روزانہ عبادت، ذکر اور تلاوت کی عادات پر نظر رکھیں۔
+شاهد شجرتك تنمو مع الذكر وتلاوة القرآن.|Watch your tree grow with dhikr and Quran reading.|ذکر اور تلاوت کے ساتھ اپنے درخت کو بڑھتے دیکھیں۔
+اقرأ القصص، وتعرّف على معاني الأسماء الحسنى، وشاهد المواعظ، واختبر معلوماتك.|Read stories, explore the names of Allah, watch reminders, and test your knowledge.|قصے پڑھیں، اللہ کے ناموں کے معنی جانیں، نصیحتیں دیکھیں اور اپنا علم آزمائیں۔
 صدقة ودعاء للمتوفى|Charity & dua for the deceased|مرحوم کے لیے صدقہ اور دعا
 اقرأ واستمع واحفظ موضعك.|Read, listen and save your place.|پڑھیں، سنیں اور اپنا مقام محفوظ کریں۔
 فتح المصحف الشريف ←|Open the Mushaf →|مصحف کھولیں ←

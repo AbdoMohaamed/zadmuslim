@@ -12,7 +12,7 @@
   let openedQuran=location.hash==='#quran-khatma?tab=mushaf';
   const cards=[...directory.querySelectorAll('.service-card')];
   const byId=new Map(cards.map(card=>[card.getAttribute('href'),card]));
-  const validList=value=>Array.isArray(value)?[...new Set(value)].filter(id=>byId.has(id)):[];
+  const validList=value=>Array.isArray(value)?[...new Set(value.map(id=>id==='#challenges'?'#islamic-quiz':id))].filter(id=>byId.has(id)):[];
   let favorites=validList(read('zad_services_favorites',[])).slice(0,4);
   let recent=validList(read('zad_services_recent',[])).slice(0,3);
   let hideRecent=read('zad_services_recent_hidden',false)===true;

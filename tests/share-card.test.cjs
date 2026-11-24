@@ -5,16 +5,19 @@ const {JSDOM} = require('jsdom');
 const source = fs.readFileSync('assets/js/share-card-generator.js', 'utf8');
 function setup() {
     const dom = new JSDOM('<button id="open">Open</button>', {runScripts:'outside-only',url:'https://example.com'});
-    const w = dom.window, draws = [];
+    const w = dom.window, draws = [], logos = [];
+    w.Image = class {
+        set src(url) { this.url = url; queueMicrotask(() => this.onload()); }
+    };
     w.ZAD_APP_SHARE_URL = 'https://play.google.com/store/apps/details?id=com.abdomohamed.zadmuslim';
     const ctx = new Proxy({font:'', measureText(text) { return {width:[...text.replace(/[\u064b-\u065f]/g,'')].length * (parseFloat(this.font.match(/\d+/)?.[0]) || 30)*.5}; },
-        fillText(text,x,y) { draws.push({text,x,y}); }, createLinearGradient() {return {addColorStop(){}};}
+        fillText(text,x,y) { draws.push({text,x,y}); }, drawImage(logo,x,y,width,height) { logos.push({logo,x,y,width,height}); }, createLinearGradient() {return {addColorStop(){}};}
     }, {get(target,key) {return key in target ? target[key] : ()=>{};}});
     w.HTMLCanvasElement.prototype.getContext = () => ctx;
     w.HTMLCanvasElement.prototype.toBlob = function(callback) {callback(new w.Blob(['PNG-'+this.height],{type:'image/png'}));};
     w.HTMLCanvasElement.prototype.toDataURL = function() {return 'data:image/png;base64,PNG'+this.height;};
     w.eval(source);
-    return {dom,w,g:w.ShareCardGenerator,ctx,draws};
+    return {dom,w,g:w.ShareCardGenerator,ctx,draws,logos};
 }
 const ready = () => new Promise(resolve=>setImmediate(resolve));
 test('an open daily verse card updates its controls and exported labels when the language changes',async()=>{
@@ -90,4 +93,18 @@ test('new format wins over stale font loading and native sharing receives its ma
         let payload;w.Capacitor={isPluginAvailable:()=>true,Plugins:{ImageShare:{share:async value=>{payload=value;}}}};
         await g.shareDirectlyToStory();assert.equal(payload.base64,'PNG1080');assert.equal(payload.text,w.ZAD_APP_SHARE_URL);
     } finally {dom.window.close();}
+});
+
+test('exports the app logo within the footer on square and story cards', async () => {
+    const {dom,w,g,logos} = setup();
+    try {
+        g.openModal({text:'Test card',title:'آية كريمة',ref:'Test reference'});
+        await ready();
+        assert.equal(logos.at(-1).logo.url, 'assets/branding/app-logo.png');
+        assert.equal(logos.at(-1).height, 92);
+        g.switchFormat('square');
+        await ready();
+        assert.equal(logos.at(-1).height, 78);
+        assert.ok(logos.at(-1).y + logos.at(-1).height < 1080);
+    } finally { w.close(); }
 });

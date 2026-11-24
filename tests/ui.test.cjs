@@ -663,6 +663,35 @@ test('services search stays above personal shortcuts and favorites are excluded 
  prayer.click();assert.equal(d.getElementById('services-recent').hidden,false);assert.equal(labels().length,1);assert.deepEqual(errors,[]);w.close();
 });
 
+test('browser Back returns to the directory without a second history traversal', async () => {
+ const {dom,errors}=await load('services.html',{referrer:'http://localhost:4173/index.html'});
+ const w=dom.window,d=w.document; const back=w.history.back.bind(w.history); let calls=0;
+ try {
+  w.history.back=()=>{calls++;back();};
+  d.querySelector('a[href="#prayer-times"]').click();
+  const returned=new Promise(resolve=>w.addEventListener('popstate',resolve,{once:true}));
+  w.history.back(); await returned;
+  assert.equal(calls,1);
+  assert.equal(w.location.pathname,'/services.html');
+  assert.equal(w.location.hash,'');
+  assert.ok(d.body.classList.contains('services-hub-mode'));
+  assert.deepEqual(errors,[]);
+ } finally {w.close();}
+});
+
+test('native Back closes a service opened directly from home', async () => {
+ const {dom,errors}=await load('services.html',{url:'http://localhost:4173/services.html#daily-wird',referrer:'http://localhost:4173/index.html'});
+ const w=dom.window,d=w.document;
+ try {
+  assert.ok(d.body.classList.contains('single-service-mode'));
+  assert.equal(w.__zadHandleBack(),true);
+  assert.equal(w.location.pathname,'/services.html');
+  assert.equal(w.location.hash,'');
+  assert.ok(d.body.classList.contains('services-hub-mode'));
+  assert.deepEqual(errors,[]);
+ } finally {w.close();}
+});
+
 test('single service has one return control and preserves directory position',async()=>{
  const {dom,errors}=await load('services.html');const w=dom.window,d=w.document;let restored;
  w.scrollTo=opts=>{restored=opts.top;};Object.defineProperty(w,'scrollY',{value:510,configurable:true});
@@ -715,6 +744,50 @@ test('secondary categories collapse initially, stay searchable and reopen for a 
 
 test('salawat voice selection persists, drives preview and reschedules native reminders',async()=>{
  const {dom,errors}=await load('settings.html',{storage:{smart_notify_settings:JSON.stringify({salawatVoice:'voice1'})}});const w=dom.window,d=w.document;assert.equal(d.getElementById('select-salawat-voice').value,'voice1');let calls=0;w.NativeAdhanService.scheduleLocalNotifications=async()=>{calls++;return {success:true};};const select=d.getElementById('select-salawat-voice');select.value='voice2';select.dispatchEvent(new w.Event('change',{bubbles:true}));await new Promise(r=>setTimeout(r,50));assert.equal(JSON.parse(w.localStorage.getItem('smart_notify_settings')).salawatVoice,'voice2');d.getElementById('btn-test-salawat-sound').click();await new Promise(r=>setImmediate(r));assert.match(d.getElementById('audio-salawat-preview').src,/salawat-2\.mp3/);assert.ok(calls>0);assert.deepEqual(errors,[]);w.close();
+});
+
+test('challenges combine both modes and preserve progress and old shortcuts', async () => {
+ const {dom,errors}=await load('services.html',{
+  url:'http://localhost:4173/services.html#seven-day-challenge',
+  storage:{zad_7days_challenge_progress:'{"1":true}',zad_services_favorites:'["#islamic-quiz","#seven-day-challenge"]'}
+ });
+ const w=dom.window,d=w.document;
+ try {
+  assert.ok(d.getElementById('challenges').classList.contains('active-service-view'));
+  assert.equal(d.getElementById('seven-day-challenge').hidden,false);
+  assert.equal(d.getElementById('islamic-quiz').hidden,true);
+  assert.equal(d.getElementById('weekly-challenge-progress').value,1);
+  d.getElementById('btn-open-7days-challenge').click();
+  d.getElementById('challenge-days-list').children[1].click();
+  assert.equal(d.getElementById('weekly-challenge-progress').value,2);
+  assert.equal(JSON.parse(w.localStorage.getItem('zad_7days_challenge_progress'))[2],true);
+  d.getElementById('btn-close-challenge-modal').click();
+  d.querySelector('[data-challenge-mode="quiz"]').click();
+  assert.equal(d.getElementById('seven-day-challenge').hidden,true);
+  assert.equal(d.getElementById('islamic-quiz').hidden,false);
+  for(let i=0;i<5;i++){
+   d.querySelector('.quiz-option-btn').click();
+   d.getElementById('btn-next-question').click();
+  }
+  assert.ok(d.querySelector('.quiz-result-view'));
+  const best=w.localStorage.getItem('zad_quiz_best_score');
+  assert.match(best,/^[0-5]$/);
+  assert.equal(d.getElementById('challenge-best-score-value').textContent,best+' / 5');
+  d.getElementById('btnServiceFocusBack').click();
+  assert.equal(d.querySelectorAll('#services-favorites button').length,2);
+  const card=d.querySelector('.service-card[href="#seven-day-challenge"]');
+  const quizCard=d.querySelector('.service-card[href="#islamic-quiz"]');
+  assert.equal(quizCard.closest('.category-block'),card.closest('.category-block'));
+  assert.equal(card.closest('.category-block').querySelector('h2').textContent,'مسابقات وتحديات');
+  quizCard.click();
+  assert.equal(d.getElementById('challenge-lobby').hidden,true);
+  assert.equal(d.getElementById('islamic-quiz').hidden,false);
+  assert.equal(d.getElementById('seven-day-challenge').hidden,true);
+  card.click();
+  assert.equal(d.getElementById('challenge-lobby').hidden,true);
+  assert.equal(d.getElementById('seven-day-challenge').hidden,false);
+  assert.deepEqual(errors,[]);
+ } finally {w.close();}
 });
 
 test('moved tasbeeh and challenge work in services and legacy tasbeeh links redirect',async()=>{
@@ -785,7 +858,7 @@ test('every category filter has content and excerpts opens its populated media l
  for(const button of d.querySelectorAll('[data-category-filter]')){
   button.click();assert.ok([...d.querySelectorAll('.service-card')].some(c=>c.style.display!=='none'),button.dataset.categoryFilter);
  }
- d.querySelector('[data-category-filter="المرئيات"]').click();
+ d.querySelector('[data-category-filter="المعرفة الإسلامية"]').click();
  const card=d.querySelector('.service-card[href="#islamic-media"]');assert.notEqual(card.style.display,'none');card.click();
  assert.ok(d.body.classList.contains('single-service-mode'));
  assert.ok(d.getElementById('islamic-media-grid').children.length>0);

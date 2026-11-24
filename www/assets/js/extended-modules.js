@@ -2601,6 +2601,23 @@ function initIslamicQuiz() {
     const quizContainer = document.getElementById("quiz-container-card");
     if (!quizContainer || typeof ISLAMIC_QUIZ_QUESTIONS === "undefined") return;
 
+    const bestScoreBadge = document.getElementById("challenge-best-score");
+    const bestScoreValue = document.getElementById("challenge-best-score-value");
+    let bestScore = -1;
+    try {
+        const stored = localStorage.getItem("zad_quiz_best_score");
+        if (stored !== null && /^[0-5]$/.test(stored)) bestScore = Number(stored);
+    } catch {}
+
+    function showBestScore() {
+        if (bestScoreBadge && bestScore >= 0) {
+            bestScoreValue.textContent = bestScore + " / 5";
+            bestScoreBadge.hidden = false;
+        }
+    }
+
+    showBestScore();
+
     let roundQuestions = [];
     let currentIndex = 0;
     let score = 0;
@@ -2714,6 +2731,12 @@ function initIslamicQuiz() {
     };
 
     const renderQuizResult = () => {
+        if (score > bestScore) {
+            bestScore = score;
+            try { localStorage.setItem("zad_quiz_best_score", String(bestScore)); } catch {}
+            showBestScore();
+        }
+
         let message = "ما شاء الله! بداية مباركة للعلم النافع 🌿";
         if (score === 5) message = "ما شاء الله تبارك الله! علامة كاملة ومستوى متميز في العلوم الإسلامية 🌟👑";
         else if (score >= 3) message = "أحسنت! إجابات رائعة ومستوى طيب جداً، داوم على الاستزادة 🌸";
@@ -4707,12 +4730,20 @@ function init7DaysChallengeModal() {
 
     let savedProgress = {};
     try {
-        savedProgress = JSON.parse(localStorage.getItem("zad_7days_challenge_progress") || "{}");
+        const stored = JSON.parse(localStorage.getItem("zad_7days_challenge_progress") || "{}");
+        if (stored && typeof stored === "object" && !Array.isArray(stored)) savedProgress = stored;
     } catch(e) {
         savedProgress = {};
     }
 
+    const progress = document.getElementById("weekly-challenge-progress");
+    const count = document.getElementById("weekly-challenge-count");
+
     function renderDays() {
+        if (progress && count) {
+            progress.value = challengeGoals.filter(goal => savedProgress?.[goal.day]).length;
+            count.textContent = progress.value + " / " + challengeGoals.length;
+        }
         if (!listEl) return;
         listEl.innerHTML = "";
 
@@ -4772,6 +4803,8 @@ function init7DaysChallengeModal() {
             listEl.appendChild(item);
         });
     }
+
+    if (progress) renderDays();
 
     if (openBtn) {
         openBtn.addEventListener("click", () => {

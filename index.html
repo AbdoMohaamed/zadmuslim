@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="assets/css/loading-indicator.css?v=1">
     <script src="assets/js/route-loading.js?v=2"></script>
 
-    <script src="assets/js/i18n-dictionary.js?v=17"></script>
+    <script src="assets/js/i18n-dictionary.js?v=18"></script>
     <script src="assets/js/i18n.js?v=20"></script>
     <link rel="stylesheet" href="assets/css/i18n.css?v=8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -327,6 +327,35 @@
 
 
         <!-- البطاقة الثالثة: بنر السنن والتذكير الذكي بالسياق الزمني (Smart Contextual Sunnah / Reminder Banner) -->
+        <section class="container daily-quiz" id="daily-quiz" aria-labelledby="daily-quiz-title" hidden>
+            <div class="daily-quiz-card">
+                <div class="daily-quiz-heading">
+                    <span class="daily-quiz-icon"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span>
+                    <div class="daily-quiz-heading-copy">
+                        <h2 id="daily-quiz-title">سؤال اليوم</h2>
+                        <p id="daily-quiz-question"></p>
+                    </div>
+                    <button class="btn" id="daily-quiz-open" type="button" aria-controls="daily-quiz-body" aria-expanded="false">
+                        <span id="daily-quiz-open-label">جاوب الآن</span>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div id="daily-quiz-body" hidden>
+                    <div class="daily-quiz-options" id="daily-quiz-options" aria-labelledby="daily-quiz-question" role="group"></div>
+                    <div class="daily-quiz-feedback" id="daily-quiz-feedback" role="status"></div>
+                    <div class="daily-quiz-actions">
+                        <button class="btn btn-outline" id="daily-quiz-share" type="button" hidden><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> <span>تحدّى صاحبك</span></button>
+                        <a id="daily-quiz-today" href="index.html#daily-quiz" hidden>سؤال اليوم</a>
+                    </div>
+                    <label id="daily-quiz-copy" hidden>
+                        <span>رابط السؤال</span>
+                        <input type="url" dir="ltr" readonly>
+                    </label>
+                    <p id="daily-quiz-share-status" role="status"></p>
+                </div>
+            </div>
+        </section>
+
         <div class="smart-reminder-banner home-sunnah-reminder-card container" id="smart-reminder-banner" style="display: none;">
             <div class="smart-reminder-top">
                 <div class="smart-reminder-title-wrap">
@@ -550,7 +579,8 @@
     <script src="assets/js/islamic-guide-data.js?v=1"></script>
     <script src="assets/js/daily-message-data.js?v=2"></script>
     <script src="assets/js/radio-stations-data.js?v=8"></script>
-    <script src="assets/js/quiz-data.js?v=2"></script>
+    <script src="assets/js/quiz-data.js?v=3"></script>
+    <script src="assets/js/daily-quiz.js?v=3" defer></script>
     <script src="assets/js/islamic-stories-data.js?v=3"></script>
     <script src="assets/js/media-data.js?v=2"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -566,11 +596,11 @@
     <script src="assets/js/radio-player.js?v=7"></script>
     <script src="assets/js/extended-modules.js?v=48"></script>
     <script src="assets/js/smart-khatma.js?v=4"></script>
-    <script src="assets/js/share-card-generator.js?v=2"></script>
+    <script src="assets/js/share-card-generator.js?v=3"></script>
     <script src="assets/js/smart-tasbih.js?v=1"></script>
     <script src="assets/js/prayer-guide.js?v=1"></script>
     <script src="assets/js/app-developer.js?v=5"></script>
-    <script src="assets/js/ask-zad-knowledge.js?v=2"></script>
+    <script src="assets/js/ask-zad-knowledge.js?v=4"></script>
     <script src="assets/js/ask-zad.js?v=10"></script>
 
     <!-- ==========================================

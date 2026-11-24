@@ -85,7 +85,7 @@ jobs:
         if: steps.signing.outputs.ready != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ZadMuslim-Android-v3.6.25-debug
+          name: ZadMuslim-Android-v3.6.26-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 1
           compression-level: 0
@@ -126,26 +126,28 @@ jobs:
       - name: Publish Android Apps to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v3.6.25"
-          name: "زاد المسلم v3.6.25 (Android & iOS)"
+          tag_name: "v3.6.26"
+          name: "زاد المسلم v3.6.26 (Android & iOS)"
           draft: false
           prerelease: false
           make_latest: true
           body: |
-            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.25)
-            تطبيق إسلامي شامل وصدقة جارية.
+            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.26)
+            - سؤال اليوم في الرئيسية مع شرح الإجابة ورابط لمشاركة نفس السؤال.
+            - قسم مسابقات وتحديات يضم المسابقة الإسلامية بـ40 سؤالًا وتحدي 7 أيام.
+            - تحسين الرجوع إلى الأقسام وإضافة شعار التطبيق إلى صور المشاركة.
 
             ---
 
             ### 🤖 روابط تحميل الأندرويد (Android):
-            - **تحميل مباشر لملف APK:** [اضغط هنا لتحميل ZadMuslim-Android.apk](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-Android.apk)
+            - **تحميل مباشر لملف APK:** [اضغط هنا لتحميل ZadMuslim-Android.apk](https://github.com/AbdoMohaamed/zadmuslim/releases/download/v3.6.26/ZadMuslim-Android.apk)
             - **طريقة التثبيت:** حمّل الملف وافتحه مباشرة على هاتفك لتثبيته.
 
             ---
 
             ### 🍏 روابط تحميل الآيفون (iOS):
-            - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-iOS.ipa)
-            - **طريقة التثبيت:** حمّل الملف واستخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو تطبيق **Sideloadly** لتوقيع وتثبيت التطبيق بحسابك مجاناً.
+            - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/download/v3.6.26/ZadMuslim-iOS.ipa)
+            - **طريقة التثبيت:** ملف IPA تجريبي غير موقّع ويحتاج إلى توقيع قبل التثبيت.
           files: |
             ZadMuslim-Android.apk
         env:
@@ -244,26 +246,28 @@ jobs:
         if: ${{ success() && !inputs.ios_test_only }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v3.6.25"
-          name: "زاد المسلم v3.6.25 (Android & iOS)"
+          tag_name: "v3.6.26"
+          name: "زاد المسلم v3.6.26 (Android & iOS)"
           draft: false
           prerelease: false
           make_latest: true
           body: |
-            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.25)
-            تطبيق إسلامي شامل وصدقة جارية.
+            ## 📱 تطبيق زاد المسلم (الإصدار الشامل v3.6.26)
+            - سؤال اليوم في الرئيسية مع شرح الإجابة ورابط لمشاركة نفس السؤال.
+            - قسم مسابقات وتحديات يضم المسابقة الإسلامية بـ40 سؤالًا وتحدي 7 أيام.
+            - تحسين الرجوع إلى الأقسام وإضافة شعار التطبيق إلى صور المشاركة.
 
             ---
 
             ### 🤖 روابط تحميل الأندرويد (Android):
-            - **تحميل مباشر لملف APK:** [اضغط هنا لتحميل ZadMuslim-Android.apk](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-Android.apk)
+            - **تحميل مباشر لملف APK:** [اضغط هنا لتحميل ZadMuslim-Android.apk](https://github.com/AbdoMohaamed/zadmuslim/releases/download/v3.6.26/ZadMuslim-Android.apk)
             - **طريقة التثبيت:** حمّل الملف وافتحه مباشرة على هاتفك لتثبيته.
 
             ---
 
             ### 🍏 روابط تحميل الآيفون (iOS):
-            - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/latest/download/ZadMuslim-iOS.ipa)
-            - **طريقة التثبيت:** حمّل الملف واستخدم أداة **3uTools** (عبر Toolbox ⬅️ IPA Signature) أو تطبيق **Sideloadly** لتوقيع وتثبيت التطبيق بحسابك مجاناً.
+            - **تحميل مباشر لملف IPA:** [اضغط هنا لتحميل ZadMuslim-iOS.ipa](https://github.com/AbdoMohaamed/zadmuslim/releases/download/v3.6.26/ZadMuslim-iOS.ipa)
+            - **طريقة التثبيت:** ملف IPA تجريبي غير موقّع ويحتاج إلى توقيع قبل التثبيت.
           files: |
             ZadMuslim-iOS.ipa
         env:

@@ -425,7 +425,7 @@
 • مسابقة إسلامية تفاعلية مشوقة لاختبار معلوماتك وثقافتك الدينية.`,
             actions: [
                 { label: '📚 فتح قصص الأنبياء', href: 'services.html#islamic-stories', type: 'link' },
-                { label: '🏆 فتح المسابقة الإسلامية', href: 'services.html#islamic-quiz', type: 'link' }
+                { label: '🏆 فتح المسابقة الإسلامية', href: 'services.html#challenges?mode=quiz', type: 'link' }
             ]
         },
 
@@ -556,7 +556,7 @@
 4. **دعاء الثبات النبوي:**
    «يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ»، «اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ».`,
             actions: [
-                { label: '🌱 تحدي الـ 7 أيام الإيماني الميسر', href: 'services.html#seven-day-challenge', type: 'link' },
+                { label: '🌱 تحدي الـ 7 أيام الإيماني الميسر', href: 'services.html#challenges?mode=weekly', type: 'link' },
                 { label: '📖 فتح المصحف الشريف بتفسير ميسر', href: 'services.html#quran-khatma?tab=mushaf', type: 'link' },
                 { label: '📻 إذاعة القرآن الكريم المباشرة', href: 'services.html#radio-panel', type: 'link' }
             ]

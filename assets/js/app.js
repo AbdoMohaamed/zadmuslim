@@ -4646,6 +4646,11 @@ function initAndroidBackButton() {
         }
 
         // 7. إذا كان المستخدم في صفحة الخدمات (services.html) أو الإعدادات (settings.html)، الرجوع للصفحة الرئيسية
+        if (document.body.classList.contains("single-service-mode") && typeof window.closeServiceFocusView === "function") {
+            window.closeServiceFocusView();
+            return true;
+        }
+
         const pathname = (window.location.pathname || "").toLowerCase();
         const isServicesPage = pathname.includes("services.html");
         const isSettingsPage = pathname.includes("settings.html");
@@ -4682,11 +4687,6 @@ function initAndroidBackButton() {
             }
         });
     }
-
-    // دعم إيماءة الرجوع في المتصفحات والشاشات التفاعلية
-    window.addEventListener("popstate", () => {
-        handleBackNavigation();
-    });
 
     // تفعيل إيماءة السحب السلس من الحافة لأجهزة الآيفون والأندرويد (Edge Swipe Back)
     initNativeEdgeSwipeBack();

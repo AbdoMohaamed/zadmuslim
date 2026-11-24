@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="assets/css/loading-indicator.css?v=1">
     <script src="assets/js/route-loading.js?v=2"></script>
-    <script src="assets/js/i18n-dictionary.js?v=17"></script>
+    <script src="assets/js/i18n-dictionary.js?v=18"></script>
     <script src="assets/js/service-translations.js?v=2"></script>
     <script src="assets/js/i18n.js?v=20"></script>
     <link rel="stylesheet" href="assets/css/i18n.css?v=10">
@@ -79,7 +79,7 @@
             </a>
             <nav class="links">
                 <a href="index.html#home">الرئيسية</a>
-                <a href="#islamic-media">مقتطفات</a>
+                <a href="#islamic-media">مقتطفات إيمانية</a>
             </nav>
             <div class="settings-header-actions" style="display: flex; align-items: center; gap: 8px;">
 <label class="zad-language-switch" title="لغة التطبيق">
@@ -135,10 +135,10 @@
             <button type="button" class="cat-pill-btn" data-category-filter="الدعاء والسكينة" aria-pressed="false" onclick="filterCategory('الدعاء والسكينة', this)"><i class="fa-solid fa-heart" aria-hidden="true"></i><span>الدعاء</span></button>
             <button type="button" id="services-more-categories" class="category-more-btn" aria-expanded="false" aria-controls="services-extra-categories" onclick="toggleMoreCategories()"><i class="fa-solid fa-chevron-down more-arrow" aria-hidden="true"></i><span class="more-label">المزيد</span></button>
             <div id="services-extra-categories" class="services-extra-categories" hidden>
-                <button type="button" class="cat-pill-btn" data-category-filter="الورد والمتابعة" aria-pressed="false" onclick="filterCategory('الورد والمتابعة', this)"><i class="fa-solid fa-seedling" aria-hidden="true"></i><span>الورد والمتابعة</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="الورد والمتابعة" aria-pressed="false" onclick="filterCategory('الورد والمتابعة', this)"><i class="fa-solid fa-seedling" aria-hidden="true"></i><span>وردي ومتابعتي</span></button>
                 <button type="button" class="cat-pill-btn" data-category-filter="المواسم والتقويم" aria-pressed="false" onclick="filterCategory('المواسم والتقويم', this)"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i><span>مواسم الطاعات</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="المعرفة الإسلامية" aria-pressed="false" onclick="filterCategory('المعرفة الإسلامية', this)"><i class="fa-solid fa-book" aria-hidden="true"></i><span>المعرفة والقصص</span></button>
-                <button type="button" class="cat-pill-btn" data-category-filter="المرئيات" aria-pressed="false" onclick="filterCategory('المرئيات', this)"><i class="fa-solid fa-circle-play" aria-hidden="true"></i><span>مقتطفات</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="المعرفة الإسلامية" aria-pressed="false" onclick="filterCategory('المعرفة الإسلامية', this)"><i class="fa-solid fa-book" aria-hidden="true"></i><span>تعلّم واكتشف</span></button>
+                <button type="button" class="cat-pill-btn" data-category-filter="التحديات" aria-pressed="false" onclick="filterCategory('التحديات', this)"><i class="fa-solid fa-trophy" aria-hidden="true"></i><span>مسابقات وتحديات</span></button>
                 <button type="button" class="cat-pill-btn" data-category-filter="الزكاة" aria-pressed="false" onclick="filterCategory('الزكاة', this)"><i class="fa-solid fa-calculator" aria-hidden="true"></i><span>حاسبة الزكاة</span></button>
                 <button type="button" class="cat-pill-btn" data-category-filter="للمتوفى" aria-pressed="false" onclick="filterCategory('للمتوفى', this)"><i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i><span>صدقة للمتوفى</span></button>
             </div>
@@ -291,25 +291,24 @@
 
         <section class="category-block" data-category="الورد والمتابعة">
             <div class="category-title-wrap"><span aria-hidden="true">🌿</span><h2 class="category-title">وردي ومتابعتي</h2></div>
-            <p class="category-desc">تابع وردك ومهامك اليومية وتقدمك في الذكر والقراءة.</p>
+            <p class="category-desc">تابع وردك اليومي وعاداتك في الذكر والقراءة.</p>
             <div class="services-grid">
-                <a class="service-card" href="#daily-wird">
+                <a class="service-card service-card-primary" href="#daily-wird">
                     <div class="service-card-top">
                         <div class="service-icon-box">📋</div>
                         <div class="service-info">
-                            <h3>رحلتك الإيمانية اليوم</h3>
+                            <h3>الورد اليومي</h3>
                             <p id="services-wird-progress">تابع عباداتك اليومية.</p>
                         </div>
                     </div>
                     <span class="service-action-link">متابعة الورد ←</span>
                 </a>
-                <a class="service-card" href="#seven-day-challenge"><div class="service-card-top"><div class="service-icon-box">🌟</div><div class="service-info"><h3>تحدي 7 أيام</h3><p>ابدأ عادة يومية وتابع تقدمك خلال أسبوع.</p></div></div><span class="service-action-link">ابدأ التحدي ←</span></a>
                 <a class="service-card" href="#spiritual-garden">
                     <div class="service-card-top">
                         <div class="service-icon-box">🌱</div>
                         <div class="service-info">
-                            <h3>حديقة الحسنات وشجرة الذكر</h3>
-                            <p>تابع تقدمك في الذكر والقراءة.</p>
+                            <h3>حديقة الحسنات</h3>
+                            <p>شاهد شجرتك تنمو مع الذكر وتلاوة القرآن.</p>
                         </div>
                     </div>
                     <span class="service-action-link">دخول حديقة الحسنات ←</span>
@@ -336,7 +335,7 @@
 
         <section class="category-block" data-category="المعرفة الإسلامية">
             <div class="category-title-wrap"><span aria-hidden="true">📚</span><h2 class="category-title">تعلّم واكتشف</h2></div>
-            <p class="category-desc">أسماء الله الحسنى وقصص الأنبياء والصحابة واختبار المعلومات.</p>
+            <p class="category-desc">اقرأ القصص، وتعرّف على الأسماء الحسنى، وشاهد المواعظ.</p>
             <div class="services-grid">
                 <a class="service-card" href="#asmaa-allah">
                     <div class="service-card-top">
@@ -358,26 +357,35 @@
                     </div>
                     <span class="service-action-link">قراءة القصص ←</span>
                 </a>
-                <a class="service-card" href="#islamic-quiz">
-                    <div class="service-card-top">
-                        <div class="service-icon-box">🏆</div>
-                        <div class="service-info">
-                            <h3>اختبر معلوماتك</h3>
-                            <p>اختبر معلوماتك بأسئلة متنوعة.</p>
-                        </div>
-                    </div>
-                    <span class="service-action-link">بدء الاختبار ←</span>
+                <a class="service-card" href="#islamic-media">
+                    <div class="service-card-top"><div class="service-icon-box"><i class="fa-solid fa-circle-play text-gold"></i> </div><div class="service-info"><h3>مقتطفات إيمانية</h3><p>شاهد المواعظ أو استمع لها.</p></div></div>
+                    <span class="service-action-link">تصفح المقتطفات ←</span>
                 </a>
             </div>
         </section>
 
-        <section class="category-block" data-category="المرئيات">
-            <div class="category-title-wrap"> <i  aria-hidden="true" class="fa-solid fa-circle-play text-gold"></i> <h2 class="category-title">مقتطفات</h2></div>
-            <p class="category-desc">شاهد المواعظ والمقاطع أو استمع لها.</p>
+        <section class="category-block" data-category="التحديات">
+            <div class="category-title-wrap"><span aria-hidden="true">🏆</span><h2 class="category-title">مسابقات وتحديات</h2></div>
             <div class="services-grid">
-                <a class="service-card" href="#islamic-media">
-                    <div class="service-card-top"><div class="service-icon-box"><i class="fa-solid fa-circle-play text-gold"></i> </div><div class="service-info"><h3>مقتطفات</h3><p>شاهد المواعظ أو استمع لها.</p></div></div>
-                    <span class="service-action-link">تصفح المقتطفات ←</span>
+                <a class="service-card" href="#islamic-quiz">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🏆</div>
+                        <div class="service-info">
+                            <h3>المسابقة الإسلامية</h3>
+                            <p>٥ أسئلة في القرآن والسنة والسيرة</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">ابدأ الجولة</span>
+                </a>
+                <a class="service-card" href="#seven-day-challenge">
+                    <div class="service-card-top">
+                        <div class="service-icon-box">🗓️</div>
+                        <div class="service-info">
+                            <h3>تحدي 7 أيام</h3>
+                            <p>خطوة بسيطة كل يوم</p>
+                        </div>
+                    </div>
+                    <span class="service-action-link">ادخل التحدي</span>
                 </a>
             </div>
         </section>
@@ -450,7 +458,6 @@
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
             <div class="service-focus-meta">
-                <span class="service-focus-badge">وضع التركيز</span>
                 <h2 class="service-focus-title" id="serviceFocusTitle">الخدمة</h2>
             </div>
         </div>
@@ -464,7 +471,6 @@
             <div id="khatma"></div>
             <div id="quran-reader"></div>
             <div class="container">
-                <div class="section-header quran-reading-intro"><h2 class="section-title">القرآن الكريم</h2><p class="section-desc">اقرأ من آخر موضع، أو اختار سورة من الفهرس.</p></div>
                 <!-- أزرار التبديل والتنقل بين المصحف وأجزاء الختمة -->
                 <div class="quran-khatma-tabs">
                     <button type="button" class="quran-tab-btn active" data-tab="mushaf">
@@ -884,21 +890,6 @@
          ========================================== -->
     <section id="prayer-times" class="service-view-section prayer-times-section">
         <div class="container">
-            <div class="section-header">
-                <span class="section-tag"><i class="fa-solid fa-mosque"></i> صلواتك بركة ونور</span>
-            </div>
-
-            <!-- بنر ساعة الاستجابة الذكي (يوم الجمعة / الثلث الأخير) -->
-            <div class="response-hour-banner" id="response-hour-banner" style="display: none;">
-                <div class="banner-icon"><i class="fa-solid fa-star-and-crescent"></i></div>
-                <div class="banner-content">
-                    <h4 class="banner-title" id="response-banner-title">🕌 فضل يوم الجمعة وساعة الاستجابة</h4>
-                    <p class="banner-text" id="response-banner-text">
-                        خير يوم طلعت عليه الشمس؛ لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ، واغتنام ساعة الاستجابة بالدعاء لفقيدنا الغالي.
-                    </p>
-                </div>
-            </div>
-
             <!-- بنر مواسم الصيام المستحب والعد التنازلي للإفطار والإمساك (Fasting Tracker) -->
             <div class="fasting-tracker-banner" id="fasting-tracker-banner" style="display: none;">
                 <div class="fasting-banner-main">
@@ -922,7 +913,16 @@
                     </button>
                 </div>
             </div>
-
+            <!-- بنر ساعة الاستجابة الذكي (يوم الجمعة / الثلث الأخير) -->
+            <div class="response-hour-banner" id="response-hour-banner" style="display: none;">
+                <div class="banner-icon"><i class="fa-solid fa-star-and-crescent"></i></div>
+                <div class="banner-content">
+                    <h4 class="banner-title" id="response-banner-title">🕌 فضل يوم الجمعة وساعة الاستجابة</h4>
+                    <p class="banner-text" id="response-banner-text">
+                        خير يوم طلعت عليه الشمس؛ لا تنسَ قراءة سورة الكهف، والإكثار من الصلاة على النبي ﷺ، واغتنام ساعة الاستجابة بالدعاء لفقيدنا الغالي.
+                    </p>
+                </div>
+            </div>
             <!-- بطاقة التحكم والعد التنازلي لمواقيت الصلاة -->
             <div class="prayer-times-card">
                 <div class="prayer-times-meta">
@@ -1046,6 +1046,9 @@
                     </div>
                 </div>
             </div>
+
+
+
         </div>
     </section>
     <!-- ==========================================
@@ -1196,10 +1199,6 @@
              ========================================== -->
         <section id="azkar" class="service-view-section azkar-section">
             <div class="container">
-                <div class="section-header">
-                    <span class="section-tag"><i class="fa-solid fa-sun"></i> حصن المسلم اليومي</span>
-                </div>
-
                 <!-- شريط التبديل بين باقات الأذكار المتنوعة -->
                 <div class="azkar-tab-controls" id="azkar-tab-controls">
                     <button type="button" class="azkar-tab-btn active" id="tab-morning" data-mode="morning">
@@ -1367,18 +1366,6 @@
          ========================================== -->
         <section id="daily-wird" class="service-view-section daily-wird-section">
             <div class="container">
-                <div class="section-header">
-                    <span class="section-tag">
-                        <i class="fa-solid fa-clipboard-check"></i>
-                        محاسبة النفس • المداومة على الطاعات
-                    </span>
-                    <p class="section-desc">
-                        اجعل لكل يوم نصيبًا من الطاعة، وراقب تقدمك في الصلاة وتلاوة القرآن
-                        والأذكار والأعمال الصالحة. فالقليل الدائم خيرٌ من الكثير المنقطع،
-                        وكل يوم فرصة جديدة لتزكية النفس والتقرب إلى الله.
-                    </p>
-                </div>
-
                 <div class="daily-wird-card">
                     <div class="wird-header-bar">
                         <div class="wird-streak-header-row">
@@ -1536,39 +1523,7 @@
                     </div>
                 </div>
             </article></div></section>
-        <section id="seven-day-challenge" class="service-view-section"><div class="container">            <article class="panel challenge">
-                <div class="sadaqa-top-row">
-                    <span class="challenge-badge"><i class="fa-solid fa-fire text-gold"></i> استقامة وذكر</span>
-                    <span class="sadaqa-subtle-tag"><i class="fa-solid fa-calendar-check"></i> 7 أيام</span>
-                </div>
 
-                <div class="challenge-header">
-                    <div class="challenge-icon-aura" aria-hidden="true">
-                        <i class="fa-solid fa-seedling"></i>
-                    </div>
-                    <div class="challenge-header-text">
-                        <h2>تحدي 7 أيام إيماني 🌟</h2>
-                        <p>ابدأ خطوة ثابتة في بناء عادة يومية خفيفة ترتقي بها من الذكر وتلاوة القرآن.</p>
-                    </div>
-                </div>
-
-                <div class="challenge-quote-card">
-                    <p class="challenge-quote-text">«أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ»</p>
-                    <span class="challenge-quote-ref"><i class="fa-solid fa-check"></i> متفق عليه</span>
-                </div>
-
-                <div class="sadaqa-features-pills">
-                    <div class="challenge-pill"><i class="fa-solid fa-clock-rotate-left"></i><span>دقائق يسيرة كل يوم</span></div>
-                    <div class="challenge-pill"><i class="fa-solid fa-chart-line"></i><span>متابعة تشجيعية للتقدم</span></div>
-                </div>
-
-                <div class="sadaqa-actions">
-                    <button class="btn outline challenge-cta-btn" id="btn-open-7days-challenge" type="button">
-                        <i class="fa-solid fa-compass"></i>
-                        <span>اكتشف التحدي وابدأ اليوم ←</span>
-                    </button>
-                </div>
-            </article></div></section>
         <section id="seasons" class="service-view-section seasons-section">
             <div class="container">
                 <div class="section-header">
@@ -1717,7 +1672,7 @@
         <section id="islamic-media" class="service-view-section islamic-media-section">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-tag"><i class="fa-solid fa-video"></i> مقتطفات إسلامي</span>
+                    <span class="section-tag"><i class="fa-solid fa-video"></i> مقتطفات إيمانية</span>
                     <p class="section-desc">
                         حلقات بودكاست نافعة، مواعظ خاشعة، تأملات قرآنية، وقصص ملهمة تثري عقلك وتطمئن قلبك بنية الصدقة الجارية.
                     </p>
@@ -1862,19 +1817,72 @@
         <!-- ==========================================
              قسم مسابقة واختبر معلوماتك الإسلامية (Islamic Quiz & Trivia)
              ========================================== -->
-        <section id="islamic-quiz" class="service-view-section quiz-section">
+        <section id="challenges" class="service-view-section">
+            <div class="container challenge-lobby" id="challenge-lobby" role="group" aria-label="اختر التحدي">
+                <button type="button" class="challenge-option challenge-option-quiz" data-challenge-mode="quiz" aria-controls="islamic-quiz">
+                    <span class="challenge-option-icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
+                    <span class="challenge-option-copy">
+                        <strong>المسابقة الإسلامية</strong>
+                        <span>٥ أسئلة في القرآن والسنة والسيرة</span>
+                    </span>
+                    <span class="challenge-option-action">
+                        <span>ابدأ الجولة</span>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </span>
+                </button>
+                <button type="button" class="challenge-option challenge-option-weekly" data-challenge-mode="weekly" aria-controls="seven-day-challenge">
+                    <span class="challenge-option-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
+                    <span class="challenge-option-copy">
+                        <strong>تحدي 7 أيام</strong>
+                        <span>خطوة بسيطة كل يوم</span>
+                    </span>
+                    <span class="challenge-option-action">
+                        <span>ادخل التحدي</span>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </span>
+                </button>
+            </div>
+        <section id="islamic-quiz" class="challenge-mode" hidden>
             <div class="container">
-                <div class="section-header">
-                    <span class="section-tag"><i class="fa-solid fa-trophy"></i> زَادُ الْمَعْرِفَةِ وَالْعِلْم</span>
-                    <p class="section-desc">
-                        مسابقة يومية سريعة وممتعة في القرآن الكريم والسنة النبوية والسيرة العطرة لنيل العلم والأجر والمشاركة.
-                    </p>
-                </div>
-
+                <p class="challenge-best-score" id="challenge-best-score" hidden>
+                    <i class="fa-solid fa-medal" aria-hidden="true"></i>
+                    <span>أفضل نتيجة لك</span>
+                    <output id="challenge-best-score-value" dir="ltr"></output>
+                </p>
                 <div class="quiz-container-card" id="quiz-container-card">
                     <!-- يُملأ برمجياً من quiz-data.js والمنطق التفاعلي -->
                 </div>
             </div>
+        </section>
+        <section id="seven-day-challenge" class="challenge-mode" hidden><div class="container">            <article class="panel challenge">
+                <div class="sadaqa-top-row">
+                    <span class="challenge-badge"><i class="fa-solid fa-fire text-gold"></i> استقامة وذكر</span>
+                    <span class="sadaqa-subtle-tag"><i class="fa-solid fa-calendar-check"></i> 7 أيام</span>
+                </div>
+
+                <div class="challenge-progress-summary">
+                    <label for="weekly-challenge-progress">تقدّمك في التحدي</label>
+                    <progress id="weekly-challenge-progress" max="7" value="0"></progress>
+                    <output id="weekly-challenge-count" for="weekly-challenge-progress" aria-live="polite">0 / 7</output>
+                </div>
+
+                <div class="challenge-quote-card">
+                    <p class="challenge-quote-text">«أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ تَعَالَى أَدْوَمُهَا وَإِنْ قَلَّ»</p>
+                    <span class="challenge-quote-ref"><i class="fa-solid fa-check"></i> متفق عليه</span>
+                </div>
+
+                <div class="sadaqa-features-pills">
+                    <div class="challenge-pill"><i class="fa-solid fa-clock-rotate-left"></i><span>دقائق يسيرة كل يوم</span></div>
+                    <div class="challenge-pill"><i class="fa-solid fa-chart-line"></i><span>متابعة تشجيعية للتقدم</span></div>
+                </div>
+
+                <div class="sadaqa-actions">
+                    <button class="btn outline challenge-cta-btn" id="btn-open-7days-challenge" type="button">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>اكتشف التحدي وابدأ اليوم ←</span>
+                    </button>
+                </div>
+            </article></div></section>
         </section>
 
 
@@ -3582,7 +3590,7 @@
         <nav class="mobilebar">
             <a href="index.html#home"><i class="fa-solid fa-house text-gold"></i>الرئيسية</a>
             <a href="services.html#daily-wird"><i class="fa-solid fa-leaf text-gold"></i>يومي</a>
-            <a href="#islamic-media"><i class="fa-solid fa-circle-play text-gold"></i>مقتطفات</a>
+            <a href="#islamic-media"><i class="fa-solid fa-circle-play text-gold"></i>مقتطفات إيمانية</a>
             <a href="services.html" class="active"><i class="fa-solid fa-layer-group text-gold"></i>الخدمات</a>
         </nav>
 
@@ -3621,6 +3629,8 @@
                 '#mood-compass-section':'حزن قلق خوف طمأنينة سكينة',
                 '#categorized-duas':'دعاء ادعية أدعية',
                 '#islamic-media':'فيديو فيديوهات مقتطفات بودكاست موعظة مواعظ استماع',
+                '#islamic-quiz':'مسابقة اختبار اختبر معلوماتك',
+                '#seven-day-challenge':'تحدي تحديات أسبوع سبعة أيام',
                 '#daily-wird':'الورد اليومي والمهام ورد مهام يومي متابعة'
             };
             function clearServicesSearch() { document.getElementById('servicesSearch').value='';filterServices();document.getElementById('servicesSearch').focus(); }
@@ -3712,7 +3722,7 @@
         <script src="assets/js/islamic-guide-data.js?v=1"></script>
         <script src="assets/js/daily-message-data.js?v=2"></script>
         <script src="assets/js/radio-stations-data.js?v=8"></script>
-        <script src="assets/js/quiz-data.js?v=2"></script>
+        <script src="assets/js/quiz-data.js?v=3"></script>
         <script src="assets/js/islamic-stories-data.js?v=3"></script>
         <script src="assets/js/media-data.js?v=2"></script>
         <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -3728,7 +3738,7 @@
     <script src="assets/js/radio-player.js?v=7"></script>
     <script src="assets/js/extended-modules.js?v=48"></script>
         <script src="assets/js/smart-khatma.js?v=4"></script>
-        <script src="assets/js/share-card-generator.js?v=2"></script>
+        <script src="assets/js/share-card-generator.js?v=3"></script>
         <script src="assets/js/mood-compass.js?v=1"></script>
         <script src="assets/js/smart-tasbih.js?v=1"></script>
         <script src="assets/js/zakat-calculator.js?v=1"></script>
@@ -3736,7 +3746,7 @@
         <script src="assets/js/wall-of-duas.js?v=2"></script>
         <script src="assets/js/prayer-guide.js?v=1"></script>
         <script src="assets/js/app-developer.js?v=5"></script>
-    <script src="assets/js/ask-zad-knowledge.js?v=2"></script>
+    <script src="assets/js/ask-zad-knowledge.js?v=4"></script>
         <script src="assets/js/ask-zad.js?v=10"></script>
 
         <!-- لوحة إجراءات الآية التفاعلية المتقدمة (Ayah Action Sheet) -->
@@ -3960,20 +3970,19 @@
             // خريطة أسماء وأيقونات الخدمات لوضع التركيز
             const SERVICE_TITLES = {
                 'smart-dhikr-panel': 'السبحة',
-                'seven-day-challenge': 'تحدي 7 أيام',
+                'challenges': 'مسابقات وتحديات',
                 'prayer-times': 'مواقيت الصلاة والقبلة 🕌',
                 'prayer-guide-section': 'دليل الصلاة الشامل • صفة صلاة النبي ﷺ 📖',
                 'nearby-mosques-section': 'أقرب المساجد إليك 📍',
                 'mood-compass-section': 'بوصلة القلوب',
                 'azkar': 'أذكار اليوم وحصن المسلم 🤲',
-                'spiritual-garden': 'حديقة الحسنات وشجرة الذكر التفاعلية 🌱',
-                'daily-wird': 'رحلتك الإيمانية اليوم',
+                'spiritual-garden': 'حديقة الحسنات',
+                'daily-wird': 'الورد اليومي',
                 'seasons': 'مواسم الخيرات والأيام الفاضلة 🌙',
                 'categorized-duas': 'الأدعية النبوية والقرآنية المصنفة 🤲',
                 'asmaa-allah': 'أسماء الله الحسنى ومعانيها ✨',
-                'islamic-media': 'مقتطفات',
+                'islamic-media': 'مقتطفات إيمانية',
                 'islamic-stories': 'مكتبة قصص الأنبياء وسير الصحابة الكرام 📜',
-                'islamic-quiz': 'مسابقة اختبر معلوماتك الدينية 🏆',
                 'zakat-calculator-section': 'حاسبة الزكاة الشرعية الشاملة 🪙',
                 'wall-of-duas': 'حائط الدعاء بظهر الغيب 🌟',
                 'prayers': 'أدعية الزوار',
@@ -3983,13 +3992,34 @@
                 'quran-khatma': 'المصحف الشريف والختمة الجماعية 📖'
             };
 
+            function findServiceSection(id) {
+                const sectionId = id === 'islamic-quiz' || id === 'seven-day-challenge' ? 'challenges' : id;
+                const section = document.getElementById(sectionId);
+                return section?.classList.contains('service-view-section') ? section : null;
+            }
+
+            function showChallengeMode(mode) {
+                document.getElementById('challenge-lobby').hidden = Boolean(mode);
+                document.querySelectorAll('[data-challenge-mode]').forEach(button => {
+                    document.getElementById(button.getAttribute('aria-controls')).hidden = button.dataset.challengeMode !== mode;
+                });
+            }
+
+            document.querySelectorAll('[data-challenge-mode]').forEach(button => {
+                button.addEventListener('click', () => {
+                    openServiceView('#challenges?mode=' + button.dataset.challengeMode);
+                    document.getElementById('btnServiceFocusBack').focus({ preventScroll: true });
+                });
+            });
+
             function openServiceView(serviceId, pushHistory = true) {
                 if (!serviceId) return;
                 const cleanId = serviceId.replace(/^#/, '').split('?')[0];
-                const targetSection = document.getElementById(cleanId);
+                const targetSection = findServiceSection(cleanId);
                 if (!targetSection) return;
 
-                if (pushHistory) saveServicesPosition();
+                const fromDirectory = !document.body.classList.contains('single-service-mode');
+                if (pushHistory && fromDirectory) saveServicesPosition();
                 document.body.classList.remove('services-hub-mode');
                 document.body.classList.add('single-service-mode');
 
@@ -4002,21 +4032,28 @@
                 const focusHeader = document.getElementById('serviceFocusHeader');
                 if (focusHeader) focusHeader.style.display = 'block';
 
+                const params = new URLSearchParams(serviceId.split('?')[1] || '');
+                const challengeMode = cleanId === 'seven-day-challenge' ? 'weekly' : cleanId === 'islamic-quiz' ? 'quiz' : params.get('mode');
                 const titleEl = document.getElementById('serviceFocusTitle');
                 if (titleEl) {
-                    titleEl.textContent = SERVICE_TITLES[cleanId] || (targetSection.querySelector('.section-title')?.textContent.trim() || 'الخدمة المحددة');
+                    const challengeTitle = targetSection.id === 'challenges' && (challengeMode === 'quiz' ? 'المسابقة الإسلامية' : challengeMode === 'weekly' ? 'تحدي 7 أيام' : '');
+                    titleEl.textContent = challengeTitle || SERVICE_TITLES[targetSection.id] || (targetSection.querySelector('.section-title')?.textContent.trim() || 'الخدمة المحددة');
                 }
 
                 if (pushHistory) {
                     const targetHash = '#' + serviceId.replace(/^#/, '');
                     if (window.location.hash !== targetHash) {
-                        history.pushState({ serviceId: cleanId }, '', targetHash);
+                        const state = { ...history.state, serviceId: cleanId, fromServicesDirectory: fromDirectory || history.state?.fromServicesDirectory === true };
+                        if (fromDirectory) history.pushState(state, '', targetHash);
+                        else history.replaceState(state, '', targetHash);
                     }
                 }
 
                 window.scrollTo({ top: 0, behavior: 'instant' });
 
-                const params = new URLSearchParams(serviceId.split('?')[1] || '');
+                if (targetSection.id === 'challenges') {
+                    showChallengeMode(challengeMode === 'quiz' || challengeMode === 'weekly' ? challengeMode : null);
+                }
                 if (cleanId === 'azkar' && ['morning','evening'].includes(params.get('tab'))) {
                     document.getElementById('tab-'+params.get('tab'))?.click();
                 }
@@ -4045,7 +4082,7 @@
             }
 
             function updateMobileBarActiveState(currentId) {
-                const activeId = (currentId || window.location.hash || '').replace(/^#/, '').split('?')[0];
+                const activeId = (currentId || '').replace(/^#/, '').split('?')[0];
                 const isMedia = (activeId === 'islamic-media');
                 const isDailyWird = (activeId === 'daily-wird');
 
@@ -4083,9 +4120,11 @@
                 const focusHeader = document.getElementById('serviceFocusHeader');
                 if (focusHeader) focusHeader.style.display = 'none';
 
-                if (pushHistory) {
-                    if (window.location.hash) {
-                        history.pushState({ serviceId: null }, '', window.location.pathname + window.location.search);
+                if (pushHistory && window.location.hash) {
+                    if (history.state?.fromServicesDirectory) {
+                        history.back();
+                    } else {
+                        history.replaceState({ ...history.state, serviceId: null }, '', window.location.pathname + window.location.search);
                     }
                 }
 
@@ -4099,19 +4138,19 @@
             window.addEventListener('popstate', () => {
                 if (window.location.hash) {
                     const cleanId = window.location.hash.substring(1).split('?')[0];
-                    const targetSection = document.getElementById(cleanId);
+                    const targetSection = findServiceSection(cleanId);
                     if (targetSection && targetSection.classList.contains('service-view-section')) {
                         openServiceView(window.location.hash, false);
                         return;
                     }
                 }
-                closeServiceFocusView(false);
+                if (document.body.classList.contains('single-service-mode')) closeServiceFocusView(false);
             });
 
             window.addEventListener('hashchange', () => {
                 const id=location.hash.slice(1).split('?')[0];
-                if (document.getElementById(id)?.classList.contains('service-view-section')) openServiceView(location.hash,false);
-                else if (!location.hash) closeServiceFocusView(false);
+                if (findServiceSection(id)) openServiceView(location.hash,false);
+                else if (!location.hash && document.body.classList.contains('single-service-mode')) closeServiceFocusView(false);
             });
 
             // تفعيل الخدمة تلقائياً إذا فُتحت الصفحة برابط مباشر يحمل هاش
@@ -4119,7 +4158,7 @@
                 if (!window.location.hash) restoreServicesPosition();
                 if (window.location.hash) {
                     const cleanId = window.location.hash.substring(1).split('?')[0];
-                    const targetSection = document.getElementById(cleanId);
+                    const targetSection = findServiceSection(cleanId);
                     if (targetSection && targetSection.classList.contains('service-view-section')) {
                         openServiceView(window.location.hash, false);
                     }
@@ -4153,7 +4192,7 @@
                     }
                     if (href && href.startsWith('#')) {
                         const cleanId = href.substring(1).split('?')[0];
-                        const targetEl = document.getElementById(cleanId);
+                        const targetEl = findServiceSection(cleanId);
                         if (targetEl && targetEl.classList.contains('service-view-section')) {
                             e.preventDefault();
                             openServiceView(href, true);
@@ -4176,10 +4215,10 @@
                     } else if (href.startsWith('#') || href.startsWith('services.html#')) {
                         const hashPart = href.includes('#') ? href.slice(href.indexOf('#') + 1) : '';
                         const cleanId = hashPart.split('?')[0];
-                        const targetSection = document.getElementById(cleanId);
+                        const targetSection = findServiceSection(cleanId);
                         if (targetSection && targetSection.classList.contains('service-view-section')) {
                             e.preventDefault();
-                            openServiceView(cleanId, true);
+                            openServiceView(hashPart, true);
                         }
                     }
                 });

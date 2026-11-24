@@ -4,7 +4,7 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v197";
+const CACHE_NAME = "zad-muslim-v212";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/service-translations.js?v=2",
@@ -15,7 +15,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/app.js?v=36",
   "./assets/css/loading-indicator.css?v=1",
   "./assets/js/route-loading.js?v=2",
-  "./assets/js/i18n-dictionary.js?v=17",
+  "./assets/js/i18n-dictionary.js?v=18",
   "./assets/css/i18n.css?v=8",
   "./assets/css/quran-reading.css?v=4",
   "./assets/js/app-developer.js?v=5",
@@ -51,7 +51,7 @@ const ASSETS_TO_CACHE = [
   "./assets/js/reading-font.js?v=6",
   "./assets/css/reading-font.css?v=4",
   "./assets/js/ask-zad.js?v=10",
-  "./assets/js/ask-zad-knowledge.js?v=3",
+  "./assets/js/ask-zad-knowledge.js?v=4",
   "./assets/css/ask-zad.css?v=9",
   "./assets/js/services-personal.js?v=5",
   "./assets/css/services-personal.css?v=10",
@@ -75,7 +75,8 @@ const ASSETS_TO_CACHE = [
   "./assets/js/islamic-guide-data.js?v=1",
   "./assets/js/daily-message-data.js?v=2",
   "./assets/js/radio-stations-data.js?v=8",
-  "./assets/js/quiz-data.js?v=2",
+  "./assets/js/quiz-data.js?v=3",
+  "./assets/js/daily-quiz.js?v=3",
   "./assets/js/islamic-stories-data.js?v=3",
   "./assets/js/media-data.js?v=2",
   "./assets/js/firebase-config.js",
@@ -84,7 +85,8 @@ const ASSETS_TO_CACHE = [
   "./assets/js/quran.js?v=31",
   "./assets/js/home-prayer-display.js?v=2",
   "./assets/js/smart-khatma.js?v=4",
-  "./assets/js/share-card-generator.js?v=2",
+  "./assets/js/share-card-generator.js?v=3",
+  "./assets/branding/app-logo.png",
   "./assets/js/mood-compass.js?v=1",
   "./assets/js/smart-tasbih.js?v=1",
   "./assets/js/prayer-guide.js?v=1",
