@@ -11,6 +11,7 @@
     const STORAGE_KEY_LIFETIME = "zad_tasbih_lifetime_count";
     const STORAGE_KEY_TODAY = "zad_tasbih_today_count";
     const STORAGE_KEY_TODAY_DATE = "zad_tasbih_today_date";
+    const STORAGE_KEY_ROUND = "zad_tasbih_round";
     const STORAGE_KEY_SOUND = "zad_tasbih_sound_enabled";
     const STORAGE_KEY_HAPTIC = "zad_tasbih_haptic_enabled";
 
@@ -77,6 +78,7 @@
     const SmartTasbih = {
         init() {
             this.loadStats();
+            this.loadRound();
             this.renderPanelChips();
             this.updatePanelUI();
         },
@@ -111,6 +113,32 @@
                 localStorage.setItem(STORAGE_KEY_TODAY, todayCount.toString());
                 localStorage.setItem(STORAGE_KEY_TODAY_DATE, getTodayKey());
             } catch (e) {}
+        },
+
+        loadRound() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_ROUND));
+                const index = saved?.activeZkrIndex;
+                if (!Number.isInteger(index) || !PRESET_ATHKAR[index]) return;
+
+                activeZkrIndex = index;
+                currentTarget = [0, 33, 100].includes(saved.target)
+                    ? saved.target
+                    : PRESET_ATHKAR[index].defaultTarget;
+                const count = saved.count;
+                currentRoundCount = Number.isSafeInteger(count) && count >= 0 && (currentTarget === 0 || count < currentTarget)
+                    ? count
+                    : 0;
+            } catch (_) {}
+        },
+
+        saveRound() {
+            try {
+                const count = currentTarget > 0 && currentRoundCount >= currentTarget ? 0 : currentRoundCount;
+                localStorage.setItem(STORAGE_KEY_ROUND, JSON.stringify({
+                    activeZkrIndex, target: currentTarget, count
+                }));
+            } catch (_) {}
         },
 
         playBeadClick() {
@@ -191,11 +219,12 @@
         },
 
         switchZkr(index) {
-            if (index < 0 || index >= PRESET_ATHKAR.length) return;
+            if (!Number.isInteger(index) || !PRESET_ATHKAR[index]) return;
             activeZkrIndex = index;
             currentRoundCount = 0;
             const zkr = PRESET_ATHKAR[index];
             currentTarget = zkr.defaultTarget;
+            this.saveRound();
             this.updatePanelUI();
             this.triggerHaptic("click");
         },
@@ -211,8 +240,10 @@
         },
 
         setTarget(target, el) {
+            if (![0, 33, 100].includes(target)) return;
             currentTarget = target;
             currentRoundCount = 0;
+            this.saveRound();
             this.updatePanelUI();
             this.triggerHaptic("click");
             if (typeof window.showToast === "function") {
@@ -227,6 +258,7 @@
             lifetimeCount++;
 
             this.saveStats();
+            this.saveRound();
             this.playBeadClick();
             this.triggerHaptic("click");
 
@@ -307,6 +339,7 @@
         resetCurrentRound() {
             currentRoundCount = 0;
             sessionCount = 0;
+            this.saveRound();
             try { localStorage.setItem("zadCount", "0"); } catch (_) {}
             if (typeof window.c !== 'undefined') window.c = 0;
             this.updatePanelUI();
@@ -427,7 +460,7 @@
         },
 
         // عدم فتح أي نافذة منبثقة، بل التمرير للوحة الذكر مباشرة إن لزم الأمر
-        openModal(initialIdx = 0) {
+        openModal(initialIdx) {
             if (typeof initialIdx === "number" && initialIdx >= 0 && initialIdx < PRESET_ATHKAR.length) {
                 this.switchZkr(initialIdx);
             }

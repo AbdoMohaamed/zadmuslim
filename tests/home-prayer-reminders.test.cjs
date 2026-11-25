@@ -36,7 +36,7 @@ function setup(hour, minute = 0, day = 27) {
     const w = dom.window, NativeDate = w.Date;
     w.Date = class extends NativeDate { constructor(...args) { super(...(args.length ? args : [2026, 9, day, hour, minute])); } };
     w.prayerTimings = timings;
-    w.localStorage.setItem('zad_prayer_verified',JSON.stringify({offset:new w.Date().getTimezoneOffset(),zone:w.Intl.DateTimeFormat().resolvedOptions().timeZone}));
+    w.localStorage.setItem('zad_prayer_verified',JSON.stringify({date:new w.Date().toLocaleDateString('en-CA'),city:'Cairo',method:'',school:'0',offset:new w.Date().getTimezoneOffset(),zone:w.Intl.DateTimeFormat().resolvedOptions().timeZone}));
     w.eval(helpers + '\n' + strip);
     return dom;
 }
@@ -50,14 +50,72 @@ test('daily reminders retain priority on Friday and follow city times', () => {
     const d=setup(5,30,30),w=d.window;
     try {
         const slot=(h,m=0,t=timings)=>w.getHomeReminderSlot(new w.Date(2026,9,30,h,m),t);
-        assert.equal(slot(5,30),'morning_azkar'); assert.equal(slot(10),'duha_prayer'); assert.equal(slot(12),'friday_kahf'); assert.equal(slot(16),'evening_azkar'); assert.equal(slot(3),'night_qiyam_sahoor'); assert.equal(slot(21),'night_mulk');
+        assert.equal(slot(5,30),'morning_azkar'); assert.equal(slot(10),'duha_prayer'); assert.equal(slot(12),'friday_kahf'); assert.equal(slot(15),'evening_azkar'); assert.equal(slot(3),'night_qiyam_sahoor'); assert.equal(slot(21),'night_mulk');
         assert.equal(slot(5,30,{...timings,Fajr:'07:00',Sunrise:'08:30'}),'night_qiyam_sahoor');
         assert.equal(slot(10,0,null),'noon_quran');
     } finally { w.close(); }
 });
+test('Friday Kahf returns after the evening adhkar window and fasting eve lasts past Isha', () => {
+    const dom = setup(12), w = dom.window;
+    try {
+        const slot = (day, hour, minute = 0) => w.getHomeReminderSlot(new w.Date(2026, 9, day, hour, minute), timings);
+        assert.equal(slot(30, 15, 29), 'evening_azkar');
+        assert.equal(slot(30, 15, 30), 'friday_kahf');
+        assert.equal(slot(30, 17, 59), 'friday_kahf');
+        assert.equal(slot(30, 18), 'maghrib_isha_awabin');
+        for (const day of [25, 28]) {
+            assert.equal(slot(day, 18), 'eve_fasting');
+            assert.equal(slot(day, 20), 'eve_fasting');
+            assert.equal(slot(day, 23, 59), 'eve_fasting');
+            assert.equal(slot(day + 1, 0), 'night_mulk');
+        }
+    } finally { w.close(); }
+});
+
 test('dismissed reminder still installs refresh and next slot can appear', () => {
     const d=setup(5,30),w=d.window;
     try { w.document.body.insertAdjacentHTML('beforeend','<div id="smart-reminder-banner"></div>'); let intervals=0; w.setInterval=()=>{intervals++;}; w.sessionStorage.setItem('reminder_dismissed_morning_azkar_2026-10-27','1'); w.initSmartTimelyReminders(); assert.equal(intervals,1); assert.equal(w.document.getElementById('smart-reminder-banner').style.display,'none'); w.prayerTimings=null; w.initSmartTimelyReminders(); assert.equal(w.document.getElementById('smart-reminder-banner').style.display,'flex'); assert.equal(intervals,1); } finally {w.close();}
+});
+
+test('automatic updates respect home customization and re-enabling respects a dismissed reminder', async () => {
+    const dom = setup(5, 30), w = dom.window;
+    try {
+        w.document.body.insertAdjacentHTML('beforeend', '<div id="smart-reminder-banner"><button class="btn-dismiss-reminder"></button></div>');
+        const banner = w.document.getElementById('smart-reminder-banner');
+        let refresh;
+        w.setInterval = callback => { refresh = callback; };
+        w.eval(fs.readFileSync('assets/js/user-tools.js', 'utf8'));
+        w.initSmartTimelyReminders();
+        assert.equal(banner.style.display, 'flex');
+
+        w.ZadHomeSections.setHomeSectionVisible('smart_reminder', false);
+        refresh();
+        w.document.dispatchEvent(new w.Event('zad:prayer-updated'));
+        await new Promise(resolve => w.setTimeout(resolve, 0));
+        assert.equal(banner.style.display, 'none');
+
+        w.ZadHomeSections.setHomeSectionVisible('smart_reminder', true);
+        assert.equal(banner.style.display, 'flex');
+        banner.querySelector('button').click();
+        w.ZadHomeSections.setHomeSectionVisible('smart_reminder', false);
+        w.ZadHomeSections.setHomeSectionVisible('smart_reminder', true);
+        assert.equal(banner.style.display, 'none');
+    } finally { w.close(); }
+});
+
+test('home ignores in-memory times from a previous day, city or calculation setting', () => {
+    const dom = setup(5, 30), w = dom.window;
+    try {
+        const key = 'zad_prayer_verified';
+        const verified = JSON.parse(w.localStorage.getItem(key));
+        assert.equal(w.getHomeReminderSlot(new w.Date(), w.readHomePrayerTimings()), 'morning_azkar');
+
+        for (const mismatch of [{ date: '2000-01-01' }, { city: 'Riyadh' }, { method: '4' }, { school: '1' }]) {
+            w.localStorage.setItem(key, JSON.stringify({ ...verified, ...mismatch }));
+            assert.equal(w.readHomePrayerTimings(), null);
+            assert.equal(w.getHomeReminderSlot(new w.Date(), w.readHomePrayerTimings()), 'noon_quran');
+        }
+    } finally { w.close(); }
 });
 
 test('home card renders saved same-day city timings before the rest of the app loads', () => {

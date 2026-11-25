@@ -4,15 +4,15 @@
  * يمنع أخطاء التوجيه "Response served by service worker has redirections"
  */
 
-const CACHE_NAME = "zad-muslim-v212";
+const CACHE_NAME = "zad-muslim-v217";
 const QURAN_CACHE_NAME = "sadqah-quran-cache-v1";
 const ASSETS_TO_CACHE = [
   "./assets/js/service-translations.js?v=2",
-  "./assets/js/extended-modules.js?v=48",
+  "./assets/js/extended-modules.js?v=50",
   "./assets/js/reading-font.js?v=7",
   "./assets/js/i18n.js?v=20",
   "./assets/css/i18n.css?v=10",
-  "./assets/js/app.js?v=36",
+  "./assets/js/app.js?v=37",
   "./assets/css/loading-indicator.css?v=1",
   "./assets/js/route-loading.js?v=2",
   "./assets/js/i18n-dictionary.js?v=18",
@@ -83,14 +83,14 @@ const ASSETS_TO_CACHE = [
   "./assets/js/native-adhan-service.js?v=18",
   "./assets/js/onesignal-service.js?v=4",
   "./assets/js/quran.js?v=31",
-  "./assets/js/home-prayer-display.js?v=2",
+  "./assets/js/home-prayer-display.js?v=3",
   "./assets/js/smart-khatma.js?v=4",
   "./assets/js/share-card-generator.js?v=3",
   "./assets/branding/app-logo.png",
   "./assets/js/mood-compass.js?v=1",
-  "./assets/js/smart-tasbih.js?v=1",
+  "./assets/js/smart-tasbih.js?v=2",
   "./assets/js/prayer-guide.js?v=1",
-  "./assets/js/user-tools.js?v=14",
+  "./assets/js/user-tools.js?v=15",
   "./assets/js/zakat-calculator.js?v=1",
   "./assets/js/nearby-mosques.js?v=13",
   "./assets/js/wall-of-duas.js?v=2",
@@ -102,7 +102,7 @@ const ASSETS_TO_CACHE = [
   "./assets/css/settings-review.css?v=10",
   "./assets/js/prayer-cities.js?v=1",
   "./privacy.html",
-  "./assets/js/user-tools.js?v=14",
+  "./assets/js/user-tools.js?v=15",
   "./assets/css/user-tools.css?v=7",
   "./assets/css/style.css",
   "./assets/images/logo.png",

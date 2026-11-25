@@ -502,9 +502,11 @@
         const reminderEl = $('smart-reminder-banner');
         if (reminderEl) {
             if (!isVisible('smart_reminder')) {
-                reminderEl.style.setProperty('display', 'none', 'important');
-            } else if (reminderEl.style.display === 'none' && reminderEl.style.getPropertyPriority('display') === 'important') {
-                reminderEl.style.removeProperty('display');
+                reminderEl.dataset.reminderDisabled = 'true';
+                reminderEl.style.display = 'none';
+            } else if (reminderEl.dataset.reminderDisabled === 'true') {
+                delete reminderEl.dataset.reminderDisabled;
+                window.initSmartTimelyReminders?.();
             }
         }
 

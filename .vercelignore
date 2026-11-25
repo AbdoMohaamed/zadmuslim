@@ -10,3 +10,12 @@ store-assets
 *.keystore
 *.pem
 *.key
+/*.apk
+/*.aab
+/*.aap
+/*.log
+/*.binlog
+/scratch/
+/test-results/
+/artifacts/
+/screenshot-*.png

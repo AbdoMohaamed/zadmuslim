@@ -3,13 +3,19 @@
     const valid = t => t && ['Fajr','Dhuhr','Asr','Maghrib','Isha'].every(k => /^(?:[01]\d|2[0-3]):[0-5]\d(?:\s|$)/.test(t[k] || ''));
     const signature = () => JSON.stringify([localStorage.getItem('selected_prayer_city'), localStorage.getItem('zad_prayer_method') || '', localStorage.getItem('zad_prayer_school') || '0', localStorage.getItem('gps_prayer_coords'), Intl.DateTimeFormat().resolvedOptions().timeZone,new Date().getTimezoneOffset()]);
     function readHomePrayerTimings() {
-        if (valid(window.prayerTimings)) {
-            try { const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
-                if (verified && verified.offset === new Date().getTimezoneOffset() && verified.zone === Intl.DateTimeFormat().resolvedOptions().timeZone) return window.prayerTimings;
-            } catch (_) {}
-        }
+        const now = new Date();
+        const today = now.toLocaleDateString('en-CA');
         try {
-            const today = new Date().toLocaleDateString('en-CA'), key = signature();
+            const verified = JSON.parse(localStorage.getItem('zad_prayer_verified') || 'null');
+            if (valid(window.prayerTimings) && verified?.date === today &&
+                verified.city === (localStorage.getItem('selected_prayer_city') || 'Cairo') &&
+                verified.method === (localStorage.getItem('zad_prayer_method') || '') &&
+                verified.school === (localStorage.getItem('zad_prayer_school') === '1' ? '1' : '0') &&
+                verified.offset === now.getTimezoneOffset() &&
+                verified.zone === Intl.DateTimeFormat().resolvedOptions().timeZone) return window.prayerTimings;
+        } catch (_) {}
+        try {
+            const key = signature();
             const saved = JSON.parse(localStorage.getItem('zad_home_prayer_snapshot') || 'null');
             if (saved?.date === today && saved.signature === key && valid(saved.timings)) return saved.timings;
             const calendar = JSON.parse(localStorage.getItem('zad_alarm_days') || 'null');

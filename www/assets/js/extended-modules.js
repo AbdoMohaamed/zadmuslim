@@ -3357,12 +3357,13 @@ function getHomeReminderSlot(now, timings) {
     const morningEnd = Number.isFinite(sunrise) ? Math.min(sunrise + 60, dhuhr) : Math.min(fajr + 180, dhuhr);
     if (t >= fajr && t < morningEnd) return 'morning_azkar';
     if (Number.isFinite(sunrise) && t >= morningEnd && t < dhuhr - 15) return 'duha_prayer';
-    if (t >= asr && t < maghrib) return 'evening_azkar';
-    // Weekly reminders never displace the time-specific daily adhkar.
     const day = now.getDay();
-    if ((day === 4 && t >= maghrib && t < isha) || (day === 5 && t >= dhuhr - 15 && t < asr)) return 'friday_kahf';
+    const fridayEveningStart = asr + 30;
+    if ((day === 4 && t >= maghrib && t < isha) ||
+        (day === 5 && ((t >= dhuhr - 15 && t < asr) || (t >= fridayEveningStart && t < maghrib)))) return 'friday_kahf';
+    if (t >= asr && t < maghrib) return 'evening_azkar';
     if ((day === 1 || day === 4) && t >= dhuhr - 15 && t < asr) return 'fasting';
-    if ((day === 0 || day === 3) && t >= maghrib && t < isha) return 'eve_fasting';
+    if ((day === 0 || day === 3) && t >= maghrib) return 'eve_fasting';
     if (t >= maghrib && t < isha) return 'maghrib_isha_awabin';
     if (t >= isha || t < fajr) return 'night_mulk';
     return 'noon_quran';
@@ -3382,6 +3383,8 @@ function initSmartTimelyReminders() {
         document.addEventListener('visibilitychange', () => { if (!document.hidden) initSmartTimelyReminders(); });
         document.addEventListener('zad:prayer-updated', () => setTimeout(initSmartTimelyReminders, 0));
     }
+    if (banner.dataset.reminderDisabled === 'true') return;
+
     const slot = getHomeReminderSlot(now, getHomePrayerTimings());
     let reminderConfig = null;
 

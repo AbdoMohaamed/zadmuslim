@@ -1,4 +1,6 @@
-window.ZAD_APP_SHARE_URL = "https://play.google.com/store/apps/details?id=com.abdomohamed.zadmuslim";
+window.ZAD_APP_SHARE_URL = window.Capacitor?.isNativePlatform?.() && window.Capacitor?.getPlatform?.() === 'android'
+    ? 'https://play.google.com/store/apps/details?id=com.abdomohamed.zadmuslim'
+    : 'https://zadmuslim-zeta.vercel.app/';
 
 /**
  * الرابط العام المعتمد للمشاركة والإهداء في الويب وتطبيق الهاتف
